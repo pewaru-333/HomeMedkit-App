@@ -1,0 +1,1 @@
+Application with medicines storing and intakes reminders
