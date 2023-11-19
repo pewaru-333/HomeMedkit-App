@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Аптечка</string>
+    <string name="bottom_bar_intakes">Приём</string>
+    <string name="bottom_bar_main">Главная</string>
+    <string name="bottom_bar_medicines">Лекарства</string>
+    <string name="bottom_bar_settings">Настройки</string>
+    <string name="exp_date_until">до %1$s </string>
+    <string name="intake_daily_interval">Укажите интервал (раз в N дней)</string>
+    <string name="intake_daily_period">Укажите продолжительность (в днях)</string>
+    <string name="intake_hourly_interval">Укажите количество приёмов в день</string>
+    <string name="intake_time_placeholder">Время #%1$d</string>
+    <string name="intake_weekly_interval">Укажите продолжительность (в неделях)</string>
+    <string name="intake_weekly_period_choose_day">Выберите день приёма</string>
+    <string name="notification_channel_description">Напоминания о приёме лекарств</string>
+    <string name="notification_channel_name">Звуковые уведомления</string>
+    <string name="preference_language">Язык приложения</string>
+    <string name="preference_sorting_type">Сортировка лекарств</string>
+    <string name="preference_start_page">Стартовая страница</string>
+    <string name="sorting_a_z">Названию (от А до Я)</string>
+    <string name="sorting_from_newest">Сроку годности (с новых)</string>
+    <string name="sorting_from_oldest">Сроку годности (со старых)</string>
+    <string name="sorting_z_a">Названию (от Я до А)</string>
+    <string name="text_cancel">Отменить</string>
+    <string name="text_choose_time">Выберите время</string>
+    <string name="text_confirm_exit">Подтвердите выход</string>
+    <string name="text_connection_error">Ошибка при подключении!</string>
+    <string name="text_data_matrix_scanner">Сканирование маркировки лекарства</string>
+    <string name="text_delete">Удалить</string>
+    <string name="text_do_intake">Примите лекарство</string>
+    <string name="text_enter_exp_date">Введите срок годности</string>
+    <string name="text_enter_product_name">Введите название лекарства</string>
+    <string name="text_fill_all_fields">Заполните все поля!</string>
+    <string name="text_intake_medicine_finish">Конец</string>
+    <string name="text_intake_start">Начало</string>
+    <string name="text_intake_time">Время приёма лекарства\u0020</string>
+    <string name="text_manual_adding">Хотите добавить лекарство вручную?</string>
+    <string name="text_medicine_amount_not_enough">, но его количество меньше предписанного!</string>
+    <string name="text_medicine_amount">Количество лекарства</string>
+    <string name="text_medicine_card_exp_date_format">ММ/ГГГГ</string>
+    <string name="text_medicine_comment">Комментарий</string>
+    <string name="text_medicine_description">Описание</string>
+    <string name="text_medicine_doze">Дозировка</string>
+    <string name="text_medicine_duplicate">Лекарство уже было добалено</string>
+    <string name="text_medicine_expiration_date">Срок годности</string>
+    <string name="text_medicine_form_name">Тип лекарства</string>
+    <string name="text_medicine_intake_interval">Интервал приёма</string>
+    <string name="text_medicine_intake_period">Период</string>
+    <string name="text_medicine_name">Лекарство</string>
+    <string name="text_medicine_product_name">Название</string>
+    <string name="text_more">Ещё</string>
+    <string name="text_no_data_found">Ничего не найдено!</string>
+    <string name="text_no">Нет</string>
+    <string name="text_placeholder">N</string>
+    <string name="text_reschedule_alarms">Переназначение оповещений о приёме лекарств</string>
+    <string name="text_save">Сохранить</string>
+    <string name="text_self_medicine_adding">Добавление лекарства вручную</string>
+    <string name="text_sort_type">Сортировать по</string>
+    <string name="text_sorting">Сортировка</string>
+    <string name="text_sure_to_exit">Вы точно хотите выйти из приложения?</string>
+    <string name="text_to_create">Создать</string>
+    <string name="text_to_scan">Отсканировать</string>
+    <string name="text_unknown_error">Неизвестная ошибка</string>
+    <string name="text_wrong_code">Неверный код!</string>
+    <string name="text_wrong_interval">Неверный интервал!</string>
+    <string name="text_wrong_period">Неверный период!</string>
+    <string name="text_yes">Да</string>
+
+    <string-array name="languages_name">
+        <item>Русский</item>
+        <item>Английский</item>
+    </string-array>
+
+    <string-array name="sorting_types_name">
+        <item>Название (от А до Я)</item>
+        <item>Название (от Я до А)</item>
+        <item>Срок годности (со старых)</item>
+        <item>Срок годности (с новых)</item>
+    </string-array>
+
+    <string-array name="fragment_pages_name">
+        <item>@string/bottom_bar_main</item>
+        <item>@string/bottom_bar_medicines</item>
+        <item>@string/bottom_bar_intakes</item>
+        <item>@string/bottom_bar_settings</item>
+    </string-array>
+
+    <string-array name="app_themes_name">
+        <item>Системная</item>
+        <item>Светлая</item>
+        <item>Тёмная</item>
+    </string-array>
+
+    <string-array name="interval_types_name">
+        <item>несколько раз в день</item>
+        <item>ежедневно</item>
+        <item>еженедельно</item>
+        <item>другой</item>
+    </string-array>
+
+    <string-array name="period_types_name">
+        <item>неделя</item>
+        <item>месяц</item>
+        <item>другой</item>
+    </string-array>
+
+    <string-array name="months_name">
+        <item>Январь</item>
+        <item>Февраль</item>
+        <item>Март</item>
+        <item>Апрель</item>
+        <item>Май</item>
+        <item>Июнь</item>
+        <item>Июль</item>
+        <item>Август</item>
+        <item>Сентябрь</item>
+        <item>Октябрь</item>
+        <item>Ноябрь</item>
+        <item>Декабрь</item>
+    </string-array>
+    <string name="text_app_theme">Тема приложения</string>
+    <string name="text_period_start_date">Начальная дата</string>
+    <string name="text_period_finish_date">Конечная дата</string>
+</resources>

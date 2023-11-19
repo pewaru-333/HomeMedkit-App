@@ -1,0 +1,162 @@
+<resources>
+    <string name="app_name">Medkit</string>
+    <string name="bottom_bar_intakes">Intakes</string>
+    <string name="bottom_bar_main">Home</string>
+    <string name="bottom_bar_medicines">Medicines</string>
+    <string name="bottom_bar_settings">Settings</string>
+    <string name="exp_date_until">"to %1$s "</string>
+    <string name="intake_daily_interval">Specify the interval (once every N days)</string>
+    <string name="intake_daily_period">Specify the duration (in days)</string>
+    <string name="intake_hourly_interval">Specify the number of receptions per day</string>
+    <string name="intake_time_placeholder">Time #%1$d</string>
+    <string name="intake_weekly_interval">Specify the duration (in weeks)</string>
+    <string name="intake_weekly_period_choose_day">Choose the day of intake</string>
+    <string name="notification_channel_description">Medication reminders</string>
+    <string name="notification_channel_name">Sound notifications</string>
+    <string name="preference_language">App language</string>
+    <string name="preference_sorting_type">Medicine sorting</string>
+    <string name="preference_start_page">Home page</string>
+    <string name="sorting_a_z">Alphabetically (A to z)</string>
+    <string name="sorting_from_newest">Expiration date (from newest)</string>
+    <string name="sorting_from_oldest">Expiration date (from oldest)</string>
+    <string name="sorting_z_a">Alphabetically (z to A)</string>
+    <string name="text_cancel">Cancel</string>
+    <string name="text_choose_time">Pick time</string>
+    <string name="text_confirm_exit">Confirm exit</string>
+    <string name="text_connection_error">Connection error!</string>
+    <string name="text_data_matrix_scanner">Scanning DataMatrix label (only for RU)</string>
+    <string name="text_delete">Delete</string>
+    <string name="text_do_intake">Do intake</string>
+    <string name="text_enter_exp_date">Enter the expiration date</string>
+    <string name="text_enter_product_name">Enter medicine name</string>
+    <string name="text_fill_all_fields">Fill all fields!</string>
+    <string name="text_intake_medicine_finish">Finish</string>
+    <string name="text_intake_start">Start</string>
+    <string name="text_intake_time">It\'s time to intake\\u0020</string>
+    <string name="text_manual_adding">Do you want to add medicine manually?</string>
+    <string name="text_medicine_amount_not_enough">, but its quantity is less than prescribed!</string>
+    <string name="text_medicine_amount">Medicine amount</string>
+    <string name="text_medicine_card_exp_date_format">MM/YYYY</string>
+    <string name="text_medicine_comment">Comment</string>
+    <string name="text_medicine_description">Description</string>
+    <string name="text_medicine_doze">Doze</string>
+    <string name="text_medicine_duplicate">The medicine has already been added</string>
+    <string name="text_medicine_expiration_date">Expiration date</string>
+    <string name="text_medicine_form_name">Medicine form</string>
+    <string name="text_medicine_intake_interval">Intake interval</string>
+    <string name="text_medicine_intake_period">Period</string>
+    <string name="text_medicine_name">Medicine</string>
+    <string name="text_medicine_product_name">Product name</string>
+    <string name="text_more">More</string>
+    <string name="text_no_data_found">Nothing found!</string>
+    <string name="text_no">No</string>
+    <string name="text_placeholder">N</string>
+    <string name="text_reschedule_alarms">Reassigning medication alerts</string>
+    <string name="text_save">Save</string>
+    <string name="text_self_medicine_adding">Manual medicine adding</string>
+    <string name="text_sort_type">Sorting type</string>
+    <string name="text_sorting">Sorting</string>
+    <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
+    <string name="text_to_create">To create</string>
+    <string name="text_to_scan">To scan</string>
+    <string name="text_unknown_error">Unknown error!</string>
+    <string name="text_wrong_code">Wrong code!</string>
+    <string name="text_wrong_interval">Wrong interval!</string>
+    <string name="text_wrong_period">Wrong period!</string>
+    <string name="text_yes">Yes</string>
+    <string name="text_app_theme">App theme</string>
+    <string name="text_period_start_date">Start date</string>
+    <string name="text_period_finish_date">Finish date</string>
+
+    <string-array name="languages">
+        <item>ru</item>
+        <item>en</item>
+    </string-array>
+
+    <string-array name="languages_name">
+        <item>Russian</item>
+        <item>English</item>
+    </string-array>
+
+    <string-array name="sorting_types">
+        <item>A-z</item>
+        <item>z-A</item>
+        <item>old-new</item>
+        <item>new-old</item>
+    </string-array>
+
+    <string-array name="sorting_types_name">
+        <item>Alphabetically (A to Z)</item>
+        <item>Alphabetically (Z to a)</item>
+        <item>Expiration date (from oldest)</item>
+        <item>Expiration date (from newest)</item>
+    </string-array>
+
+    <string-array name="fragment_pages">
+        <item>Home</item>
+        <item>Medicines</item>
+        <item>Intakes</item>
+        <item>Settings</item>
+    </string-array>
+
+    <string-array name="fragment_pages_name">
+        <item>Home</item>
+        <item>Medicines</item>
+        <item>Intakes</item>
+        <item>Settings</item>
+    </string-array>
+
+    <string-array name="app_themes">
+        <item>System</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+
+    <string-array name="app_themes_name">
+        <item>System</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+
+    <string-array name="interval_types">
+        <item>hourly</item>
+        <item>daily</item>
+        <item>weekly</item>
+        <item>custom</item>
+    </string-array>
+
+    <string-array name="interval_types_name">
+        <item>hourly</item>
+        <item>daily</item>
+        <item>weekly</item>
+        <item>custom</item>
+    </string-array>
+
+    <string-array name="period_types">
+        <item>week</item>
+        <item>month</item>
+        <item>other</item>
+    </string-array>
+
+    <string-array name="period_types_name">
+        <item>week</item>
+        <item>month</item>
+        <item>other</item>
+    </string-array>
+
+    <string-array name="months_name">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+
+</resources>

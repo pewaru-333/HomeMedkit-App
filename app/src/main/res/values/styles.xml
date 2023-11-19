@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ButtonSortingType" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.None</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="CardPickAction" parent="Widget.Material3.CardView.Elevated">
+        <item name="android:layout_width">160dp</item>
+        <item name="android:layout_height">200dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:backgroundTint">?attr/colorSurfaceContainer</item>
+    </style>
+
+    <style name="TextCardPickAction" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">120dp</item>
+        <item name="android:layout_marginLeft">10dp</item>
+        <item name="android:layout_marginRight">10dp</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:textColor">@color/md_theme_light_onSecondaryContainer</item>
+    </style>
+
+    <style name="ImageCardPickAction">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">96dp</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
+    <style name="SearchBar" parent="ThemeOverlay.Material3.TextInputEditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="background">@android:color/transparent</item>
+        <item name="android:inputType">text</item>
+    </style>
+
+    <style name="TextInputMedicineScanned" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="android:layout_width">220dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:gravity">start</item>
+        <item name="android:textColorHint">@color/md_theme_dark_outline</item>
+        <item name="hintTextAppearance">@style/TextAppearance.Material3.BodyMedium</item>
+    </style>
+
+    <style name="EditTextMedicineScanned" parent="ThemeOverlay.Material3.TextInputEditText.OutlinedBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:cursorVisible">false</item>
+        <item name="android:focusableInTouchMode">false</item>
+        <item name="android:inputType">none</item>
+        <item name="android:textColor">@color/md_theme_light_onBackground</item>
+        <item name="android:textAppearance">@style/TextAppearance.Material3.BodyLarge</item>
+    </style>
+
+</resources>

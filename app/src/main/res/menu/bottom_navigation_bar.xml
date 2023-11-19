@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/bottom_menu_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/vector_home"
+        android:title="@string/bottom_bar_main" />
+    <item
+        android:id="@+id/bottom_menu_medicines"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/vector_medicine"
+        android:title="@string/bottom_bar_medicines" />
+    <item
+        android:id="@+id/bottom_menu_intakes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/vector_time"
+        android:title="@string/bottom_bar_intakes" />
+    <item
+        android:id="@+id/bottom_menu_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:icon="@drawable/vector_settings"
+        android:title="@string/bottom_bar_settings" />
+</menu>
