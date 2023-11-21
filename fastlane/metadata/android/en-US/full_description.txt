@@ -1,0 +1,8 @@
+Home Medkit application
+
+<b>Features</b>
+
+* Scan DataMatrix and get medicine information (only for RU users)
+* Manual medicine adding. Input product name, expiration date, dosage, amount and description.
+* Intakes reminders with sound and notification
+* Medicine expiration date sorting
