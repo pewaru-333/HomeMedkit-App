@@ -1,8 +1,14 @@
 Home Medkit application
 
+Application allows you to easily and quickly register and store information about medicines.
+
 <b>Features</b>
 
-* Scan DataMatrix and get medicine information (only for RU users)
-* Manual medicine adding. Input product name, expiration date, dosage, amount and description.
-* Intakes reminders with sound and notification
-* Medicine expiration date sorting
+* Automatic addition of medication by scanning the label (only for RU users).
+* Adding medication manually.
+* Editing information about medicines added manually.
+* Sorting of medicines by expiration dates.
+* Sound notification of the need to take medicine.
+* Selection the main page of the application.
+
+Application will help to avoid forgetting about taking medicines and provide more accurate accounting of them.
