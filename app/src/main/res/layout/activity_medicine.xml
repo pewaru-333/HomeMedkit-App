@@ -18,7 +18,7 @@
             android:id="@+id/scanned_medicine_top_app_bar_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/md_theme_light_primaryContainer"
+            android:background="?attr/colorPrimaryContainer"
             app:menu="@menu/menu_top_app_bar"
             app:navigationIcon="@drawable/vector_arrow_back">
 
@@ -28,10 +28,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginRight="12dp"
-                android:backgroundTint="@color/md_theme_light_primaryContainer"
+                android:backgroundTint="?attr/colorPrimaryContainer"
                 android:padding="0dp"
                 android:text="@string/text_save"
-                android:textColor="@color/md_theme_light_onPrimaryContainer"
+                android:textColor="?attr/colorOnPrimaryContainer"
                 android:textSize="18sp"
                 android:visibility="invisible" />
 
@@ -210,6 +210,7 @@
         android:layout_marginBottom="16dp"
         android:src="@drawable/vector_download"
         android:visibility="invisible"
+        app:backgroundTint="?attr/colorPrimaryContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -220,6 +221,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:src="@drawable/vector_time"
+        app:backgroundTint="?attr/colorPrimaryContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

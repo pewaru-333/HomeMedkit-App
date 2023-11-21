@@ -14,13 +14,16 @@
     <string name="intake_weekly_period_choose_day">Выберите день приёма</string>
     <string name="notification_channel_description">Напоминания о приёме лекарств</string>
     <string name="notification_channel_name">Звуковые уведомления</string>
+    <string name="preference_app_view">Вид приложения</string>
     <string name="preference_language">Язык приложения</string>
     <string name="preference_sorting_type">Сортировка лекарств</string>
     <string name="preference_start_page">Стартовая страница</string>
+    <string name="preference_system">Системные</string>
     <string name="sorting_a_z">Названию (от А до Я)</string>
     <string name="sorting_from_newest">Сроку годности (с новых)</string>
     <string name="sorting_from_oldest">Сроку годности (со старых)</string>
     <string name="sorting_z_a">Названию (от Я до А)</string>
+    <string name="text_app_theme">Тема приложения</string>
     <string name="text_cancel">Отменить</string>
     <string name="text_choose_time">Выберите время</string>
     <string name="text_confirm_exit">Подтвердите выход</string>
@@ -51,6 +54,8 @@
     <string name="text_more">Ещё</string>
     <string name="text_no_data_found">Ничего не найдено!</string>
     <string name="text_no">Нет</string>
+    <string name="text_period_finish_date">Конечная дата</string>
+    <string name="text_period_start_date">Начальная дата</string>
     <string name="text_placeholder">N</string>
     <string name="text_reschedule_alarms">Переназначение оповещений о приёме лекарств</string>
     <string name="text_save">Сохранить</string>
@@ -118,7 +123,5 @@
         <item>Ноябрь</item>
         <item>Декабрь</item>
     </string-array>
-    <string name="text_app_theme">Тема приложения</string>
-    <string name="text_period_start_date">Начальная дата</string>
-    <string name="text_period_finish_date">Конечная дата</string>
+
 </resources>

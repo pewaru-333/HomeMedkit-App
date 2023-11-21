@@ -3,7 +3,7 @@
 
     <PreferenceCategory
         app:key="app_view"
-        app:title="Вид приложения">
+        app:title="@string/preference_app_view">
 
         <ListPreference
             app:defaultValue="new-old"
@@ -27,7 +27,7 @@
 
     <PreferenceCategory
         app:key="app_system"
-        app:title="Системные">
+        app:title="@string/preference_system">
 
         <ListPreference
             app:defaultValue="Russian"

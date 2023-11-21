@@ -20,6 +20,7 @@
         android:id="@+id/bottom_navigation_bar_view"
         android:layout_width="0dp"
         android:layout_height="80dp"
+        app:backgroundTint="?attr/colorSecondaryContainer"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

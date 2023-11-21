@@ -18,7 +18,7 @@
             android:id="@+id/scanned_medicine_top_app_bar_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/md_theme_light_tertiaryContainer"
+            android:background="?attr/colorTertiaryContainer"
             app:menu="@menu/menu_top_app_bar"
             app:navigationIcon="@drawable/vector_arrow_back" />
     </com.google.android.material.appbar.AppBarLayout>

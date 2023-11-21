@@ -13,13 +13,16 @@
     <string name="intake_weekly_period_choose_day">Choose the day of intake</string>
     <string name="notification_channel_description">Medication reminders</string>
     <string name="notification_channel_name">Sound notifications</string>
+    <string name="preference_app_view">App view</string>
     <string name="preference_language">App language</string>
     <string name="preference_sorting_type">Medicine sorting</string>
     <string name="preference_start_page">Home page</string>
+    <string name="preference_system">System</string>
     <string name="sorting_a_z">Alphabetically (A to z)</string>
     <string name="sorting_from_newest">Expiration date (from newest)</string>
     <string name="sorting_from_oldest">Expiration date (from oldest)</string>
     <string name="sorting_z_a">Alphabetically (z to A)</string>
+    <string name="text_app_theme">App theme</string>
     <string name="text_cancel">Cancel</string>
     <string name="text_choose_time">Pick time</string>
     <string name="text_confirm_exit">Confirm exit</string>
@@ -50,6 +53,8 @@
     <string name="text_more">More</string>
     <string name="text_no_data_found">Nothing found!</string>
     <string name="text_no">No</string>
+    <string name="text_period_finish_date">Finish date</string>
+    <string name="text_period_start_date">Start date</string>
     <string name="text_placeholder">N</string>
     <string name="text_reschedule_alarms">Reassigning medication alerts</string>
     <string name="text_save">Save</string>
@@ -64,9 +69,6 @@
     <string name="text_wrong_interval">Wrong interval!</string>
     <string name="text_wrong_period">Wrong period!</string>
     <string name="text_yes">Yes</string>
-    <string name="text_app_theme">App theme</string>
-    <string name="text_period_start_date">Start date</string>
-    <string name="text_period_finish_date">Finish date</string>
 
     <string-array name="languages">
         <item>ru</item>

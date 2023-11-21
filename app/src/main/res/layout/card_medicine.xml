@@ -13,7 +13,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/md_theme_light_secondaryContainer"
+        android:backgroundTint="?attr/colorSecondaryContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,7 +32,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/text_medicine_product_name"
                 android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-                android:textColor="@color/md_theme_light_onSecondaryContainer"
+                android:textColor="?attr/colorOnSecondaryContainer"
                 android:textStyle="bold" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -43,7 +43,7 @@
                 android:layout_marginTop="12dp"
                 android:text="@string/text_medicine_form_name"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                android:textColor="@color/md_theme_light_onSecondaryContainer" />
+                android:textColor="?attr/colorOnSecondaryContainer" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/card_medicine_exp_date"
@@ -54,7 +54,7 @@
                 android:paddingBottom="8dp"
                 android:text="@string/text_medicine_card_exp_date_format"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:textColor="@color/md_theme_light_onSecondaryContainer" />
+                android:textColor="?attr/colorOnSecondaryContainer" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
