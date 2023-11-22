@@ -7,6 +7,8 @@ import static ru.application.homemedkit.helpers.ConstantsHelper.ADD;
 import static ru.application.homemedkit.helpers.ConstantsHelper.INTAKE_ID;
 import static ru.application.homemedkit.helpers.ConstantsHelper.MEDICINE_ID;
 import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_INTAKE;
+import static ru.application.homemedkit.helpers.ConstantsHelper.SEMICOLON;
+import static ru.application.homemedkit.helpers.StringHelper.decimalFormat;
 
 import android.Manifest;
 import android.app.Activity;
@@ -123,7 +125,7 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
 
         productName.setText(name);
 
-        amount.setText(valueOf(intake.amount));
+        amount.setText(decimalFormat(intake.amount));
         amount.setRawInputType(InputType.TYPE_NULL);
         amount.setFocusableInTouchMode(false);
 
@@ -139,7 +141,7 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
         else if (periodType.equals(periods[2])) getAutoTextItem(period, 2);
 
         timesGroup.removeAllViews();
-        for (String time : intake.time.split(",")) {
+        for (String time : intake.time.split(SEMICOLON)) {
             timesGroup.addView(new CustomTimePicker(this, time));
         }
 

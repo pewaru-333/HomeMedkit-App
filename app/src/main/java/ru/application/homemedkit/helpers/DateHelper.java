@@ -1,5 +1,10 @@
 package ru.application.homemedkit.helpers;
 
+import static android.icu.text.DateFormat.LONG;
+import static android.icu.text.DateFormat.SHORT;
+import static android.icu.text.DateFormat.getDateInstance;
+import static android.icu.text.DateFormat.getInstanceForSkeleton;
+import static android.icu.text.DateFormat.getTimeInstance;
 import static android.icu.util.Calendar.DATE;
 import static android.icu.util.Calendar.DAY_OF_MONTH;
 import static android.icu.util.Calendar.HOUR_OF_DAY;
@@ -9,17 +14,17 @@ import static android.icu.util.Calendar.MONTH;
 import static android.icu.util.Calendar.SECOND;
 import static android.icu.util.Calendar.YEAR;
 import static android.icu.util.Calendar.getInstance;
-import static java.lang.String.valueOf;
+import static android.icu.util.ULocale.US;
+import static android.icu.util.ULocale.getDefault;
+import static ru.application.homemedkit.helpers.ConstantsHelper.BLANK;
+import static ru.application.homemedkit.helpers.ConstantsHelper.SEMICOLON;
 
-import android.icu.text.SimpleDateFormat;
+import android.icu.text.DateFormat;
 import android.icu.util.Calendar;
-
-import androidx.annotation.NonNull;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.timepicker.MaterialTimePicker;
 
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -29,20 +34,15 @@ import java.util.List;
 import java.util.Locale;
 
 public class DateHelper {
-    public static final SimpleDateFormat DAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
     public static final Locale RUSSIAN = Locale.forLanguageTag("ru");
-    public static final SimpleDateFormat RUS = new SimpleDateFormat("MMMM yyyy года", RUSSIAN);
-    public static final SimpleDateFormat FMT = new SimpleDateFormat("dd.MM.yyyy", RUSSIAN);
-    public static final DateTimeFormatter FMT_D = DateTimeFormatter.ofPattern("dd.MM.yyyy", RUSSIAN);
-    public static final SimpleDateFormat TIME = new SimpleDateFormat("H:mm", RUSSIAN);
-    private static final DateTimeFormatter TIME_F = DateTimeFormatter.ofPattern("H:mm", RUSSIAN);
-
+    private static final DateFormat formatLong = getDateInstance(LONG, getDefault());
+    private static final DateFormat formatShort = getDateInstance(SHORT, RUSSIAN);
 
     public static String toExpDate(long timestamp) {
         Calendar calendar = getInstance();
         calendar.setTimeInMillis(timestamp);
 
-        return timestamp > 0 ? RUS.format(calendar) : "";
+        return timestamp > 0 ? formatLong.format(calendar) : BLANK;
     }
 
     public static String toExpDate(int month, int year) {
@@ -52,51 +52,46 @@ public class DateHelper {
         calendar.set(MONTH, month);
         calendar.set(DAY_OF_MONTH, calendar.getActualMaximum(DAY_OF_MONTH));
 
-        return RUS.format(calendar.getTime());
+        return formatLong.format(calendar.getTime());
     }
 
-    public static long toTimestamp(String date) {
+    public static long toTimestamp(int month, int year) {
         Calendar calendar = getInstance();
-        if (date.length() > 0)
-            try {
-                long time = RUS.parse(date.substring(3)).getTime();
-                calendar.setTimeInMillis(time);
-                calendar.set(DAY_OF_MONTH, calendar.getActualMaximum(DAY_OF_MONTH));
-                return calendar.getTimeInMillis();
-            } catch (ParseException e) {
-                return -1L;
-            }
-        else
-            return -1L;
+
+        calendar.set(YEAR, year);
+        calendar.set(MONTH, month);
+        calendar.set(DAY_OF_MONTH, calendar.getActualMaximum(DAY_OF_MONTH));
+
+        return calendar.getTimeInMillis();
     }
 
     public static String inCard(long timestamp) {
         Calendar calendar = getInstance();
         calendar.setTimeInMillis(timestamp);
 
-        var RUS = new SimpleDateFormat("MM/yyyy", RUSSIAN);
+        String skeleton = "MM/yyyy";
+        DateFormat dateFormat = getInstanceForSkeleton(skeleton, US);
 
-        return RUS.format(calendar.getTime());
+        return timestamp == -1L ? BLANK : dateFormat.format(calendar.getTime());
     }
 
     public static String formatIntake(long date) {
-        try {
-            long dayMillis = 1000 * 60 * 60 * 24;
-            return FMT.format(DAT.parse(LocalDate.ofEpochDay(date / dayMillis).toString()));
-        } catch (ParseException e) {
-            return valueOf(date);
-        }
+        Calendar calendar = getInstance();
+        calendar.setTimeInMillis(date);
+
+        return formatShort.format(calendar.getTime());
     }
 
-    public static String clockIntake(@NonNull MaterialTimePicker picker) {
-        String hour = String.valueOf(picker.getHour());
-        String minute = String.valueOf(picker.getMinute());
+    public static String clockIntake(MaterialTimePicker picker) {
+        DateFormat formatTime = getTimeInstance(SHORT, RUSSIAN);
 
-        try {
-            return TIME.format(TIME.parse(hour + ":" + minute));
-        } catch (ParseException e) {
-            return hour + ":" + minute;
-        }
+        Calendar calendar = getInstance();
+        calendar.set(HOUR_OF_DAY, picker.getHour());
+        calendar.set(MINUTE, picker.getMinute());
+        calendar.set(SECOND, 0);
+        calendar.set(MILLISECOND, 0);
+
+        return formatTime.format(calendar.getTimeInMillis());
     }
 
     public static void setCalendarDates(TextInputEditText startDate, TextInputEditText finalDate,
@@ -108,16 +103,20 @@ public class DateHelper {
         finalDate.setText(formatIntake(today.plusDays(days)));
     }
 
-    public static String formatIntake(@NonNull LocalDate date) {
-        try {
-            return FMT.format(DAT.parse(date.toString()));
-        } catch (ParseException e) {
-            return valueOf(date);
-        }
+    public static String formatIntake(LocalDate date) {
+        Calendar calendar = getInstance();
+
+        calendar.set(DATE, date.getDayOfMonth());
+        calendar.set(MONTH, date.getMonthValue() - 1);
+        calendar.set(YEAR, date.getYear());
+
+        return formatShort.format(calendar.getTimeInMillis());
     }
 
     public static long longSecond(String time) {
-        LocalTime lt = LocalTime.parse(time, TIME_F);
+        String pattern = "H:mm";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern, RUSSIAN);
+        LocalTime lt = LocalTime.parse(time, formatter);
 
         Calendar calendar = getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
@@ -134,31 +133,18 @@ public class DateHelper {
     }
 
     public static long[] longSeconds(String time) {
-        List<String> times = Arrays.asList(time.split(","));
+        List<String> times = Arrays.asList(time.split(SEMICOLON));
         ArrayList<Long> triggers = new ArrayList<>(times.size());
 
-        for (int i = 0; i < times.size(); i++) {
-            LocalTime lt = LocalTime.parse(times.get(i), TIME_F);
-
-            Calendar calendar = getInstance();
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            calendar.set(HOUR_OF_DAY, lt.getHour());
-            calendar.set(MINUTE, lt.getMinute());
-            calendar.set(SECOND, 0);
-            calendar.set(MILLISECOND, 0);
-
-            if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
-                calendar.add(DATE, 1);
-            }
-
-            triggers.add(calendar.getTimeInMillis());
-        }
+        for (int i = 0; i < times.size(); i++) triggers.add(longSecond(times.get(i)));
 
         return triggers.stream().mapToLong(Long::longValue).toArray();
     }
 
     public static long lastDay(String finish) {
-        LocalDate date = LocalDate.parse(finish, FMT_D);
+        String pattern = "dd.MM.yyyy";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern, RUSSIAN);
+        LocalDate date = LocalDate.parse(finish, formatter);
 
         Calendar calendar = getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());

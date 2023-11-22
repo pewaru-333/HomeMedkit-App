@@ -1,6 +1,7 @@
 package ru.application.homemedkit.dialogs;
 
 import static ru.application.homemedkit.helpers.DateHelper.toExpDate;
+import static ru.application.homemedkit.helpers.DateHelper.toTimestamp;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,6 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
 import ru.application.homemedkit.R;
+import ru.application.homemedkit.activities.MedicineActivity;
 
 public class ExpDateDialog extends MaterialAlertDialogBuilder {
 
@@ -68,6 +70,8 @@ public class ExpDateDialog extends MaterialAlertDialogBuilder {
         String until = activity.getString(R.string.exp_date_until);
         int intMonth = month.getValue();
         int intYear = year.getValue();
+
+        MedicineActivity.timestamp = toTimestamp(intMonth, intYear);
         expDate.setText(String.format(until, toExpDate(intMonth, intYear)));
     }
 }

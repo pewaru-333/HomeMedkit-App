@@ -14,7 +14,6 @@ import static ru.application.homemedkit.helpers.ConstantsHelper.ID;
 import static ru.application.homemedkit.helpers.ConstantsHelper.MEDICINE_ID;
 import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_MEDICINE;
 import static ru.application.homemedkit.helpers.DateHelper.toExpDate;
-import static ru.application.homemedkit.helpers.DateHelper.toTimestamp;
 import static ru.application.homemedkit.helpers.ImageHelper.setImage;
 import static ru.application.homemedkit.helpers.StringHelper.decimalFormat;
 import static ru.application.homemedkit.helpers.StringHelper.fromHTML;
@@ -54,7 +53,7 @@ import ru.application.homemedkit.graphics.ExpandAnimation;
 import ru.application.homemedkit.graphics.Snackbars;
 
 public class MedicineActivity extends AppCompatActivity implements TextWatcher, OnMenuItemClickListener {
-
+    public static long timestamp = -1;
     private MedicineDatabase database;
     private Medicine medicine;
     private MaterialToolbar toolbar;
@@ -243,7 +242,7 @@ public class MedicineActivity extends AppCompatActivity implements TextWatcher, 
         public void onClick(View v) {
             String cis = medicine.cis;
             String name = valueOf(productName.getText());
-            long date = toTimestamp(valueOf(expDate.getText()));
+            long date = timestamp;
             String formNormName = valueOf(prodFormNormName.getText());
             String normName = valueOf(prodDNormName.getText());
             double prodAmount = parseAmount(valueOf(prodNormAmount.getText()));
@@ -265,7 +264,7 @@ public class MedicineActivity extends AppCompatActivity implements TextWatcher, 
         @Override
         public void onClick(View v) {
             String name = valueOf(productName.getText());
-            long date = toTimestamp(valueOf(expDate.getText()));
+            long date = timestamp;
             String formNormName = valueOf(prodFormNormName.getText());
             String normName = valueOf(prodDNormName.getText());
             double prodAmount = parseAmount(valueOf(prodNormAmount.getText()));
