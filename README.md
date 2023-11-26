@@ -31,5 +31,4 @@
          width=240px
          height=84px/>
   </a>
-  
 </div>
