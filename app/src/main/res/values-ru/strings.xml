@@ -38,12 +38,12 @@
     <string name="text_intake_start">Начало</string>
     <string name="text_intake_time">Время приёма лекарства\u0020</string>
     <string name="text_manual_adding">Хотите добавить лекарство вручную?</string>
-    <string name="text_medicine_amount_not_enough">, но его количество меньше предписанного!</string>
+    <string name="text_medicine_amount_not_enough">, но его оставшегося количества меньше предписанного! Переназначьте приём!</string>
     <string name="text_medicine_amount">Количество лекарства</string>
     <string name="text_medicine_card_exp_date_format">ММ/ГГГГ</string>
     <string name="text_medicine_comment">Комментарий</string>
     <string name="text_medicine_description">Описание</string>
-    <string name="text_medicine_doze">Дозировка</string>
+    <string name="text_medicine_dose">Дозировка</string>
     <string name="text_medicine_duplicate">Лекарство уже было добалено</string>
     <string name="text_medicine_expiration_date">Срок годности</string>
     <string name="text_medicine_form_name">Тип лекарства</string>
@@ -107,6 +107,7 @@
         <item>неделя</item>
         <item>месяц</item>
         <item>другой</item>
+        <item>бессрочно</item>
     </string-array>
 
     <string-array name="months_name">

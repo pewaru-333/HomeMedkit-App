@@ -10,6 +10,7 @@ import static ru.application.homemedkit.helpers.DateHelper.longSeconds;
 import static ru.application.homemedkit.helpers.StringHelper.parseAmount;
 import static ru.application.homemedkit.helpers.StringHelper.timesString;
 
+import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 
@@ -19,11 +20,14 @@ import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import ru.application.homemedkit.R;
 import ru.application.homemedkit.activities.MainActivity;
+import ru.application.homemedkit.alarms.AlarmReceiver;
 import ru.application.homemedkit.alarms.AlarmSetter;
+import ru.application.homemedkit.databaseController.Alarm;
 import ru.application.homemedkit.databaseController.Intake;
 import ru.application.homemedkit.databaseController.MedicineDatabase;
 import ru.application.homemedkit.graphics.Toasts;
@@ -74,6 +78,12 @@ public class SaveClick implements View.OnClickListener {
                 newIntake.medicineId = intake.medicineId;
                 database.intakeDAO().update(newIntake);
 
+                List<Alarm> alarms = database.alarmDAO().getByIntakeId(newIntake.intakeId);
+
+                AlarmSetter setter = new AlarmSetter(activity);
+                removeAlarm(setter, alarms);
+                createAlarm(setter, newIntake.intakeId, intervals, time, finish);
+
                 edit = false;
                 activity.finish();
                 activity.startActivity(activity.getIntent());
@@ -81,19 +91,34 @@ public class SaveClick implements View.OnClickListener {
                 long intakeId = database.intakeDAO().add(newIntake);
 
                 AlarmSetter setter = new AlarmSetter(activity);
-
-                if (intervalType.equals(intervals[0])) {
-                    long[] triggers = longSeconds(time);
-                    setter.setAlarm(intakeId, triggers, intervalType, finish);
-                } else {
-                    long trigger = longSecond(time);
-                    setter.setAlarm(intakeId, trigger, intervalType, finish);
-                }
+                createAlarm(setter, intakeId, intervals, time, finish);
 
                 Intent intent = new Intent(activity, MainActivity.class);
                 intent.putExtra(NEW_INTAKE, true);
                 activity.startActivity(intent);
             }
         } else new Toasts(activity, R.string.text_fill_all_fields);
+    }
+
+    private void removeAlarm(AlarmSetter setter, List<Alarm> alarms) {
+        for (int i = 0; i < alarms.size(); i++) {
+            Context context = activity.getApplicationContext();
+            Intent intent = new Intent(context, AlarmReceiver.class);
+            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            long alarmId = alarms.get(i).alarmId;
+
+            setter.removeAlarm(context, alarmId, intent);
+        }
+    }
+
+    private static void createAlarm(AlarmSetter setter, long newIntake, String[] intervals, String time, String finish) {
+        if (intervalType.equals(intervals[0])) {
+            long[] triggers = longSeconds(time);
+            setter.setAlarm(newIntake, triggers, intervalType, finish);
+        } else {
+            long trigger = longSecond(time);
+            setter.setAlarm(newIntake, trigger, intervalType, finish);
+        }
     }
 }

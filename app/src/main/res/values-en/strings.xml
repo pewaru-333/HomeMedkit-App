@@ -38,12 +38,12 @@
     <string name="text_intake_start">Start</string>
     <string name="text_intake_time">It\'s time to intake\\u0020</string>
     <string name="text_manual_adding">Do you want to add medicine manually?</string>
-    <string name="text_medicine_amount_not_enough">, but its quantity is less than prescribed!</string>
+    <string name="text_medicine_amount_not_enough">, but its quantity is less than prescribed! Recreate intake!</string>
     <string name="text_medicine_amount">Medicine amount</string>
     <string name="text_medicine_card_exp_date_format">MM/YYYY</string>
     <string name="text_medicine_comment">Comment</string>
     <string name="text_medicine_description">Description</string>
-    <string name="text_medicine_doze">Doze</string>
+    <string name="text_medicine_dose">Dose</string>
     <string name="text_medicine_duplicate">The medicine has already been added</string>
     <string name="text_medicine_expiration_date">Expiration date</string>
     <string name="text_medicine_form_name">Medicine form</string>
@@ -107,6 +107,7 @@
         <item>week</item>
         <item>month</item>
         <item>other</item>
+        <item>indefinite</item>
     </string-array>
 
     <string-array name="months_name">

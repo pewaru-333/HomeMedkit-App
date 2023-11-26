@@ -20,7 +20,7 @@ public class Snackbars {
     public Snackbars(Activity activity) {
         this.activity = activity;
 
-        ERROR_COLOR = R.color.md_theme_light_error;
+        ERROR_COLOR = com.google.android.material.R.color.design_default_color_error;
     }
 
 

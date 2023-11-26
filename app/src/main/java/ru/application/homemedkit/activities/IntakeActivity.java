@@ -1,5 +1,6 @@
 package ru.application.homemedkit.activities;
 
+import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static java.lang.String.valueOf;
@@ -21,7 +22,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.AutoCompleteTextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -88,7 +88,7 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
 
         if (flag) {
             setAddingLayout();
-            toolbar.setVisibility(View.GONE);
+            toolbar.setVisibility(GONE);
         } else {
             setShowLayout();
         }
@@ -139,6 +139,7 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
         if (periodType.equals(periods[0])) getAutoTextItem(period, 0);
         else if (periodType.equals(periods[1])) getAutoTextItem(period, 1);
         else if (periodType.equals(periods[2])) getAutoTextItem(period, 2);
+        else if (periodType.equals(periods[3])) getAutoTextItem(period, 3);
 
         timesGroup.removeAllViews();
         for (String time : intake.time.split(SEMICOLON)) {
@@ -146,7 +147,7 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
         }
 
         periodLayout.setVisibility(VISIBLE);
-        datesLayout.setVisibility(VISIBLE);
+        datesLayout.setVisibility(periodType.equals(periods[3]) ? GONE : VISIBLE);
 
         startDate.setText(intake.startDate);
         finalDate.setText(intake.finalDate);
@@ -179,7 +180,7 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
         }
     }
 
-    private void getAutoTextItem(@NonNull AutoCompleteTextView view, int i) {
+    private void getAutoTextItem(AutoCompleteTextView view, int i) {
         view.setText(valueOf(view.getAdapter().getItem(i)), false);
     }
 

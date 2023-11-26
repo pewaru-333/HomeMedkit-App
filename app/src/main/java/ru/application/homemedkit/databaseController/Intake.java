@@ -34,25 +34,6 @@ public class Intake {
     }
 
     @Ignore
-    public Intake(long intakeId,
-                  long medicineId,
-                  double amount,
-                  String interval,
-                  String time,
-                  String period,
-                  String startDate,
-                  String finalDate) {
-        this.intakeId = intakeId;
-        this.medicineId = medicineId;
-        this.amount = amount;
-        this.interval = interval;
-        this.time = time;
-        this.period = period;
-        this.startDate = startDate;
-        this.finalDate = finalDate;
-    }
-
-    @Ignore
     public Intake(long medicineId,
                   double amount,
                   String interval,

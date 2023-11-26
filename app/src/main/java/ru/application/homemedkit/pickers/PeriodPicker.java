@@ -1,5 +1,6 @@
 package ru.application.homemedkit.pickers;
 
+import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static ru.application.homemedkit.helpers.ConstantsHelper.PERIOD;
 import static ru.application.homemedkit.helpers.DateHelper.setCalendarDates;
@@ -22,6 +23,9 @@ public class PeriodPicker implements AdapterView.OnItemClickListener {
     private final FlexboxLayout datesLayout;
     private final TextInputEditText startDate, finalDate;
     private final String[] periods;
+    private static final int WEEK = 7;
+    private static final int MONTH = 30;
+    private static final int INDEFINITE = 50000;
 
     public PeriodPicker(IntakeActivity activity) {
         this.activity = activity;
@@ -41,17 +45,22 @@ public class PeriodPicker implements AdapterView.OnItemClickListener {
         switch (position) {
             case 0 -> {
                 IntakeActivity.periodType = periods[0];
-                setCalendarDates(startDate, finalDate, 7, false);
+                setCalendarDates(startDate, finalDate, WEEK, false);
                 datesLayout.setVisibility(VISIBLE);
             }
             case 1 -> {
                 IntakeActivity.periodType = periods[1];
-                setCalendarDates(startDate, finalDate, 30, false);
+                setCalendarDates(startDate, finalDate, MONTH, false);
                 datesLayout.setVisibility(VISIBLE);
             }
             case 2 -> {
                 IntakeActivity.periodType = periods[2];
                 new SpinnerDialog(activity, PERIOD);
+            }
+            case 3 -> {
+                IntakeActivity.periodType = periods[3];
+                setCalendarDates(startDate, finalDate, INDEFINITE, false);
+                datesLayout.setVisibility(GONE);
             }
         }
     }

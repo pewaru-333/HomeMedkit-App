@@ -28,6 +28,7 @@ import java.util.Random;
 import ru.application.homemedkit.R;
 import ru.application.homemedkit.activities.MainActivity;
 import ru.application.homemedkit.databaseController.AlarmDAO;
+import ru.application.homemedkit.databaseController.Intake;
 import ru.application.homemedkit.databaseController.IntakeDAO;
 import ru.application.homemedkit.databaseController.MedicineDAO;
 import ru.application.homemedkit.databaseController.MedicineDatabase;
@@ -107,7 +108,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             } else {
                 notification = intakeNotification(context, medicineId, false);
                 compat = NotificationManagerCompat.from(context);
-                alarmSetter.removeAlarm(context, alarmId, intent);
+                intakeDAO.delete(new Intake(intakeId));
             }
             playSound(context);
             compat.notify(new Random().nextInt(bound), notification);

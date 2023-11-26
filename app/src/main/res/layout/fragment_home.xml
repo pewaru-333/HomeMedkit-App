@@ -6,43 +6,46 @@
     android:layout_height="match_parent"
     tools:context="ru.application.homemedkit.fragments.FragmentHome">
 
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_scan_code"
-        style="@style/CardPickAction"
-        android:layout_marginStart="16dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            style="@style/ImageCardPickAction"
-            android:contentDescription="@string/text_to_scan"
-            android:src="@drawable/vector_scanner" />
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_scan_code"
+            style="@style/CardPickAction"
+            android:layout_marginEnd="8dp">
 
-        <TextView
-            style="@style/TextCardPickAction"
-            android:text="@string/text_data_matrix_scanner" />
+            <ImageView
+                style="@style/ImageCardPickAction"
+                android:contentDescription="@string/text_to_scan"
+                android:src="@drawable/vector_scanner" />
 
-    </com.google.android.material.card.MaterialCardView>
+            <TextView
+                style="@style/TextCardPickAction"
+                android:text="@string/text_data_matrix_scanner" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_add_self"
-        style="@style/CardPickAction"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        </com.google.android.material.card.MaterialCardView>
 
-        <ImageView
-            style="@style/ImageCardPickAction"
-            android:contentDescription="@string/text_to_create"
-            android:src="@drawable/vector_edit" />
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_add_self"
+            style="@style/CardPickAction"
+            android:layout_marginStart="8dp">
 
-        <TextView
-            style="@style/TextCardPickAction"
-            android:text="@string/text_self_medicine_adding" />
+            <ImageView
+                style="@style/ImageCardPickAction"
+                android:contentDescription="@string/text_to_create"
+                android:src="@drawable/vector_edit" />
 
-    </com.google.android.material.card.MaterialCardView>
+            <TextView
+                style="@style/TextCardPickAction"
+                android:text="@string/text_self_medicine_adding" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

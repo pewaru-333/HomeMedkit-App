@@ -15,6 +15,9 @@ public interface AlarmDAO {
     @Query("SELECT * FROM alarms WHERE alarmId=:alarmId")
     Alarm getByPK(long alarmId);
 
+    @Query("SELECT * FROM alarms WHERE intakeId=:intakeId")
+    List<Alarm> getByIntakeId(long intakeId);
+
     @Query("UPDATE alarms SET `trigger`=:trigger WHERE alarmId=:alarmId")
     void reset(long alarmId, long trigger);
 
