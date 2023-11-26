@@ -19,7 +19,7 @@
   <a href="https://apps.rustore.ru/app/ru.application.homemedkit" title="RuStore link">
     <img alt="RuStore.png"
          title="RuStore image"
-         src="https://github.com/pewaru-333/HomeMedkit-App/blob/master/RuStore.png"
+         src="https://github.com/pewaru-333/HomeMedkit-App/blob/master/RuStore.svg"
          width=240px
          height=84px/>
   </a>
