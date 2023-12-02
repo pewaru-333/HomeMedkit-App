@@ -26,7 +26,7 @@ public class SpinnerDialog extends MaterialAlertDialogBuilder {
     private TextInputLayout periodLayout;
     private TextInputEditText startDate, finalDate, spinner;
     private View inflate;
-    private int counter = 1;
+    private int counter = 2;
 
     public SpinnerDialog(Context context, String type) {
         super(context);
@@ -62,7 +62,7 @@ public class SpinnerDialog extends MaterialAlertDialogBuilder {
                 .setPositiveButton(textSave, (dialog, which) -> {
                     counter = Integer.parseInt(String.valueOf(spinner.getText()));
                     if (counter > 0) {
-                        setCalendarDates(startDate, finalDate, counter, false);
+                        setCalendarDates(startDate, finalDate, counter);
                         datesLayout.setVisibility(VISIBLE);
                     } else new Toasts(context, R.string.text_wrong_period);
                 });
@@ -80,11 +80,10 @@ public class SpinnerDialog extends MaterialAlertDialogBuilder {
     }
 
     private void weeklyInterval(Context context, String textSave) {
-        datesLayout.setVisibility(INVISIBLE);
         setTitle(R.string.intake_weekly_interval)
                 .setPositiveButton(textSave, (dialog, which) -> {
-                    setCalendarDates(startDate, finalDate, 7 * counter, true);
-                    periodLayout.setVisibility(VISIBLE);
+                    setCalendarDates(startDate, finalDate, 7 * counter);
+                    datesLayout.setVisibility(VISIBLE);
                 });
         timesGroup.addView(new CustomTimePicker(context));
     }
@@ -127,7 +126,7 @@ public class SpinnerDialog extends MaterialAlertDialogBuilder {
 
     private void changeNumber(boolean inc) {
         if (inc) counter++;
-        else if (counter > 1)
+        else if (counter > 2)
             counter--;
         spinner.setText(String.valueOf(counter));
     }

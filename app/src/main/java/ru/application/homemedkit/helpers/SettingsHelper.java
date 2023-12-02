@@ -9,10 +9,9 @@ import static androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
 import androidx.preference.PreferenceManager;
-
-import java.util.Locale;
 
 import ru.application.homemedkit.R;
 
@@ -47,6 +46,7 @@ public class SettingsHelper {
 
     public void changeLanguage(String language) {
         setApplicationLocales(LocaleListCompat.forLanguageTags(language));
+        preferences.edit().putString(LANGUAGE, language).apply();
     }
 
     public void getAppTheme() {
@@ -66,7 +66,7 @@ public class SettingsHelper {
     }
 
     private void loadValues(Context context) {
-        String language = Locale.getDefault().getLanguage();
+        String language = AppCompatDelegate.getApplicationLocales().toLanguageTags();
         preferences.edit().putString(LANGUAGE, language).apply();
 
         String[] pages = context.getResources().getStringArray(R.array.fragment_pages);

@@ -58,6 +58,16 @@ public class SaveClick implements View.OnClickListener {
         finalDate = activity.findViewById(R.id.intake_calendar_finish);
     }
 
+    private static void createAlarm(AlarmSetter setter, long newIntake, String[] intervals, String time, String finish) {
+        if (intervalType.equals(intervals[0])) {
+            long[] triggers = longSeconds(time);
+            setter.setAlarm(newIntake, triggers, intervalType, finish);
+        } else {
+            long trigger = longSecond(time);
+            setter.setAlarm(newIntake, trigger, intervalType, finish);
+        }
+    }
+
     @Override
     public void onClick(View v) {
         String[] intervals = activity.getResources().getStringArray(R.array.interval_types);
@@ -109,16 +119,6 @@ public class SaveClick implements View.OnClickListener {
             long alarmId = alarms.get(i).alarmId;
 
             setter.removeAlarm(context, alarmId, intent);
-        }
-    }
-
-    private static void createAlarm(AlarmSetter setter, long newIntake, String[] intervals, String time, String finish) {
-        if (intervalType.equals(intervals[0])) {
-            long[] triggers = longSeconds(time);
-            setter.setAlarm(newIntake, triggers, intervalType, finish);
-        } else {
-            long trigger = longSecond(time);
-            setter.setAlarm(newIntake, trigger, intervalType, finish);
         }
     }
 }

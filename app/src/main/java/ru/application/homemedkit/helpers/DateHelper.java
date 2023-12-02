@@ -94,23 +94,11 @@ public class DateHelper {
         return formatTime.format(calendar.getTimeInMillis());
     }
 
-    public static void setCalendarDates(TextInputEditText startDate, TextInputEditText finalDate,
-                                        int days, boolean countToday) {
-        LocalDate today = LocalDate.now();
-
-        if (!countToday) startDate.setText(formatIntake(today));
-        else days += 1;
-        finalDate.setText(formatIntake(today.plusDays(days)));
-    }
-
-    public static String formatIntake(LocalDate date) {
-        Calendar calendar = getInstance();
-
-        calendar.set(DATE, date.getDayOfMonth());
-        calendar.set(MONTH, date.getMonthValue() - 1);
-        calendar.set(YEAR, date.getYear());
-
-        return formatShort.format(calendar.getTimeInMillis());
+    public static void setCalendarDates(TextInputEditText start, TextInputEditText finish, int days) {
+        Calendar calendar = Calendar.getInstance();
+        start.setText(formatIntake(calendar.getTimeInMillis()));
+        calendar.add(DAY_OF_MONTH, days);
+        finish.setText(formatShort.format(calendar.getTime()));
     }
 
     public static long longSecond(String time) {

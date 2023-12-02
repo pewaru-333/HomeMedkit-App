@@ -1,23 +1,19 @@
 package ru.application.homemedkit.fragments;
 
 import static android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import static ru.application.homemedkit.helpers.ConstantsHelper.SETTINGS_CHANGED;
 import static ru.application.homemedkit.helpers.SettingsHelper.APP_THEME;
 import static ru.application.homemedkit.helpers.SettingsHelper.LANGUAGE;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import java.util.Objects;
 
 import ru.application.homemedkit.R;
-import ru.application.homemedkit.activities.MainActivity;
 import ru.application.homemedkit.helpers.SettingsHelper;
 
 public class FragmentSettings extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
@@ -28,7 +24,7 @@ public class FragmentSettings extends PreferenceFragmentCompat implements OnShar
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        preferences = new SettingsHelper(requireContext());
+        preferences = new SettingsHelper(requireActivity().getBaseContext());
     }
 
     @Override
@@ -55,24 +51,9 @@ public class FragmentSettings extends PreferenceFragmentCompat implements OnShar
             final String value = Objects.requireNonNull(preference).getValue();
 
             switch (key) {
-                case LANGUAGE -> {
-                    preferences.changeLanguage(value);
-                    restartActivity();
-                }
-                case APP_THEME -> {
-                    preferences.setAppTheme(value);
-                    restartActivity();
-                }
+                case LANGUAGE -> preferences.changeLanguage(value);
+                case APP_THEME -> preferences.setAppTheme(value);
             }
         }
-    }
-
-    private void restartActivity() {
-        FragmentActivity activity = requireActivity();
-        Intent intent = new Intent(activity, MainActivity.class);
-        intent.putExtra(SETTINGS_CHANGED, true);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        activity.finish();
-        startActivity(intent);
     }
 }

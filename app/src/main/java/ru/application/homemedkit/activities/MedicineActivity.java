@@ -115,10 +115,11 @@ public class MedicineActivity extends AppCompatActivity implements TextWatcher, 
 
     private void setScannedLayout() {
         String form = medicine.prodFormNormName;
+        timestamp = medicine.expDate;
 
         image.setImageDrawable(setImage(this, form));
         productName.setText(medicine.productName);
-        expDate.setText(getString(R.string.exp_date_until, toExpDate(medicine.expDate)));
+        expDate.setText(getString(R.string.exp_date_until, toExpDate(timestamp)));
         prodFormNormName.setText(form);
         prodDNormName.setText(medicine.prodDNormName);
         prodNormAmount.setText(decimalFormat(medicine.prodAmount));

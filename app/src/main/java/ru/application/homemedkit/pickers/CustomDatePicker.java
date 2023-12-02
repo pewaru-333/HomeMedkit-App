@@ -2,7 +2,6 @@ package ru.application.homemedkit.pickers;
 
 import static ru.application.homemedkit.helpers.ConstantsHelper.START_DATE;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 import com.google.android.material.datepicker.CalendarConstraints;
@@ -25,7 +24,7 @@ public class CustomDatePicker extends DialogFragment {
     private static final CalendarConstraints constraints = new CalendarConstraints.Builder()
             .setValidator(DateValidatorPointForward.now()).setStart(MILLI).build();
 
-    public CustomDatePicker(@NonNull IntakeActivity activity) {
+    public CustomDatePicker(IntakeActivity activity) {
         TextInputEditText startDate = activity.findViewById(R.id.intake_calendar_start);
 
         String interval = activity.getResources().getStringArray(R.array.interval_types)[2];

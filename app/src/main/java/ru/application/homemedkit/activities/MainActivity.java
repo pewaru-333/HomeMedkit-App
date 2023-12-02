@@ -4,8 +4,10 @@ import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_INTAKE;
 import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_MEDICINE;
 import static ru.application.homemedkit.helpers.ConstantsHelper.SETTINGS_CHANGED;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
@@ -34,6 +36,14 @@ public class MainActivity extends AppCompatActivity {
         binding.bottomNavigationBarView.setOnItemSelectedListener(pickMenuItem());
 
         getFragmentPage();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        recreate();
+        getIntent().putExtra(SETTINGS_CHANGED, true);
     }
 
     private void getFragmentPage() {

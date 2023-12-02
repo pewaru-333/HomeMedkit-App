@@ -47,16 +47,17 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/text_medicine_product_name"
                 android:textColor="?attr/colorOnTertiaryContainer"
+                android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@+id/intake_card_image"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/intake_card_interval"
-                style="@style/TextAppearance.Material3.LabelLarge"
+                style="@style/TextAppearance.Material3.BodyLarge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:text="@string/text_medicine_intake_interval"
                 android:textColor="?attr/colorOnTertiaryContainer"
                 app:layout_constraintStart_toEndOf="@+id/intake_card_image"
@@ -64,11 +65,11 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/intake_card_time"
-                style="@style/TextAppearance.Material3.LabelMedium"
+                style="@style/TextAppearance.Material3.BodyMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:paddingBottom="8dp"
                 android:text="@string/text_choose_time"
                 android:textColor="?attr/colorOnTertiaryContainer"

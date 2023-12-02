@@ -36,5 +36,5 @@
         <item name="colorPrimaryInverse">@color/md_theme_light_inversePrimary</item>
     </style>
 
-    <style name="Theme.HomeMeds" parent="Base.Theme.HomeMeds" ></style>
+    <style name="Theme.HomeMeds" parent="Base.Theme.HomeMeds" />
 </resources>

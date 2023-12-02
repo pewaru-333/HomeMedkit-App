@@ -23,183 +23,141 @@
             app:navigationIcon="@drawable/vector_arrow_back" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/intake_input_layout_product_name"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
-        app:errorEnabled="true"
-        app:helperTextEnabled="true"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/medicine_top_app_bar_layout">
+        app:layout_constraintTop_toBottomOf="@+id/medicine_top_app_bar_layout">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/intake_edit_text_product_name"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            android:cursorVisible="false"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:hint="@string/text_medicine_name"
-            android:inputType="none" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="wrap_content">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/intake_input_layout_amount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
-        app:errorEnabled="true"
-        app:helperTextEnabled="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/intake_input_layout_product_name">
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/intake_input_layout_product_name"
+                style="@style/TextInputIntake"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/intake_edit_text_amount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:digits="0123456789,"
-            android:hint="@string/text_medicine_amount"
-            android:inputType="numberDecimal" />
-    </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/intake_edit_text_product_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:cursorVisible="false"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:hint="@string/text_medicine_name"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/intake_input_layout_amount"
+                style="@style/TextInputIntake"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/intake_input_layout_product_name">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/intake_input_layout_interval"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
-        app:errorEnabled="true"
-        app:helperTextEnabled="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/intake_input_layout_amount">
-
-        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/intake_edit_text_interval"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="false"
-            android:cursorVisible="false"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:hint="@string/text_medicine_intake_interval"
-            android:inputType="none"
-            app:simpleItems="@array/interval_types_name" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/intake_edit_text_amount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789,"
+                    android:hint="@string/text_medicine_amount"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
 
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/intake_input_layout_interval"
+                style="@style/AutoCompleteTextViewLayoutIntake"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/intake_input_layout_amount">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/intake_edit_text_interval"
+                    style="@style/AutoCompleteTextViewIntake"
+                    android:hint="@string/text_medicine_intake_interval"
+                    app:simpleItems="@array/interval_types_name" />
 
 
-    <com.google.android.flexbox.FlexboxLayout
-        android:id="@+id/linear_times_activity_intake"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
-        app:dividerDrawable="@drawable/shape_divider_times_group"
-        app:errorEnabled="true"
-        app:flexDirection="row"
-        app:flexWrap="wrap"
-        app:flow_wrapMode="chain"
-        app:justifyContent="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/intake_input_layout_interval"
-        app:showDividerHorizontal="middle"
-        app:showDividerVertical="middle" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/intake_input_layout_period"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
-        android:visibility="invisible"
-        app:errorEnabled="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linear_times_activity_intake">
-
-        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-            android:id="@+id/intake_edit_text_period"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="false"
-            android:cursorVisible="false"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:hint="@string/text_medicine_intake_period"
-            android:inputType="none"
-            app:simpleItems="@array/period_types_name" />
-    </com.google.android.material.textfield.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
 
-    <com.google.android.flexbox.FlexboxLayout
-        android:id="@+id/intake_layout_dates"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
-        android:gravity="center"
-        android:visibility="invisible"
-        app:justifyContent="space_between"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/intake_input_layout_period">
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:endIconDrawable="@drawable/vector_calendar_month"
-            app:endIconMode="custom"
-            app:helperText="@string/text_period_start_date"
-            app:helperTextEnabled="true">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/intake_calendar_start"
-                android:layout_width="wrap_content"
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/linear_times_activity_intake"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:inputType="date"
-                android:text="@string/text_intake_start" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="16dp"
+                app:dividerDrawable="@drawable/shape_divider_times_group"
+                app:errorEnabled="true"
+                app:flexDirection="row"
+                app:flexWrap="wrap"
+                app:flow_wrapMode="chain"
+                app:justifyContent="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/intake_input_layout_interval"
+                app:showDividerHorizontal="middle"
+                app:showDividerVertical="middle" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:endIconDrawable="@drawable/vector_calendar_month"
-            app:endIconMode="custom"
-            app:helperText="@string/text_period_finish_date"
-            app:helperTextEnabled="true">
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/intake_input_layout_period"
+                style="@style/AutoCompleteTextViewLayoutIntake"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linear_times_activity_intake">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/intake_calendar_finish"
-                android:layout_width="wrap_content"
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/intake_edit_text_period"
+                    style="@style/AutoCompleteTextViewIntake"
+                    android:hint="@string/text_medicine_intake_period"
+                    app:simpleItems="@array/period_types_name" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/intake_layout_dates"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:cursorVisible="false"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:inputType="date"
-                android:text="@string/text_intake_medicine_finish" />
-        </com.google.android.material.textfield.TextInputLayout>
-    </com.google.android.flexbox.FlexboxLayout>
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="center"
+                android:paddingBottom="64dp"
+                android:visibility="invisible"
+                app:justifyContent="space_between"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/intake_input_layout_period">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/CalendarDateLayoutIntake"
+                    app:helperText="@string/text_period_start_date">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/intake_calendar_start"
+                        style="@style/CalendarDateIntake"
+                        android:text="@string/text_intake_start" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/CalendarDateLayoutIntake"
+                    app:helperText="@string/text_period_finish_date">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/intake_calendar_finish"
+                        style="@style/CalendarDateIntake"
+                        android:text="@string/text_intake_medicine_finish" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </com.google.android.flexbox.FlexboxLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/intake_button_save"
@@ -221,5 +179,4 @@
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

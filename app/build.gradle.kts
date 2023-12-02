@@ -14,16 +14,12 @@ android {
     namespace = "ru.application.homemedkit"
     compileSdk = 34
 
-    androidResources {
-        generateLocaleConfig = true
-    }
-
     defaultConfig {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 34
-        versionCode = 4
-        versionName = "1.0.3"
+        versionCode = 5
+        versionName = "1.0.4"
 
         buildConfigField("String", "BASE_URL", properties.getProperty("BASE_URL"))
         buildConfigField("String", "API_URL", properties.getProperty("API_URL"))
@@ -49,8 +45,8 @@ android {
 }
 
 dependencies {
-    annotationProcessor("androidx.room:room-compiler:2.6.0")
-    implementation("androidx.room:room-runtime:2.6.0")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.5")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
     implementation("androidx.appcompat:appcompat:1.6.1")

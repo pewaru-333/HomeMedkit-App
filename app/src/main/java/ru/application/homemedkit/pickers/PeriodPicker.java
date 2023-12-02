@@ -19,13 +19,13 @@ import ru.application.homemedkit.dialogs.SpinnerDialog;
 
 public class PeriodPicker implements AdapterView.OnItemClickListener {
 
+    private static final int WEEK = 7;
+    private static final int MONTH = 30;
+    private static final int INDEFINITE = 50000;
     private final IntakeActivity activity;
     private final FlexboxLayout datesLayout;
     private final TextInputEditText startDate, finalDate;
     private final String[] periods;
-    private static final int WEEK = 7;
-    private static final int MONTH = 30;
-    private static final int INDEFINITE = 50000;
 
     public PeriodPicker(IntakeActivity activity) {
         this.activity = activity;
@@ -45,12 +45,12 @@ public class PeriodPicker implements AdapterView.OnItemClickListener {
         switch (position) {
             case 0 -> {
                 IntakeActivity.periodType = periods[0];
-                setCalendarDates(startDate, finalDate, WEEK, false);
+                setCalendarDates(startDate, finalDate, WEEK);
                 datesLayout.setVisibility(VISIBLE);
             }
             case 1 -> {
                 IntakeActivity.periodType = periods[1];
-                setCalendarDates(startDate, finalDate, MONTH, false);
+                setCalendarDates(startDate, finalDate, MONTH);
                 datesLayout.setVisibility(VISIBLE);
             }
             case 2 -> {
@@ -59,7 +59,7 @@ public class PeriodPicker implements AdapterView.OnItemClickListener {
             }
             case 3 -> {
                 IntakeActivity.periodType = periods[3];
-                setCalendarDates(startDate, finalDate, INDEFINITE, false);
+                setCalendarDates(startDate, finalDate, INDEFINITE);
                 datesLayout.setVisibility(GONE);
             }
         }
