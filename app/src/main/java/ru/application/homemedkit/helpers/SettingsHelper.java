@@ -5,15 +5,17 @@ import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
 import static androidx.appcompat.app.AppCompatDelegate.setApplicationLocales;
 import static androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode;
+import static androidx.core.os.LocaleListCompat.forLanguageTags;
+import static ru.application.homemedkit.helpers.ConstantsHelper.CHECK_EXP_DATE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.os.LocaleListCompat;
+import androidx.fragment.app.FragmentActivity;
 import androidx.preference.PreferenceManager;
 
 import ru.application.homemedkit.R;
+import ru.application.homemedkit.activities.MainActivity;
 
 public class SettingsHelper {
     public static final String LANGUAGE = "language";
@@ -45,7 +47,7 @@ public class SettingsHelper {
     }
 
     public void changeLanguage(String language) {
-        setApplicationLocales(LocaleListCompat.forLanguageTags(language));
+        setApplicationLocales(forLanguageTags(language));
         preferences.edit().putString(LANGUAGE, language).apply();
     }
 
@@ -65,10 +67,16 @@ public class SettingsHelper {
         changeTheme(theme);
     }
 
-    private void loadValues(Context context) {
-        String language = AppCompatDelegate.getApplicationLocales().toLanguageTags();
-        preferences.edit().putString(LANGUAGE, language).apply();
+    public void setExpDateChecker(FragmentActivity activity, boolean value) {
+        preferences.edit().putBoolean(CHECK_EXP_DATE, value).apply();
+        ((MainActivity) activity).setExpirationChecker();
+    }
 
+    public boolean checkExpirationDate() {
+        return preferences.getBoolean(CHECK_EXP_DATE, true);
+    }
+
+    private void loadValues(Context context) {
         String[] pages = context.getResources().getStringArray(R.array.fragment_pages);
         String[] types = context.getResources().getStringArray(R.array.sorting_types);
         themes = context.getResources().getStringArray(R.array.app_themes);

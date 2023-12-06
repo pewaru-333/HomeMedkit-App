@@ -11,9 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 import ru.application.homemedkit.R;
+import ru.application.homemedkit.alarms.AlarmSetter;
 import ru.application.homemedkit.databinding.ActivityMainBinding;
 import ru.application.homemedkit.fragments.FragmentHome;
 import ru.application.homemedkit.fragments.FragmentIntakes;
@@ -23,6 +25,7 @@ import ru.application.homemedkit.helpers.SettingsHelper;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
+    private SettingsHelper settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,11 +34,13 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        new SettingsHelper(this).getAppTheme();
+        settings = new SettingsHelper(this);
+        settings.getAppTheme();
 
         binding.bottomNavigationBarView.setOnItemSelectedListener(pickMenuItem());
 
         getFragmentPage();
+        setExpirationChecker();
     }
 
     @Override
@@ -47,12 +52,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getFragmentPage() {
+        BottomNavigationView menu = binding.bottomNavigationBarView;
+
         if (getIntent().getBooleanExtra(NEW_MEDICINE, false)) {
-            binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_medicines);
+            menu.setSelectedItemId(R.id.bottom_menu_medicines);
         } else if (getIntent().getBooleanExtra(NEW_INTAKE, false)) {
-            binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_intakes);
+            menu.setSelectedItemId(R.id.bottom_menu_intakes);
         } else if (getIntent().getBooleanExtra(SETTINGS_CHANGED, false)) {
-            binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_settings);
+            menu.setSelectedItemId(R.id.bottom_menu_settings);
         } else {
             toHomePage();
         }
@@ -73,18 +80,21 @@ public class MainActivity extends AppCompatActivity {
 
     private void toHomePage() {
         String[] pages = getResources().getStringArray(R.array.fragment_pages);
-        String homePage = new SettingsHelper(this).getHomePage();
+        String homePage = settings.getHomePage();
 
-        if (homePage.equals(pages[1]))
-            binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_medicines);
-        else if (homePage.equals(pages[2]))
-            binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_intakes);
-        else if (homePage.equals(pages[3]))
-            binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_settings);
-        else binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_main);
+        BottomNavigationView menu = binding.bottomNavigationBarView;
+
+        if (homePage.equals(pages[1])) menu.setSelectedItemId(R.id.bottom_menu_medicines);
+        else if (homePage.equals(pages[2])) menu.setSelectedItemId(R.id.bottom_menu_intakes);
+        else if (homePage.equals(pages[3])) menu.setSelectedItemId(R.id.bottom_menu_settings);
+        else menu.setSelectedItemId(R.id.bottom_menu_main);
     }
 
     private void replace(Fragment fragment) {
         getSupportFragmentManager().beginTransaction().replace(R.id.constraintLayout, fragment).commit();
+    }
+
+    public void setExpirationChecker() {
+        new AlarmSetter(this).checkExpiration();
     }
 }

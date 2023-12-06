@@ -142,4 +142,20 @@ public class DateHelper {
 
         return calendar.getTimeInMillis();
     }
+
+    public static long expirationCheckTime() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        calendar.set(HOUR_OF_DAY, 12);
+        calendar.set(MINUTE, 0);
+        calendar.set(SECOND, 0);
+        calendar.set(MILLISECOND, 0);
+
+        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            calendar.add(DATE, 1);
+        }
+
+        return calendar.getTimeInMillis();
+    }
 }

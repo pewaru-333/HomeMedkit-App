@@ -6,6 +6,7 @@
         app:title="@string/preference_app_view">
 
         <ListPreference
+            app:allowDividerAbove="true"
             app:defaultValue="new-old"
             app:entries="@array/sorting_types_name"
             app:entryValues="@array/sorting_types"
@@ -15,6 +16,7 @@
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
+            app:allowDividerBelow="true"
             app:defaultValue="Home"
             app:entries="@array/fragment_pages_name"
             app:entryValues="@array/fragment_pages"
@@ -23,6 +25,18 @@
             app:title="@string/preference_start_page"
             app:useSimpleSummaryProvider="true" />
 
+        <SwitchPreferenceCompat
+            app:allowDividerAbove="true"
+            app:allowDividerBelow="false"
+            app:defaultValue="true"
+            app:enabled="true"
+            app:key="check_exp_date"
+            app:persistent="true"
+            app:singleLineTitle="false"
+            app:summaryOff="@string/text_off"
+            app:summaryOn="@string/text_daily_at"
+            app:title="@string/preference_check_expiration_date" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -30,7 +44,8 @@
         app:title="@string/preference_system">
 
         <ListPreference
-            app:defaultValue="Russian"
+            app:allowDividerAbove="true"
+            app:defaultValue="null"
             app:entries="@array/languages_name"
             app:entryValues="@array/languages"
             app:key="language"

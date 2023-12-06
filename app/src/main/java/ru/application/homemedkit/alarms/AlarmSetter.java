@@ -5,6 +5,11 @@ import static android.app.PendingIntent.FLAG_IMMUTABLE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.app.PendingIntent.getBroadcast;
 import static android.content.Context.ALARM_SERVICE;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_RECEIVER_FOREGROUND;
+import static ru.application.homemedkit.helpers.ConstantsHelper.EXP_CODE;
+import static ru.application.homemedkit.helpers.DateHelper.expirationCheckTime;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -41,8 +46,8 @@ public class AlarmSetter {
 
     private Intent getIntent(long alarmId, String interval, String finish) {
         Intent intent = new Intent(context, AlarmReceiver.class);
-        intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(FLAG_RECEIVER_FOREGROUND);
 
         intent.putExtra(ConstantsHelper.ALARM_ID, alarmId);
         intent.putExtra(ConstantsHelper.INTERVAL, interval);
@@ -94,6 +99,19 @@ public class AlarmSetter {
         manager.cancel(pending);
 
         database.alarmDAO().delete(alarm);
+    }
+
+    public void checkExpiration() {
+        AlarmManager manager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+
+        Intent intent = new Intent(context, ExpirationReceiver.class);
+        intent.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);
+        intent.addFlags(FLAG_RECEIVER_FOREGROUND);
+
+        PendingIntent pending = getBroadcast(context, EXP_CODE, intent,
+                FLAG_UPDATE_CURRENT | FLAG_IMMUTABLE);
+
+        AlarmManagerCompat.setExactAndAllowWhileIdle(manager, RTC_WAKEUP, expirationCheckTime(), pending);
     }
 }
 

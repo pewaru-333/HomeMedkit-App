@@ -6,8 +6,11 @@ public class ConstantsHelper {
     public static final String ADDING = "adding";
     public static final String ALARM_ID = "alarmId";
     public static final String BLANK = "";
+    public static final int BOUND = 200;
     public static final String CIS = "cis";
+    public static final String CHECK_EXP_DATE = "check_exp_date";
     public static final String DUPLICATE = "duplicate";
+    public static final int EXP_CODE = 81000;
     public static final String FINISH = "finish";
     public static final String ID = "id";
     public static final String INTAKE_ID = "intakeId";

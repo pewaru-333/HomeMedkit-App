@@ -25,7 +25,6 @@ import android.view.MenuItem;
 import android.widget.AutoCompleteTextView;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
@@ -159,7 +158,7 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
         buttonSave.setVisibility(INVISIBLE);
     }
 
-    private void createNotificationChannel(@NonNull Context context) {
+    private void createNotificationChannel(Context context) {
         CharSequence name = context.getString(R.string.notification_channel_name);
         String description = context.getString(R.string.notification_channel_description);
 

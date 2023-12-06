@@ -5,6 +5,7 @@ import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
 import static android.app.PendingIntent.getActivity;
 import static java.util.Objects.requireNonNull;
 import static ru.application.homemedkit.helpers.ConstantsHelper.ALARM_ID;
+import static ru.application.homemedkit.helpers.ConstantsHelper.BOUND;
 import static ru.application.homemedkit.helpers.ConstantsHelper.FINISH;
 import static ru.application.homemedkit.helpers.ConstantsHelper.INTERVAL;
 import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_INTAKE;
@@ -39,12 +40,11 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     private static final long DAY = AlarmManager.INTERVAL_DAY;
     private static final long WEEK = AlarmManager.INTERVAL_DAY * 7;
-    private static final int bound = 200;
 
     private static Notification intakeNotification(Context context, long medicineId, boolean flag) {
         MedicineDatabase database = MedicineDatabase.getInstance(context);
         String productName = database.medicineDAO().getProductName(medicineId);
-        int code = new Random().nextInt(bound);
+        int code = new Random().nextInt(BOUND);
 
         String title = context.getString(R.string.text_intake_time) + StringHelper.shortName(productName);
         if (!flag) title += context.getString(R.string.text_medicine_amount_not_enough);
@@ -111,7 +111,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 intakeDAO.delete(new Intake(intakeId));
             }
             playSound(context);
-            compat.notify(new Random().nextInt(bound), notification);
+            compat.notify(new Random().nextInt(BOUND), notification);
         } else {
             alarmSetter.removeAlarm(context, alarmId, intent);
         }

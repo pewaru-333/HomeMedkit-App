@@ -1,6 +1,7 @@
 package ru.application.homemedkit.fragments;
 
 import static android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import static ru.application.homemedkit.helpers.ConstantsHelper.CHECK_EXP_DATE;
 import static ru.application.homemedkit.helpers.SettingsHelper.APP_THEME;
 import static ru.application.homemedkit.helpers.SettingsHelper.LANGUAGE;
 
@@ -8,10 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
-
-import java.util.Objects;
 
 import ru.application.homemedkit.R;
 import ru.application.homemedkit.helpers.SettingsHelper;
@@ -47,12 +45,13 @@ public class FragmentSettings extends PreferenceFragmentCompat implements OnShar
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, @Nullable String key) {
         if (key != null) {
-            ListPreference preference = findPreference(key);
-            final String value = Objects.requireNonNull(preference).getValue();
+            var value = sharedPreferences.getAll().get(key);
 
             switch (key) {
-                case LANGUAGE -> preferences.changeLanguage(value);
-                case APP_THEME -> preferences.setAppTheme(value);
+                case LANGUAGE -> preferences.changeLanguage((String) value);
+                case APP_THEME -> preferences.setAppTheme((String) value);
+                case CHECK_EXP_DATE ->
+                        preferences.setExpDateChecker(requireActivity(), (Boolean) value);
             }
         }
     }

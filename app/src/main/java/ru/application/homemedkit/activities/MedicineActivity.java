@@ -100,6 +100,7 @@ public class MedicineActivity extends AppCompatActivity implements TextWatcher, 
 
         toolbar.setOnMenuItemClickListener(this::onMenuItemClick);
         toolbar.setNavigationOnClickListener(v -> backClick());
+        comment.setRawInputType(InputType.TYPE_CLASS_TEXT);
         buttonAddIntake.setOnClickListener(new AddIntake());
         getOnBackPressedDispatcher().addCallback(new BackButtonPressed());
     }

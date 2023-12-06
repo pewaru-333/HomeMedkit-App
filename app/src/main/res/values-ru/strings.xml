@@ -15,6 +15,7 @@
     <string name="notification_channel_description">Напоминания о приёме лекарств</string>
     <string name="notification_channel_name">Звуковые уведомления</string>
     <string name="preference_app_view">Вид приложения</string>
+    <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
     <string name="preference_language">Язык приложения</string>
     <string name="preference_sorting_type">Сортировка лекарств</string>
     <string name="preference_start_page">Стартовая страница</string>
@@ -24,15 +25,18 @@
     <string name="sorting_from_oldest">Сроку годности (со старых)</string>
     <string name="sorting_z_a">Названию (от Я до А)</string>
     <string name="text_app_theme">Тема приложения</string>
+    <string name="text_attention">Обратите внимание!</string>
     <string name="text_cancel">Отменить</string>
     <string name="text_choose_time">Выберите время</string>
     <string name="text_confirm_exit">Подтвердите выход</string>
     <string name="text_connection_error">Ошибка при подключении!</string>
+    <string name="text_daily_at">Ежедневно в 12:00</string>
     <string name="text_data_matrix_scanner">Сканирование маркировки лекарства</string>
     <string name="text_delete">Удалить</string>
     <string name="text_do_intake">Примите лекарство</string>
     <string name="text_enter_exp_date">Введите срок годности</string>
     <string name="text_enter_product_name">Введите название лекарства</string>
+    <string name="text_expire_soon">"Истекает срок годности лекарства %1$s"</string>
     <string name="text_fill_all_fields">Заполните все поля!</string>
     <string name="text_intake_medicine_finish">Конец</string>
     <string name="text_intake_start">Начало</string>
@@ -54,6 +58,7 @@
     <string name="text_more">Ещё</string>
     <string name="text_no_data_found">Ничего не найдено!</string>
     <string name="text_no">Нет</string>
+    <string name="text_off">Отключено</string>
     <string name="text_period_finish_date">Конечная дата</string>
     <string name="text_period_start_date">Начальная дата</string>
     <string name="text_placeholder">N</string>
@@ -72,6 +77,7 @@
     <string name="text_yes">Да</string>
 
     <string-array name="languages_name">
+        <item>Системный</item>
         <item>Русский</item>
         <item>Английский</item>
     </string-array>
