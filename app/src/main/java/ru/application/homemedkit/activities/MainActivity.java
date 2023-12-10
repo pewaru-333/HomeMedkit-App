@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 import ru.application.homemedkit.R;
@@ -52,17 +51,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getFragmentPage() {
-        BottomNavigationView menu = binding.bottomNavigationBarView;
 
-        if (getIntent().getBooleanExtra(NEW_MEDICINE, false)) {
-            menu.setSelectedItemId(R.id.bottom_menu_medicines);
-        } else if (getIntent().getBooleanExtra(NEW_INTAKE, false)) {
-            menu.setSelectedItemId(R.id.bottom_menu_intakes);
-        } else if (getIntent().getBooleanExtra(SETTINGS_CHANGED, false)) {
-            menu.setSelectedItemId(R.id.bottom_menu_settings);
-        } else {
-            toHomePage();
-        }
+        if (getIntent().getBooleanExtra(NEW_MEDICINE, false))
+            binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_medicines);
+        else if (getIntent().getBooleanExtra(NEW_INTAKE, false))
+            binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_intakes);
+        else if (getIntent().getBooleanExtra(SETTINGS_CHANGED, false))
+            binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_settings);
+        else toHomePage();
     }
 
     private NavigationBarView.OnItemSelectedListener pickMenuItem() {
@@ -82,12 +78,13 @@ public class MainActivity extends AppCompatActivity {
         String[] pages = getResources().getStringArray(R.array.fragment_pages);
         String homePage = settings.getHomePage();
 
-        BottomNavigationView menu = binding.bottomNavigationBarView;
-
-        if (homePage.equals(pages[1])) menu.setSelectedItemId(R.id.bottom_menu_medicines);
-        else if (homePage.equals(pages[2])) menu.setSelectedItemId(R.id.bottom_menu_intakes);
-        else if (homePage.equals(pages[3])) menu.setSelectedItemId(R.id.bottom_menu_settings);
-        else menu.setSelectedItemId(R.id.bottom_menu_main);
+        if (homePage.equals(pages[1]))
+            binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_medicines);
+        else if (homePage.equals(pages[2]))
+            binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_intakes);
+        else if (homePage.equals(pages[3]))
+            binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_settings);
+        else binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_main);
     }
 
     private void replace(Fragment fragment) {

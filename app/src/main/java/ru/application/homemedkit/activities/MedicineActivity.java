@@ -4,7 +4,6 @@ import static android.view.View.GONE;
 import static android.view.View.OnClickListener;
 import static android.view.View.VISIBLE;
 import static java.lang.String.valueOf;
-import static ru.application.homemedkit.helpers.ConstantsHelper.ACCEPTED_KEYS;
 import static ru.application.homemedkit.helpers.ConstantsHelper.ADD;
 import static ru.application.homemedkit.helpers.ConstantsHelper.ADDING;
 import static ru.application.homemedkit.helpers.ConstantsHelper.BLANK;
@@ -25,7 +24,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.text.method.DigitsKeyListener;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -100,7 +98,6 @@ public class MedicineActivity extends AppCompatActivity implements TextWatcher, 
 
         toolbar.setOnMenuItemClickListener(this::onMenuItemClick);
         toolbar.setNavigationOnClickListener(v -> backClick());
-        comment.setRawInputType(InputType.TYPE_CLASS_TEXT);
         buttonAddIntake.setOnClickListener(new AddIntake());
         getOnBackPressedDispatcher().addCallback(new BackButtonPressed());
     }
@@ -196,7 +193,6 @@ public class MedicineActivity extends AppCompatActivity implements TextWatcher, 
             item.setCursorVisible(true);
         });
         expDate.addTextChangedListener(flag ? this : null);
-        comment.setKeyListener(DigitsKeyListener.getInstance(ACCEPTED_KEYS));
     }
 
     @Override

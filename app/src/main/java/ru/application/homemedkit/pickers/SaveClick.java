@@ -4,6 +4,7 @@ import static java.lang.String.valueOf;
 import static ru.application.homemedkit.activities.IntakeActivity.edit;
 import static ru.application.homemedkit.activities.IntakeActivity.intervalType;
 import static ru.application.homemedkit.activities.IntakeActivity.periodType;
+import static ru.application.homemedkit.helpers.ConstantsHelper.HASHTAG;
 import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_INTAKE;
 import static ru.application.homemedkit.helpers.DateHelper.longSecond;
 import static ru.application.homemedkit.helpers.DateHelper.longSeconds;
@@ -12,16 +13,22 @@ import static ru.application.homemedkit.helpers.StringHelper.timesString;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import ru.application.homemedkit.R;
 import ru.application.homemedkit.activities.MainActivity;
@@ -32,15 +39,16 @@ import ru.application.homemedkit.databaseController.Intake;
 import ru.application.homemedkit.databaseController.MedicineDatabase;
 import ru.application.homemedkit.graphics.Toasts;
 
-public class SaveClick implements View.OnClickListener {
-
+public class SaveClick implements View.OnClickListener, TextWatcher {
     private final AppCompatActivity activity;
     private final MedicineDatabase database;
     private final Intake intake;
     private final FlexboxLayout timesGroup;
-    private final TextInputEditText productName, amount, startDate, finalDate;
     private final MaterialAutoCompleteTextView interval, period;
+    private final TextInputEditText productName, amount, startDate, finalDate;
     private final long medicineId;
+    private List<? extends EditText> fields;
+    private List<Chip> chips;
 
     public SaveClick(AppCompatActivity activity, long intakeId, long medicineId) {
         this.activity = activity;
@@ -71,9 +79,21 @@ public class SaveClick implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         String[] intervals = activity.getResources().getStringArray(R.array.interval_types);
+        String error = activity.getString(R.string.text_fill_this_field);
 
-        boolean typed = Stream.of(productName, amount, interval, period).allMatch(item ->
-                item.getText().length() > 0);
+        fields = Arrays.asList(productName, amount, interval, period);
+        chips = getChips();
+
+        for (EditText item : fields) item.addTextChangedListener(this);
+        for (Chip item : chips) item.addTextChangedListener(this);
+
+        boolean typed = fields.stream().noneMatch(this::isEmpty) && chips.stream().noneMatch(this::isTime);
+
+        if (fields.stream().anyMatch(this::isEmpty)) for (EditText item : fields)
+            if (isEmpty(item)) ((TextInputLayout) item.getParent().getParent()).setError(error);
+
+        if (chips.stream().anyMatch(this::isTime)) for (Chip chip : chips)
+            if (isTime(chip)) chip.setError(error);
 
         if (typed) {
             double prodAmount = parseAmount(valueOf(amount.getText()));
@@ -120,5 +140,40 @@ public class SaveClick implements View.OnClickListener {
 
             setter.removeAlarm(context, alarmId, intent);
         }
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        for (EditText item : fields)
+            if (!isEmpty(item)) ((TextInputLayout) item.getParent().getParent()).setError(null);
+
+        for (Chip item : chips) if (!isTime(item)) item.setError(null, null);
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+
+    }
+
+    private boolean isEmpty(EditText field) {
+        return field.getText().length() == 0;
+    }
+
+    private boolean isTime(Chip chip) {
+        return chip.getText().toString().contains(HASHTAG);
+    }
+
+    private List<Chip> getChips() {
+        List<Chip> chips = new ArrayList<>(timesGroup.getChildCount());
+        for (int i = 0; i < timesGroup.getChildCount(); i++) {
+            chips.add((Chip) timesGroup.getChildAt(i));
+        }
+
+        return chips;
     }
 }

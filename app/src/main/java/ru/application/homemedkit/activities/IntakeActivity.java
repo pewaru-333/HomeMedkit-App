@@ -32,6 +32,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -132,13 +133,13 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
         if (intervalType.equals(intervals[0])) getAutoTextItem(interval, 0);
         else if (intervalType.equals(intervals[1])) getAutoTextItem(interval, 1);
         else if (intervalType.equals(intervals[2])) getAutoTextItem(interval, 2);
-        else if (intervalType.equals(intervals[3])) getAutoTextItem(interval, 3);
+        else getAutoTextItem(interval, 3);
 
         periodType = intake.period;
         if (periodType.equals(periods[0])) getAutoTextItem(period, 0);
         else if (periodType.equals(periods[1])) getAutoTextItem(period, 1);
         else if (periodType.equals(periods[2])) getAutoTextItem(period, 2);
-        else if (periodType.equals(periods[3])) getAutoTextItem(period, 3);
+        else getAutoTextItem(period, 3);
 
         timesGroup.removeAllViews();
         for (String time : intake.time.split(SEMICOLON)) {
@@ -184,14 +185,14 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
     }
 
     public void setEditLayout() {
-        amount.setRawInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        amount.setRawInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         amount.setFocusableInTouchMode(true);
         amount.setCursorVisible(true);
         amount.setFocusable(true);
 
         for (int i = 0; i < timesGroup.getChildCount(); i++) {
             timesGroup.getChildAt(i).setOnClickListener(new ClockPicker(this,
-                    (TextInputEditText) timesGroup.getChildAt(i)));
+                    (Chip) timesGroup.getChildAt(i)));
         }
 
         period.setSimpleItems(R.array.period_types_name);

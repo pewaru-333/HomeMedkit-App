@@ -38,6 +38,7 @@
     <string name="text_enter_product_name">Введите название лекарства</string>
     <string name="text_expire_soon">"Истекает срок годности лекарства %1$s"</string>
     <string name="text_fill_all_fields">Заполните все поля!</string>
+    <string name="text_fill_this_field">Заполните это поле!</string>
     <string name="text_intake_medicine_finish">Конец</string>
     <string name="text_intake_start">Начало</string>
     <string name="text_intake_time">Время приёма лекарства\u0020</string>

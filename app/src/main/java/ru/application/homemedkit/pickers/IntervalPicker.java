@@ -18,8 +18,7 @@ public class IntervalPicker implements AdapterView.OnItemClickListener {
     private final FlexboxLayout timesGroup;
     private final TextInputLayout periodLayout;
     private final MaterialAutoCompleteTextView period;
-    private final String[] intervals;
-    private final String[] periods, periodsL;
+    private final String[] intervals, periods, periodsL;
 
     public IntervalPicker(IntakeActivity activity) {
         this.activity = activity;

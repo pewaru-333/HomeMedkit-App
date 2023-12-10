@@ -1,21 +1,22 @@
 package ru.application.homemedkit.pickers;
 
+import static android.util.TypedValue.COMPLEX_UNIT_DIP;
+import static android.util.TypedValue.applyDimension;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static java.lang.String.format;
 
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
-import android.view.ViewGroup.LayoutParams;
+import android.view.ViewGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
 
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.chip.Chip;
 
 import ru.application.homemedkit.R;
 
-public class CustomTimePicker extends TextInputEditText {
-
+public class CustomTimePicker extends Chip {
     private final int one = 1;
 
     public CustomTimePicker(Context context) {
@@ -23,7 +24,7 @@ public class CustomTimePicker extends TextInputEditText {
 
         setAttributes((AppCompatActivity) context);
 
-        setHint(format(context.getString(R.string.intake_time_placeholder), one));
+        setText(format(context.getString(R.string.intake_time_placeholder), one));
     }
 
     public CustomTimePicker(Context context, int index) {
@@ -31,7 +32,7 @@ public class CustomTimePicker extends TextInputEditText {
 
         setAttributes((AppCompatActivity) context);
 
-        setHint(format(context.getString(R.string.intake_time_placeholder), index + one));
+        setText(format(context.getString(R.string.intake_time_placeholder), index + one));
     }
 
     public CustomTimePicker(Context context, String time) {
@@ -44,13 +45,19 @@ public class CustomTimePicker extends TextInputEditText {
     }
 
     private void setAttributes(AppCompatActivity context) {
-        setFocusable(false);
-        setCursorVisible(false);
-        setFocusableInTouchMode(false);
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
 
-        setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+        int height = (int) applyDimension(COMPLEX_UNIT_DIP, 64, metrics);
+        float iconSize = applyDimension(COMPLEX_UNIT_DIP, 32, metrics);
+        float stroke = applyDimension(COMPLEX_UNIT_DIP, 2, metrics);
+
+        setLayoutParams(new ViewGroup.LayoutParams(WRAP_CONTENT, height));
         setGravity(Gravity.CENTER);
-        setBackground(AppCompatResources.getDrawable(context, R.drawable.shape_edit_text_time));
+        setCheckable(false);
+        setTextAppearance(android.R.style.TextAppearance_Material_Large);
+        setChipIconResource(R.drawable.vector_time);
+        setChipIconSize(iconSize);
+        setChipStrokeWidth(stroke);
         setOnClickListener(new ClockPicker(context, this));
     }
 }

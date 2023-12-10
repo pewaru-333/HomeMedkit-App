@@ -1,11 +1,17 @@
 package ru.application.homemedkit.helpers;
 
+import static ru.application.homemedkit.helpers.ConstantsHelper.BLANK;
+import static ru.application.homemedkit.helpers.ConstantsHelper.DOWN_DASH;
+import static ru.application.homemedkit.helpers.ConstantsHelper.SEMICOLON;
+import static ru.application.homemedkit.helpers.ConstantsHelper.WHITESPACE_R;
+import static ru.application.homemedkit.helpers.DateHelper.sortTimes;
+
 import android.content.Context;
 
 import androidx.core.text.HtmlCompat;
 
 import com.google.android.flexbox.FlexboxLayout;
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.chip.Chip;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,6 +19,7 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -70,14 +77,16 @@ public class StringHelper {
         int childCount = layout.getChildCount();
         StringBuilder times = new StringBuilder(childCount * 7);
         for (int i = 0; i < childCount; i++)
-            times.append(((TextInputEditText) layout.getChildAt(i)).getText()).append(",");
+            times.append(((Chip) layout.getChildAt(i)).getText()).append(SEMICOLON);
         times.deleteCharAt(times.length() - 1);
 
-        return times.toString();
+        String sorted = Arrays.toString(sortTimes(times.toString().strip()));
+
+        return sorted.substring(1, sorted.length() - 1).replaceAll(WHITESPACE_R, BLANK);
     }
 
     public static int daysInterval(String interval) {
-        String amount = interval.split("_")[1];
+        String amount = interval.split(DOWN_DASH)[1];
         return Integer.parseInt(amount);
     }
 

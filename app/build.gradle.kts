@@ -18,8 +18,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 34
-        versionCode = 6
-        versionName = "1.0.5"
+        versionCode = 7
+        versionName = "1.0.6"
 
         buildConfigField("String", "BASE_URL", properties.getProperty("BASE_URL"))
         buildConfigField("String", "API_URL", properties.getProperty("API_URL"))

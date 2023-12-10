@@ -10,8 +10,6 @@ import android.os.Build;
 import android.view.View;
 import android.widget.NumberPicker;
 
-import androidx.annotation.NonNull;
-
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -22,7 +20,7 @@ public class ExpDateDialog extends MaterialAlertDialogBuilder {
 
     private final Activity activity;
 
-    public ExpDateDialog(@NonNull Context context) {
+    public ExpDateDialog(Context context) {
         super(context);
 
         activity = (Activity) context;

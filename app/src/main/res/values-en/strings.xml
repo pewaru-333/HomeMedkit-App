@@ -38,6 +38,7 @@
     <string name="text_enter_product_name">Enter medicine name</string>
     <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
     <string name="text_fill_all_fields">Fill all fields!</string>
+    <string name="text_fill_this_field">Fill this field!</string>
     <string name="text_intake_medicine_finish">Finish</string>
     <string name="text_intake_start">Start</string>
     <string name="text_intake_time">It\'s time to intake\\u0020</string>

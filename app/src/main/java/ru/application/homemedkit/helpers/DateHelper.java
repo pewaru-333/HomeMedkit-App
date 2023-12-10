@@ -30,6 +30,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -121,7 +122,7 @@ public class DateHelper {
     }
 
     public static long[] longSeconds(String time) {
-        List<String> times = Arrays.asList(time.split(SEMICOLON));
+        List<String> times = Arrays.asList(sortTimes(time));
         ArrayList<Long> triggers = new ArrayList<>(times.size());
 
         for (int i = 0; i < times.size(); i++) triggers.add(longSecond(times.get(i)));
@@ -157,5 +158,11 @@ public class DateHelper {
         }
 
         return calendar.getTimeInMillis();
+    }
+
+    public static String[] sortTimes(String time) {
+        List<String> times = Arrays.asList(time.split(SEMICOLON));
+        Collections.sort(times);
+        return times.toArray(new String[]{});
     }
 }
