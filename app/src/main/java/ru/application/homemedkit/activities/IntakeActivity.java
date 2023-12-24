@@ -41,7 +41,9 @@ import com.google.android.material.textfield.TextInputLayout;
 import ru.application.homemedkit.R;
 import ru.application.homemedkit.databaseController.Intake;
 import ru.application.homemedkit.databaseController.MedicineDatabase;
+import ru.application.homemedkit.helpers.SettingsHelper;
 import ru.application.homemedkit.pickers.ClockPicker;
+import ru.application.homemedkit.pickers.CustomRangePicker;
 import ru.application.homemedkit.pickers.CustomTimePicker;
 import ru.application.homemedkit.pickers.EditClick;
 import ru.application.homemedkit.pickers.IntervalPicker;
@@ -53,13 +55,13 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
     public static String intervalType, periodType;
     public static boolean edit = false;
     private MedicineDatabase database;
-    private long intakeId, medicineId;
     private MaterialToolbar toolbar;
     private FlexboxLayout timesGroup, datesLayout;
     private TextInputLayout periodLayout;
     private TextInputEditText productName, amount, startDate, finalDate;
     private MaterialAutoCompleteTextView interval, period;
     private FloatingActionButton buttonSave, buttonEdit;
+    private long intakeId, medicineId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,12 +107,19 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
     }
 
     private void setAddingLayout() {
+        boolean isLight = new SettingsHelper(this).getLightPeriod();
+
         String name = database.medicineDAO().getProductName(medicineId);
 
         productName.setText(name);
 
         interval.setOnItemClickListener(new IntervalPicker(this));
         period.setOnItemClickListener(new PeriodPicker(this));
+
+        if (!isLight) {
+            startDate.setOnClickListener(new CustomRangePicker(this));
+            finalDate.setOnClickListener(new CustomRangePicker(this));
+        }
 
         buttonEdit.setVisibility(INVISIBLE);
         buttonSave.setVisibility(VISIBLE);
@@ -185,6 +194,8 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
     }
 
     public void setEditLayout() {
+        boolean isLight = new SettingsHelper(this).getLightPeriod();
+
         amount.setRawInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         amount.setFocusableInTouchMode(true);
         amount.setCursorVisible(true);
@@ -200,6 +211,11 @@ public class IntakeActivity extends AppCompatActivity implements Toolbar.OnMenuI
 
         interval.setOnItemClickListener(new IntervalPicker(this));
         period.setOnItemClickListener(new PeriodPicker(this));
+
+        if (!isLight) {
+            startDate.setOnClickListener(new CustomRangePicker(this));
+            finalDate.setOnClickListener(new CustomRangePicker(this));
+        }
     }
 
     private void backClick() {

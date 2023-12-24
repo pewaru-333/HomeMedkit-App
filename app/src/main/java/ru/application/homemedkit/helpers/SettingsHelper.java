@@ -21,10 +21,9 @@ public class SettingsHelper {
     public static final String LANGUAGE = "language";
     public static final String KEY_FRAGMENT = "default_start_fragment";
     public static final String APP_THEME = "app_theme";
+    public static final String LIGHT_PERIOD = "light_period_picker";
     private static final String KEY_ORDER = "sorting_order";
-    public static String DEFAULT_FRAGMENT;
-    public static String DEFAULT_SORTING;
-    public static String DEFAULT_THEME;
+    public static String DEFAULT_FRAGMENT, DEFAULT_SORTING, DEFAULT_THEME;
     private final SharedPreferences preferences;
     private String[] themes;
 
@@ -74,6 +73,14 @@ public class SettingsHelper {
 
     public boolean checkExpirationDate() {
         return preferences.getBoolean(CHECK_EXP_DATE, true);
+    }
+
+    public boolean getLightPeriod() {
+        return preferences.getBoolean(LIGHT_PERIOD, true);
+    }
+
+    public void setLightPeriod(boolean value) {
+        preferences.edit().putBoolean(LIGHT_PERIOD, value).apply();
     }
 
     private void loadValues(Context context) {

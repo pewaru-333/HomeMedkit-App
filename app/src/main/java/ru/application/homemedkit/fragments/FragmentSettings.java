@@ -4,6 +4,7 @@ import static android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import static ru.application.homemedkit.helpers.ConstantsHelper.CHECK_EXP_DATE;
 import static ru.application.homemedkit.helpers.SettingsHelper.APP_THEME;
 import static ru.application.homemedkit.helpers.SettingsHelper.LANGUAGE;
+import static ru.application.homemedkit.helpers.SettingsHelper.LIGHT_PERIOD;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -52,6 +53,7 @@ public class FragmentSettings extends PreferenceFragmentCompat implements OnShar
                 case APP_THEME -> preferences.setAppTheme((String) value);
                 case CHECK_EXP_DATE ->
                         preferences.setExpDateChecker(requireActivity(), (Boolean) value);
+                case LIGHT_PERIOD -> preferences.setLightPeriod((Boolean) value);
             }
         }
     }

@@ -4,6 +4,7 @@ import static ru.application.homemedkit.helpers.ImageHelper.setImage;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,9 +71,15 @@ public class IntakesAdapter extends RecyclerView.Adapter<IntakesAdapter.ItemsVie
         String form = database.medicineDAO().getByPK(intake.medicineId).prodFormNormName;
         Context context = holder.itemView.getContext();
 
-        holder.image.setImageDrawable(setImage(context, form));
-        holder.name.setText(StringHelper.shortName(productName));
-        holder.interval.setText(StringHelper.intervalName(context, intake.interval));
+        Drawable image = setImage(context, form);
+        String shortName = StringHelper.shortName(productName);
+        String intervalName = StringHelper.intervalName(context, intake.interval);
+        String startDate = context.getResources().getString(R.string.text_from_date_card_intake, intake.startDate);
+
+        holder.image.setImageDrawable(image);
+        holder.name.setText(shortName);
+        holder.interval.setText(intervalName);
+        holder.from.setText(startDate);
         holder.time.setText(intake.time);
     }
 
@@ -84,7 +91,7 @@ public class IntakesAdapter extends RecyclerView.Adapter<IntakesAdapter.ItemsVie
     public static class ItemsViewHolder extends RecyclerView.ViewHolder {
 
         private final ImageView image;
-        private final MaterialTextView name, interval, time;
+        private final MaterialTextView name, interval, time, from;
 
         public ItemsViewHolder(@NonNull View view, RecyclerViewInterface recyclerView) {
             super(view);
@@ -93,6 +100,7 @@ public class IntakesAdapter extends RecyclerView.Adapter<IntakesAdapter.ItemsVie
             name = view.findViewById(R.id.intake_card_name);
             interval = view.findViewById(R.id.intake_card_interval);
             time = view.findViewById(R.id.intake_card_time);
+            from = view.findViewById(R.id.intake_card_start_date);
 
             view.setOnClickListener(v -> {
                 if (recyclerView != null) {

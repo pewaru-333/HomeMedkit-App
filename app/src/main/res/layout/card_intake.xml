@@ -64,6 +64,18 @@
                 app:layout_constraintTop_toBottomOf="@+id/intake_card_name" />
 
             <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/intake_card_start_date"
+                style="@style/TextAppearance.Material3.BodyLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="6dp"
+                android:text="@string/text_from_date_card_intake"
+                android:textColor="?attr/colorOnTertiaryContainer"
+                app:layout_constraintStart_toEndOf="@+id/intake_card_interval"
+                app:layout_constraintTop_toBottomOf="@+id/intake_card_name" />
+
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/intake_card_time"
                 style="@style/TextAppearance.Material3.BodyMedium"
                 android:layout_width="wrap_content"

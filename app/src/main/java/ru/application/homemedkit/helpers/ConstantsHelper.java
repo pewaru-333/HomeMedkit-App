@@ -1,5 +1,7 @@
 package ru.application.homemedkit.helpers;
 
+import java.text.SimpleDateFormat;
+
 public class ConstantsHelper {
     public static final String ADD = "add";
     public static final String ADDING = "adding";
@@ -19,7 +21,9 @@ public class ConstantsHelper {
     public static final String MEDICINE_ID = "medicine_id";
     public static final String NEW_INTAKE = "newIntake";
     public static final String NEW_MEDICINE = "newMedicine";
+    public static final String PATTERN = "dd.MM.yyyy";
     public static final String PERIOD = "period";
+    public static final SimpleDateFormat RUS = new SimpleDateFormat(PATTERN, DateHelper.RUSSIAN);
     public static final String SEMICOLON = ",";
     public static final String SETTINGS_CHANGED = "settingsChanged";
     public static final String SOUND_GROUP = "Sound group";

@@ -40,12 +40,13 @@ import ru.application.homemedkit.databaseController.MedicineDatabase;
 import ru.application.homemedkit.graphics.Toasts;
 
 public class SaveClick implements View.OnClickListener, TextWatcher {
+    private static TextInputEditText startDate, finalDate;
     private final AppCompatActivity activity;
     private final MedicineDatabase database;
     private final Intake intake;
     private final FlexboxLayout timesGroup;
     private final MaterialAutoCompleteTextView interval, period;
-    private final TextInputEditText productName, amount, startDate, finalDate;
+    private final TextInputEditText productName, amount;
     private final long medicineId;
     private List<? extends EditText> fields;
     private List<Chip> chips;
@@ -67,11 +68,12 @@ public class SaveClick implements View.OnClickListener, TextWatcher {
     }
 
     private static void createAlarm(AlarmSetter setter, long newIntake, String[] intervals, String time, String finish) {
+        String start = valueOf(startDate.getText());
         if (intervalType.equals(intervals[0])) {
-            long[] triggers = longSeconds(time);
+            long[] triggers = longSeconds(start, time);
             setter.setAlarm(newIntake, triggers, intervalType, finish);
         } else {
-            long trigger = longSecond(time);
+            long trigger = longSecond(start, time);
             setter.setAlarm(newIntake, trigger, intervalType, finish);
         }
     }
@@ -81,7 +83,7 @@ public class SaveClick implements View.OnClickListener, TextWatcher {
         String[] intervals = activity.getResources().getStringArray(R.array.interval_types);
         String error = activity.getString(R.string.text_fill_this_field);
 
-        fields = Arrays.asList(productName, amount, interval, period);
+        fields = Arrays.asList(productName, amount, interval, period, startDate, finalDate);
         chips = getChips();
 
         for (EditText item : fields) item.addTextChangedListener(this);

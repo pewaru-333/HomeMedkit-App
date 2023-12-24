@@ -5,16 +5,13 @@ import static com.google.android.material.datepicker.MaterialDatePicker.INPUT_MO
 import static com.google.android.material.datepicker.MaterialDatePicker.todayInUtcMilliseconds;
 import static ru.application.homemedkit.helpers.ConstantsHelper.RUS;
 import static ru.application.homemedkit.helpers.ConstantsHelper.START_DATE;
+import static ru.application.homemedkit.helpers.DateHelper.formatIntake;
 
 import android.app.AlarmManager;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.os.Bundle;
+import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
+import androidx.core.util.Pair;
 
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointForward;
@@ -23,20 +20,23 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputEditText;
 
 import ru.application.homemedkit.R;
-import ru.application.homemedkit.dialogs.SpinnerDialog;
-import ru.application.homemedkit.helpers.DateHelper;
+import ru.application.homemedkit.activities.IntakeActivity;
 
-public class CustomDatePicker extends DialogFragment {
+public class CustomRangePicker implements View.OnClickListener {
     private final AppCompatActivity activity;
-    private final MaterialDatePicker<Long> picker;
-    private final MaterialAutoCompleteTextView interval;
+    private final MaterialDatePicker<Pair<Long, Long>> picker;
+    private final MaterialAutoCompleteTextView period;
+    private final TextInputEditText start, finish;
 
-    public CustomDatePicker(AppCompatActivity activity) {
+    public CustomRangePicker(AppCompatActivity activity) {
         this.activity = activity;
 
-        interval = activity.findViewById(R.id.intake_edit_text_interval);
+        period = activity.findViewById(R.id.intake_edit_text_period);
+        start = activity.findViewById(R.id.intake_calendar_start);
+        finish = activity.findViewById(R.id.intake_calendar_finish);
 
         long now = todayInUtcMilliseconds();
+        long week = now + 7 * AlarmManager.INTERVAL_DAY;
         long year = now + 365 * AlarmManager.INTERVAL_DAY;
 
         CalendarConstraints constraints = new CalendarConstraints.Builder()
@@ -45,43 +45,30 @@ public class CustomDatePicker extends DialogFragment {
                 .setEnd(year)
                 .build();
 
-        picker = Builder.datePicker()
-                .setTitleText(R.string.intake_weekly_period_choose_day)
+        picker = Builder.dateRangePicker()
+                .setTitleText(R.string.text_pick_period)
                 .setInputMode(INPUT_MODE_CALENDAR)
                 .setTextInputFormat(RUS)
                 .setCalendarConstraints(constraints)
+                .setSelection(new Pair<>(now, week))
                 .build();
-
-        picker.addOnDismissListener(this::dismissAll);
-        picker.addOnCancelListener(this::dismissAll);
-
-        show(activity.getSupportFragmentManager(), START_DATE);
     }
 
-    @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+    public void onClick(View v) {
         picker.show(activity.getSupportFragmentManager(), START_DATE);
         picker.addOnPositiveButtonClickListener(this::onPositiveButtonClick);
-
-        return super.onCreateDialog(savedInstanceState);
     }
 
-    private void onPositiveButtonClick(Long selection) {
-        TextInputEditText startDate = activity.findViewById(R.id.intake_calendar_start);
-        String interval = activity.getResources().getStringArray(R.array.interval_types)[2];
+    private void onPositiveButtonClick(Pair<Long, Long> selection) {
+        String periodL = activity.getResources().getStringArray(R.array.period_types_name)[2];
+        String first = formatIntake(selection.first);
+        String second = formatIntake(selection.second);
 
-        String text = DateHelper.formatIntake(selection);
-        startDate.setText(text);
+        period.setText(periodL);
+        start.setText(first);
+        finish.setText(second);
 
-        dismiss();
-        SpinnerDialog.SELECTION = selection;
-        new SpinnerDialog(activity, interval);
-    }
-
-    private void dismissAll(DialogInterface dialogInterface) {
-        interval.setText(null);
-        dialogInterface.dismiss();
-        dismiss();
+        IntakeActivity.periodType = activity.getResources().getStringArray(R.array.period_types)[2];
     }
 }

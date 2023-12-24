@@ -16,6 +16,7 @@
     <string name="notification_channel_name">Звуковые уведомления</string>
     <string name="preference_app_view">Вид приложения</string>
     <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
+    <string name="preference_easy_period_picker">Упрощённый выбор периода приёма лекарства</string>
     <string name="preference_language">Язык приложения</string>
     <string name="preference_sorting_type">Сортировка лекарств</string>
     <string name="preference_start_page">Стартовая страница</string>
@@ -39,6 +40,7 @@
     <string name="text_expire_soon">"Истекает срок годности лекарства %1$s"</string>
     <string name="text_fill_all_fields">Заполните все поля!</string>
     <string name="text_fill_this_field">Заполните это поле!</string>
+    <string name="text_from_date_card_intake">(с %1$s)</string>
     <string name="text_intake_medicine_finish">Конец</string>
     <string name="text_intake_start">Начало</string>
     <string name="text_intake_time">Время приёма лекарства\u0020</string>
@@ -60,8 +62,10 @@
     <string name="text_no_data_found">Ничего не найдено!</string>
     <string name="text_no">Нет</string>
     <string name="text_off">Отключено</string>
+    <string name="text_on">Включено</string>
     <string name="text_period_finish_date">Конечная дата</string>
     <string name="text_period_start_date">Начальная дата</string>
+    <string name="text_pick_period">Выберите период</string>
     <string name="text_placeholder">N</string>
     <string name="text_reschedule_alarms">Переназначение оповещений о приёме лекарств</string>
     <string name="text_save">Сохранить</string>

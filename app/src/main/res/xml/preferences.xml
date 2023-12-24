@@ -6,6 +6,16 @@
         app:title="@string/preference_app_view">
 
         <ListPreference
+            app:allowDividerBelow="true"
+            app:defaultValue="Home"
+            app:entries="@array/fragment_pages_name"
+            app:entryValues="@array/fragment_pages"
+            app:key="default_start_fragment"
+            app:persistent="true"
+            app:title="@string/preference_start_page"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
             app:allowDividerAbove="true"
             app:defaultValue="new-old"
             app:entries="@array/sorting_types_name"
@@ -15,15 +25,15 @@
             app:title="@string/preference_sorting_type"
             app:useSimpleSummaryProvider="true" />
 
-        <ListPreference
-            app:allowDividerBelow="true"
-            app:defaultValue="Home"
-            app:entries="@array/fragment_pages_name"
-            app:entryValues="@array/fragment_pages"
-            app:key="default_start_fragment"
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:enabled="true"
+            app:key="light_period_picker"
             app:persistent="true"
-            app:title="@string/preference_start_page"
-            app:useSimpleSummaryProvider="true" />
+            app:singleLineTitle="false"
+            app:summaryOff="@string/text_off"
+            app:summaryOn="@string/text_on"
+            app:title="@string/preference_easy_period_picker" />
 
         <SwitchPreferenceCompat
             app:allowDividerAbove="true"

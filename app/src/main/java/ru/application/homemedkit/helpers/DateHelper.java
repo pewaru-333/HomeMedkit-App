@@ -12,11 +12,13 @@ import static android.icu.util.Calendar.MILLISECOND;
 import static android.icu.util.Calendar.MINUTE;
 import static android.icu.util.Calendar.MONTH;
 import static android.icu.util.Calendar.SECOND;
+import static android.icu.util.Calendar.WEEK_OF_YEAR;
 import static android.icu.util.Calendar.YEAR;
 import static android.icu.util.Calendar.getInstance;
 import static android.icu.util.ULocale.US;
 import static android.icu.util.ULocale.getDefault;
 import static ru.application.homemedkit.helpers.ConstantsHelper.BLANK;
+import static ru.application.homemedkit.helpers.ConstantsHelper.PATTERN;
 import static ru.application.homemedkit.helpers.ConstantsHelper.SEMICOLON;
 
 import android.icu.text.DateFormat;
@@ -97,18 +99,34 @@ public class DateHelper {
 
     public static void setCalendarDates(TextInputEditText start, TextInputEditText finish, int days) {
         Calendar calendar = Calendar.getInstance();
-        start.setText(formatIntake(calendar.getTimeInMillis()));
-        calendar.add(DAY_OF_MONTH, days);
-        finish.setText(formatShort.format(calendar.getTime()));
+        String textStart = formatIntake(calendar.getTimeInMillis());
+        start.setText(textStart);
+
+        calendar.add(DAY_OF_MONTH, days - 1);
+        String textFinish = formatShort.format(calendar.getTime());
+        finish.setText(textFinish);
     }
 
-    public static long longSecond(String time) {
+    public static String setCalendarDates(long start, int weeks) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(start);
+        calendar.add(WEEK_OF_YEAR, weeks);
+
+        return formatShort.format(calendar.getTime());
+    }
+
+    public static long longSecond(String start, String time) {
         String pattern = "H:mm";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern, RUSSIAN);
-        LocalTime lt = LocalTime.parse(time, formatter);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(PATTERN, RUSSIAN);
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(pattern, RUSSIAN);
+        LocalDate date = LocalDate.parse(start, dateFormatter);
+        LocalTime lt = LocalTime.parse(time, timeFormatter);
 
         Calendar calendar = getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(YEAR, date.getYear());
+        calendar.set(MONTH, date.getMonthValue() - 1);
+        calendar.set(DATE, date.getDayOfMonth());
         calendar.set(HOUR_OF_DAY, lt.getHour());
         calendar.set(MINUTE, lt.getMinute());
         calendar.set(SECOND, 0);
@@ -121,18 +139,17 @@ public class DateHelper {
         return calendar.getTimeInMillis();
     }
 
-    public static long[] longSeconds(String time) {
+    public static long[] longSeconds(String start, String time) {
         List<String> times = Arrays.asList(sortTimes(time));
         ArrayList<Long> triggers = new ArrayList<>(times.size());
 
-        for (int i = 0; i < times.size(); i++) triggers.add(longSecond(times.get(i)));
+        for (int i = 0; i < times.size(); i++) triggers.add(longSecond(start, times.get(i)));
 
         return triggers.stream().mapToLong(Long::longValue).toArray();
     }
 
     public static long lastDay(String finish) {
-        String pattern = "dd.MM.yyyy";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern, RUSSIAN);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTERN, RUSSIAN);
         LocalDate date = LocalDate.parse(finish, formatter);
 
         Calendar calendar = getInstance();

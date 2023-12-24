@@ -142,7 +142,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/intake_calendar_start"
                         style="@style/CalendarDateIntake"
-                        android:text="@string/text_intake_start" />
+                        android:hint="@string/text_intake_start" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -152,7 +152,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/intake_calendar_finish"
                         style="@style/CalendarDateIntake"
-                        android:text="@string/text_intake_medicine_finish" />
+                        android:hint="@string/text_intake_medicine_finish" />
                 </com.google.android.material.textfield.TextInputLayout>
             </com.google.android.flexbox.FlexboxLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>

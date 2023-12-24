@@ -16,6 +16,7 @@ import java.util.Objects;
 import ru.application.homemedkit.R;
 import ru.application.homemedkit.activities.IntakeActivity;
 import ru.application.homemedkit.dialogs.SpinnerDialog;
+import ru.application.homemedkit.helpers.SettingsHelper;
 
 public class PeriodPicker implements AdapterView.OnItemClickListener {
 
@@ -42,6 +43,15 @@ public class PeriodPicker implements AdapterView.OnItemClickListener {
         Objects.requireNonNull(startDate.getText()).clear();
         Objects.requireNonNull(finalDate.getText()).clear();
 
+        boolean isLight = new SettingsHelper(activity).getLightPeriod();
+        if (!isLight) {
+            startDate.setOnClickListener(new CustomRangePicker(activity));
+            finalDate.setOnClickListener(new CustomRangePicker(activity));
+        } else {
+            startDate.setOnClickListener(null);
+            finalDate.setOnClickListener(null);
+        }
+
         switch (position) {
             case 0 -> {
                 IntakeActivity.periodType = periods[0];
@@ -55,6 +65,8 @@ public class PeriodPicker implements AdapterView.OnItemClickListener {
             }
             case 2 -> {
                 IntakeActivity.periodType = periods[2];
+                startDate.setOnClickListener(null);
+                finalDate.setOnClickListener(null);
                 new SpinnerDialog(activity, PERIOD);
             }
             case 3 -> {

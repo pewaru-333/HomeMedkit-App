@@ -3,50 +3,49 @@ package ru.application.homemedkit.dialogs;
 import static ru.application.homemedkit.helpers.ConstantsHelper.CIS;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.widget.TextView;
-
-import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textview.MaterialTextView;
 
 import ru.application.homemedkit.R;
 import ru.application.homemedkit.activities.MedicineActivity;
 
-public class AddMedicineDialog {
+public class AddMedicineDialog extends MaterialAlertDialogBuilder {
 
     private final Activity activity;
     private final Intent intent;
-    private AlertDialog dialog;
 
-    public AddMedicineDialog(Activity activity, String cis) {
-        this.activity = activity;
+    public AddMedicineDialog(Context context, String cis) {
+        super(context);
 
-        intent = new Intent(activity, MedicineActivity.class);
+        activity = (Activity) context;
+
+        intent = new Intent(context, MedicineActivity.class);
         intent.putExtra(CIS, cis);
     }
 
     public void showDialog() {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
-        builder.setTitle(R.string.text_connection_error)
+        setTitle(R.string.text_connection_error)
                 .setMessage(R.string.text_manual_adding)
-                .setOnCancelListener(dialogInterface -> negative())
-                .setNegativeButton(R.string.text_no, (dialog, id) -> negative())
-                .setPositiveButton(R.string.text_yes, (dialog, id) -> positive());
+                .setOnCancelListener(this::negative)
+                .setNegativeButton(R.string.text_no, (dialog, id) -> negative(dialog))
+                .setPositiveButton(R.string.text_yes, (dialog, id) -> positive(dialog));
 
-        dialog = builder.create();
-        dialog.show();
+        create().show();
 
-        TextView textView = dialog.findViewById(android.R.id.message);
+        MaterialTextView textView = activity.findViewById(android.R.id.message);
         if (textView != null) textView.setTextSize(16);
     }
 
-    public void negative() {
+    private void negative(DialogInterface dialog) {
         dialog.dismiss();
         activity.recreate();
     }
 
-    private void positive() {
+    private void positive(DialogInterface dialog) {
         dialog.dismiss();
         activity.startActivity(intent);
     }
