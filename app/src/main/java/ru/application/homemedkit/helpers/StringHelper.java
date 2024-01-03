@@ -13,9 +13,6 @@ import androidx.core.text.HtmlCompat;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.material.chip.Chip;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -24,40 +21,8 @@ import java.util.Locale;
 import java.util.Objects;
 
 import ru.application.homemedkit.R;
-import ru.application.homemedkit.databaseController.Medicine;
-import ru.application.homemedkit.databaseController.Technical;
 
 public class StringHelper {
-
-    public static Medicine parseJSON(String data) {
-        try {
-            JSONObject parsedJSON = new JSONObject(data);
-            JSONObject drugsData = parsedJSON.getJSONObject("drugsData");
-            JSONObject foiv = drugsData.getJSONObject("foiv");
-            JSONObject vidalData = drugsData.getJSONObject("vidalData");
-            return new Medicine(
-                    parsedJSON.getString("cis"),
-                    parsedJSON.getString("productName"),
-                    drugsData.getLong("expireDate"),
-                    foiv.getString("prodFormNormName"),
-                    foiv.getString("prodDNormName"),
-                    vidalData.getString("phKinetics"),
-                    new Technical(Boolean.TRUE, Boolean.TRUE));
-        } catch (JSONException e) {
-            return new Medicine("no", -1L);
-        }
-    }
-
-    public static String formatCode(String code) {
-        StringBuilder cis = new StringBuilder(code);
-        cis.deleteCharAt(0);
-
-        cis.replace(31, 32, "\u001D");
-        cis.replace(38, 39, "\u001D");
-
-        return cis.toString();
-    }
-
     public static String formName(String name) {
         int i = name.indexOf(' ');
         return i > 0 ? name.substring(0, i) : name;

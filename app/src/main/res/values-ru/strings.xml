@@ -29,6 +29,7 @@
     <string name="text_attention">Обратите внимание!</string>
     <string name="text_cancel">Отменить</string>
     <string name="text_choose_time">Выберите время</string>
+    <string name="text_code_not_found">Код не найден!</string>
     <string name="text_confirm_exit">Подтвердите выход</string>
     <string name="text_connection_error">Ошибка при подключении!</string>
     <string name="text_daily_at">Ежедневно в 12:00</string>
@@ -44,6 +45,7 @@
     <string name="text_intake_medicine_finish">Конец</string>
     <string name="text_intake_start">Начало</string>
     <string name="text_intake_time">Время приёма лекарства\u0020</string>
+    <string name="text_is_not_medicine_code">Это не код лекарства!</string>
     <string name="text_manual_adding">Хотите добавить лекарство вручную?</string>
     <string name="text_medicine_amount_not_enough">, но его оставшегося количества меньше предписанного! Переназначьте приём!</string>
     <string name="text_medicine_amount">Количество лекарства</string>
@@ -75,7 +77,7 @@
     <string name="text_sure_to_exit">Вы точно хотите выйти из приложения?</string>
     <string name="text_to_create">Создать</string>
     <string name="text_to_scan">Отсканировать</string>
-    <string name="text_unknown_error">Неизвестная ошибка</string>
+    <string name="text_unknown_error">Неверный тип кода!</string>
     <string name="text_wrong_code">Неверный код!</string>
     <string name="text_wrong_interval">Неверный интервал!</string>
     <string name="text_wrong_period">Неверный период!</string>

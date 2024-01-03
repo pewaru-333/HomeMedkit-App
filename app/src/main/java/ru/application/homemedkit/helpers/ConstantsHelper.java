@@ -8,6 +8,7 @@ public class ConstantsHelper {
     public static final String ALARM_ID = "alarmId";
     public static final String BLANK = "";
     public static final int BOUND = 200;
+    public static final String CATEGORY = "drugs";
     public static final String CIS = "cis";
     public static final String CHECK_EXP_DATE = "check_exp_date";
     public static final String HASHTAG = "#";

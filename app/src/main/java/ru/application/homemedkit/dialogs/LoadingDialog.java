@@ -33,7 +33,7 @@ public class LoadingDialog extends MaterialAlertDialogBuilder {
         setCancelable(false);
 
         dialog = create();
-        show();
+        dialog.show();
     }
 
     public void dismissDialog() {

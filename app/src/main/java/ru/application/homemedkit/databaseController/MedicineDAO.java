@@ -10,20 +10,16 @@ import java.util.List;
 
 @Dao
 public interface MedicineDAO {
+
+    // ============================== Queries ==============================
     @Query("SELECT * FROM medicines")
     List<Medicine> getAll();
 
     @Query("SELECT productName FROM medicines WHERE id=:medicineId")
     String getProductName(long medicineId);
 
-    @Insert
-    long add(Medicine medicine);
-
-    @Update
-    void update(Medicine medicine);
-
-    @Delete
-    void delete(Medicine medicine);
+    @Query("SELECT id FROM medicines where cis=:cis")
+    long getIDbyCis(String cis);
 
     @Query("SELECT * FROM medicines WHERE id = :id ")
     Medicine getByPK(long id);
@@ -33,4 +29,16 @@ public interface MedicineDAO {
 
     @Query("UPDATE medicines SET prodAmount = prodAmount-:amount WHERE id = :id")
     void intakeMedicine(long id, double amount);
+
+    // ============================== Insert ==============================
+    @Insert
+    long add(Medicine medicine);
+
+    // ============================== Update ==============================
+    @Update
+    void update(Medicine medicine);
+
+    // ============================== Delete ==============================
+    @Delete
+    void delete(Medicine medicine);
 }

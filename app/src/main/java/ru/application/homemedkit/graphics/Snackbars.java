@@ -23,14 +23,42 @@ public class Snackbars {
         ERROR_COLOR = com.google.android.material.R.color.design_default_color_error;
     }
 
-
-    public void error() {
+    public void wrongCode() {
         int id = activity.getClass().equals(ScannerActivity.class) ?
                 R.id.scanner_view : R.id.scanned_medicine_top_app_bar_toolbar;
 
         Snackbar snackbar = Snackbar.make(activity.findViewById(id), R.string.text_wrong_code, ONE);
         snackbar.setBackgroundTint(ContextCompat.getColor(activity, ERROR_COLOR));
         snackbar.addCallback(new Recreate());
+        snackbar.show();
+    }
+
+    public void codeNotFound() {
+        int id = activity.getClass().equals(ScannerActivity.class) ?
+                R.id.scanner_view : R.id.scanned_medicine_top_app_bar_toolbar;
+
+        Snackbar snackbar = Snackbar.make(activity.findViewById(id), R.string.text_code_not_found, ONE);
+        snackbar.setBackgroundTint(ContextCompat.getColor(activity, ERROR_COLOR));
+        snackbar.addCallback(new Recreate());
+        snackbar.show();
+    }
+
+    public void wrongCodeCategory() {
+        int id = activity.getClass().equals(ScannerActivity.class) ?
+                R.id.scanner_view : R.id.scanned_medicine_top_app_bar_toolbar;
+
+        Snackbar snackbar = Snackbar.make(activity.findViewById(id), R.string.text_is_not_medicine_code, ONE);
+        snackbar.setBackgroundTint(ContextCompat.getColor(activity, ERROR_COLOR));
+        snackbar.addCallback(new Recreate());
+        snackbar.show();
+    }
+
+    public void error() {
+        int id = activity.getClass().equals(ScannerActivity.class) ?
+                R.id.scanner_view : R.id.scanned_medicine_top_app_bar_toolbar;
+
+        Snackbar snackbar = Snackbar.make(activity.findViewById(id), R.string.text_unknown_error, ONE);
+        snackbar.setBackgroundTint(ContextCompat.getColor(activity, ERROR_COLOR));
         snackbar.show();
     }
 
@@ -65,7 +93,8 @@ public class Snackbars {
         @Override
         public void onDismissed(Snackbar transientBottomBar, int event) {
             super.onDismissed(transientBottomBar, event);
-            activity.recreate();
+            if (activity.getClass().equals(ScannerActivity.class))
+                activity.recreate();
         }
     }
 }
