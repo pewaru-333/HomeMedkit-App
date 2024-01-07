@@ -192,10 +192,10 @@
 
             <ImageView
                 android:id="@+id/image_medicine_scanned_type"
-                android:layout_width="128dp"
-                android:layout_height="128dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_marginTop="22dp"
+                android:layout_marginRight="24dp"
                 android:src="@drawable/vector_question"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

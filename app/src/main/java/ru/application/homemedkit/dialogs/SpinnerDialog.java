@@ -26,9 +26,9 @@ public class SpinnerDialog extends MaterialAlertDialogBuilder {
     public static long SELECTION = -1;
     private final Context context;
     private final String textSave;
+    private final MaterialAutoCompleteTextView pickerInterval, pickerPeriod;
     private FlexboxLayout timesGroup, datesLayout;
     private TextInputLayout periodLayout;
-    private final MaterialAutoCompleteTextView pickerInterval, pickerPeriod;
     private TextInputEditText startDate, finalDate, spinner;
     private View inflate;
     private int counter = 2;

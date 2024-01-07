@@ -1,6 +1,6 @@
 package ru.application.homemedkit.adapters;
 
-import static ru.application.homemedkit.helpers.ImageHelper.setImage;
+import static ru.application.homemedkit.helpers.ImageHelper.getIconType;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -71,7 +71,7 @@ public class IntakesAdapter extends RecyclerView.Adapter<IntakesAdapter.ItemsVie
         String form = database.medicineDAO().getByPK(intake.medicineId).prodFormNormName;
         Context context = holder.itemView.getContext();
 
-        Drawable image = setImage(context, form);
+        Drawable image = getIconType(context, form);
         String shortName = StringHelper.shortName(productName);
         String intervalName = StringHelper.intervalName(context, intake.interval);
         String startDate = context.getResources().getString(R.string.text_from_date_card_intake, intake.startDate);

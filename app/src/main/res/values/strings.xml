@@ -41,6 +41,7 @@
     <string name="text_fill_all_fields">Fill all fields!</string>
     <string name="text_fill_this_field">Fill this field!</string>
     <string name="text_from_date_card_intake">(from %1$s)</string>
+    <string name="text_intake_amount">Intake amount</string>
     <string name="text_intake_medicine_finish">Finish</string>
     <string name="text_intake_start">Start</string>
     <string name="text_intake_time">It\'s time to intake\\u0020</string>
@@ -176,5 +177,53 @@
         <item>November</item>
         <item>December</item>
     </string-array>
+
+    <string-array name="medicine_types">
+        <item>TABLETS</item>
+        <item>CAPSULES</item>
+        <item>PILLS</item>
+        <item>DRAGEE</item>
+        <item>GRANULES</item>
+        <item>POWDER</item>
+        <item>SOLUTION</item>
+        <item>TINCTURE</item>
+        <item>DECOCTION</item>
+        <item>EXTRACT</item>
+        <item>MIXTURE</item>
+        <item>SYRUP</item>
+        <item>EMULSION</item>
+        <item>SUSPENSION</item>
+        <item>MIX</item>
+        <item>OINTMENT</item>
+        <item>PASTE</item>
+        <item>SUPPOSITORY</item>
+        <item>AEROSOL</item>
+        <item>SPRAY</item>
+        <item>DROPS</item>
+    </string-array>
+
+    <array name="medicine_types_icons">
+        <item>@drawable/vector_type_tablets</item>
+        <item>@drawable/vector_type_capsule</item>
+        <item>@drawable/vector_type_pills</item>
+        <item>@drawable/vector_type_dragee</item>
+        <item>@drawable/vector_type_granules</item>
+        <item>@drawable/vector_type_powder</item>
+        <item>@drawable/vector_type_solution</item>
+        <item>@drawable/vector_type_tincture</item>
+        <item>@drawable/vector_type_decoction</item>
+        <item>@drawable/vector_type_extract</item>
+        <item>@drawable/vector_type_mixture</item>
+        <item>@drawable/vector_type_syrup</item>
+        <item>@drawable/vector_type_emulsion</item>
+        <item>@drawable/vector_type_suspension</item>
+        <item>@drawable/vector_type_mix</item>
+        <item>@drawable/vector_type_ointment</item>
+        <item>@drawable/vector_type_paste</item>
+        <item>@drawable/vector_type_suppository</item>
+        <item>@drawable/vector_type_aerosol</item>
+        <item>@drawable/vector_type_nasal_spray</item>
+        <item>@drawable/vector_type_drops</item>
+    </array>
 
 </resources>

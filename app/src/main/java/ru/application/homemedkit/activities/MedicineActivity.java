@@ -13,7 +13,7 @@ import static ru.application.homemedkit.helpers.ConstantsHelper.ID;
 import static ru.application.homemedkit.helpers.ConstantsHelper.MEDICINE_ID;
 import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_MEDICINE;
 import static ru.application.homemedkit.helpers.DateHelper.toExpDate;
-import static ru.application.homemedkit.helpers.ImageHelper.setImage;
+import static ru.application.homemedkit.helpers.ImageHelper.getIconType;
 import static ru.application.homemedkit.helpers.StringHelper.decimalFormat;
 import static ru.application.homemedkit.helpers.StringHelper.fromHTML;
 import static ru.application.homemedkit.helpers.StringHelper.parseAmount;
@@ -115,7 +115,7 @@ public class MedicineActivity extends AppCompatActivity implements TextWatcher, 
         String form = medicine.prodFormNormName;
         timestamp = medicine.expDate;
 
-        image.setImageDrawable(setImage(this, form));
+        image.setImageDrawable(getIconType(this, form));
         productName.setText(medicine.productName);
         expDate.setText(getString(R.string.exp_date_until, toExpDate(timestamp)));
         prodFormNormName.setText(form);
@@ -137,9 +137,12 @@ public class MedicineActivity extends AppCompatActivity implements TextWatcher, 
     }
 
     private void setAddedLayout() {
+        String form = medicine.prodFormNormName;
+
+        image.setImageDrawable(getIconType(this, form));
         productName.setText(medicine.productName);
         expDate.setText(medicine.expDate != -1 ? getString(R.string.exp_date_until, toExpDate(medicine.expDate)) : BLANK);
-        prodFormNormName.setText(medicine.prodFormNormName);
+        prodFormNormName.setText(form);
         prodDNormName.setText(medicine.prodDNormName);
         prodNormAmount.setText(decimalFormat(medicine.prodAmount));
         phKinetics.setText(medicine.phKinetics);

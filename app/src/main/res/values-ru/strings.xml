@@ -42,6 +42,7 @@
     <string name="text_fill_all_fields">Заполните все поля!</string>
     <string name="text_fill_this_field">Заполните это поле!</string>
     <string name="text_from_date_card_intake">(с %1$s)</string>
+    <string name="text_intake_amount">Количество лекарства</string>
     <string name="text_intake_medicine_finish">Конец</string>
     <string name="text_intake_start">Начало</string>
     <string name="text_intake_time">Время приёма лекарства\u0020</string>
@@ -136,6 +137,30 @@
         <item>Октябрь</item>
         <item>Ноябрь</item>
         <item>Декабрь</item>
+    </string-array>
+
+    <string-array name="medicine_types">
+        <item>ТАБЛЕТКИ</item>
+        <item>КАПСУЛЫ</item>
+        <item>ПИЛЮЛИ</item>
+        <item>ДРАЖЕ</item>
+        <item>ГРАНУЛЫ</item>
+        <item>ПОРОШОК</item>
+        <item>РАСТВОР</item>
+        <item>НАСТОЙКА</item>
+        <item>ОТВАР</item>
+        <item>ЭКСТРАКТ</item>
+        <item>МИКСТУРА</item>
+        <item>СИРОП</item>
+        <item>ЭМУЛЬСИЯ</item>
+        <item>СУСПЕНЗИЯ</item>
+        <item>СМЕСЬ</item>
+        <item>МАЗЬ</item>
+        <item>ПАСТА</item>
+        <item>СВЕЧИ</item>
+        <item>АЭРОЗОЛЬ</item>
+        <item>СПРЕЙ</item>
+        <item>КАПЛИ</item>
     </string-array>
 
 </resources>

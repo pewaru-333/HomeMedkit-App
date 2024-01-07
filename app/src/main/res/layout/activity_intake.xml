@@ -64,7 +64,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:digits="0123456789,"
-                    android:hint="@string/text_medicine_amount"
+                    android:hint="@string/text_intake_amount"
                     android:inputType="numberDecimal" />
             </com.google.android.material.textfield.TextInputLayout>
 
