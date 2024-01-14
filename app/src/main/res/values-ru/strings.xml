@@ -12,6 +12,8 @@
     <string name="intake_time_placeholder">Время #%1$d</string>
     <string name="intake_weekly_interval">Укажите продолжительность (в неделях)</string>
     <string name="intake_weekly_period_choose_day">Выберите день приёма</string>
+    <string name="intakes_tab_list">Список</string>
+    <string name="intakes_tab_schedule">Расписание</string>
     <string name="notification_channel_description">Напоминания о приёме лекарств</string>
     <string name="notification_channel_name">Звуковые уведомления</string>
     <string name="preference_app_view">Вид приложения</string>
