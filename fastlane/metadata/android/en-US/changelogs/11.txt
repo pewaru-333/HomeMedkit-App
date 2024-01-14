@@ -1,0 +1,3 @@
+— Changed the "Intakes" tab. Now two types of viewing are available: a general list of all medicines taken and a daily schedule.
+— The appearance of the window for sorting medicines in the “Medicines” tab has been changed.
+— Filtering by medicines or intakes list is now faster. In the "Intakes" menu, filtering between viewing tabs is the same.
