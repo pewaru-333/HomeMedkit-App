@@ -46,7 +46,7 @@
     <string name="text_intake_amount">Intake amount</string>
     <string name="text_intake_medicine_finish">Finish</string>
     <string name="text_intake_start">Start</string>
-    <string name="text_intake_time">It\'s time to intake\\u0020</string>
+    <string name="text_intake_time">It\'s time to intake\u0020</string>
     <string name="text_is_not_medicine_code">This code is not medicine\'s</string>
     <string name="text_manual_adding">Do you want to add medicine manually?</string>
     <string name="text_medicine_amount_not_enough">, but its quantity is less than prescribed! Recreate intake!</string>
@@ -84,6 +84,15 @@
     <string name="text_wrong_interval">Wrong interval!</string>
     <string name="text_wrong_period">Wrong period!</string>
     <string name="text_yes">Yes</string>
+
+    <plurals name="intakes_amount">
+        <item quantity="zero">%d times a day</item>
+        <item quantity="one">%d time a day</item>
+        <item quantity="two">%d times a day</item>
+        <item quantity="few">%d times a day</item>
+        <item quantity="many">%d times a day</item>
+        <item quantity="other">%d times a day</item>
+    </plurals>
 
     <string-array name="languages">
         <item>null</item>

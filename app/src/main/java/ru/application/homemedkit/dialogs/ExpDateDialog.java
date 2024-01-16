@@ -66,7 +66,7 @@ public class ExpDateDialog extends MaterialAlertDialogBuilder {
 
     private void setDate(NumberPicker month, NumberPicker year, TextInputEditText expDate) {
         String until = activity.getString(R.string.exp_date_until);
-        int intMonth = month.getValue();
+        int intMonth = month.getValue() + 1;
         int intYear = year.getValue();
 
         MedicineActivity.timestamp = toTimestamp(intMonth, intYear);

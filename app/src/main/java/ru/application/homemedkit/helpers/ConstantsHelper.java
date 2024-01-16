@@ -1,6 +1,7 @@
 package ru.application.homemedkit.helpers;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class ConstantsHelper {
     public static final String ADD = "add";
@@ -11,7 +12,6 @@ public class ConstantsHelper {
     public static final String CATEGORY = "drugs";
     public static final String CIS = "cis";
     public static final String CHECK_EXP_DATE = "check_exp_date";
-    public static final String COLON = ":";
     public static final long DAY = 86400000L;
     public static final String DOWN_DASH = "_";
     public static final String DUPLICATE = "duplicate";
@@ -22,11 +22,11 @@ public class ConstantsHelper {
     public static final String INTAKE_ID = "intakeId";
     public static final String INTERVAL = "interval";
     public static final String MEDICINE_ID = "medicine_id";
+    public static final long MONTH_3 = 7776000000L;
     public static final String NEW_INTAKE = "newIntake";
     public static final String NEW_MEDICINE = "newMedicine";
-    public static final String PATTERN = "dd.MM.yyyy";
     public static final String PERIOD = "period";
-    public static final SimpleDateFormat RUS = new SimpleDateFormat(PATTERN, DateHelper.RUSSIAN);
+    public static final SimpleDateFormat RUS = new SimpleDateFormat("dd.MM.yyyy", Locale.forLanguageTag("ru"));
     public static final String SEMICOLON = ",";
     public static final String SETTINGS_CHANGED = "settingsChanged";
     public static final String SOUND_GROUP = "Sound group";

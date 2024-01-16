@@ -1,11 +1,6 @@
 package ru.application.homemedkit.fragments
 
 import android.content.Intent
-import android.icu.text.SimpleDateFormat
-import android.icu.util.Calendar.HOUR_OF_DAY
-import android.icu.util.Calendar.JULIAN_DAY
-import android.icu.util.Calendar.MINUTE
-import android.icu.util.Calendar.getInstance
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -61,30 +56,34 @@ import ru.application.homemedkit.databaseController.Alarm
 import ru.application.homemedkit.databaseController.Intake
 import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.helpers.ConstantsHelper.BLANK
-import ru.application.homemedkit.helpers.ConstantsHelper.COLON
 import ru.application.homemedkit.helpers.ConstantsHelper.DAY
 import ru.application.homemedkit.helpers.ConstantsHelper.DOWN_DASH
 import ru.application.homemedkit.helpers.ConstantsHelper.INTAKE_ID
-import ru.application.homemedkit.helpers.ConstantsHelper.PATTERN
+import ru.application.homemedkit.helpers.ConstantsHelper.MONTH_3
 import ru.application.homemedkit.helpers.ConstantsHelper.SEMICOLON
 import ru.application.homemedkit.helpers.ConstantsHelper.WEEK
+import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_H
+import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_M
+import ru.application.homemedkit.helpers.DateHelper.FORMAT_H
+import ru.application.homemedkit.helpers.DateHelper.FORMAT_S
+import ru.application.homemedkit.helpers.DateHelper.ZONE
 import ru.application.homemedkit.helpers.FiltersHelper
 import ru.application.homemedkit.helpers.ImageHelper
 import ru.application.homemedkit.helpers.StringHelper
 import ru.application.homemedkit.ui.theme.AppTheme
+import java.lang.System.currentTimeMillis
+import java.time.Instant.ofEpochMilli
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.temporal.JulianFields
-import java.util.Date
-import java.util.Locale
+import java.time.LocalDateTime.of
+import java.time.LocalDateTime.ofInstant
+import java.time.LocalDateTime.parse
+import java.time.LocalTime
 
 
 class FragmentIntakes : Fragment() {
 
     private lateinit var database: MedicineDatabase
     private lateinit var intakes: List<Intake>
-    private val dateFormat = DateTimeFormatter.ofPattern("d MMMM")
-    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -184,25 +183,22 @@ class FragmentIntakes : Fragment() {
     }
 
 
-    private fun getTriggers(text: String): Map<Int, List<Alarm>> {
+    private fun getTriggers(text: String): Map<Long, List<Alarm>> {
         val intervals = resources.getStringArray(R.array.interval_types)
-        val calendar = getInstance()
-        val dateF = SimpleDateFormat(PATTERN, Locale.getDefault())
-        val datetimeF = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
 
         val filtered = FiltersHelper(requireActivity()).intakes(text)
         val triggers = ArrayList<Alarm>(intakes.size)
 
         for (intake in filtered) {
-            val startD = datetimeF.parse("${intake.startDate} ${intake.time}")
-            val finishD = datetimeF.parse("${intake.finalDate} ${intake.time}")
             val times = intake.time.split(SEMICOLON)
 
             if (times.size == 1) {
-                var startMillis = startD.time
-                val finalMillis = finishD.time
+                var milliS = parse("${intake.startDate} ${intake.time}", FORMAT_D_H)
+                    .toInstant(ZONE).toEpochMilli()
+                val milliF = parse("${intake.finalDate} ${intake.time}", FORMAT_D_H)
+                    .toInstant(ZONE).toEpochMilli()
 
-                val intervalM = if (intake.interval.equals(intervals[1])) {
+                val interval = if (intake.interval.equals(intervals[1])) {
                     DAY
                 } else if (intake.interval.equals(intervals[2])) {
                     WEEK
@@ -210,53 +206,38 @@ class FragmentIntakes : Fragment() {
                     DAY * intake.interval.substringAfter(DOWN_DASH).toInt()
                 }
 
-                while (startMillis <= finalMillis) {
-                    triggers.add(Alarm(intake.intakeId, startMillis))
-                    startMillis += intervalM
+                while (milliS <= milliF) {
+                    triggers.add(Alarm(intake.intakeId, milliS))
+                    milliS += interval
                 }
             } else {
-                val timesD = arrayOfNulls<Date>(times.size)
+                val timesD = arrayOfNulls<LocalTime>(times.size)
 
-                for (i in times.indices) {
-                    val hour = times[i].substringBefore(COLON).toInt()
-                    val minute = times[i].substringAfter(COLON).toInt()
+                for (i in times.indices) timesD[i] = LocalTime.parse(times[i], FORMAT_H)
 
-                    calendar.set(HOUR_OF_DAY, hour)
-                    calendar.set(MINUTE, minute)
+                var localS = LocalDate.parse(intake.startDate, FORMAT_S)
+                val localF = LocalDate.parse(intake.finalDate, FORMAT_S)
 
-                    timesD[i] = calendar.time
-                }
+                var milliS = of(localS, timesD.first())
+                val milliF = of(localF, timesD.last())
 
-                var startMillis = timesD.first()!!.time + dateF.parse(intake.startDate).time
-                val finalMillis = timesD.last()!!.time + dateF.parse(intake.finalDate).time
-
-
-                while (startMillis <= finalMillis) {
-                    for (localTime in timesD) {
-                        val millis = localTime!!.time
+                while (milliS <= milliF) {
+                    for (time in timesD) {
+                        val millis = of(localS, time).atOffset(ZONE).toInstant().toEpochMilli()
                         triggers.add(Alarm(intake.intakeId, millis))
-                        localTime.time += DAY
                     }
-                    startMillis += DAY
+                    localS = localS.plusDays(1)
+                    milliS = milliS.plusDays(1)
                 }
             }
         }
 
         triggers.sortBy { it.trigger }
-        while (triggers.size > 90) {
-            triggers.removeLast()
-        }
+        if (triggers.isNotEmpty())
+            while (triggers.last().trigger - currentTimeMillis() > MONTH_3) triggers.removeLast()
 
-        triggers.filter {
-            it.trigger > System.currentTimeMillis()
-        }
-
-        val result = triggers.groupBy {
-            calendar.timeInMillis = it.trigger
-            calendar.get(JULIAN_DAY)
-        }
-
-        return result
+        return triggers.filter { it.trigger > currentTimeMillis() }
+            .groupBy { ofEpochMilli(it.trigger).atZone(ZONE).toLocalDate().toEpochDay() }
     }
 
     @Composable
@@ -266,22 +247,19 @@ class FragmentIntakes : Fragment() {
         val shortName = StringHelper.shortName(productName)
         val form = medicineDAO.getByPK(intake.medicineId).prodFormNormName
         val icon = ImageHelper.getIconType(context, form)
-        val intervalName = StringHelper.intervalName(context, intake.interval)
         val startDate = LocalContext.current.resources.getString(
             R.string.text_from_date_card_intake,
             intake.startDate
         )
+        val count = intake.time.split(SEMICOLON).size
+        val intervalName = if (count == 1) StringHelper.intervalName(context, intake.interval)
+        else resources.getQuantityString(R.plurals.intakes_amount, count, count)
 
         ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(
-                    start = 16.dp,
-                    top = 4.dp,
-                    end = 16.dp,
-                    bottom = 16.dp
-                )
+                .padding(16.dp, 4.dp, 16.dp, 16.dp)
                 .clickable {
                     val intent = Intent(context, IntakeActivity::class.java)
                     intent.putExtra(INTAKE_ID, intake.intakeId)
@@ -333,9 +311,9 @@ class FragmentIntakes : Fragment() {
     }
 
     @Composable
-    fun DateText(text: Int) {
+    fun DateText(text: Long) {
         Text(
-            text = LocalDate.MIN.with(JulianFields.JULIAN_DAY, text.toLong()).format(dateFormat),
+            text = LocalDate.ofEpochDay(text).format(FORMAT_D_M),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 16.dp),
@@ -346,7 +324,7 @@ class FragmentIntakes : Fragment() {
     }
 
     @Composable
-    fun IntakeTable(data: Map.Entry<Int, List<Alarm>>) {
+    fun IntakeTable(data: Map.Entry<Long, List<Alarm>>) {
         ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
@@ -357,19 +335,22 @@ class FragmentIntakes : Fragment() {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                        .padding(12.dp, 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         text = database.medicineDAO().getProductName(
                             database.intakeDAO().getByPK(it.intakeId).medicineId
                         ),
+                        modifier = Modifier.fillMaxWidth(0.75f),
                         color = MaterialTheme.colorScheme.onTertiaryContainer,
                         fontWeight = FontWeight.W500,
+                        overflow = TextOverflow.Ellipsis,
+                        softWrap = false,
                         style = MaterialTheme.typography.headlineSmall
                     )
                     Text(
-                        text = timeFormat.format(it.trigger),
+                        text = ofInstant(ofEpochMilli(it.trigger), ZONE).format(FORMAT_H),
                         color = MaterialTheme.colorScheme.onTertiaryContainer,
                         style = MaterialTheme.typography.headlineSmall
                     )

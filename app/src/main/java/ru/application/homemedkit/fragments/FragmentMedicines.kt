@@ -126,7 +126,8 @@ class FragmentMedicines : Fragment() {
                             ) { Icon(painterResource(id = R.drawable.vector_sort), null) }
                         }
 
-                        val filtered = FiltersHelper(requireActivity()).medicines(text).sortedWith(comparator)
+                        val filtered =
+                            FiltersHelper(requireActivity()).medicines(text).sortedWith(comparator)
                         LazyColumn {
                             items(filtered.size) { index -> MedicineCard(filtered[index]) }
                         }
@@ -145,12 +146,7 @@ class FragmentMedicines : Fragment() {
                                 Column(
                                     modifier = Modifier
                                         .selectableGroup()
-                                        .padding(
-                                            start = 16.dp,
-                                            top = 16.dp,
-                                            end = 16.dp,
-                                            bottom = 64.dp
-                                        ),
+                                        .padding(16.dp, 16.dp, 16.dp, 64.dp),
                                     verticalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
                                     ButtonSort(

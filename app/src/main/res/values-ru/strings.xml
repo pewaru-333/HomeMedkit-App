@@ -86,6 +86,13 @@
     <string name="text_wrong_period">Неверный период!</string>
     <string name="text_yes">Да</string>
 
+    <plurals name="intakes_amount">
+        <item quantity="one">%d раз в день</item>
+        <item quantity="few">%d раза в день</item>
+        <item quantity="many">%d раз в день</item>
+        <item quantity="other">%d раз в день</item>
+    </plurals>
+
     <string-array name="languages_name">
         <item>Системный</item>
         <item>Русский</item>
