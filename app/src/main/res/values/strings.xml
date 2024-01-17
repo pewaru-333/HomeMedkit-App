@@ -51,7 +51,6 @@
     <string name="text_manual_adding">Do you want to add medicine manually?</string>
     <string name="text_medicine_amount_not_enough">, but its quantity is less than prescribed! Recreate intake!</string>
     <string name="text_medicine_amount">Medicine amount</string>
-    <string name="text_medicine_card_exp_date_format">MM/YYYY</string>
     <string name="text_medicine_comment">Comment</string>
     <string name="text_medicine_description">Description</string>
     <string name="text_medicine_dose">Dose</string>
@@ -71,11 +70,10 @@
     <string name="text_period_start_date">Start date</string>
     <string name="text_pick_period">Pick period</string>
     <string name="text_placeholder">N</string>
-    <string name="text_reschedule_alarms">Reassigning medication alerts</string>
     <string name="text_save">Save</string>
     <string name="text_self_medicine_adding">Manual medicine adding</string>
     <string name="text_sort_type">Sorting type</string>
-    <string name="text_sorting">Sorting</string>
+
     <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
     <string name="text_to_create">To create</string>
     <string name="text_to_scan">To scan</string>
