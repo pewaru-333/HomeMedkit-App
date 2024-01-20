@@ -38,6 +38,7 @@
     <string name="text_data_matrix_scanner">Сканирование маркировки лекарства</string>
     <string name="text_delete">Удалить</string>
     <string name="text_do_intake">Примите лекарство</string>
+    <string name="text_encode_code_error">Ошибка распознавания кода!</string>
     <string name="text_enter_exp_date">Введите срок годности</string>
     <string name="text_enter_product_name">Введите название лекарства</string>
     <string name="text_expire_soon">"Истекает срок годности лекарства %1$s"</string>
@@ -75,8 +76,6 @@
     <string name="text_self_medicine_adding">Добавление лекарства вручную</string>
     <string name="text_sort_type">Сортировать по</string>
     <string name="text_sure_to_exit">Вы точно хотите выйти из приложения?</string>
-    <string name="text_to_create">Создать</string>
-    <string name="text_to_scan">Отсканировать</string>
     <string name="text_unknown_error">Неверный тип кода!</string>
     <string name="text_wrong_code">Неверный код!</string>
     <string name="text_wrong_interval">Неверный интервал!</string>
@@ -162,6 +161,7 @@
         <item>СУСПЕНЗИЯ</item>
         <item>СМЕСЬ</item>
         <item>МАЗЬ</item>
+        <item>ГЕЛЬ</item>
         <item>ПАСТА</item>
         <item>СВЕЧИ</item>
         <item>АЭРОЗОЛЬ</item>

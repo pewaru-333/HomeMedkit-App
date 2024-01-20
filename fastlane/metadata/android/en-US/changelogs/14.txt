@@ -1,0 +1,1 @@
+— Fixed a bug due to which the application crashed when scanning an incorrectly generated code.

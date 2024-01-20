@@ -38,6 +38,7 @@
     <string name="text_data_matrix_scanner">Scanning DataMatrix label (only for RU)</string>
     <string name="text_delete">Delete</string>
     <string name="text_do_intake">Do intake</string>
+    <string name="text_encode_code_error">Code encode error!</string>
     <string name="text_enter_exp_date">Enter the expiration date</string>
     <string name="text_enter_product_name">Enter medicine name</string>
     <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
@@ -75,8 +76,6 @@
     <string name="text_self_medicine_adding">Manual medicine adding</string>
     <string name="text_sort_type">Sorting type</string>
     <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
-    <string name="text_to_create">To create</string>
-    <string name="text_to_scan">To scan</string>
     <string name="text_unknown_error">Wrong code scanned!</string>
     <string name="text_wrong_code">Wrong code!</string>
     <string name="text_wrong_interval">Wrong interval!</string>
@@ -160,6 +159,7 @@
         <item>SUSPENSION</item>
         <item>MIX</item>
         <item>OINTMENT</item>
+        <item>GEL</item>
         <item>PASTE</item>
         <item>SUPPOSITORY</item>
         <item>AEROSOL</item>

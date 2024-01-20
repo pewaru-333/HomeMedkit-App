@@ -13,7 +13,6 @@ import ru.application.homemedkit.activities.IntakeActivity;
 public class EditClick implements View.OnClickListener {
 
     private final IntakeActivity activity;
-
     private final FloatingActionButton buttonEdit, buttonSave;
 
     public EditClick(IntakeActivity activity) {

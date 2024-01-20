@@ -55,7 +55,7 @@ public class RequestNew implements Callback<MainModel> {
             if (body != null) {
                 if (body.category == null) {
                     activity.runOnUiThread(dialog::dismissDialog);
-                    new Snackbars(activity).wrongCode();
+                    new Snackbars(activity).wrongCodeCategory();
                 } else if (body.category.equals(CATEGORY)) {
                     if (body.codeFounded && body.checkResult) {
                         MedicineDatabase database = MedicineDatabase.getInstance(activity);
