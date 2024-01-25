@@ -51,7 +51,7 @@ import ru.application.homemedkit.graphics.ExpandAnimation;
 import ru.application.homemedkit.graphics.Snackbars;
 
 public class MedicineActivity extends AppCompatActivity implements TextWatcher, OnMenuItemClickListener {
-    public static long timestamp = -1;
+    public static long timestamp = -1L;
     private MedicineDatabase database;
     private Medicine medicine;
     private MaterialToolbar toolbar;
@@ -138,10 +138,11 @@ public class MedicineActivity extends AppCompatActivity implements TextWatcher, 
 
     private void setAddedLayout() {
         String form = medicine.prodFormNormName;
+        timestamp = medicine.expDate;
 
         image.setImageDrawable(getIconType(this, form));
         productName.setText(medicine.productName);
-        expDate.setText(medicine.expDate != -1 ? getString(R.string.exp_date_until, toExpDate(medicine.expDate)) : BLANK);
+        expDate.setText(timestamp != -1 ? getString(R.string.exp_date_until, toExpDate(medicine.expDate)) : BLANK);
         prodFormNormName.setText(form);
         prodDNormName.setText(medicine.prodDNormName);
         prodNormAmount.setText(decimalFormat(medicine.prodAmount));

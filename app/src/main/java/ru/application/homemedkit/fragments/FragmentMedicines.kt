@@ -244,9 +244,11 @@ class FragmentMedicines : Fragment() {
             shape = RectangleShape
         ) {
             Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = text,
                 color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 20.sp
+                fontSize = 20.sp,
+                textAlign = TextAlign.Start
             )
         }
     }

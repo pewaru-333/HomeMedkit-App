@@ -27,6 +27,7 @@
     <string name="sorting_from_newest">Сроку годности (с новых)</string>
     <string name="sorting_from_oldest">Сроку годности (со старых)</string>
     <string name="sorting_z_a">Названию (от Я до А)</string>
+    <string name="text_amount">Количество</string>
     <string name="text_app_theme">Тема приложения</string>
     <string name="text_attention">Обратите внимание!</string>
     <string name="text_cancel">Отменить</string>
@@ -46,6 +47,8 @@
     <string name="text_fill_this_field">Заполните это поле!</string>
     <string name="text_from_date_card_intake">(с %1$s)</string>
     <string name="text_intake_amount">Количество лекарства</string>
+    <string name="text_intake_form_amount">%1$s: %2$s шт.</string>
+    <string name="text_intake_interval_from">%1$s %2$s</string>
     <string name="text_intake_medicine_finish">Конец</string>
     <string name="text_intake_start">Начало</string>
     <string name="text_intake_time">Время приёма лекарства\u0020</string>
@@ -82,7 +85,7 @@
     <string name="text_wrong_period">Неверный период!</string>
     <string name="text_yes">Да</string>
 
-    <plurals name="intakes_amount">
+    <plurals name="intakes_a_day">
         <item quantity="one">%d раз в день</item>
         <item quantity="few">%d раза в день</item>
         <item quantity="many">%d раз в день</item>

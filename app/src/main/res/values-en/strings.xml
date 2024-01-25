@@ -27,6 +27,7 @@
     <string name="sorting_from_newest">Expiration date (from newest)</string>
     <string name="sorting_from_oldest">Expiration date (from oldest)</string>
     <string name="sorting_z_a">Alphabetically (z to A)</string>
+    <string name="text_amount">Amount</string>
     <string name="text_app_theme">App theme</string>
     <string name="text_attention">Attention!</string>
     <string name="text_cancel">Cancel</string>
@@ -46,6 +47,8 @@
     <string name="text_fill_this_field">Fill this field!</string>
     <string name="text_from_date_card_intake">(from %1$s)</string>
     <string name="text_intake_amount">Intake amount</string>
+    <string name="text_intake_form_amount">%1$s: %2$s pcs</string>
+    <string name="text_intake_interval_from">%1$s %2$s</string>
     <string name="text_intake_medicine_finish">Finish</string>
     <string name="text_intake_start">Start</string>
     <string name="text_intake_time">It\'s time to intake\u0020</string>
@@ -82,7 +85,7 @@
     <string name="text_wrong_period">Wrong period!</string>
     <string name="text_yes">Yes</string>
 
-    <plurals name="intakes_amount">
+    <plurals name="intakes_a_day">
         <item quantity="one">%d time a day</item>
         <item quantity="other">%d times a day</item>
     </plurals>

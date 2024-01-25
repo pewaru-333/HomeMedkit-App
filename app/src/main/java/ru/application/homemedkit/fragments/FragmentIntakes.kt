@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -70,6 +69,8 @@ import ru.application.homemedkit.helpers.DateHelper.ZONE
 import ru.application.homemedkit.helpers.FiltersHelper
 import ru.application.homemedkit.helpers.ImageHelper
 import ru.application.homemedkit.helpers.StringHelper
+import ru.application.homemedkit.helpers.StringHelper.decimalFormat
+import ru.application.homemedkit.helpers.StringHelper.formName
 import ru.application.homemedkit.ui.theme.AppTheme
 import java.lang.System.currentTimeMillis
 import java.time.Instant.ofEpochMilli
@@ -105,10 +106,7 @@ class FragmentIntakes : Fragment() {
                     var selectedIndex by remember { mutableIntStateOf(0) }
 
                     Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
+                        Row(Modifier.fillMaxWidth(), Arrangement.Center) {
                             OutlinedTextField(
                                 value = text,
                                 onValueChange = { text = it },
@@ -165,14 +163,7 @@ class FragmentIntakes : Fragment() {
                                 val result = getTriggers(text)
 
                                 Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                                    result.forEach {
-                                        Row {
-                                            Column {
-                                                DateText(text = it.key)
-                                                IntakeTable(data = it)
-                                            }
-                                        }
-                                    }
+                                    result.forEach { Row { Column { IntakeSchedule(data = it) } } }
                                 }
                             }
                         }
@@ -253,13 +244,12 @@ class FragmentIntakes : Fragment() {
         )
         val count = intake.time.split(SEMICOLON).size
         val intervalName = if (count == 1) StringHelper.intervalName(context, intake.interval)
-        else resources.getQuantityString(R.plurals.intakes_amount, count, count)
+        else resources.getQuantityString(R.plurals.intakes_a_day, count, count)
 
         ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(16.dp, 4.dp, 16.dp, 16.dp)
+                .padding(16.dp)
                 .clickable {
                     val intent = Intent(context, IntakeActivity::class.java)
                     intent.putExtra(INTAKE_ID, intake.intakeId)
@@ -270,90 +260,110 @@ class FragmentIntakes : Fragment() {
             Row(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(
-                        painter = rememberDrawablePainter(drawable = icon),
-                        contentDescription = stringResource(id = R.string.text_medicine_form_name),
-                        modifier = Modifier.size(56.dp)
-                    )
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Image(rememberDrawablePainter(drawable = icon), null, Modifier.size(64.dp))
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.Start
+                ) {
                     Text(
                         text = shortName,
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .padding(top = 4.dp),
-                        color = MaterialTheme.colorScheme.onTertiaryContainer,
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.SemiBold,
+                        overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.headlineSmall
                     )
                     Text(
-                        text = "$intervalName $startDate",
-                        modifier = Modifier.wrapContentSize(),
-                        color = MaterialTheme.colorScheme.onTertiaryContainer,
+                        text = stringResource(
+                            R.string.text_intake_interval_from,
+                            intervalName,
+                            startDate
+                        ),
                         style = MaterialTheme.typography.bodyLarge
                     )
-                    Text(
-                        text = intake.time,
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .padding(bottom = 4.dp),
-                        color = MaterialTheme.colorScheme.onTertiaryContainer,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Text(text = intake.time, style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }
     }
 
     @Composable
-    fun DateText(text: Long) {
-        Text(
-            text = LocalDate.ofEpochDay(text).format(FORMAT_D_M),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp),
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.SemiBold,
-            style = MaterialTheme.typography.titleLarge
-        )
-    }
+    fun IntakeSchedule(data: Map.Entry<Long, List<Alarm>>) {
+        val medicineDAO = database.medicineDAO()
+        val intakeDAO = database.intakeDAO()
 
-    @Composable
-    fun IntakeTable(data: Map.Entry<Long, List<Alarm>>) {
-        ElevatedCard(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+                .wrapContentHeight()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top),
+            horizontalAlignment = Alignment.Start
         ) {
+            Text(
+                text = LocalDate.ofEpochDay(data.key).format(FORMAT_D_M),
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleLarge
+            )
             data.value.forEach {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp, 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                val medicineId = intakeDAO.getByPK(it.intakeId).medicineId
+                val productName = medicineDAO.getProductName(medicineId)
+                val shortName = StringHelper.shortName(productName)
+                val form = medicineDAO.getByPK(medicineId).prodFormNormName
+                val formName = if (form.isEmpty()) resources.getString(R.string.text_amount) else formName(form)
+                val amount = intakeDAO.getByPK(it.intakeId).amount
+                val icon = ImageHelper.getIconType(context, form)
+
+                ElevatedCard(
+                    modifier = Modifier.height(100.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
                 ) {
-                    Text(
-                        text = database.medicineDAO().getProductName(
-                            database.intakeDAO().getByPK(it.intakeId).medicineId
-                        ),
-                        modifier = Modifier.fillMaxWidth(0.75f),
-                        color = MaterialTheme.colorScheme.onTertiaryContainer,
-                        fontWeight = FontWeight.W500,
-                        overflow = TextOverflow.Ellipsis,
-                        softWrap = false,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                    Text(
-                        text = ofInstant(ofEpochMilli(it.trigger), ZONE).format(FORMAT_H),
-                        color = MaterialTheme.colorScheme.onTertiaryContainer,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            rememberDrawablePainter(drawable = icon),
+                            null,
+                            Modifier
+                                .size(64.dp)
+                                .weight(0.2f)
+                        )
+                        Column(
+                            modifier = Modifier
+                                .height(64.dp)
+                                .weight(0.55f),
+                            verticalArrangement = Arrangement.SpaceBetween,
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = shortName,
+                                fontWeight = FontWeight.SemiBold,
+                                overflow = TextOverflow.Ellipsis,
+                                softWrap = false,
+                                style = MaterialTheme.typography.headlineSmall
+                            )
+                            Text(
+                                text = stringResource(
+                                    R.string.text_intake_form_amount,
+                                    formName,
+                                    decimalFormat(amount)
+                                )
+                            )
+                        }
+                        Text(
+                            text = ofInstant(ofEpochMilli(it.trigger), ZONE).format(FORMAT_H),
+                            modifier = Modifier.weight(0.25f),
+                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
                 }
             }
         }

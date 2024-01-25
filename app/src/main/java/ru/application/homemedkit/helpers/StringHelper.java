@@ -75,7 +75,6 @@ public class StringHelper {
     }
 
     public static String decimalFormat(double amount) {
-        DecimalFormat decimal = new DecimalFormat("0.###");
-        return decimal.format(amount);
+        return new DecimalFormat("0.###").format(amount);
     }
 }

@@ -1,0 +1,2 @@
+— Changed the view of content in the "Schedule" tab in the "Intakes" menu.
+— Fixed a bug due to which when changing information about a medicine added manually, its expiration date was reset.
