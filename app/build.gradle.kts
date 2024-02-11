@@ -18,8 +18,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 34
-        versionCode = 15
-        versionName = "1.1.4"
+        versionCode = 16
+        versionName = "1.1.5"
 
         buildConfigField("String", "BASE_URL", properties.getProperty("BASE_URL"))
         buildConfigField("String", "API_URL", properties.getProperty("API_URL"))
@@ -54,8 +54,8 @@ android {
 dependencies {
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.6")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.preference:preference-ktx:1.2.1")

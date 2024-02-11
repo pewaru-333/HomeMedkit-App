@@ -126,11 +126,9 @@ class FragmentMedicines : Fragment() {
                             ) { Icon(painterResource(id = R.drawable.vector_sort), null) }
                         }
 
-                        val filtered =
-                            FiltersHelper(requireActivity()).medicines(text).sortedWith(comparator)
-                        LazyColumn {
-                            items(filtered.size) { index -> MedicineCard(filtered[index]) }
-                        }
+                        val filtered = FiltersHelper(requireActivity()).medicines(text).sortedWith(comparator)
+
+                        LazyColumn { items(filtered.size) { MedicineCard(filtered[it]) } }
 
                         if (showBottomSheet) {
                             ModalBottomSheet(
@@ -214,7 +212,7 @@ class FragmentMedicines : Fragment() {
             ) {
                 Text(
                     text = shortName,
-                    modifier = Modifier.padding(top = 16.dp),
+                    modifier = Modifier.padding(top = 16.dp, end = 8.dp),
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.headlineSmall

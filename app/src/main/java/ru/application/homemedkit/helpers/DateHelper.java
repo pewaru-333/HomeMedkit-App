@@ -26,6 +26,7 @@ public class DateHelper {
     public static final DateTimeFormatter FORMAT_L = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG);
     public static final DateTimeFormatter FORMAT_S = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     public static final DateTimeFormatter FORMAT_D_H = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm");
+    public static final DateTimeFormatter FORMAT_D_M_Y = DateTimeFormatter.ofPattern("d MMMM yyyy");
     public static final DateTimeFormatter FORMAT_D_M = DateTimeFormatter.ofPattern("d MMMM, E");
     public static final DateTimeFormatter FORMAT_H = DateTimeFormatter.ofPattern("H:mm");
     private static final DateTimeFormatter FORMAT_M_Y = DateTimeFormatter.ofPattern("MM/yyyy");

@@ -17,8 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Clear
@@ -58,11 +57,11 @@ import ru.application.homemedkit.helpers.ConstantsHelper.BLANK
 import ru.application.homemedkit.helpers.ConstantsHelper.DAY
 import ru.application.homemedkit.helpers.ConstantsHelper.DOWN_DASH
 import ru.application.homemedkit.helpers.ConstantsHelper.INTAKE_ID
-import ru.application.homemedkit.helpers.ConstantsHelper.MONTH_3
 import ru.application.homemedkit.helpers.ConstantsHelper.SEMICOLON
 import ru.application.homemedkit.helpers.ConstantsHelper.WEEK
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_H
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_M
+import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_M_Y
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_H
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_S
 import ru.application.homemedkit.helpers.DateHelper.ZONE
@@ -105,6 +104,10 @@ class FragmentIntakes : Fragment() {
                     var text by rememberSaveable { mutableStateOf(BLANK) }
                     var selectedIndex by remember { mutableIntStateOf(0) }
 
+                    val stateOne = rememberLazyListState()
+                    val stateTwo = rememberLazyListState()
+                    val stateThr = rememberLazyListState()
+
                     Column {
                         Row(Modifier.fillMaxWidth(), Arrangement.Center) {
                             OutlinedTextField(
@@ -142,7 +145,11 @@ class FragmentIntakes : Fragment() {
                                     Tab(
                                         selected = selectedIndex == 1,
                                         onClick = { selectedIndex = 1 },
-                                        text = { Text(text = getString(R.string.intakes_tab_schedule)) }
+                                        text = { Text(text = getString(R.string.intakes_tab_current)) }
+                                    )
+                                    Tab(selected = selectedIndex == 2,
+                                        onClick = { selectedIndex = 2 },
+                                        text = { Text(text = getString(R.string.intakes_tab_taken)) }
                                     )
                                 }
                             }
@@ -152,18 +159,31 @@ class FragmentIntakes : Fragment() {
                             0 -> {
                                 LazyColumn(
                                     modifier = Modifier.padding(top = 10.dp),
+                                    state = stateOne,
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     val filtered = FiltersHelper(requireActivity()).intakes(text)
-                                    items(filtered.size) { index -> IntakeList(filtered[index]) }
+                                    items(filtered.size) { IntakeList(filtered[it]) }
                                 }
                             }
 
                             1 -> {
-                                val result = getTriggers(text)
+                                val result = getTriggers(text, false)
 
-                                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                                    result.forEach { Row { Column { IntakeSchedule(data = it) } } }
+                                LazyColumn(state = stateTwo) {
+                                    items(result.size) {
+                                        Row { Column { IntakeSchedule(result.entries.elementAt(it)) } }
+                                    }
+                                }
+                            }
+
+                            2 -> {
+                                val result = getTriggers(text, true)
+
+                                LazyColumn(state = stateThr, reverseLayout = true) {
+                                    items(result.size) {
+                                        Row { Column { IntakeSchedule(result.entries.elementAt(it)) } }
+                                    }
                                 }
                             }
                         }
@@ -174,7 +194,7 @@ class FragmentIntakes : Fragment() {
     }
 
 
-    private fun getTriggers(text: String): Map<Long, List<Alarm>> {
+    private fun getTriggers(text: String, taken: Boolean): Map<Long, List<Alarm>> {
         val intervals = resources.getStringArray(R.array.interval_types)
 
         val filtered = FiltersHelper(requireActivity()).intakes(text)
@@ -189,12 +209,10 @@ class FragmentIntakes : Fragment() {
                 val milliF = parse("${intake.finalDate} ${intake.time}", FORMAT_D_H)
                     .toInstant(ZONE).toEpochMilli()
 
-                val interval = if (intake.interval.equals(intervals[1])) {
-                    DAY
-                } else if (intake.interval.equals(intervals[2])) {
-                    WEEK
-                } else {
-                    DAY * intake.interval.substringAfter(DOWN_DASH).toInt()
+                val interval = when {
+                    intake.interval.equals(intervals[1]) -> DAY
+                    intake.interval.equals(intervals[2]) -> WEEK
+                    else -> DAY * intake.interval.substringAfter(DOWN_DASH).toInt()
                 }
 
                 while (milliS <= milliF) {
@@ -223,12 +241,15 @@ class FragmentIntakes : Fragment() {
             }
         }
 
-        triggers.sortBy { it.trigger }
-        if (triggers.isNotEmpty())
-            while (triggers.last().trigger - currentTimeMillis() > MONTH_3) triggers.removeLast()
+        if (taken) triggers.sortByDescending { it.trigger }
+        else triggers.sortBy { it.trigger }
 
-        return triggers.filter { it.trigger > currentTimeMillis() }
-            .groupBy { ofEpochMilli(it.trigger).atZone(ZONE).toLocalDate().toEpochDay() }
+        return if (taken)
+            triggers.filter { it.trigger < currentTimeMillis() }
+                .groupBy { ofEpochMilli(it.trigger).atZone(ZONE).toLocalDate().toEpochDay() }
+        else
+            triggers.filter { it.trigger > currentTimeMillis() }
+                .groupBy { ofEpochMilli(it.trigger).atZone(ZONE).toLocalDate().toEpochDay() }
     }
 
     @Composable
@@ -294,6 +315,12 @@ class FragmentIntakes : Fragment() {
         val medicineDAO = database.medicineDAO()
         val intakeDAO = database.intakeDAO()
 
+        val date = LocalDate.ofEpochDay(data.key)
+        val textDate = date.format(
+            if (date.year == LocalDate.now().year) FORMAT_D_M
+            else FORMAT_D_M_Y
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -303,7 +330,7 @@ class FragmentIntakes : Fragment() {
             horizontalAlignment = Alignment.Start
         ) {
             Text(
-                text = LocalDate.ofEpochDay(data.key).format(FORMAT_D_M),
+                text = textDate,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.titleLarge

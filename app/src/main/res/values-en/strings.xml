@@ -12,8 +12,9 @@
     <string name="intake_time_placeholder">Time #%1$d</string>
     <string name="intake_weekly_interval">Specify the duration (in weeks)</string>
     <string name="intake_weekly_period_choose_day">Choose the day of intake</string>
+    <string name="intakes_tab_current">Current</string>
     <string name="intakes_tab_list">List</string>
-    <string name="intakes_tab_schedule">Schedule</string>
+    <string name="intakes_tab_taken">Taken</string>
     <string name="notification_channel_description">Medication reminders</string>
     <string name="notification_channel_name">Sound notifications</string>
     <string name="preference_app_view">App view</string>
