@@ -10,6 +10,8 @@ import static ru.application.homemedkit.helpers.ConstantsHelper.FINISH;
 import static ru.application.homemedkit.helpers.ConstantsHelper.INTERVAL;
 import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_INTAKE;
 import static ru.application.homemedkit.helpers.ConstantsHelper.SOUND_GROUP;
+import static ru.application.homemedkit.helpers.StringHelperKt.daysInterval;
+import static ru.application.homemedkit.helpers.StringHelperKt.shortName;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
@@ -34,7 +36,6 @@ import ru.application.homemedkit.databaseController.IntakeDAO;
 import ru.application.homemedkit.databaseController.MedicineDAO;
 import ru.application.homemedkit.databaseController.MedicineDatabase;
 import ru.application.homemedkit.helpers.DateHelper;
-import ru.application.homemedkit.helpers.StringHelper;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
@@ -46,7 +47,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         String productName = database.medicineDAO().getProductName(medicineId);
         int code = new Random().nextInt(BOUND);
 
-        String title = context.getString(R.string.text_intake_time) + StringHelper.shortName(productName);
+        String title = context.getString(R.string.text_intake_time) + shortName(productName);
         if (!flag) title += context.getString(R.string.text_medicine_amount_not_enough);
 
         Intent intent = new Intent(context, MainActivity.class);
@@ -123,8 +124,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         } else if (Objects.equals(interval, intervals[2])) {
             alarmSetter.setAlarm(alarmId, trigger + WEEK);
         } else {
-            alarmSetter.setAlarm(alarmId, trigger +
-                    StringHelper.daysInterval(requireNonNull(interval)) * DAY);
+            alarmSetter.setAlarm(alarmId, trigger + daysInterval(requireNonNull(interval)) * DAY);
         }
     }
 

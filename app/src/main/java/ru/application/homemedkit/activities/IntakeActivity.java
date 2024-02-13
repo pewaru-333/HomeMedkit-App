@@ -9,7 +9,7 @@ import static ru.application.homemedkit.helpers.ConstantsHelper.INTAKE_ID;
 import static ru.application.homemedkit.helpers.ConstantsHelper.MEDICINE_ID;
 import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_INTAKE;
 import static ru.application.homemedkit.helpers.ConstantsHelper.SEMICOLON;
-import static ru.application.homemedkit.helpers.StringHelper.decimalFormat;
+import static ru.application.homemedkit.helpers.StringHelperKt.decimalFormat;
 
 import android.Manifest;
 import android.app.Activity;

@@ -9,6 +9,8 @@ import java.util.List;
 
 @Dao
 public interface AlarmDAO {
+
+    // ============================== Queries ==============================
     @Query("SELECT * FROM alarms")
     List<Alarm> getAll();
 
@@ -21,9 +23,11 @@ public interface AlarmDAO {
     @Query("UPDATE alarms SET `trigger`=:trigger WHERE alarmId=:alarmId")
     void reset(long alarmId, long trigger);
 
+    // ============================== Insert ==============================
     @Insert
     long add(Alarm alarm);
 
+    // ============================== Delete ==============================
     @Delete
     void delete(Alarm alarm);
 }

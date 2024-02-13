@@ -8,8 +8,8 @@ import static ru.application.homemedkit.helpers.ConstantsHelper.HASHTAG;
 import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_INTAKE;
 import static ru.application.homemedkit.helpers.DateHelper.longSecond;
 import static ru.application.homemedkit.helpers.DateHelper.longSeconds;
-import static ru.application.homemedkit.helpers.StringHelper.parseAmount;
-import static ru.application.homemedkit.helpers.StringHelper.timesString;
+import static ru.application.homemedkit.helpers.StringHelperKt.parseAmount;
+import static ru.application.homemedkit.helpers.StringHelperKt.timesString;
 
 import android.content.Context;
 import android.content.Intent;

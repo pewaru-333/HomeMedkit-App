@@ -57,7 +57,8 @@ import ru.application.homemedkit.helpers.DateHelper
 import ru.application.homemedkit.helpers.FiltersHelper
 import ru.application.homemedkit.helpers.SettingsHelper
 import ru.application.homemedkit.helpers.SortingHelper
-import ru.application.homemedkit.helpers.StringHelper
+import ru.application.homemedkit.helpers.formName
+import ru.application.homemedkit.helpers.shortName
 import ru.application.homemedkit.ui.theme.AppTheme
 
 class FragmentMedicines : Fragment() {
@@ -123,10 +124,17 @@ class FragmentMedicines : Fragment() {
                             IconButton(
                                 onClick = { showBottomSheet = true },
                                 modifier = Modifier.padding(top = 4.dp, start = 4.dp, end = 4.dp)
-                            ) { Icon(painterResource(id = R.drawable.vector_sort), null) }
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.vector_sort),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
 
-                        val filtered = FiltersHelper(requireActivity()).medicines(text).sortedWith(comparator)
+                        val filtered =
+                            FiltersHelper(requireActivity()).medicines(text).sortedWith(comparator)
 
                         LazyColumn { items(filtered.size) { MedicineCard(filtered[it]) } }
 
@@ -190,8 +198,8 @@ class FragmentMedicines : Fragment() {
 
     @Composable
     fun MedicineCard(medicine: Medicine) {
-        val shortName = StringHelper.shortName(medicine.productName)
-        val formName = StringHelper.formName(medicine.prodFormNormName)
+        val shortName = shortName(medicine.productName)
+        val formName = formName(medicine.prodFormNormName)
         val expDate = DateHelper.inCard(medicine.expDate)
 
         ElevatedCard(

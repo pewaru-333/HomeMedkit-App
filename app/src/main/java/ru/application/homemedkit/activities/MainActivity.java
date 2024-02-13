@@ -4,10 +4,8 @@ import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_INTAKE;
 import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_MEDICINE;
 import static ru.application.homemedkit.helpers.ConstantsHelper.SETTINGS_CHANGED;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
@@ -42,16 +40,7 @@ public class MainActivity extends AppCompatActivity {
         setExpirationChecker();
     }
 
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        recreate();
-        getIntent().putExtra(SETTINGS_CHANGED, true);
-    }
-
     private void getFragmentPage() {
-
         if (getIntent().getBooleanExtra(NEW_MEDICINE, false))
             binding.bottomNavigationBarView.setSelectedItemId(R.id.bottom_menu_medicines);
         else if (getIntent().getBooleanExtra(NEW_INTAKE, false))

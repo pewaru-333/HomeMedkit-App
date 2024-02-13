@@ -2,6 +2,7 @@ package ru.application.homemedkit.fragments;
 
 import static android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import static ru.application.homemedkit.helpers.ConstantsHelper.CHECK_EXP_DATE;
+import static ru.application.homemedkit.helpers.ConstantsHelper.SETTINGS_CHANGED;
 import static ru.application.homemedkit.helpers.SettingsHelper.APP_THEME;
 import static ru.application.homemedkit.helpers.SettingsHelper.LANGUAGE;
 import static ru.application.homemedkit.helpers.SettingsHelper.LIGHT_PERIOD;
@@ -49,8 +50,14 @@ public class FragmentSettings extends PreferenceFragmentCompat implements OnShar
             var value = sharedPreferences.getAll().get(key);
 
             switch (key) {
-                case LANGUAGE -> preferences.changeLanguage((String) value);
-                case APP_THEME -> preferences.setAppTheme((String) value);
+                case LANGUAGE -> {
+                    requireActivity().getIntent().putExtra(SETTINGS_CHANGED, true);
+                    preferences.changeLanguage((String) value);
+                }
+                case APP_THEME -> {
+                    requireActivity().getIntent().putExtra(SETTINGS_CHANGED, true);
+                    preferences.setAppTheme((String) value);
+                }
                 case CHECK_EXP_DATE ->
                         preferences.setExpDateChecker(requireActivity(), (Boolean) value);
                 case LIGHT_PERIOD -> preferences.setLightPeriod((Boolean) value);

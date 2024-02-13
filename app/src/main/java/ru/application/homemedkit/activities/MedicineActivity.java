@@ -13,10 +13,10 @@ import static ru.application.homemedkit.helpers.ConstantsHelper.ID;
 import static ru.application.homemedkit.helpers.ConstantsHelper.MEDICINE_ID;
 import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_MEDICINE;
 import static ru.application.homemedkit.helpers.DateHelper.toExpDate;
-import static ru.application.homemedkit.helpers.ImageHelper.getIconType;
-import static ru.application.homemedkit.helpers.StringHelper.decimalFormat;
-import static ru.application.homemedkit.helpers.StringHelper.fromHTML;
-import static ru.application.homemedkit.helpers.StringHelper.parseAmount;
+import static ru.application.homemedkit.helpers.ImageHelperKt.getIconType;
+import static ru.application.homemedkit.helpers.StringHelperKt.decimalFormat;
+import static ru.application.homemedkit.helpers.StringHelperKt.fromHTML;
+import static ru.application.homemedkit.helpers.StringHelperKt.parseAmount;
 
 import android.animation.LayoutTransition;
 import android.content.Intent;

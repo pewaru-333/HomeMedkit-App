@@ -66,10 +66,11 @@ import ru.application.homemedkit.helpers.DateHelper.FORMAT_H
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_S
 import ru.application.homemedkit.helpers.DateHelper.ZONE
 import ru.application.homemedkit.helpers.FiltersHelper
-import ru.application.homemedkit.helpers.ImageHelper
-import ru.application.homemedkit.helpers.StringHelper
-import ru.application.homemedkit.helpers.StringHelper.decimalFormat
-import ru.application.homemedkit.helpers.StringHelper.formName
+import ru.application.homemedkit.helpers.decimalFormat
+import ru.application.homemedkit.helpers.formName
+import ru.application.homemedkit.helpers.getIconType
+import ru.application.homemedkit.helpers.intervalName
+import ru.application.homemedkit.helpers.shortName
 import ru.application.homemedkit.ui.theme.AppTheme
 import java.lang.System.currentTimeMillis
 import java.time.Instant.ofEpochMilli
@@ -256,15 +257,15 @@ class FragmentIntakes : Fragment() {
     fun IntakeList(intake: Intake) {
         val medicineDAO = database.medicineDAO()
         val productName = medicineDAO.getProductName(intake.medicineId)
-        val shortName = StringHelper.shortName(productName)
+        val shortName = shortName(productName)
         val form = medicineDAO.getByPK(intake.medicineId).prodFormNormName
-        val icon = ImageHelper.getIconType(context, form)
+        val icon = getIconType(requireContext(), form)
         val startDate = LocalContext.current.resources.getString(
             R.string.text_from_date_card_intake,
             intake.startDate
         )
         val count = intake.time.split(SEMICOLON).size
-        val intervalName = if (count == 1) StringHelper.intervalName(context, intake.interval)
+        val intervalName = if (count == 1) intervalName(requireContext(), intake.interval)
         else resources.getQuantityString(R.plurals.intakes_a_day, count, count)
 
         ElevatedCard(
@@ -338,11 +339,12 @@ class FragmentIntakes : Fragment() {
             data.value.forEach {
                 val medicineId = intakeDAO.getByPK(it.intakeId).medicineId
                 val productName = medicineDAO.getProductName(medicineId)
-                val shortName = StringHelper.shortName(productName)
+                val shortName = shortName(productName)
                 val form = medicineDAO.getByPK(medicineId).prodFormNormName
-                val formName = if (form.isEmpty()) resources.getString(R.string.text_amount) else formName(form)
+                val formName =
+                    if (form.isEmpty()) resources.getString(R.string.text_amount) else formName(form)
                 val amount = intakeDAO.getByPK(it.intakeId).amount
-                val icon = ImageHelper.getIconType(context, form)
+                val icon = getIconType(requireContext(), form)
 
                 ElevatedCard(
                     modifier = Modifier.height(100.dp),

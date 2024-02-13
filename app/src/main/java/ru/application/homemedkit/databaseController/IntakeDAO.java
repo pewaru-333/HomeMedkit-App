@@ -10,18 +10,23 @@ import java.util.List;
 
 @Dao
 public interface IntakeDAO {
+
+    // ============================== Queries ==============================
     @Query("SELECT * FROM intakes")
     List<Intake> getAll();
 
     @Query("SELECT * FROM intakes WHERE intakeId = :intakeId")
     Intake getByPK(long intakeId);
 
+    // ============================== Insert ==============================
     @Insert
     long add(Intake intake);
 
+    // ============================== Update ==============================
     @Update
     void update(Intake intake);
 
+    // ============================== Delete ==============================
     @Delete
     void delete(Intake intake);
 }
