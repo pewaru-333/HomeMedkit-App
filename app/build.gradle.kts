@@ -18,8 +18,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 34
-        versionCode = 17
-        versionName = "1.1.6"
+        versionCode = 18
+        versionName = "1.2.0"
 
         buildConfigField("String", "BASE_URL", properties.getProperty("BASE_URL"))
         buildConfigField("String", "API_URL", properties.getProperty("API_URL"))
@@ -47,7 +47,7 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.10"
     }
 }
 
@@ -59,14 +59,15 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
-    implementation("androidx.compose.material3:material3")
+    implementation(platform("androidx.compose:compose-bom:2024.02.00"))
+    implementation("androidx.compose.material3:material3:1.2.0")
     implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("com.google.accompanist:accompanist-drawablepainter:0.32.0")
-    implementation("com.google.android.flexbox:flexbox:3.0.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
     implementation("com.google.android.material:material:1.11.0")
     implementation("com.github.yuriy-budiyev:code-scanner:2.3.2")
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.22"))
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-jackson:2.9.0")
 }

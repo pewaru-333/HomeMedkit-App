@@ -3,9 +3,7 @@ package ru.application.homemedkit.helpers;
 import static ru.application.homemedkit.helpers.ConstantsHelper.BLANK;
 import static ru.application.homemedkit.helpers.ConstantsHelper.SEMICOLON;
 
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.timepicker.MaterialTimePicker;
-
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +14,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -27,6 +24,7 @@ public class DateHelper {
     public static final DateTimeFormatter FORMAT_S = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     public static final DateTimeFormatter FORMAT_D_H = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm");
     public static final DateTimeFormatter FORMAT_D_M_Y = DateTimeFormatter.ofPattern("d MMMM yyyy");
+    public static final DateTimeFormatter FORMAT_D_MM_Y = DateTimeFormatter.ofPattern("d MMM yyyy");
     public static final DateTimeFormatter FORMAT_D_M = DateTimeFormatter.ofPattern("d MMMM, E");
     public static final DateTimeFormatter FORMAT_H = DateTimeFormatter.ofPattern("H:mm");
     private static final DateTimeFormatter FORMAT_M_Y = DateTimeFormatter.ofPattern("MM/yyyy");
@@ -48,47 +46,11 @@ public class DateHelper {
         return milli == -1L ? BLANK : getDateTime(milli).format(FORMAT_M_Y);
     }
 
-    public static String formatIntake(long milli) {
-        return getDateTime(milli).format(FORMAT_S);
-    }
+    public static String getPeriod(String dateS, String dateF) {
+        LocalDate startD = LocalDate.parse(dateS, FORMAT_S);
+        LocalDate finalD = LocalDate.parse(dateF, FORMAT_S);
 
-    public static String clockIntake(MaterialTimePicker picker) {
-        return LocalTime.of(picker.getHour(), picker.getMinute()).format(FORMAT_H);
-    }
-
-    public static void setCalendarDates(TextInputEditText editS, TextInputEditText editF, int days) {
-        long today = System.currentTimeMillis();
-
-        String textS = formatIntake(today);
-        String textF = getDateTime(today).toLocalDate().plusDays(days - 1).format(FORMAT_S);
-
-        editS.setText(textS);
-        editF.setText(textF);
-    }
-
-    public static String setCalendarDates(long start, int weeks) {
-        return getDateTime(start).toLocalDate().plusWeeks(weeks - 1).format(FORMAT_S);
-    }
-
-    public static long longSecond(String textD, String textT) {
-        var date = LocalDate.parse(textD, FORMAT_S);
-        var time = LocalTime.parse(textT, FORMAT_H);
-        var unix = LocalDateTime.of(date, time);
-
-        if (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) {
-            unix = unix.plusDays(1);
-        }
-
-        return unix.toInstant(ZONE).toEpochMilli();
-    }
-
-    public static long[] longSeconds(String start, String time) {
-        List<String> times = Arrays.asList(sortTimes(time));
-        ArrayList<Long> triggers = new ArrayList<>(times.size());
-
-        for (int i = 0; i < times.size(); i++) triggers.add(longSecond(start, times.get(i)));
-
-        return triggers.stream().mapToLong(Long::longValue).toArray();
+        return String.valueOf(Duration.between(startD.atStartOfDay(), finalD.atStartOfDay()).toDays());
     }
 
     public static long lastDay(String finish) {
@@ -113,7 +75,7 @@ public class DateHelper {
         return times.toArray(new String[]{});
     }
 
-    private static ZonedDateTime getDateTime(long milli) {
+    public static ZonedDateTime getDateTime(long milli) {
         return Instant.ofEpochMilli(milli).atZone(ZONE);
     }
 }

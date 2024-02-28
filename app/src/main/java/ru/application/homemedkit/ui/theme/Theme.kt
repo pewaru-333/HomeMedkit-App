@@ -1,5 +1,6 @@
 package ru.application.homemedkit.ui.theme
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -73,18 +74,19 @@ private val DarkColors = darkColorScheme(
 )
 
 @Composable
-fun AppTheme(
-  useDarkTheme: Boolean = isSystemInDarkTheme(),
-  content: @Composable() () -> Unit
-) {
-  val colors = if (!useDarkTheme) {
-    LightColors
-  } else {
-    DarkColors
-  }
+fun AppTheme(useDarkTheme: Boolean = isNightMode(), content: @Composable () -> Unit) {
+    val colors = if (useDarkTheme) DarkColors
+    else LightColors
 
-  MaterialTheme(
-    colorScheme = colors,
-    content = content
-  )
+    MaterialTheme(
+        colorScheme = colors,
+        content = content
+    )
+}
+
+@Composable
+private fun isNightMode() = when (AppCompatDelegate.getDefaultNightMode()) {
+    AppCompatDelegate.MODE_NIGHT_NO -> false
+    AppCompatDelegate.MODE_NIGHT_YES -> true
+    else -> isSystemInDarkTheme()
 }

@@ -2,7 +2,8 @@ package ru.application.homemedkit.helpers;
 
 import android.icu.text.NumberFormat;
 
-import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 public class ConstantsHelper {
@@ -12,7 +13,6 @@ public class ConstantsHelper {
 
     // ============================== Formats ==============================
     public static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(RUSSIAN);
-    public static final SimpleDateFormat RUS = new SimpleDateFormat("dd.MM.yyyy", RUSSIAN);
 
     // ============================== Numbers ==============================
     public static final int BOUND = 200;
@@ -31,19 +31,19 @@ public class ConstantsHelper {
     public static final String DOWN_DASH = "_";
     public static final String DUPLICATE = "duplicate";
     public static final String FINISH = "finish";
-    public static final String HASHTAG = "#";
     public static final String ID = "id";
     public static final String INTAKE_ID = "intakeId";
     public static final String INTERVAL = "interval";
     public static final String MEDICINE_ID = "medicine_id";
     public static final String NEW_INTAKE = "newIntake";
     public static final String NEW_MEDICINE = "newMedicine";
-    public static final String PERIOD = "period";
     public static final String SEMICOLON = ",";
     public static final String SETTINGS_CHANGED = "settingsChanged";
     public static final String SOUND_GROUP = "Sound group";
-    public static final String START_DATE = "startDate";
-    public static final String TIME = "time";
     public static final String WHITESPACE = " ";
     public static final String WHITESPACE_R = "\\s";
+
+    // ============================== Collections ==============================
+    public static final List<String> INTERVALS = Arrays.asList("daily", "weekly", "custom");
+    public static final List<String> PERIODS = Arrays.asList("week", "month", "other", "indefinite");
 }

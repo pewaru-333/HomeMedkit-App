@@ -29,6 +29,7 @@
         tools:targetApi="34">
         <activity
             android:name=".activities.IntakeActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false" />
         <activity
             android:name=".activities.MedicineActivity"

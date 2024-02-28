@@ -8,6 +8,7 @@ import static ru.application.homemedkit.helpers.ConstantsHelper.ALARM_ID;
 import static ru.application.homemedkit.helpers.ConstantsHelper.BOUND;
 import static ru.application.homemedkit.helpers.ConstantsHelper.FINISH;
 import static ru.application.homemedkit.helpers.ConstantsHelper.INTERVAL;
+import static ru.application.homemedkit.helpers.ConstantsHelper.INTERVALS;
 import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_INTAKE;
 import static ru.application.homemedkit.helpers.ConstantsHelper.SOUND_GROUP;
 import static ru.application.homemedkit.helpers.StringHelperKt.daysInterval;
@@ -77,7 +78,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         MedicineDatabase database = MedicineDatabase.getInstance(context);
         AlarmSetter alarmSetter = new AlarmSetter(context);
-        String[] intervals = context.getResources().getStringArray(R.array.interval_types);
 
         intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 
@@ -105,7 +105,7 @@ public class AlarmReceiver extends BroadcastReceiver {
                 notification = intakeNotification(context, medicineId, true);
                 compat = NotificationManagerCompat.from(context);
 
-                resetAlarm(alarmSetter, intervals, alarmId, interval, trigger);
+                resetAlarm(alarmSetter, alarmId, interval, trigger);
             } else {
                 notification = intakeNotification(context, medicineId, false);
                 compat = NotificationManagerCompat.from(context);
@@ -118,10 +118,10 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
     }
 
-    private void resetAlarm(AlarmSetter alarmSetter, String[] intervals, long alarmId, String interval, long trigger) {
-        if (Objects.equals(interval, intervals[0]) || Objects.equals(interval, intervals[1])) {
+    private void resetAlarm(AlarmSetter alarmSetter, long alarmId, String interval, long trigger) {
+        if (Objects.equals(interval, INTERVALS.get(0))) {
             alarmSetter.setAlarm(alarmId, trigger + DAY);
-        } else if (Objects.equals(interval, intervals[2])) {
+        } else if (Objects.equals(interval, INTERVALS.get(1))) {
             alarmSetter.setAlarm(alarmId, trigger + WEEK);
         } else {
             alarmSetter.setAlarm(alarmId, trigger + daysInterval(requireNonNull(interval)) * DAY);

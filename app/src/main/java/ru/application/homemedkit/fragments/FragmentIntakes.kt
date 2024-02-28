@@ -57,6 +57,7 @@ import ru.application.homemedkit.helpers.ConstantsHelper.BLANK
 import ru.application.homemedkit.helpers.ConstantsHelper.DAY
 import ru.application.homemedkit.helpers.ConstantsHelper.DOWN_DASH
 import ru.application.homemedkit.helpers.ConstantsHelper.INTAKE_ID
+import ru.application.homemedkit.helpers.ConstantsHelper.INTERVALS
 import ru.application.homemedkit.helpers.ConstantsHelper.SEMICOLON
 import ru.application.homemedkit.helpers.ConstantsHelper.WEEK
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_H
@@ -135,7 +136,7 @@ class FragmentIntakes : Fragment() {
                             )
                         }
 
-                        Row {
+                        Row(Modifier.padding(top = 4.dp)) {
                             Column {
                                 TabRow(selectedTabIndex = selectedIndex) {
                                     Tab(
@@ -196,8 +197,6 @@ class FragmentIntakes : Fragment() {
 
 
     private fun getTriggers(text: String, taken: Boolean): Map<Long, List<Alarm>> {
-        val intervals = resources.getStringArray(R.array.interval_types)
-
         val filtered = FiltersHelper(requireActivity()).intakes(text)
         val triggers = ArrayList<Alarm>(intakes.size)
 
@@ -211,8 +210,8 @@ class FragmentIntakes : Fragment() {
                     .toInstant(ZONE).toEpochMilli()
 
                 val interval = when {
-                    intake.interval.equals(intervals[1]) -> DAY
-                    intake.interval.equals(intervals[2]) -> WEEK
+                    intake.interval.equals(INTERVALS[0]) -> DAY
+                    intake.interval.equals(INTERVALS[1]) -> WEEK
                     else -> DAY * intake.interval.substringAfter(DOWN_DASH).toInt()
                 }
 
