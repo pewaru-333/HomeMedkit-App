@@ -14,7 +14,7 @@
     <string name="notification_channel_name">Notificaciones</string>
     <string name="preference_app_view">Aplicación</string>
     <string name="preference_check_expiration_date">Comprobar la fecha de caducidad de los medicamentos</string>
-    <string name="preference_easy_period_picker">Selección sencilla del periodo de consumición</string>
+    <string name="preference_easy_period_picker">Selección más sencilla del periodo de consumición</string>
     <string name="preference_language">Idioma de la aplicación</string>
     <string name="preference_sorting_type">Ordenación de medicamentos</string>
     <string name="preference_start_page">Página de inicio</string>
@@ -42,14 +42,14 @@
     <string name="text_every">Cada\u0020</string>
     <string name="text_expire_soon">¡%1$s está a punto de caducar!</string>
     <string name="text_from_date_card_intake">(desde %1$s)</string>
-    <string name="text_intake_amount">Quantity</string>
+    <string name="text_intake_amount">Cantidad</string>
     <string name="text_intake_form_amount">%1$s: %2$s pcs</string>
     <string name="text_intake_interval_from">%1$s %2$s</string>
-    <string name="text_intake_left_amount">Left</string>
+    <string name="text_intake_left_amount">Restantes</string>
     <string name="text_intake_time">Es la hora de tomar\u0020</string>
     <string name="text_is_not_medicine_code">Este código no es un medicamento</string>
     <string name="text_manual_adding">¿Quieres añadir un medicamento manualmente?</string>
-    <string name="text_medicine_amount_not_enough">, pero hay menos cantidad de lo prescrito. Vuelve a crear el recordatorio.</string>
+    <string name="text_medicine_amount_not_enough">, pero hay menos cantidad de la prescrita. Vuelve a crear el recordatorio.</string>
     <string name="text_medicine_amount">Cantidad del medicamento</string>
     <string name="text_medicine_comment">Comentarios</string>
     <string name="text_medicine_description">Descripción</string>
@@ -87,10 +87,10 @@
     </plurals>
 
     <string-array name="languages_name">
-        <item>System</item>
-        <item>Russian</item>
-        <item>English</item>
-        <item>Spanish</item>
+        <item>Sistema</item>
+        <item>Ruso</item>
+        <item>Inglés</item>
+        <item>Español</item>
     </string-array>
 
     <string-array name="sorting_types_name">
