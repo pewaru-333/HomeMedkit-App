@@ -1,86 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Аптечка</string>
-    <string name="bottom_bar_intakes">Приём</string>
+
+    <!-- Меню -->
     <string name="bottom_bar_main">Главная</string>
     <string name="bottom_bar_medicines">Лекарства</string>
+    <string name="bottom_bar_intakes">Приём</string>
     <string name="bottom_bar_settings">Настройки</string>
-    <string name="exp_date_until">до %1$s </string>
-    <string name="intake_time_placeholder">Время #%1$d</string>
-    <string name="intakes_tab_current">Текущее</string>
-    <string name="intakes_tab_list">Список</string>
-    <string name="intakes_tab_taken">Принятое</string>
+
+    <!-- Настройки -->
+    <string name="preference_app_view">Вид приложения</string>
+    <string name="preference_app_theme">Тема приложения</string>
+    <string name="preference_start_page">Стартовая страница</string>
+    <string name="preference_sorting_type">Сортировка лекарств</string>
+    <string name="preference_easy_period_picker">Упрощённый выбор периода приёма лекарства</string>
+    <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
+    <string name="preference_system">Системные</string>
+    <string name="preference_language">Язык приложения</string>
+
+    <!-- Сортировка -->
+    <string name="sorting_a_z">Названию (от А до Я)</string>
+    <string name="sorting_z_a">Названию (от Я до А)</string>
+    <string name="sorting_from_oldest">Сроку годности (со старых)</string>
+    <string name="sorting_from_newest">Сроку годности (с новых)</string>
+
+    <!-- Уведомления -->
     <string name="notification_channel_description">Напоминания о приёме лекарств</string>
     <string name="notification_channel_name">Звуковые уведомления</string>
-    <string name="preference_app_view">Вид приложения</string>
-    <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
-    <string name="preference_easy_period_picker">Упрощённый выбор периода приёма лекарства</string>
-    <string name="preference_language">Язык приложения</string>
-    <string name="preference_sorting_type">Сортировка лекарств</string>
-    <string name="preference_start_page">Стартовая страница</string>
-    <string name="preference_system">Системные</string>
-    <string name="sorting_a_z">Названию (от А до Я)</string>
-    <string name="sorting_from_newest">Сроку годности (с новых)</string>
-    <string name="sorting_from_oldest">Сроку годности (со старых)</string>
-    <string name="sorting_z_a">Названию (от Я до А)</string>
-    <string name="text_amount">Количество</string>
-    <string name="text_app_theme">Тема приложения</string>
     <string name="text_attention">Обратите внимание!</string>
-    <string name="text_cancel">Отменить</string>
-    <string name="text_code_not_found">Код не найден!</string>
-    <string name="text_confirm_exit">Подтвердите выход</string>
-    <string name="text_connection_error">Ошибка при подключении!</string>
-    <string name="text_daily_at">Ежедневно в 12:00</string>
-    <string name="text_data_matrix_scanner">Сканирование маркировки лекарства</string>
-    <string name="text_delete">Удалить</string>
     <string name="text_do_intake">Примите лекарство</string>
-    <string name="text_days_short">дн.</string>
-    <string name="text_edit">Изменить</string>
-    <string name="text_encode_code_error">Ошибка распознавания кода!</string>
-    <string name="text_enter_exp_date">Введите срок годности</string>
-    <string name="text_enter_product_name">Введите название лекарства</string>
-    <string name="text_every">Каждые\u0020</string>
     <string name="text_expire_soon">"Истекает срок годности лекарства %1$s"</string>
-    <string name="text_from_date_card_intake">(с %1$s)</string>
-    <string name="text_intake_amount">Количество</string>
-    <string name="text_intake_form_amount">%1$s: %2$s шт.</string>
-    <string name="text_intake_interval_from">%1$s %2$s</string>
-    <string name="text_intake_left_amount">Осталось</string>
     <string name="text_intake_time">Время приёма лекарства\u0020</string>
-    <string name="text_is_not_medicine_code">Это не код лекарства!</string>
-    <string name="text_manual_adding">Хотите добавить лекарство вручную?</string>
     <string name="text_medicine_amount_not_enough">, но его оставшегося количества меньше предписанного! Переназначьте приём!</string>
-    <string name="text_medicine_amount">Количество лекарства</string>
+
+    <!-- "Заполнители" -->
+    <string name="placeholder_date">дд.мм.гггг</string>
+    <string name="placeholder_dose">0,5 мг + 84 мкг</string>
+    <string name="placeholder_form_name">Таблетки</string>
+    <string name="placeholder_pcs">шт.</string>
+    <string name="placeholder_time">Время #%1$d</string>
+
+    <!-- Лекарства -->
+    <string name="text_exp_date">Годен до</string>
+    <string name="text_indications_for_use">Показания к применению</string>
     <string name="text_medicine_comment">Комментарий</string>
     <string name="text_medicine_description">Описание</string>
     <string name="text_medicine_dose">Дозировка</string>
-    <string name="text_medicine_duplicate">Лекарство уже было добалено</string>
-    <string name="text_medicine_expiration_date">Срок годности</string>
-    <string name="text_medicine_form_name">Тип лекарства</string>
-    <string name="text_medicine_intake_interval">Интервал</string>
-    <string name="text_medicine_intake_period">Период</string>
-    <string name="text_medicine_intake_time">Время</string>
     <string name="text_medicine_product_name">Название лекарства</string>
-    <string name="text_more">Ещё</string>
+
+    <!-- Приём -->
+    <string name="intakes_tab_current">Текущее</string>
+    <string name="intakes_tab_list">Список</string>
+    <string name="intakes_tab_taken">Принятое</string>
+
+    <string name="intake_card_text_from">(с %1$s)</string>
+    <string name="intake_text_amount">Количество</string>
+    <string name="intake_text_interval">Интервал</string>
+    <string name="intake_text_left">Осталось</string>
+    <string name="intake_text_period">Период</string>
+    <string name="intake_text_pick_period">Выберите период</string>
+    <string name="intake_text_quantity">%1$s: %2$s шт.</string>
+    <string name="intake_text_select_interval">Выберите интервал</string>
+    <string name="intake_text_time">Время</string>
+
+    <!-- Диалоговые окна -->
+    <string name="manual_add">Хотите добавить лекарство вручную?</string>
+    <string name="text_confirm_exit">Подтвердите выход</string>
+    <string name="text_select_time">Выберите время</string>
+    <string name="text_sure_to_exit">Вы точно хотите выйти из приложения?</string>
+
+    <!-- Всплывающие окна -->
+    <string name="text_code_not_found">Код не найден!</string>
+    <string name="text_connection_error">Ошибка при подключении!</string>
+    <string name="text_encode_code_error">Ошибка распознавания кода!</string>
+    <string name="text_medicine_duplicate">Лекарство уже было добавлено</string>
+    <string name="text_not_medicine_code">Это не код лекарства!</string>
+    <string name="text_unknown_error">Неверный тип кода!</string>
+
+    <!-- Строки -->
+    <string name="text_amount">Количество</string>
+    <string name="text_cancel">Отменить</string>
+    <string name="text_daily_at">Ежедневно в 12:00</string>
+    <string name="text_data_matrix_scanner">Сканирование маркировки лекарства</string>
+    <string name="text_days_short">дн.</string>
+    <string name="text_delete">Удалить</string>
+    <string name="text_edit">Изменить</string>
+    <string name="text_empty">Пусто</string>
+    <string name="text_enter_product_name">Введите название лекарства</string>
+    <string name="text_every">Каждые\u0020</string>
+    <string name="text_finish_date">Конечная дата</string>
+    <string name="text_manual_add">Добавление лекарства вручную</string>
     <string name="text_no_data_found">Ничего не найдено!</string>
     <string name="text_no">Нет</string>
     <string name="text_off">Отключено</string>
     <string name="text_on">Включено</string>
-    <string name="text_period_dates">%1$s - %2$s</string>
-    <string name="text_period_finish_date">Конечная дата</string>
-    <string name="text_period_start_date">Начальная дата</string>
-    <string name="text_pick_interval">Выберите интервал</string>
-    <string name="text_pick_period">Выберите период</string>
-    <string name="text_placeholder_date">дд.мм.гггг</string>
-    <string name="text_placeholder_pcs">шт.</string>
     <string name="text_save">Сохранить</string>
-    <string name="text_select_time">Выберите время</string>
-    <string name="text_self_medicine_adding">Добавление лекарства вручную</string>
     <string name="text_sort_type">Сортировать по</string>
-    <string name="text_sure_to_exit">Вы точно хотите выйти из приложения?</string>
-    <string name="text_unknown_error">Неверный тип кода!</string>
+    <string name="text_start_date">Начальная дата</string>
     <string name="text_yes">Да</string>
 
+    <!-- Множественные числительные -->
     <plurals name="intakes_a_day">
         <item quantity="one">%d раз в день</item>
         <item quantity="few">%d раза в день</item>
@@ -88,6 +107,7 @@
         <item quantity="other">%d раз в день</item>
     </plurals>
 
+    <!-- Массивы строк -->
     <string-array name="languages_name">
         <item>Системный</item>
         <item>Русский</item>
@@ -125,21 +145,6 @@
         <item>месяц</item>
         <item>другой</item>
         <item>бессрочно</item>
-    </string-array>
-
-    <string-array name="months_name">
-        <item>Январь</item>
-        <item>Февраль</item>
-        <item>Март</item>
-        <item>Апрель</item>
-        <item>Май</item>
-        <item>Июнь</item>
-        <item>Июль</item>
-        <item>Август</item>
-        <item>Сентябрь</item>
-        <item>Октябрь</item>
-        <item>Ноябрь</item>
-        <item>Декабрь</item>
     </string-array>
 
     <string-array name="medicine_types">

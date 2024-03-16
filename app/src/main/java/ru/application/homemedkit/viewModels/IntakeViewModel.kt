@@ -8,7 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import ru.application.homemedkit.databaseController.Intake
-import ru.application.homemedkit.databaseController.repositories.IntakeRepository
+import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.helpers.ConstantsHelper.BLANK
 import ru.application.homemedkit.helpers.ConstantsHelper.DOWN_DASH
 import ru.application.homemedkit.helpers.ConstantsHelper.INTERVALS
@@ -19,11 +19,11 @@ import ru.application.homemedkit.helpers.DateHelper.FORMAT_S
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
-class IntakeViewModel(repository: IntakeRepository, intakeId: Long) : ViewModel() {
+class IntakeViewModel(database: MedicineDatabase, intakeId: Long) : ViewModel() {
     private val _uiState = MutableStateFlow(Intake())
 
     init {
-        if (intakeId != 0L) _uiState.value = repository.getByPK(intakeId)
+        if (intakeId != 0L) _uiState.value = database.intakeDAO().getByPK(intakeId)
         else _uiState.value = Intake(-1, 0.0, BLANK, BLANK, BLANK, BLANK, BLANK)
     }
 

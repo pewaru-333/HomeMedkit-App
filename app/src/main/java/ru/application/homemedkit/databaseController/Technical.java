@@ -1,9 +1,15 @@
 package ru.application.homemedkit.databaseController;
 
-public class Technical {
-    public boolean scanned;
-    public boolean verified;
+import androidx.room.Ignore;
 
+public class Technical {
+    public boolean scanned = false;
+    public boolean verified = false;
+
+    public Technical() {
+    }
+
+    @Ignore
     public Technical(boolean scanned, boolean verified) {
         this.scanned = scanned;
         this.verified = verified;

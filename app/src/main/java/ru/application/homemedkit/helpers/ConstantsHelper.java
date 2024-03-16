@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import ru.application.homemedkit.R;
+
 public class ConstantsHelper {
 
     // ============================== Locale ==============================
@@ -46,4 +48,7 @@ public class ConstantsHelper {
     // ============================== Collections ==============================
     public static final List<String> INTERVALS = Arrays.asList("daily", "weekly", "custom");
     public static final List<String> PERIODS = Arrays.asList("week", "month", "other", "indefinite");
+    public static final List<Integer> SNACKS = Arrays.asList(R.string.text_medicine_duplicate,
+            R.string.text_not_medicine_code, R.string.text_code_not_found,
+            R.string.text_unknown_error, R.string.text_unknown_error, R.string.text_connection_error);
 }

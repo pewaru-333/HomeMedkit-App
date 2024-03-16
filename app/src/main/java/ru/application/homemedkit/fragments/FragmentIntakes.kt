@@ -260,7 +260,7 @@ class FragmentIntakes : Fragment() {
         val form = medicineDAO.getByPK(intake.medicineId).prodFormNormName
         val icon = getIconType(requireContext(), form)
         val startDate = LocalContext.current.resources.getString(
-            R.string.text_from_date_card_intake,
+            R.string.intake_card_text_from,
             intake.startDate
         )
         val count = intake.time.split(SEMICOLON).size
@@ -298,7 +298,7 @@ class FragmentIntakes : Fragment() {
                     )
                     Text(
                         text = stringResource(
-                            R.string.text_intake_interval_from,
+                            R.string.intake_text_interval_from,
                             intervalName,
                             startDate
                         ),
@@ -379,7 +379,7 @@ class FragmentIntakes : Fragment() {
                             )
                             Text(
                                 text = stringResource(
-                                    R.string.text_intake_form_amount,
+                                    R.string.intake_text_quantity,
                                     formName,
                                     decimalFormat(amount)
                                 )
