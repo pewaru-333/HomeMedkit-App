@@ -1,93 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
-    <string name="bottom_bar_intakes">Historial</string>
+
+    <!-- Menú -->
     <string name="bottom_bar_main">Inicio</string>
     <string name="bottom_bar_medicines">Medicamentos</string>
+    <string name="bottom_bar_intakes">Historial</string>
     <string name="bottom_bar_settings">Ajustes</string>
-    <string name="exp_date_until">"hasta %1$s "</string>
-    <string name="intake_time_placeholder">Hora #%1$d</string>
-    <string name="intakes_tab_current">Actual</string>
-    <string name="intakes_tab_list">Lista</string>
-    <string name="intakes_tab_taken">Ya tomado</string>
+
+    <!-- Preferencias -->
+    <string name="preference_app_view">Aplicación</string>
+    <string name="preference_app_theme">Tema de la aplicación</string>
+    <string name="preference_start_page">Página de inicio</string>
+    <string name="preference_sorting_type">Ordenación de medicamentos</string>
+    <string name="preference_easy_period_picker">Selección sencilla del periodo de ingesta</string>
+    <string name="preference_check_expiration_date">Comprobar la fecha de caducidad de los medicamentos</string>
+    <string name="preference_system">Sistema</string>
+    <string name="preference_language">Idioma de la aplicación</string>
+
+    <!-- Ordenación -->
+    <string name="sorting_a_z">Alfabéticamente (de A a z)</string>
+    <string name="sorting_z_a">Alfabéticamente (de z a A)</string>
+    <string name="sorting_from_oldest">Fecha de caducidad (reciente)</string>
+    <string name="sorting_from_newest">Fecha de caducidad (antigua)</string>
+
+    <!-- Notificaciones -->
     <string name="notification_channel_description">Recordatorios de medicación</string>
     <string name="notification_channel_name">Notificaciones</string>
-    <string name="preference_app_view">Aplicación</string>
-    <string name="preference_check_expiration_date">Comprobar la fecha de caducidad de los medicamentos</string>
-    <string name="preference_easy_period_picker">Selección más sencilla del periodo de consumición</string>
-    <string name="preference_language">Idioma de la aplicación</string>
-    <string name="preference_sorting_type">Ordenación de medicamentos</string>
-    <string name="preference_start_page">Página de inicio</string>
-    <string name="preference_system">Sistema</string>
-    <string name="sorting_a_z">Alfábeticamente (de A a z)</string>
-    <string name="sorting_from_newest">Fecha de caducidad (reciente)</string>
-    <string name="sorting_from_oldest">Fecha de caducidad (antigua)</string>
-    <string name="sorting_z_a">Alfábeticamente (de z a A)</string>
-    <string name="text_amount">Cantidad</string>
-    <string name="text_app_theme">Tema de la aplicación</string>
     <string name="text_attention">¡Atención!</string>
-    <string name="text_cancel">Cancelar</string>
-    <string name="text_code_not_found">¡Código no encontrado!</string>
-    <string name="text_confirm_exit">Confirmar salida</string>
-    <string name="text_connection_error">Error de conexión</string>
-    <string name="text_daily_at">Diariamente a las 12:00</string>
-    <string name="text_data_matrix_scanner">Escanear etiqueta DataMatrix (solo para RU)</string>
-    <string name="text_delete">Borrar</string>
     <string name="text_do_intake">Toma tus medicamentos</string>
-    <string name="text_days_short">d.</string>
-    <string name="text_edit">Editar</string>
-    <string name="text_encode_code_error">Error de encodificación del código</string>
-    <string name="text_enter_exp_date">Introduce la fecha de caducidad</string>
-    <string name="text_enter_product_name">Introduce el nombre del medicamento</string>
-    <string name="text_every">Cada\u0020</string>
     <string name="text_expire_soon">¡%1$s está a punto de caducar!</string>
-    <string name="text_from_date_card_intake">(desde %1$s)</string>
-    <string name="text_intake_amount">Cantidad</string>
-    <string name="text_intake_form_amount">%1$s: %2$s pcs</string>
-    <string name="text_intake_interval_from">%1$s %2$s</string>
-    <string name="text_intake_left_amount">Restantes</string>
     <string name="text_intake_time">Es la hora de tomar\u0020</string>
-    <string name="text_is_not_medicine_code">Este código no es un medicamento</string>
-    <string name="text_manual_adding">¿Quieres añadir un medicamento manualmente?</string>
     <string name="text_medicine_amount_not_enough">, pero hay menos cantidad de la prescrita. Vuelve a crear el recordatorio.</string>
-    <string name="text_medicine_amount">Cantidad del medicamento</string>
+
+    <!-- Placeholders -->
+    <string name="placeholder_date">dd.mm.aaaa</string>
+    <string name="placeholder_dose">0,5 mg + 84 mcg</string>
+    <string name="placeholder_form_name">Pastillas</string>
+    <string name="placeholder_pcs">pcs</string>
+    <string name="placeholder_time">Hora #%1$d</string>
+
+    <!-- Medicamentos -->
+    <string name="text_exp_date">Fecha de caducidad</string>
+    <string name="text_indications_for_use">Indicaciones para el uso</string>
     <string name="text_medicine_comment">Comentarios</string>
     <string name="text_medicine_description">Descripción</string>
     <string name="text_medicine_dose">Dosis</string>
-    <string name="text_medicine_duplicate">Ya se ha añadido ese medicamento</string>
-    <string name="text_medicine_expiration_date">Fecha de caducidad</string>
-    <string name="text_medicine_form_name">Tipo de medicación</string>
-    <string name="text_medicine_intake_interval">Intervalo</string>
-    <string name="text_medicine_intake_period">Periodo</string>
-    <string name="text_medicine_intake_time">Hora</string>
     <string name="text_medicine_product_name">Nombre del producto</string>
-    <string name="text_more">Más</string>
+
+    <!-- Intakes -->
+    <string name="intakes_tab_current">Actual</string>
+    <string name="intakes_tab_list">Lista</string>
+    <string name="intakes_tab_taken">Ya tomado</string>
+
+    <string name="intake_card_text_from">(desde %1$s)</string>
+    <string name="intake_text_amount">Cantidad</string>
+    <string name="intake_text_interval">Intervalo</string>
+    <string name="intake_text_left">Restante</string>
+    <string name="intake_text_period">Periodo</string>
+    <string name="intake_text_pick_period">Escoger periodo</string>
+    <string name="intake_text_quantity">%1$s: %2$s pcs</string>
+    <string name="intake_text_select_interval">Seleccionar intervalo</string>
+    <string name="intake_text_time">Hora</string>
+
+    <!-- Diálogos -->
+    <string name="manual_add">¿Quieres añadir un medicamento manualmente?<</string>
+    <string name="text_confirm_exit">Confirmar salida</string>
+    <string name="text_select_time">Seleccionar hora</string>
+    <string name="text_sure_to_exit">¿Quieres cerrar la aplicación?</string>
+
+    <!-- Códigos de barras -->
+    <string name="text_code_not_found">Código no encontrado</string>
+    <string name="text_connection_error">Error de conexión</string>
+    <string name="text_encode_code_error">Error de encodificación del código</string>
+    <string name="text_medicine_duplicate">Ya se ha añadido ese medicamento</string>
+    <string name="text_not_medicine_code">Este código no es un medicamento</string>
+    <string name="text_unknown_error">Código erróneo</string>
+
+    <!-- Strings -->
+    <string name="text_amount">Cantidad</string>
+    <string name="text_cancel">Cancelar</string>
+    <string name="text_daily_at">Diariamente a las 12:00</string>
+    <string name="text_data_matrix_scanner">Escanear etiqueta DataMatrix (solo para RU)</string>
+    <string name="text_days_short">d.</string>
+    <string name="text_delete">Borrar</string>
+    <string name="text_edit">Editar</string>
+    <string name="text_empty">En blanco</string>
+    <string name="text_enter_product_name">Introduce el nombre del medicamento</string>
+    <string name="text_every">Cada\u0020</string>
+    <string name="text_finish_date">Fecha de finalización</string>
+    <string name="text_manual_add">Añadir medicamento manualmente</string>
     <string name="text_no_data_found">Sin resultados</string>
     <string name="text_no">No</string>
     <string name="text_off">Desactivado</string>
     <string name="text_on">Activado</string>
-    <string name="text_period_dates">%1$s - %2$s</string>
-    <string name="text_period_finish_date">Fecha de finalización</string>
-    <string name="text_period_start_date">Fecha de inicio</string>
-    <string name="text_pick_interval">Seleccionar intervalo</string>
-    <string name="text_pick_period">Seleccionar periodo</string>
-    <string name="text_placeholder_date">dd.mm.aaaa</string>
-    <string name="text_placeholder_pcs">pcs</string>
     <string name="text_save">Guardar</string>
-    <string name="text_select_time">Seleccionar hora</string>
-    <string name="text_self_medicine_adding">Añadir medicina manualmente</string>
     <string name="text_sort_type">Ordenar por</string>
-    <string name="text_sure_to_exit">¿Quieres cerrar la aplicación?</string>
-    <string name="text_unknown_error">Código erróneo</string>
+    <string name="text_start_date">Fecha de inicio</string>
     <string name="text_yes">Sí</string>
 
+    <!-- Plurals -->
     <plurals name="intakes_a_day">
         <item quantity="one">%d vez al día</item>
         <item quantity="other">%d veces al día</item>
     </plurals>
 
+
+    <!-- Arrays -->
     <string-array name="languages_name">
-        <item>Sistema</item>
+        <item>Idioma del sistema</item>
         <item>Ruso</item>
         <item>Inglés</item>
         <item>Español</item>
@@ -126,26 +147,11 @@
         <item>indefinido</item>
     </string-array>
 
-    <string-array name="months_name">
-        <item>Enero</item>
-        <item>Febrero</item>
-        <item>Marzo</item>
-        <item>Abril</item>
-        <item>Mayo</item>
-        <item>Junio</item>
-        <item>Julio</item>
-        <item>Agosto</item>
-        <item>Septiembre</item>
-        <item>Octubre</item>
-        <item>Noviembre</item>
-        <item>Diciembre</item>
-    </string-array>
-
     <string-array name="medicine_types">
-        <item>TABLETS</item>
+        <item>COMPRIMIDOS</item>
         <item>CÁPSULAS</item>
         <item>PASTILLAS</item>
-        <item>DRAGEE</item>
+        <item>GRAGEAS</item>
         <item>GRÁNULOS</item>
         <item>POLVOS</item>
         <item>DISOLUCIÓN</item>
