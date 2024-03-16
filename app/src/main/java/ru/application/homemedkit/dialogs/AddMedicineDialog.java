@@ -29,7 +29,7 @@ public class AddMedicineDialog extends MaterialAlertDialogBuilder {
 
     public void showDialog() {
         setTitle(R.string.text_connection_error)
-                .setMessage(R.string.text_manual_adding)
+                .setMessage(R.string.manual_add)
                 .setOnCancelListener(this::negative)
                 .setNegativeButton(R.string.text_no, (dialog, id) -> negative(dialog))
                 .setPositiveButton(R.string.text_yes, (dialog, id) -> positive(dialog));

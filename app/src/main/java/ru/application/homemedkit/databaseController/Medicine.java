@@ -1,5 +1,7 @@
 package ru.application.homemedkit.databaseController;
 
+import static ru.application.homemedkit.helpers.ConstantsHelper.BLANK;
+
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -8,17 +10,17 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "medicines")
 public class Medicine {
     @PrimaryKey(autoGenerate = true)
-    public long id;
-    public String cis;
-    public String productName;
-    public long expDate;
-    public String prodFormNormName;
-    public String prodDNormName;
-    public double prodAmount;
-    public String phKinetics;
-    public String comment;
+    public long id = 0;
+    public String cis = BLANK;
+    public String productName = BLANK;
+    public long expDate = -1L;
+    public String prodFormNormName = BLANK;
+    public String prodDNormName = BLANK;
+    public double prodAmount = -1.0;
+    public String phKinetics = BLANK;
+    public String comment = BLANK;
     @Embedded
-    public Technical technical;
+    public Technical technical = new Technical();
 
     public Medicine() {
     }
@@ -47,13 +49,6 @@ public class Medicine {
         this.phKinetics = phKinetics;
         this.comment = comment;
         this.technical = technical;
-    }
-
-
-    @Ignore
-    public Medicine(String productName, long expDate) {
-        this.productName = productName;
-        this.expDate = expDate;
     }
 
     public Medicine(String cis,

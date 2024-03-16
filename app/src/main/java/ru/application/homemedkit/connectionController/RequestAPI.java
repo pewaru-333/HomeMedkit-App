@@ -33,16 +33,4 @@ public class RequestAPI implements DecodeCallback {
             request.enqueue(new RequestNew(activity, cis, loading));
         } else new Snackbars(activity).error();
     }
-
-    public void onDecoded(long id, String result) {
-        if (result.length() == 85) {
-            NetworkCall controller = NetworkClient.getInstance().create(NetworkCall.class);
-            Call<MainModel> request = controller.requestInfo(result);
-
-            LoadingDialog loading = new LoadingDialog(activity);
-
-            activity.runOnUiThread(loading::showDialog);
-            request.enqueue(new RequestUpdate(activity, loading, id));
-        } else new Snackbars(activity).error();
-    }
 }

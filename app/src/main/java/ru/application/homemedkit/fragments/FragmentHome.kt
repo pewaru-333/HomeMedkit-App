@@ -74,7 +74,7 @@ class FragmentHome : Fragment() {
                             Intent(activity, ScannerActivity::class.java)
                         )
                         CardPickAction(
-                            resources.getString(R.string.text_self_medicine_adding),
+                            resources.getString(R.string.text_manual_add),
                             R.drawable.vector_edit,
                             Intent(activity, MedicineActivity::class.java).putExtra(ADDING, true)
                         )

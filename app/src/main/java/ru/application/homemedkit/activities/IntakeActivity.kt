@@ -90,7 +90,6 @@ import ru.application.homemedkit.alarms.AlarmReceiver
 import ru.application.homemedkit.alarms.AlarmSetter
 import ru.application.homemedkit.databaseController.Intake
 import ru.application.homemedkit.databaseController.MedicineDatabase
-import ru.application.homemedkit.databaseController.repositories.IntakeRepository
 import ru.application.homemedkit.dialogs.TimePickerDialog
 import ru.application.homemedkit.helpers.ConstantsHelper.ADD
 import ru.application.homemedkit.helpers.ConstantsHelper.BLANK
@@ -110,9 +109,9 @@ import ru.application.homemedkit.helpers.SettingsHelper
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.longSeconds
 import ru.application.homemedkit.helpers.timesString
+import ru.application.homemedkit.helpers.viewModelFactory
 import ru.application.homemedkit.ui.theme.AppTheme
 import ru.application.homemedkit.viewModels.IntakeViewModel
-import ru.application.homemedkit.viewModels.factories.IntakeViewModelFactory
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -134,8 +133,9 @@ class IntakeActivity : ComponentActivity() {
         var medicineId = intent.getLongExtra(MEDICINE_ID, 0)
 
         setContent {
-            val factory = IntakeViewModelFactory(IntakeRepository(database.intakeDAO()), intakeId)
-            val viewModel: IntakeViewModel = viewModel(factory = factory)
+            val viewModel = viewModel<IntakeViewModel>(
+                factory = viewModelFactory { IntakeViewModel(database, intakeId) }
+            )
 
             viewModel.setAdding(intent.getBooleanExtra(ADD, false))
 
@@ -146,18 +146,12 @@ class IntakeActivity : ComponentActivity() {
                             title = {},
                             navigationIcon = {
                                 IconButton({
-                                    val intent = Intent(this, MainActivity::class.java)
-                                        .putExtra(NEW_INTAKE, true)
-                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                    startActivity(intent)
-                                }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onTertiaryContainer
+                                    startActivity(
+                                        Intent(this, MainActivity::class.java)
+                                            .putExtra(NEW_INTAKE, true)
                                     )
                                 }
+                                ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
                             },
                             actions = {
                                 when {
@@ -178,8 +172,8 @@ class IntakeActivity : ComponentActivity() {
                                     }
 
                                     else -> {
-                                        var expanded by remember { mutableStateOf(false) }
                                         LocalFocusManager.current.clearFocus(true)
+                                        var expanded by remember { mutableStateOf(false) }
 
                                         IconButton({ expanded = true }) {
                                             Icon(Icons.Default.MoreVert, null)
@@ -199,8 +193,8 @@ class IntakeActivity : ComponentActivity() {
                             },
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                titleContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                                navigationIconContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                                navigationIconContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                                actionIconContentColor = MaterialTheme.colorScheme.onTertiaryContainer
                             )
                         )
                     }
@@ -299,10 +293,11 @@ class IntakeActivity : ComponentActivity() {
     @Composable
     private fun deleteIntake(intakeId: Long): () -> Unit = {
         database.intakeDAO().delete(Intake(intakeId))
-        val intent = Intent(this@IntakeActivity, MainActivity::class.java)
-            .putExtra(NEW_INTAKE, true)
-            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
+        startActivity(
+            Intent(this@IntakeActivity, MainActivity::class.java)
+                .putExtra(NEW_INTAKE, true)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        )
     }
 }
 
@@ -330,7 +325,7 @@ private fun Amount(viewModel: IntakeViewModel, prodAmount: Double) {
 
     Row(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(16.dp)) {
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
-            LabelText(R.string.text_intake_amount)
+            LabelText(R.string.intake_text_amount)
             OutlinedTextField(
                 value = viewModel.amount,
                 onValueChange = {
@@ -354,14 +349,14 @@ private fun Amount(viewModel: IntakeViewModel, prodAmount: Double) {
         }
 
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
-            LabelText(R.string.text_intake_left_amount)
+            LabelText(R.string.intake_text_left)
             OutlinedTextField(
                 value = decimalFormat(prodAmount),
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
                 leadingIcon = { Icon(Icons.Default.Home, null) },
-                suffix = { Text(LocalContext.current.resources.getString(R.string.text_placeholder_pcs)) },
+                suffix = { Text(LocalContext.current.resources.getString(R.string.placeholder_pcs)) },
                 shape = RoundedCornerShape(14.dp)
             )
         }
@@ -384,7 +379,7 @@ private fun Interval(viewModel: IntakeViewModel) {
     }
 
     Column(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(8.dp)) {
-        LabelText(R.string.text_medicine_intake_interval)
+        LabelText(R.string.intake_text_interval)
 
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             ExposedDropdownMenuBox(
@@ -399,7 +394,7 @@ private fun Interval(viewModel: IntakeViewModel) {
                         .fillMaxWidth()
                         .menuAnchor(),
                     readOnly = true,
-                    placeholder = { Text(resources.getString(R.string.text_pick_interval)) },
+                    placeholder = { Text(resources.getString(R.string.intake_text_select_interval)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                     shape = RoundedCornerShape(14.dp)
                 )
@@ -451,11 +446,11 @@ private fun Interval(viewModel: IntakeViewModel) {
 @Composable
 private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
     val current = LocalContext.current
-    val dateST = current.getString(R.string.text_period_start_date)
-    val dateFT = current.getString(R.string.text_period_finish_date)
+    val dateST = current.getString(R.string.text_start_date)
+    val dateFT = current.getString(R.string.text_finish_date)
 
     Column(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(8.dp)) {
-        LabelText(R.string.text_medicine_intake_period)
+        LabelText(R.string.intake_text_period)
 
         when {
             settings.lightPeriod -> {
@@ -488,7 +483,7 @@ private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
                                 .fillMaxWidth()
                                 .menuAnchor(),
                             readOnly = true,
-                            placeholder = { Text(resources.getString(R.string.text_pick_period)) },
+                            placeholder = { Text(resources.getString(R.string.intake_text_pick_period)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                             shape = RoundedCornerShape(14.dp)
                         )
@@ -603,7 +598,7 @@ private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
                             .clickable { showPicker = true },
                         enabled = false,
                         readOnly = true,
-                        placeholder = { Text(current.getString(R.string.text_placeholder_date)) },
+                        placeholder = { Text(current.getString(R.string.placeholder_date)) },
                         leadingIcon = { Icon(Icons.Default.DateRange, null) },
                         supportingText = { Text(dateST) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -619,7 +614,7 @@ private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
                             .clickable { showPicker = true },
                         enabled = false,
                         readOnly = true,
-                        placeholder = { Text(current.getString(R.string.text_placeholder_date)) },
+                        placeholder = { Text(current.getString(R.string.placeholder_date)) },
                         leadingIcon = { Icon(Icons.Default.DateRange, null) },
                         supportingText = { Text(dateFT) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -675,7 +670,7 @@ private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
                                         state = state,
                                         title = {
                                             Text(
-                                                text = current.getString(R.string.text_pick_period),
+                                                text = current.getString(R.string.intake_text_pick_period),
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .padding(20.dp),
@@ -696,7 +691,7 @@ private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
                                             ) {
                                                 Text(
                                                     stringResource(
-                                                        R.string.text_period_dates,
+                                                        R.string.period_dates,
                                                         selectS,
                                                         selectF
                                                     )
@@ -739,7 +734,7 @@ private fun Time(viewModel: IntakeViewModel) {
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        LabelText(R.string.text_medicine_intake_time)
+        LabelText(R.string.intake_text_time)
 
         when {
             viewModel.add || viewModel.edit -> {
@@ -755,7 +750,13 @@ private fun Time(viewModel: IntakeViewModel) {
                                 .fillMaxWidth(0.8f)
                                 .clickable { fieldIndex = index; showPicker = true },
                             enabled = false,
-                            placeholder = { Text(timePlaceholder(index)) },
+                            placeholder = {
+                                Text(
+                                    String.format(
+                                        LocalContext.current.resources.getString(R.string.placeholder_time),
+                                        index + 1
+                                    )
+                                ) },
                             leadingIcon = { Icon(painterResource(R.drawable.vector_time), null) },
                             shape = RoundedCornerShape(14.dp),
                             colors = fieldColorsInverted()
@@ -849,13 +850,8 @@ private fun Time(viewModel: IntakeViewModel) {
 }
 
 @Composable
-private fun timePlaceholder(index: Int) = String.format(
-    LocalContext.current.resources.getString(R.string.intake_time_placeholder), index + 1
-)
-
-@Composable
-private fun fieldColorsInverted(isError: Boolean = false) = TextFieldDefaults.colors(
-    disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+fun fieldColorsInverted(isError: Boolean = false) = TextFieldDefaults.colors(
+    disabledTextColor = MaterialTheme.colorScheme.onSurface,
     disabledContainerColor = when {
         isError -> MaterialTheme.colorScheme.errorContainer
         else -> MaterialTheme.colorScheme.surface

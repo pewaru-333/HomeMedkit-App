@@ -31,19 +31,6 @@ public class AlarmSetter {
         this.context = context;
     }
 
-    public void setAlarm(long intakeId, long trigger, String interval, String finish) {
-        AlarmManager manager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        MedicineDatabase database = MedicineDatabase.getInstance(context);
-
-        long alarmId = database.alarmDAO().add(new Alarm(intakeId, trigger));
-
-        Intent intent = getIntent(alarmId, interval, finish);
-
-        PendingIntent pending = getBroadcast(context, (int) alarmId, intent,
-                FLAG_UPDATE_CURRENT | FLAG_IMMUTABLE);
-        AlarmManagerCompat.setExactAndAllowWhileIdle(manager, RTC_WAKEUP, trigger, pending);
-    }
-
     private Intent getIntent(long alarmId, String interval, String finish) {
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);

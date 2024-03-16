@@ -1,91 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
-    <string name="bottom_bar_intakes">Intakes</string>
+
+    <!-- Menu -->
     <string name="bottom_bar_main">Home</string>
     <string name="bottom_bar_medicines">Medicines</string>
+    <string name="bottom_bar_intakes">Intakes</string>
     <string name="bottom_bar_settings">Settings</string>
-    <string name="exp_date_until">"to %1$s "</string>
-    <string name="intake_time_placeholder">Time #%1$d</string>
-    <string name="intakes_tab_current">Current</string>
-    <string name="intakes_tab_list">List</string>
-    <string name="intakes_tab_taken">Taken</string>
+
+    <!-- Preferences -->
+    <string name="preference_app_view">App view</string>
+    <string name="preference_app_theme">App theme</string>
+    <string name="preference_start_page">Home page</string>
+    <string name="preference_sorting_type">Medicine sorting</string>
+    <string name="preference_easy_period_picker">Easier intake period selection</string>
+    <string name="preference_check_expiration_date">Checking the expiration date of medicines</string>
+    <string name="preference_system">System</string>
+    <string name="preference_language">App language</string>
+
+    <!-- Sorting -->
+    <string name="sorting_a_z">Alphabetically (A to z)</string>
+    <string name="sorting_z_a">Alphabetically (z to A)</string>
+    <string name="sorting_from_oldest">Expiration date (from oldest)</string>
+    <string name="sorting_from_newest">Expiration date (from newest)</string>
+
+    <!-- Notifications -->
     <string name="notification_channel_description">Medication reminders</string>
     <string name="notification_channel_name">Sound notifications</string>
-    <string name="preference_app_view">App view</string>
-    <string name="preference_check_expiration_date">Checking the expiration date of medicines</string>
-    <string name="preference_easy_period_picker">Easier intake period selection</string>
-    <string name="preference_language">App language</string>
-    <string name="preference_sorting_type">Medicine sorting</string>
-    <string name="preference_start_page">Home page</string>
-    <string name="preference_system">System</string>
-    <string name="sorting_a_z">Alphabetically (A to z)</string>
-    <string name="sorting_from_newest">Expiration date (from newest)</string>
-    <string name="sorting_from_oldest">Expiration date (from oldest)</string>
-    <string name="sorting_z_a">Alphabetically (z to A)</string>
-    <string name="text_amount">Amount</string>
-    <string name="text_app_theme">App theme</string>
     <string name="text_attention">Attention!</string>
-    <string name="text_cancel">Cancel</string>
-    <string name="text_code_not_found">Code not found!</string>
-    <string name="text_confirm_exit">Confirm exit</string>
-    <string name="text_connection_error">Connection error!</string>
-    <string name="text_daily_at">Daily at 12:00</string>
-    <string name="text_data_matrix_scanner">Scanning DataMatrix label (only for RU)</string>
-    <string name="text_delete">Delete</string>
     <string name="text_do_intake">Do intake</string>
-    <string name="text_days_short">d.</string>
-    <string name="text_edit">Edit</string>
-    <string name="text_encode_code_error">Code encode error!</string>
-    <string name="text_enter_exp_date">Enter the expiration date</string>
-    <string name="text_enter_product_name">Enter medicine name</string>
-    <string name="text_every">Every\u0020</string>
     <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
-    <string name="text_from_date_card_intake">(from %1$s)</string>
-    <string name="text_intake_amount">Quantity</string>
-    <string name="text_intake_form_amount">%1$s: %2$s pcs</string>
-    <string name="text_intake_interval_from">%1$s %2$s</string>
-    <string name="text_intake_left_amount">Left</string>
     <string name="text_intake_time">It\'s time to intake\u0020</string>
-    <string name="text_is_not_medicine_code">This code is not medicine\'s</string>
-    <string name="text_manual_adding">Do you want to add medicine manually?</string>
     <string name="text_medicine_amount_not_enough">, but its quantity is less than prescribed! Recreate intake!</string>
-    <string name="text_medicine_amount">Medicine amount</string>
+
+    <!-- Placeholders -->
+    <string name="placeholder_date">dd.mm.yyyy</string>
+    <string name="placeholder_dose">0,5 mg + 84 mcg</string>
+    <string name="placeholder_form_name">Tablets</string>
+    <string name="placeholder_pcs">pcs</string>
+    <string name="placeholder_time">Time #%1$d</string>
+
+    <!-- Medicines -->
+    <string name="text_exp_date">Exp. date</string>
+    <string name="text_indications_for_use">Indications for use</string>
     <string name="text_medicine_comment">Comment</string>
     <string name="text_medicine_description">Description</string>
     <string name="text_medicine_dose">Dose</string>
-    <string name="text_medicine_duplicate">The medicine has already been added</string>
-    <string name="text_medicine_expiration_date">Expiration date</string>
-    <string name="text_medicine_form_name">Medicine form</string>
-    <string name="text_medicine_intake_interval">Interval</string>
-    <string name="text_medicine_intake_period">Period</string>
-    <string name="text_medicine_intake_time">Time</string>
     <string name="text_medicine_product_name">Product name</string>
-    <string name="text_more">More</string>
+
+    <!-- Intakes -->
+    <string name="intakes_tab_current">Current</string>
+    <string name="intakes_tab_list">List</string>
+    <string name="intakes_tab_taken">Taken</string>
+
+    <string name="intake_card_text_from">(from %1$s)</string>
+    <string name="intake_text_amount">Quantity</string>
+    <string name="intake_text_interval">Interval</string>
+    <string name="intake_text_left">Left</string>
+    <string name="intake_text_period">Period</string>
+    <string name="intake_text_pick_period">Pick period</string>
+    <string name="intake_text_quantity">%1$s: %2$s pcs</string>
+    <string name="intake_text_select_interval">Select interval</string>
+    <string name="intake_text_time">Time</string>
+
+    <!-- Dialogs -->
+    <string name="manual_add">Do you want to add medicine manually?</string>
+    <string name="text_confirm_exit">Confirm exit</string>
+    <string name="text_select_time">Select time</string>
+    <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
+
+    <!-- Snackbars -->
+    <string name="text_code_not_found">Code not found!</string>
+    <string name="text_connection_error">Connection error!</string>
+    <string name="text_encode_code_error">Code encode error!</string>
+    <string name="text_medicine_duplicate">The medicine has already been added</string>
+    <string name="text_not_medicine_code">This code is not medicine\'s</string>
+    <string name="text_unknown_error">Wrong code scanned!</string>
+
+    <!-- Strings -->
+    <string name="text_amount">Amount</string>
+    <string name="text_cancel">Cancel</string>
+    <string name="text_daily_at">Daily at 12:00</string>
+    <string name="text_data_matrix_scanner">Scanning DataMatrix label (only for RU)</string>
+    <string name="text_days_short">d.</string>
+    <string name="text_delete">Delete</string>
+    <string name="text_edit">Edit</string>
+    <string name="text_empty">Empty</string>
+    <string name="text_enter_product_name">Enter medicine name</string>
+    <string name="text_every">Every\u0020</string>
+    <string name="text_finish_date">Finish date</string>
+    <string name="text_manual_add">Manual medicine adding</string>
     <string name="text_no_data_found">Nothing found!</string>
     <string name="text_no">No</string>
     <string name="text_off">Turned off</string>
     <string name="text_on">Turned on</string>
-    <string name="text_period_dates">%1$s - %2$s</string>
-    <string name="text_period_finish_date">Finish date</string>
-    <string name="text_period_start_date">Start date</string>
-    <string name="text_pick_interval">Select interval</string>
-    <string name="text_pick_period">Select period</string>
-    <string name="text_placeholder_date">dd.mm.yyyy</string>
-    <string name="text_placeholder_pcs">pcs</string>
     <string name="text_save">Save</string>
-    <string name="text_select_time">Select time</string>
-    <string name="text_self_medicine_adding">Manual medicine adding</string>
     <string name="text_sort_type">Sorting type</string>
-    <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
-    <string name="text_unknown_error">Wrong code scanned!</string>
+    <string name="text_start_date">Start date</string>
     <string name="text_yes">Yes</string>
 
+    <!-- Plurals -->
     <plurals name="intakes_a_day">
         <item quantity="one">%d time a day</item>
         <item quantity="other">%d times a day</item>
     </plurals>
 
+
+    <!-- Arrays -->
     <string-array name="languages_name">
         <item>System</item>
         <item>Russian</item>
@@ -123,21 +144,6 @@
         <item>month</item>
         <item>other</item>
         <item>indefinite</item>
-    </string-array>
-
-    <string-array name="months_name">
-        <item>January</item>
-        <item>February</item>
-        <item>March</item>
-        <item>April</item>
-        <item>May</item>
-        <item>June</item>
-        <item>July</item>
-        <item>August</item>
-        <item>September</item>
-        <item>October</item>
-        <item>November</item>
-        <item>December</item>
     </string-array>
 
     <string-array name="medicine_types">
