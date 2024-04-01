@@ -91,6 +91,7 @@ abstract class MedicineDatabase : RoomDatabase() {
 
                     val interval = when (val value = cursor.getString(3)) {
                         "daily" -> 1
+                        "hourly" -> 1
                         "weekly" -> 7
                         else -> value.substringAfter("_")
                     }

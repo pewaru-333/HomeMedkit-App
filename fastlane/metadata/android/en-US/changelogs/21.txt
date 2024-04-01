@@ -1,0 +1,1 @@
+— Fixed a bug that caused the app to crash when there were very old intakes.
