@@ -1,145 +1,277 @@
 package ru.application.homemedkit.viewModels
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.application.homemedkit.connectionController.NetworkCall
-import ru.application.homemedkit.connectionController.NetworkClient
-import ru.application.homemedkit.connectionController.RequestUpdate
+import ru.application.homemedkit.connectionController.NetworkAPI
 import ru.application.homemedkit.databaseController.Medicine
-import ru.application.homemedkit.databaseController.MedicineDatabase
+import ru.application.homemedkit.databaseController.MedicineDAO
 import ru.application.homemedkit.databaseController.Technical
-import ru.application.homemedkit.helpers.ConstantsHelper.BLANK
+import ru.application.homemedkit.helpers.BLANK
+import ru.application.homemedkit.helpers.CATEGORY
+import ru.application.homemedkit.states.MedicineState
+import ru.application.homemedkit.states.TechnicalState
 
+class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewModel() {
+    private val _uiState = MutableStateFlow(MedicineState())
+    val uiState = _uiState.asStateFlow()
 
-sealed interface ResponseUiState {
-    data object Default : ResponseUiState
-    data object Success : ResponseUiState
-    data object Loading : ResponseUiState
-    enum class Errors : ResponseUiState {
-        WRONG_CODE_CATEGORY, WRONG_CATEGORY, CODE_NOT_FOUND, FETCH_ERROR, NO_NETWORK
+    private val _response = MutableSharedFlow<ResponseState>()
+    val response = _response.asSharedFlow()
+
+    private val _events = MutableSharedFlow<ActivityEvents>()
+    val events = _events.asSharedFlow()
+
+    var show by mutableStateOf(false)
+
+    init {
+        viewModelScope.launch {
+            dao.getByPK(medicineId)?.let { medicine ->
+                _uiState.update {
+                    it.copy(
+                        adding = false,
+                        editing = false,
+                        default = true,
+                        fetch = ResponseState.Default,
+                        id = medicine.id,
+                        cis = medicine.cis,
+                        productName = medicine.productName,
+                        expDate = medicine.expDate,
+                        prodFormNormName = medicine.prodFormNormName,
+                        prodDNormName = medicine.prodDNormName,
+                        prodAmount = medicine.prodAmount.toString(),
+                        phKinetics = medicine.phKinetics,
+                        comment = medicine.comment,
+                        image = medicine.image,
+                        technical = TechnicalState(
+                            scanned = medicine.technical.scanned,
+                            verified = medicine.technical.verified
+                        )
+                    )
+                }
+            } ?: MedicineState()
+        }
+    }
+
+    fun onEvent(event: MedicineEvent) {
+        when (event) {
+            MedicineEvent.Add -> {
+                val cis = uiState.value.cis
+                val productName = uiState.value.productName
+                val expDate = uiState.value.expDate
+                val prodFormNormName = uiState.value.prodFormNormName
+                val prodDNormName = uiState.value.prodDNormName
+                val prodAmount = uiState.value.prodAmount.ifEmpty { "0.0" }
+                val phKinetics = uiState.value.phKinetics
+                val comment = uiState.value.comment
+                val image = uiState.value.image
+                val scanned = cis.isNotBlank()
+                val verified = uiState.value.technical.verified
+
+                val medicine = Medicine(
+                    cis = cis,
+                    productName = productName,
+                    expDate = expDate,
+                    prodFormNormName = prodFormNormName,
+                    prodDNormName = prodDNormName,
+                    prodAmount = prodAmount.toDouble(),
+                    phKinetics = phKinetics,
+                    comment = comment,
+                    image = image,
+                    technical = Technical(
+                        scanned = scanned,
+                        verified = verified
+                    )
+                )
+
+                viewModelScope.launch {
+                    val id = dao.add(medicine)
+                    _uiState.update { it.copy(adding = false, default = true, id = id) }
+                    _events.emit(ActivityEvents.Start)
+                }
+            }
+
+            MedicineEvent.Fetch -> {
+                fetchData()
+            }
+
+            MedicineEvent.Update -> {
+                val id = uiState.value.id
+                val cis = uiState.value.cis
+                val productName = uiState.value.productName
+                val expDate = uiState.value.expDate
+                val prodFormNormName = uiState.value.prodFormNormName
+                val prodDNormName = uiState.value.prodDNormName
+                val prodAmount = uiState.value.prodAmount.ifEmpty { "0.0" }
+                val phKinetics = uiState.value.phKinetics
+                val comment = uiState.value.comment
+                val image = uiState.value.image
+                val scanned = uiState.value.technical.scanned
+                val verified = uiState.value.technical.verified
+
+                val medicine = Medicine(
+                    id = id,
+                    cis = cis,
+                    productName = productName,
+                    expDate = expDate,
+                    prodFormNormName = prodFormNormName,
+                    prodDNormName = prodDNormName,
+                    prodAmount = prodAmount.toDouble(),
+                    phKinetics = phKinetics,
+                    comment = comment,
+                    image = image,
+                    technical = Technical(
+                        scanned = scanned,
+                        verified = verified
+                    )
+                )
+
+                viewModelScope.launch {
+                    dao.update(medicine)
+                    _uiState.update { it.copy(adding = false, editing = false, default = true) }
+                }
+            }
+
+            MedicineEvent.Delete -> {
+                val medicine = Medicine(id = uiState.value.id)
+
+                viewModelScope.launch {
+                    dao.delete(medicine)
+                    _events.emit(ActivityEvents.Close)
+                }
+            }
+
+            MedicineEvent.SetAdding -> {
+                _uiState.update { it.copy(adding = true, default = false) }
+            }
+
+            MedicineEvent.SetEditing -> {
+                _uiState.update { it.copy(editing = true, default = false) }
+            }
+
+            is MedicineEvent.SetMedicineId -> {
+                _uiState.update { it.copy(id = event.medicineId) }
+            }
+
+            is MedicineEvent.SetCis -> {
+                _uiState.update { it.copy(cis = event.cis) }
+            }
+
+            is MedicineEvent.SetProductName -> {
+                _uiState.update { it.copy(productName = event.productName) }
+            }
+
+            is MedicineEvent.SetExpDate -> {
+                _uiState.update { it.copy(expDate = event.expDate) }
+            }
+
+            is MedicineEvent.SetProdFormNormName -> {
+                _uiState.update { it.copy(prodFormNormName = event.prodFormNormName) }
+            }
+
+            is MedicineEvent.SetProdDNormName -> {
+                _uiState.update { it.copy(prodDNormName = event.prodDNormName) }
+            }
+
+            is MedicineEvent.SetProdAmount -> {
+                if (event.prodAmount.isNotEmpty()) {
+                    when (event.prodAmount.replace(',', '.').toDoubleOrNull()) {
+                        null -> {}
+                        else -> _uiState.update {
+                            it.copy(prodAmount = event.prodAmount.replace(',', '.'))
+                        }
+                    }
+                } else _uiState.update { it.copy(prodAmount = BLANK) }
+            }
+
+            is MedicineEvent.SetPhKinetics -> {
+                _uiState.update { it.copy(phKinetics = event.phKinetics) }
+            }
+
+            is MedicineEvent.SetComment -> {
+                _uiState.update { it.copy(comment = event.comment) }
+            }
+
+            is MedicineEvent.SetImage -> {
+                _uiState.update { it.copy(image = event.image) }
+            }
+        }
+    }
+
+    private fun fetchData() {
+        viewModelScope.launch {
+            _response.emit(ResponseState.Loading)
+
+            try {
+                NetworkAPI.client.requestData(_uiState.value.cis).apply {
+                    if (isSuccessful) {
+                        body()?.let { body ->
+                            body.category?.let { category ->
+                                if (category == CATEGORY) {
+                                    if (body.codeFounded && body.checkResult) {
+                                        val medicine = Medicine(
+                                            id = _uiState.value.id,
+                                            cis = body.cis,
+                                            productName = body.drugsData.prodDescLabel,
+                                            expDate = body.drugsData.expireDate,
+                                            prodFormNormName = body.drugsData.foiv.prodFormNormName,
+                                            prodDNormName = body.drugsData.foiv.prodDNormName
+                                                ?: BLANK,
+                                            prodAmount = 0.0,
+                                            phKinetics = body.drugsData.vidalData.phKinetics
+                                                ?: BLANK,
+                                            comment = _uiState.value.comment.ifEmpty { BLANK },
+                                            technical = Technical(
+                                                scanned = true,
+                                                verified = true
+                                            )
+                                        )
+
+                                        dao.update(medicine)
+                                        _response.emit(ResponseState.Success)
+                                        _events.emit(ActivityEvents.Start)
+
+                                    } else _response.emit(ResponseState.Errors.CODE_NOT_FOUND)
+                                } else _response.emit(ResponseState.Errors.WRONG_CATEGORY)
+                            } ?: _response.emit(ResponseState.Errors.FETCH_ERROR)
+                        } ?: _response.emit(ResponseState.Errors.WRONG_CODE_CATEGORY)
+                    } else _response.emit(ResponseState.Errors.WRONG_CODE_CATEGORY)
+                }
+            } catch (throwable: Throwable) {
+                _response.emit(ResponseState.Errors.NO_NETWORK)
+            }
+        }
     }
 }
 
-class MedicineViewModel(val database: MedicineDatabase, medicineId: Long) : ViewModel() {
-    private val _uiState = MutableStateFlow(Medicine())
-    private val uiState = _uiState.asStateFlow()
+sealed interface MedicineEvent {
+    data object Add : MedicineEvent
+    data object Fetch : MedicineEvent
+    data object Update : MedicineEvent
+    data object Delete : MedicineEvent
+    data class SetMedicineId(val medicineId: Long) : MedicineEvent
+    data class SetCis(val cis: String) : MedicineEvent
+    data class SetProductName(val productName: String) : MedicineEvent
+    data class SetExpDate(val expDate: Long) : MedicineEvent
+    data class SetProdFormNormName(val prodFormNormName: String) : MedicineEvent
+    data class SetProdDNormName(val prodDNormName: String) : MedicineEvent
+    data class SetProdAmount(val prodAmount: String) : MedicineEvent
+    data class SetPhKinetics(val phKinetics: String) : MedicineEvent
+    data class SetComment(val comment: String) : MedicineEvent
+    data class SetImage(val image: String) : MedicineEvent
+    data object SetAdding : MedicineEvent
+    data object SetEditing : MedicineEvent
+}
 
-    init {
-        if (medicineId != 0L) _uiState.value = database.medicineDAO().getByPK(medicineId)
-    }
-
-    var responseUiState: ResponseUiState by mutableStateOf(ResponseUiState.Default)
-
-    var add by mutableStateOf(false)
-        private set
-
-    var edit by mutableStateOf(false)
-        private set
-
-    var id by mutableLongStateOf(0L)
-    var cis: String? = uiState.value.cis
-
-    var productName: String by mutableStateOf(uiState.value.productName)
-        private set
-
-    var expDate: Long by mutableLongStateOf(uiState.value.expDate)
-        private set
-
-    var prodFormNormName: String by mutableStateOf(uiState.value.prodFormNormName)
-        private set
-
-    var prodDNormName: String by mutableStateOf(uiState.value.prodDNormName)
-        private set
-
-    var prodAmount by mutableStateOf(
-        when (uiState.value.prodAmount) {
-            -1.0 -> BLANK
-            else -> uiState.value.prodAmount.toString()
-        }
-    )
-        private set
-
-    var phKinetics: String by mutableStateOf(
-        when (uiState.value.phKinetics) {
-            null -> BLANK
-            else -> uiState.value.phKinetics
-        }
-    )
-        private set
-
-    var comment: String by mutableStateOf(
-        when (uiState.value.comment) {
-            null -> BLANK
-            else -> uiState.value.comment
-        }
-    )
-        private set
-
-    var technical by mutableStateOf(
-        Technical(
-            uiState.value.technical.scanned,
-            uiState.value.technical.verified
-        )
-    )
-        private set
-
-
-    fun setAdding(flag: Boolean) {
-        add = flag
-    }
-
-    fun setEditing(flag: Boolean) {
-        edit = flag
-    }
-
-    fun updateProductName(text: String) {
-        productName = text
-    }
-
-    fun updateExpDate(milli: Long) {
-        expDate = milli
-    }
-
-    fun updateFormName(text: String) {
-        prodFormNormName = text
-    }
-
-    fun updateNormName(text: String) {
-        prodDNormName = text
-    }
-
-    fun updateProdAmount(amount: String) {
-        if (amount.isNotEmpty()) {
-            when (amount.replace(',', '.').toDoubleOrNull()) {
-                null -> {}
-                else -> prodAmount = amount.trim()
-            }
-        } else prodAmount = amount
-    }
-
-    fun updatePhKinetics(text: String) {
-        phKinetics = text
-    }
-
-    fun updateComment(text: String) {
-        comment = text
-    }
-
-    fun fetchData() {
-        viewModelScope.launch {
-            responseUiState = ResponseUiState.Loading
-
-            NetworkClient.getInstance()
-                .create(NetworkCall::class.java)
-                .requestInfo(cis)
-                .enqueue(RequestUpdate(database, this@MedicineViewModel))
-        }
-    }
+sealed interface ActivityEvents {
+    data object Start : ActivityEvents
+    data object Close : ActivityEvents
 }

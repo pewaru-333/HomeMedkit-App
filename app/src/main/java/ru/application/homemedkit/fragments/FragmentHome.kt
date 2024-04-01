@@ -41,7 +41,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import ru.application.homemedkit.R
 import ru.application.homemedkit.activities.MedicineActivity
 import ru.application.homemedkit.activities.ScannerActivity
-import ru.application.homemedkit.helpers.ConstantsHelper.ADDING
+import ru.application.homemedkit.helpers.ADDING
 import ru.application.homemedkit.ui.theme.AppTheme
 
 class FragmentHome : Fragment() {

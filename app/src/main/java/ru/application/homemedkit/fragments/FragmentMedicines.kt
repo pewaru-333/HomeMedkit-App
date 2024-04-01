@@ -51,10 +51,10 @@ import ru.application.homemedkit.R
 import ru.application.homemedkit.activities.MedicineActivity
 import ru.application.homemedkit.databaseController.Medicine
 import ru.application.homemedkit.databaseController.MedicineDatabase
-import ru.application.homemedkit.helpers.ConstantsHelper.BLANK
-import ru.application.homemedkit.helpers.ConstantsHelper.ID
+import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DateHelper
 import ru.application.homemedkit.helpers.FiltersHelper
+import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.SettingsHelper
 import ru.application.homemedkit.helpers.SortingHelper
 import ru.application.homemedkit.helpers.formName
@@ -72,8 +72,8 @@ class FragmentMedicines : Fragment() {
         super.onCreate(savedInstanceState)
 
         preferences = SettingsHelper(context)
-        database = MedicineDatabase.getInstance(context)
-        medicines = database.medicineDAO().all
+        database = MedicineDatabase.getInstance(requireContext())
+        medicines = database.medicineDAO().getAll()
         types = resources.getStringArray(R.array.sorting_types)
     }
 

@@ -1,8 +1,8 @@
 package ru.application.homemedkit.fragments;
 
 import static android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import static ru.application.homemedkit.helpers.ConstantsHelper.CHECK_EXP_DATE;
-import static ru.application.homemedkit.helpers.ConstantsHelper.SETTINGS_CHANGED;
+import static ru.application.homemedkit.helpers.ConstantsHelperKt.CHECK_EXP_DATE;
+import static ru.application.homemedkit.helpers.ConstantsHelperKt.SETTINGS_CHANGED;
 import static ru.application.homemedkit.helpers.SettingsHelper.APP_THEME;
 import static ru.application.homemedkit.helpers.SettingsHelper.LANGUAGE;
 import static ru.application.homemedkit.helpers.SettingsHelper.LIGHT_PERIOD;

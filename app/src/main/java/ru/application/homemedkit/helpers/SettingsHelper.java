@@ -6,7 +6,7 @@ import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
 import static androidx.appcompat.app.AppCompatDelegate.setApplicationLocales;
 import static androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode;
 import static androidx.core.os.LocaleListCompat.forLanguageTags;
-import static ru.application.homemedkit.helpers.ConstantsHelper.CHECK_EXP_DATE;
+import static ru.application.homemedkit.helpers.ConstantsHelperKt.CHECK_EXP_DATE;
 
 import android.content.Context;
 import android.content.SharedPreferences;

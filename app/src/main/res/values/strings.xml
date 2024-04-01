@@ -36,6 +36,7 @@
     <string name="placeholder_amount" translatable="false">50</string>
     <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
+    <string name="placeholder_exp_date">31 May 2029</string>
     <string name="placeholder_form_name">Tablets</string>
     <string name="placeholder_pcs">pcs</string>
     <string name="placeholder_time">Time #%1$d</string>
@@ -55,7 +56,6 @@
 
     <string name="intake_card_text_from">(from %1$s)</string>
     <string name="intake_text_amount">Quantity</string>
-    <string name="intake_text_interval_from" translatable="false">%1$s %2$s</string>
     <string name="intake_text_interval">Interval</string>
     <string name="intake_text_left">Left</string>
     <string name="intake_text_period">Period</string>
@@ -66,8 +66,10 @@
 
     <!-- Dialogs -->
     <string name="manual_add">Do you want to add medicine manually?</string>
-    <string name="period_dates" translatable="false">%1$s - %2$s</string>
     <string name="text_confirm_exit">Confirm exit</string>
+    <string name="text_grant_permission">Grant permission</string>
+    <string name="text_request_camera">To scan the label, the application must be given permission to use the camera</string>
+    <string name="text_request_post">To receive notifications, the application must be granted the appropriate permission</string>
     <string name="text_select_time">Select time</string>
     <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
 
@@ -116,12 +118,14 @@
         <item>null</item>
         <item>ru</item>
         <item>en-US</item>
+        <item>es</item>
     </string-array>
 
     <string-array name="languages_name">
         <item>System</item>
         <item>Russian</item>
         <item>English</item>
+        <item>Spanish</item>
     </string-array>
 
     <string-array name="sorting_types">
@@ -201,30 +205,5 @@
         <item>SPRAY</item>
         <item>DROPS</item>
     </string-array>
-
-    <array name="medicine_types_icons">
-        <item>@drawable/vector_type_tablets</item>
-        <item>@drawable/vector_type_capsule</item>
-        <item>@drawable/vector_type_pills</item>
-        <item>@drawable/vector_type_dragee</item>
-        <item>@drawable/vector_type_granules</item>
-        <item>@drawable/vector_type_powder</item>
-        <item>@drawable/vector_type_solution</item>
-        <item>@drawable/vector_type_tincture</item>
-        <item>@drawable/vector_type_decoction</item>
-        <item>@drawable/vector_type_extract</item>
-        <item>@drawable/vector_type_mixture</item>
-        <item>@drawable/vector_type_syrup</item>
-        <item>@drawable/vector_type_emulsion</item>
-        <item>@drawable/vector_type_suspension</item>
-        <item>@drawable/vector_type_mix</item>
-        <item>@drawable/vector_type_ointment</item>
-        <item>@drawable/vector_type_gel</item>
-        <item>@drawable/vector_type_paste</item>
-        <item>@drawable/vector_type_suppository</item>
-        <item>@drawable/vector_type_aerosol</item>
-        <item>@drawable/vector_type_nasal_spray</item>
-        <item>@drawable/vector_type_drops</item>
-    </array>
 
 </resources>

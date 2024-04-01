@@ -1,15 +1,9 @@
-import java.io.FileInputStream
-import java.util.Properties
-
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("androidx.room")
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.jetbrainsKotlin)
+    alias(libs.plugins.googleKsp)
+    alias(libs.plugins.roomPlugin)
 }
-
-val propertiesFile = rootProject.file("local.properties")
-val properties = Properties()
-properties.load(FileInputStream(propertiesFile))
 
 android {
     namespace = "ru.application.homemedkit"
@@ -19,11 +13,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 34
-        versionCode = 19
-        versionName = "1.2.1"
-
-        buildConfigField("String", "BASE_URL", properties.getProperty("BASE_URL"))
-        buildConfigField("String", "API_URL", properties.getProperty("API_URL"))
+        versionCode = 20
+        versionName = "1.3.0"
     }
 
     room {
@@ -52,27 +43,41 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
+        kotlinCompilerExtensionVersion = "1.5.11"
     }
 }
 
 dependencies {
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation(platform("androidx.compose:compose-bom:2024.02.02"))
-    implementation("androidx.compose.material3:material3:1.2.1")
-    implementation("androidx.activity:activity-compose:1.8.2")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
-    implementation("com.google.accompanist:accompanist-drawablepainter:0.32.0")
-    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
-    implementation("com.google.android.material:material:1.11.0")
-    implementation("com.github.yuriy-budiyev:code-scanner:2.3.2")
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.9.22"))
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-jackson:2.9.0")
+
+    // ==================== Android ====================
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.androidx.preference.ktx)
+    implementation(libs.material)
+
+    // ==================== BOMs ====================
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(platform(libs.kotlin.bom))
+
+    // ==================== Room ====================
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+
+    // ==================== Retrofit ====================
+    implementation(libs.retrofit)
+    implementation(libs.moshi.kotlin)
+    implementation(libs.converter.moshi)
+
+    // ==================== Scanner ====================
+    implementation(libs.code.scanner)
+
+    // ==================== Coil ====================
+    implementation(libs.coil.compose)
 }

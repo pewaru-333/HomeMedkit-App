@@ -1,7 +1,6 @@
 package ru.application.homemedkit.helpers;
 
-import static ru.application.homemedkit.helpers.ConstantsHelper.BLANK;
-import static ru.application.homemedkit.helpers.ConstantsHelper.SEMICOLON;
+import static ru.application.homemedkit.helpers.ConstantsHelperKt.BLANK;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -14,9 +13,6 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
 
 public class DateHelper {
     public static final ZoneOffset ZONE = ZoneId.systemDefault().getRules().getOffset(Instant.now());
@@ -67,12 +63,6 @@ public class DateHelper {
         }
 
         return unix.toInstant(ZONE).toEpochMilli();
-    }
-
-    public static String[] sortTimes(String time) {
-        List<String> times = Arrays.asList(time.split(SEMICOLON));
-        times.sort(Comparator.comparing(item -> LocalTime.parse(item, FORMAT_H)));
-        return times.toArray(new String[]{});
     }
 
     public static ZonedDateTime getDateTime(long milli) {

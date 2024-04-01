@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 1,
-    "identityHash": "6df053dfb3975fa1c490bc327712062a",
+    "version": 4,
+    "identityHash": "8412e57638a1a6c62152095d657c01e4",
     "entities": [
       {
         "tableName": "medicines",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `cis` TEXT NOT NULL, `productName` TEXT NOT NULL, `expDate` INTEGER NOT NULL, `prodFormNormName` TEXT NOT NULL, `prodDNormName` TEXT NOT NULL, `prodAmount` REAL NOT NULL, `phKinetics` TEXT NOT NULL, `comment` TEXT NOT NULL, `scanned` INTEGER NOT NULL, `verified` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `cis` TEXT NOT NULL, `productName` TEXT NOT NULL, `expDate` INTEGER NOT NULL, `prodFormNormName` TEXT NOT NULL, `prodDNormName` TEXT NOT NULL, `prodAmount` REAL NOT NULL, `phKinetics` TEXT NOT NULL, `comment` TEXT NOT NULL, `image` TEXT NOT NULL, `scanned` INTEGER NOT NULL, `verified` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -63,6 +63,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "image",
+            "columnName": "image",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
             "fieldPath": "technical.scanned",
             "columnName": "scanned",
             "affinity": "INTEGER",
@@ -86,7 +92,7 @@
       },
       {
         "tableName": "intakes",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`intakeId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `medicineId` INTEGER NOT NULL, `amount` REAL NOT NULL, `interval` TEXT NOT NULL, `time` TEXT NOT NULL, `period` TEXT NOT NULL, `startDate` TEXT NOT NULL, `finalDate` TEXT NOT NULL, FOREIGN KEY(`medicineId`) REFERENCES `medicines`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`intakeId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `medicineId` INTEGER NOT NULL, `amount` REAL NOT NULL, `interval` INTEGER NOT NULL, `time` TEXT NOT NULL, `period` INTEGER NOT NULL, `startDate` TEXT NOT NULL, `finalDate` TEXT NOT NULL, FOREIGN KEY(`medicineId`) REFERENCES `medicines`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "intakeId",
@@ -109,7 +115,7 @@
           {
             "fieldPath": "interval",
             "columnName": "interval",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -121,7 +127,7 @@
           {
             "fieldPath": "period",
             "columnName": "period",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -206,7 +212,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6df053dfb3975fa1c490bc327712062a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8412e57638a1a6c62152095d657c01e4')"
     ]
   }
 }

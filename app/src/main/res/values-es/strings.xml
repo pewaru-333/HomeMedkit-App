@@ -36,6 +36,7 @@
     <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.aaaa</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
+    <string name="placeholder_exp_date">31 mayo 2029</string>
     <string name="placeholder_form_name">Pastillas</string>
     <string name="placeholder_pcs">pcs</string>
     <string name="placeholder_time">Hora #%1$d</string>
@@ -64,8 +65,11 @@
     <string name="intake_text_time">Hora</string>
 
     <!-- Diálogos -->
-    <string name="manual_add">¿Quieres añadir un medicamento manualmente?<</string>
+    <string name="manual_add">¿Quieres añadir un medicamento manualmente?</string>
     <string name="text_confirm_exit">Confirmar salida</string>
+    <string name="text_grant_permission">Otorgar permiso</string>
+    <string name="text_request_camera">Para escanear la etiqueta, la aplicación debe tener permiso para usar la cámara</string>
+    <string name="text_request_post">Para recibir notificaciones, se debe otorgar a la aplicación el permiso apropiado</string>
     <string name="text_select_time">Seleccionar hora</string>
     <string name="text_sure_to_exit">¿Quieres cerrar la aplicación?</string>
 
@@ -102,6 +106,7 @@
     <!-- Plurals -->
     <plurals name="intakes_a_day">
         <item quantity="one">%d vez al día</item>
+        <item quantity="many">%d veces al día</item>
         <item quantity="other">%d veces al día</item>
     </plurals>
 

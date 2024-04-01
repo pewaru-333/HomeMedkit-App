@@ -36,6 +36,7 @@
     <!-- "Заполнители" -->
     <string name="placeholder_date">дд.мм.гггг</string>
     <string name="placeholder_dose">0,5 мг + 84 мкг</string>
+    <string name="placeholder_exp_date">31 мая 2029 г.</string>
     <string name="placeholder_form_name">Таблетки</string>
     <string name="placeholder_pcs">шт.</string>
     <string name="placeholder_time">Время #%1$d</string>
@@ -66,6 +67,9 @@
     <!-- Диалоговые окна -->
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
     <string name="text_confirm_exit">Подтвердите выход</string>
+    <string name="text_grant_permission">Выдать разрешение</string>
+    <string name="text_request_camera">Для сканировании маркировки приложению необходимо выдать разрешение на использовании камеры</string>
+    <string name="text_request_post">Для получения уведомлений приложению необходимо выдать соответствующее разрешение</string>
     <string name="text_select_time">Выберите время</string>
     <string name="text_sure_to_exit">Вы точно хотите выйти из приложения?</string>
 
@@ -112,6 +116,7 @@
         <item>Системный</item>
         <item>Русский</item>
         <item>Английский</item>
+        <item>Испанский</item>
     </string-array>
 
     <string-array name="sorting_types_name">

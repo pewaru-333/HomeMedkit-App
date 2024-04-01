@@ -36,6 +36,7 @@
     <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
+    <string name="placeholder_exp_date">31 May 2029</string>
     <string name="placeholder_form_name">Tablets</string>
     <string name="placeholder_pcs">pcs</string>
     <string name="placeholder_time">Time #%1$d</string>
@@ -66,6 +67,9 @@
     <!-- Dialogs -->
     <string name="manual_add">Do you want to add medicine manually?</string>
     <string name="text_confirm_exit">Confirm exit</string>
+    <string name="text_grant_permission">Grant permission</string>
+    <string name="text_request_camera">To scan the label, the application must be given permission to use the camera</string>
+    <string name="text_request_post">To receive notifications, the application must be granted the appropriate permission</string>
     <string name="text_select_time">Select time</string>
     <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
 
@@ -111,6 +115,7 @@
         <item>System</item>
         <item>Russian</item>
         <item>English</item>
+        <item>Spanish</item>
     </string-array>
 
     <string-array name="sorting_types_name">

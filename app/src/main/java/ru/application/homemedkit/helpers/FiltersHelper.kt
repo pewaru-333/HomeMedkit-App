@@ -1,11 +1,11 @@
 package ru.application.homemedkit.helpers
 
 import android.app.Activity
+import android.widget.Toast
 import ru.application.homemedkit.R
 import ru.application.homemedkit.databaseController.Intake
 import ru.application.homemedkit.databaseController.Medicine
 import ru.application.homemedkit.databaseController.MedicineDatabase
-import ru.application.homemedkit.graphics.Toasts
 import java.util.Locale
 
 class FiltersHelper(private val activity: Activity) {
@@ -13,8 +13,7 @@ class FiltersHelper(private val activity: Activity) {
     private val database: MedicineDatabase = MedicineDatabase.getInstance(activity)
 
     fun medicines(text: String): List<Medicine> {
-
-        val medicines = database.medicineDAO().all
+        val medicines = database.medicineDAO().getAll()
         val filtered = ArrayList<Medicine>(medicines.size)
 
         if (text.isEmpty()) {
@@ -28,13 +27,14 @@ class FiltersHelper(private val activity: Activity) {
             }
         }
 
-        if (text.isNotEmpty() && filtered.isEmpty()) Toasts(activity, R.string.text_no_data_found)
+        if (text.isNotEmpty() && filtered.isEmpty())
+            Toast.makeText(activity, R.string.text_no_data_found, Toast.LENGTH_SHORT).show()
 
         return filtered
     }
 
     fun intakes(text: String): List<Intake> {
-        val intakes = database.intakeDAO().all
+        val intakes = database.intakeDAO().getAll()
         val filtered = ArrayList<Intake>(intakes.size)
 
         if (text.isEmpty()) {
@@ -48,7 +48,8 @@ class FiltersHelper(private val activity: Activity) {
             }
         }
 
-        if (text.isNotEmpty() && filtered.isEmpty()) Toasts(activity, R.string.text_no_data_found)
+        if (text.isNotEmpty() && filtered.isEmpty())
+            Toast.makeText(activity, R.string.text_no_data_found, Toast.LENGTH_SHORT).show()
 
         return filtered
     }

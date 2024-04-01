@@ -1,11 +1,11 @@
 package ru.application.homemedkit.fragments
 
+import android.app.AlarmManager
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,19 +47,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import coil.compose.AsyncImage
 import ru.application.homemedkit.R
 import ru.application.homemedkit.activities.IntakeActivity
 import ru.application.homemedkit.databaseController.Alarm
 import ru.application.homemedkit.databaseController.Intake
 import ru.application.homemedkit.databaseController.MedicineDatabase
-import ru.application.homemedkit.helpers.ConstantsHelper.BLANK
-import ru.application.homemedkit.helpers.ConstantsHelper.DAY
-import ru.application.homemedkit.helpers.ConstantsHelper.DOWN_DASH
-import ru.application.homemedkit.helpers.ConstantsHelper.INTAKE_ID
-import ru.application.homemedkit.helpers.ConstantsHelper.INTERVALS
-import ru.application.homemedkit.helpers.ConstantsHelper.SEMICOLON
-import ru.application.homemedkit.helpers.ConstantsHelper.WEEK
+import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_H
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_M
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_M_Y
@@ -67,9 +61,10 @@ import ru.application.homemedkit.helpers.DateHelper.FORMAT_H
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_S
 import ru.application.homemedkit.helpers.DateHelper.ZONE
 import ru.application.homemedkit.helpers.FiltersHelper
+import ru.application.homemedkit.helpers.ICONS_MED
+import ru.application.homemedkit.helpers.INTAKE_ID
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
-import ru.application.homemedkit.helpers.getIconType
 import ru.application.homemedkit.helpers.intervalName
 import ru.application.homemedkit.helpers.shortName
 import ru.application.homemedkit.ui.theme.AppTheme
@@ -79,7 +74,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime.of
 import java.time.LocalDateTime.ofInstant
 import java.time.LocalDateTime.parse
-import java.time.LocalTime
 
 
 class FragmentIntakes : Fragment() {
@@ -90,8 +84,8 @@ class FragmentIntakes : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        database = MedicineDatabase.getInstance(context)
-        intakes = database.intakeDAO().all
+        database = MedicineDatabase.getInstance(requireContext())
+        intakes = database.intakeDAO().getAll()
     }
 
     override fun onCreateView(
@@ -201,39 +195,27 @@ class FragmentIntakes : Fragment() {
         val triggers = ArrayList<Alarm>(intakes.size)
 
         for (intake in filtered) {
-            val times = intake.time.split(SEMICOLON)
-
-            if (times.size == 1) {
-                var milliS = parse("${intake.startDate} ${intake.time}", FORMAT_D_H)
+            if (intake.time.size == 1) {
+                var milliS = parse("${intake.startDate} ${intake.time[0]}", FORMAT_D_H)
                     .toInstant(ZONE).toEpochMilli()
-                val milliF = parse("${intake.finalDate} ${intake.time}", FORMAT_D_H)
+                val milliF = parse("${intake.finalDate} ${intake.time[0]}", FORMAT_D_H)
                     .toInstant(ZONE).toEpochMilli()
-
-                val interval = when {
-                    intake.interval.equals(INTERVALS[0]) -> DAY
-                    intake.interval.equals(INTERVALS[1]) -> WEEK
-                    else -> DAY * intake.interval.substringAfter(DOWN_DASH).toInt()
-                }
 
                 while (milliS <= milliF) {
-                    triggers.add(Alarm(intake.intakeId, milliS))
-                    milliS += interval
+                    triggers.add(Alarm(intakeId = intake.intakeId, trigger = milliS))
+                    milliS += intake.interval * AlarmManager.INTERVAL_DAY
                 }
             } else {
-                val timesD = arrayOfNulls<LocalTime>(times.size)
-
-                for (i in times.indices) timesD[i] = LocalTime.parse(times[i], FORMAT_H)
-
                 var localS = LocalDate.parse(intake.startDate, FORMAT_S)
                 val localF = LocalDate.parse(intake.finalDate, FORMAT_S)
 
-                var milliS = of(localS, timesD.first())
-                val milliF = of(localF, timesD.last())
+                var milliS = of(localS, intake.time.first())
+                val milliF = of(localF, intake.time.last())
 
                 while (milliS <= milliF) {
-                    for (time in timesD) {
+                    for (time in intake.time) {
                         val millis = of(localS, time).atOffset(ZONE).toInstant().toEpochMilli()
-                        triggers.add(Alarm(intake.intakeId, millis))
+                        triggers.add(Alarm(intakeId = intake.intakeId, trigger = millis))
                     }
                     localS = localS.plusDays(1)
                     milliS = milliS.plusDays(1)
@@ -254,16 +236,15 @@ class FragmentIntakes : Fragment() {
 
     @Composable
     fun IntakeList(intake: Intake) {
-        val medicineDAO = database.medicineDAO()
-        val productName = medicineDAO.getProductName(intake.medicineId)
+        val medicine = database.medicineDAO().getByPK(intake.medicineId)
+        val productName = medicine?.productName ?: BLANK
         val shortName = shortName(productName)
-        val form = medicineDAO.getByPK(intake.medicineId).prodFormNormName
-        val icon = getIconType(requireContext(), form)
+        val icon = ICONS_MED[medicine?.image ?: BLANK] ?: R.drawable.vector_type_unknown
         val startDate = LocalContext.current.resources.getString(
             R.string.intake_card_text_from,
             intake.startDate
         )
-        val count = intake.time.split(SEMICOLON).size
+        val count = intake.time.size
         val intervalName = if (count == 1) intervalName(requireContext(), intake.interval)
         else resources.getQuantityString(R.plurals.intakes_a_day, count, count)
 
@@ -272,9 +253,10 @@ class FragmentIntakes : Fragment() {
                 .fillMaxWidth()
                 .padding(16.dp)
                 .clickable {
-                    val intent = Intent(context, IntakeActivity::class.java)
-                    intent.putExtra(INTAKE_ID, intake.intakeId)
-                    startActivity(intent)
+                    startActivity(
+                        Intent(context, IntakeActivity::class.java)
+                            .putExtra(INTAKE_ID, intake.intakeId)
+                    )
                 },
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
         ) {
@@ -285,7 +267,7 @@ class FragmentIntakes : Fragment() {
                 horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(rememberDrawablePainter(drawable = icon), null, Modifier.size(64.dp))
+                AsyncImage(model = icon, null, Modifier.size(64.dp))
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
                     horizontalAlignment = Alignment.Start
@@ -297,14 +279,13 @@ class FragmentIntakes : Fragment() {
                         style = MaterialTheme.typography.headlineSmall
                     )
                     Text(
-                        text = stringResource(
-                            R.string.intake_text_interval_from,
-                            intervalName,
-                            startDate
-                        ),
+                        text = "$intervalName $startDate",
                         style = MaterialTheme.typography.bodyLarge
                     )
-                    Text(text = intake.time, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = intake.time.joinToString(", "),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
         }
@@ -325,7 +306,7 @@ class FragmentIntakes : Fragment() {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(16.dp, 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top),
             horizontalAlignment = Alignment.Start
         ) {
@@ -335,15 +316,16 @@ class FragmentIntakes : Fragment() {
                 fontWeight = FontWeight.SemiBold,
                 style = MaterialTheme.typography.titleLarge
             )
-            data.value.forEach {
-                val medicineId = intakeDAO.getByPK(it.intakeId).medicineId
-                val productName = medicineDAO.getProductName(medicineId)
+            data.value.forEach { alarm ->
+                val intake = intakeDAO.getByPK(alarm.intakeId)
+                val medicine = medicineDAO.getByPK(intake?.medicineId ?: 0L)
+                val productName = medicine?.productName ?: BLANK
                 val shortName = shortName(productName)
-                val form = medicineDAO.getByPK(medicineId).prodFormNormName
+                val form = medicine?.prodFormNormName ?: BLANK
                 val formName =
                     if (form.isEmpty()) resources.getString(R.string.text_amount) else formName(form)
-                val amount = intakeDAO.getByPK(it.intakeId).amount
-                val icon = getIconType(requireContext(), form)
+                val amount = intake?.amount ?: 0.0
+                val icon = ICONS_MED[medicine?.image ?: BLANK] ?: R.drawable.vector_type_unknown
 
                 ElevatedCard(
                     modifier = Modifier.height(100.dp),
@@ -356,13 +338,9 @@ class FragmentIntakes : Fragment() {
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Image(
-                            rememberDrawablePainter(drawable = icon),
-                            null,
-                            Modifier
+                        AsyncImage(icon, null, Modifier
                                 .size(64.dp)
-                                .weight(0.2f)
-                        )
+                                .weight(0.2f))
                         Column(
                             modifier = Modifier
                                 .height(64.dp)
@@ -386,7 +364,7 @@ class FragmentIntakes : Fragment() {
                             )
                         }
                         Text(
-                            text = ofInstant(ofEpochMilli(it.trigger), ZONE).format(FORMAT_H),
+                            text = ofInstant(ofEpochMilli(alarm.trigger), ZONE).format(FORMAT_H),
                             modifier = Modifier.weight(0.25f),
                             color = MaterialTheme.colorScheme.onTertiaryContainer,
                             style = MaterialTheme.typography.headlineSmall

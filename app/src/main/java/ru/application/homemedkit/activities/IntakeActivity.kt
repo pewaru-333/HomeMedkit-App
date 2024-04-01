@@ -1,17 +1,20 @@
 package ru.application.homemedkit.activities
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_HIGH
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.content.Intent.FLAG_RECEIVER_FOREGROUND
+import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Build.VERSION
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,11 +36,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,19 +50,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDateRangePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -71,50 +70,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
+import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.R
-import ru.application.homemedkit.alarms.AlarmReceiver
 import ru.application.homemedkit.alarms.AlarmSetter
-import ru.application.homemedkit.databaseController.Intake
 import ru.application.homemedkit.databaseController.MedicineDatabase
+import ru.application.homemedkit.dialogs.DateRangePicker
 import ru.application.homemedkit.dialogs.TimePickerDialog
-import ru.application.homemedkit.helpers.ConstantsHelper.ADD
-import ru.application.homemedkit.helpers.ConstantsHelper.BLANK
-import ru.application.homemedkit.helpers.ConstantsHelper.INTAKE_ID
-import ru.application.homemedkit.helpers.ConstantsHelper.INTERVALS
-import ru.application.homemedkit.helpers.ConstantsHelper.MEDICINE_ID
-import ru.application.homemedkit.helpers.ConstantsHelper.NEW_INTAKE
-import ru.application.homemedkit.helpers.ConstantsHelper.PERIODS
-import ru.application.homemedkit.helpers.ConstantsHelper.SEMICOLON
+import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_MM_Y
-import ru.application.homemedkit.helpers.DateHelper.FORMAT_H
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_S
 import ru.application.homemedkit.helpers.DateHelper.ZONE
 import ru.application.homemedkit.helpers.DateHelper.getDateTime
 import ru.application.homemedkit.helpers.DateHelper.getPeriod
+import ru.application.homemedkit.helpers.INTAKE_ID
+import ru.application.homemedkit.helpers.MEDICINE_ID
+import ru.application.homemedkit.helpers.NEW_INTAKE
 import ru.application.homemedkit.helpers.SettingsHelper
 import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.longSeconds
-import ru.application.homemedkit.helpers.timesString
 import ru.application.homemedkit.helpers.viewModelFactory
+import ru.application.homemedkit.states.IntakeState
 import ru.application.homemedkit.ui.theme.AppTheme
+import ru.application.homemedkit.viewModels.IntakeEvent
 import ru.application.homemedkit.viewModels.IntakeViewModel
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalTime
+import java.time.Period
 
 class IntakeActivity : ComponentActivity() {
 
@@ -129,15 +121,48 @@ class IntakeActivity : ComponentActivity() {
         database = MedicineDatabase.getInstance(this)
         val medicineDAO = database.medicineDAO()
 
-        val intakeId = intent.getLongExtra(INTAKE_ID, 0)
-        var medicineId = intent.getLongExtra(MEDICINE_ID, 0)
+        val intakeId = intent.getLongExtra(INTAKE_ID, 0L)
+        val medicineId = if (intakeId == 0L) intent.getLongExtra(MEDICINE_ID, 0L)
+        else database.intakeDAO().getByPK(intakeId)?.medicineId ?: 0L
+
+        val newIntent = Intent(this, MainActivity::class.java)
+            .putExtra(NEW_INTAKE, true)
+            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
         setContent {
-            val viewModel = viewModel<IntakeViewModel>(
-                factory = viewModelFactory { IntakeViewModel(database, intakeId) }
+            val viewModel = viewModel<IntakeViewModel>(factory = viewModelFactory {
+                IntakeViewModel(database.intakeDAO(), intakeId, AlarmSetter(this))
+            })
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
+            viewModel.onEvent(IntakeEvent.SetMedicineId(medicineId))
+
+            var permissionGranted by remember {
+                if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                    mutableStateOf(checkNotificationPermission(this))
+                else mutableStateOf(true)
+            }
+            var showRationale by remember { mutableStateOf(false) }
+
+            val launcher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission(),
+                onResult = { isGranted ->
+                    if (isGranted) permissionGranted = true
+                    else showRationale = true
+                }
             )
 
-            viewModel.setAdding(intent.getBooleanExtra(ADD, false))
+            LaunchedEffect(Unit) { viewModel.events.collectLatest { startActivity(newIntent) } }
+
+            DisposableEffect(LocalLifecycleOwner.current) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME && VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        permissionGranted = checkNotificationPermission(this@IntakeActivity)
+                        showRationale = !permissionGranted
+                    }
+                }
+                lifecycle.addObserver(observer)
+                onDispose { lifecycle.removeObserver(observer) }
+            }
 
             AppTheme {
                 Scaffold(
@@ -155,18 +180,18 @@ class IntakeActivity : ComponentActivity() {
                             },
                             actions = {
                                 when {
-                                    viewModel.add -> {
+                                    state.adding -> {
                                         IconButton(
-                                            onClick = addIntake(viewModel, medicineId),
-                                            enabled = viewModel.validateAll()
+                                            onClick = { viewModel.onEvent(IntakeEvent.Add) },
+                                            enabled = viewModel.validate()
                                         )
                                         { Icon(Icons.Default.Check, null) }
                                     }
 
-                                    viewModel.edit -> {
+                                    state.editing -> {
                                         IconButton(
-                                            onClick = updateIntake(viewModel, intakeId, medicineId),
-                                            enabled = viewModel.validateAll()
+                                            onClick = { viewModel.onEvent(IntakeEvent.Update) },
+                                            enabled = viewModel.validate()
                                         )
                                         { Icon(Icons.Default.Check, null) }
                                     }
@@ -182,10 +207,10 @@ class IntakeActivity : ComponentActivity() {
                                         DropdownMenu(expanded, { expanded = false }) {
                                             DropdownMenuItem(
                                                 { Text(resources.getString(R.string.text_edit)) },
-                                                { viewModel.setEditing(true) })
+                                                { viewModel.onEvent(IntakeEvent.SetEditing) })
                                             DropdownMenuItem(
-                                                text = { Text(resources.getString(R.string.text_delete)) },
-                                                onClick = deleteIntake(intakeId)
+                                                { Text(resources.getString(R.string.text_delete)) },
+                                                { viewModel.onEvent(IntakeEvent.Delete) }
                                             )
                                         }
                                     }
@@ -199,17 +224,14 @@ class IntakeActivity : ComponentActivity() {
                         )
                     }
                 ) { paddingValues ->
-                    val scrollState = rememberScrollState()
-
-                    if (!viewModel.add)
-                        medicineId = database.intakeDAO().getByPK(intakeId).medicineId
-
-                    val productName = medicineDAO.getProductName(medicineId)
-                    val prodAmount = medicineDAO.getByPK(medicineId).prodAmount
 
                     CreateNotificationChannel()
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        CheckPostNotificationPermission()
+                    if (!permissionGranted) {
+                        LaunchedEffect(Unit) {
+                            if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                                launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                        if (showRationale) PermissionDialog(id = R.string.text_request_post)
                     }
 
                     Column(
@@ -220,84 +242,19 @@ class IntakeActivity : ComponentActivity() {
                                     .calculateTopPadding()
                                     .plus(16.dp)
                             )
-                            .verticalScroll(scrollState),
+                            .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(32.dp)
                     ) {
-                        Title(productName)
-                        Amount(viewModel, prodAmount)
-                        Interval(viewModel)
-                        Period(viewModel, settings)
-                        Time(viewModel)
+                        Title(medicineDAO.getProductName(medicineId))
+                        Amount(viewModel::onEvent, state, medicineDAO.getProdAmount(medicineId))
+                        Interval(viewModel::onEvent, state)
+                        Period(viewModel::onEvent, state, settings)
+                        Time(viewModel::onEvent, state)
                     }
                 }
+                BackHandler { startActivity(newIntent) }
             }
         }
-    }
-
-    @Composable
-    private fun addIntake(viewModel: IntakeViewModel, medicineId: Long): () -> Unit = {
-        val amount = decimalFormat(viewModel.amount)
-        val time = timesString(viewModel.timesValues)
-
-        val newIntake = Intake(
-            medicineId, amount, viewModel.interval, time, viewModel.period,
-            viewModel.startDate, viewModel.finalDate
-        )
-
-        val newIntakeId = database.intakeDAO().add(newIntake)
-        val setter = AlarmSetter(this@IntakeActivity)
-        val triggers = longSeconds(viewModel.startDate, time)
-
-        setter.setAlarm(newIntakeId, triggers, viewModel.interval, viewModel.finalDate)
-
-        val intent = Intent(this@IntakeActivity, MainActivity::class.java)
-            .putExtra(NEW_INTAKE, true)
-        startActivity(intent)
-    }
-
-    @Composable
-    private fun updateIntake(
-        viewModel: IntakeViewModel,
-        intakeId: Long,
-        medicineId: Long
-    ): () -> Unit = {
-        val amount = decimalFormat(viewModel.amount)
-        viewModel.time = viewModel.timesValues.toList().joinToString(SEMICOLON)
-
-        val newIntake = Intake(
-            medicineId, amount, viewModel.interval, viewModel.time,
-            viewModel.period, viewModel.startDate, viewModel.finalDate
-        )
-
-        newIntake.intakeId = intakeId
-
-        database.intakeDAO().update(newIntake)
-
-        val alarms = database.alarmDAO().getByIntakeId(newIntake.intakeId)
-        val setter = AlarmSetter(this@IntakeActivity)
-
-        alarms.forEach {
-            val intent = Intent(this@IntakeActivity, AlarmReceiver::class.java)
-                .addFlags(FLAG_RECEIVER_FOREGROUND)
-                .setFlags(FLAG_ACTIVITY_NEW_TASK or FLAG_ACTIVITY_CLEAR_TASK)
-
-            setter.removeAlarm(this@IntakeActivity, it.alarmId, intent)
-        }
-
-        val triggers = longSeconds(viewModel.startDate, viewModel.time)
-        setter.setAlarm(newIntake.intakeId, triggers, viewModel.interval, viewModel.finalDate)
-
-        viewModel.setEditing(false)
-    }
-
-    @Composable
-    private fun deleteIntake(intakeId: Long): () -> Unit = {
-        database.intakeDAO().delete(Intake(intakeId))
-        startActivity(
-            Intent(this@IntakeActivity, MainActivity::class.java)
-                .putExtra(NEW_INTAKE, true)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        )
     }
 }
 
@@ -316,7 +273,7 @@ private fun Title(name: String) {
 }
 
 @Composable
-private fun Amount(viewModel: IntakeViewModel, prodAmount: Double) {
+private fun Amount(onEvent: (IntakeEvent) -> Unit, state: IntakeState, prodAmount: Double) {
     var isError by rememberSaveable { mutableStateOf(false) }
 
     fun validate(text: String) {
@@ -327,13 +284,10 @@ private fun Amount(viewModel: IntakeViewModel, prodAmount: Double) {
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
             LabelText(R.string.intake_text_amount)
             OutlinedTextField(
-                value = viewModel.amount,
-                onValueChange = {
-                    if (viewModel.add || viewModel.edit) viewModel.updateAmount(it)
-                    validate(it)
-                },
+                value = state.amount,
+                onValueChange = {if (!state.default) onEvent(IntakeEvent.SetAmount(it)); validate(it)},
                 modifier = Modifier.fillMaxWidth(),
-                readOnly = !(viewModel.add || viewModel.edit),
+                readOnly = state.default,
                 placeholder = { Text("0,25") },
                 leadingIcon = { Icon(painterResource(R.drawable.vector_medicine), null) },
                 isError = isError,
@@ -366,17 +320,24 @@ private fun Amount(viewModel: IntakeViewModel, prodAmount: Double) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Interval(viewModel: IntakeViewModel) {
+private fun Interval(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
     val resources = LocalContext.current.resources
     val intervals = resources.getStringArray(R.array.interval_types_name)
-    var interval by remember { mutableStateOf(BLANK) }
+    var interval by remember {
+        mutableStateOf(
+            try {
+                when (state.interval.toInt()) {
+                    1 -> intervals[0]
+                    7 -> intervals[1]
+                    else -> if (state.intakeId != 0L) intervals[2] else BLANK
+                }
+            } catch (e: NumberFormatException) {
+                BLANK
+            }
+        )
+    }
     var expanded by remember { mutableStateOf(false) }
 
-    interval = when (viewModel.interval) {
-        INTERVALS[0] -> intervals[0]
-        INTERVALS[1] -> intervals[1]
-        else -> if (viewModel.interval.contains(INTERVALS[2])) intervals[2] else BLANK
-    }
 
     Column(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(8.dp)) {
         LabelText(R.string.intake_text_interval)
@@ -384,7 +345,7 @@ private fun Interval(viewModel: IntakeViewModel) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             ExposedDropdownMenuBox(
                 expanded = expanded,
-                onExpandedChange = { if (viewModel.add || viewModel.edit) expanded = it },
+                onExpandedChange = { if (state.adding || state.editing) expanded = it },
                 modifier = Modifier.weight(0.5f)
             ) {
                 OutlinedTextField(
@@ -399,17 +360,12 @@ private fun Interval(viewModel: IntakeViewModel) {
                     shape = RoundedCornerShape(14.dp)
                 )
                 ExposedDropdownMenu(expanded, { expanded = false }) {
-                    intervals.forEach { selectionOption ->
+                    intervals.forEachIndexed { index, selectionOption ->
                         DropdownMenuItem(
                             text = { Text(selectionOption) },
                             onClick = {
-                                interval = selectionOption
-                                expanded = false
-                                when (interval) {
-                                    intervals[0] -> viewModel.updateInterval(INTERVALS[0])
-                                    intervals[1] -> viewModel.updateInterval(INTERVALS[1])
-                                    intervals[2] -> viewModel.updateInterval(INTERVALS[2])
-                                }
+                                interval = selectionOption; expanded = false
+                                onEvent(IntakeEvent.SetInterval(index))
                             },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                         )
@@ -425,10 +381,10 @@ private fun Interval(viewModel: IntakeViewModel) {
                 }
 
                 OutlinedTextField(
-                    value = viewModel.intervalD,
-                    onValueChange = { viewModel.updateInterval(INTERVALS[2], it); validate(it) },
+                    value = state.interval,
+                    onValueChange = { onEvent(IntakeEvent.SetInterval(it)); validate(it) },
                     modifier = Modifier.weight(0.5f),
-                    readOnly = !(viewModel.add || viewModel.edit),
+                    readOnly = state.default,
                     placeholder = { Text("N") },
                     prefix = { Text(resources.getString(R.string.text_every)) },
                     suffix = { Text(resources.getString(R.string.text_days_short)) },
@@ -444,36 +400,36 @@ private fun Interval(viewModel: IntakeViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
-    val current = LocalContext.current
-    val dateST = current.getString(R.string.text_start_date)
-    val dateFT = current.getString(R.string.text_finish_date)
+private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState, settings: SettingsHelper) {
+    val context = LocalContext.current
+    val dateST = context.getString(R.string.text_start_date)
+    val dateFT = context.getString(R.string.text_finish_date)
 
     Column(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(8.dp)) {
         LabelText(R.string.intake_text_period)
 
         when {
             settings.lightPeriod -> {
-                val resources = current.resources
-                val periods = resources.getStringArray(R.array.period_types_name)
-                var period by rememberSaveable { mutableStateOf(BLANK) }
+                val periods = context.resources.getStringArray(R.array.period_types_name)
+                var period by rememberSaveable {
+                    mutableStateOf(
+                        when (state.periodD) {
+                            7 -> periods[0]
+                            30 -> periods[1]
+                            38500 -> periods[3]
+                            else -> if (state.intakeId != 0L) periods[2] else BLANK
+                        }
+                    )
+                }
                 var expanded by remember { mutableStateOf(false) }
 
-                period = when (viewModel.period) {
-                    PERIODS[0] -> periods[0]
-                    PERIODS[1] -> periods[1]
-                    PERIODS[2] -> periods[2]
-                    PERIODS[3] -> periods[3]
-                    else -> BLANK
-                }
-
-                if (viewModel.periodD == BLANK && period != periods[2] && viewModel.edit)
-                    viewModel.periodD = getPeriod(viewModel.startDate, viewModel.finalDate)
+                if (state.period.isBlank() && period != periods[2] && state.editing)
+                    onEvent(IntakeEvent.SetPeriod(getPeriod(state.startDate, state.finalDate)))
 
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     ExposedDropdownMenuBox(
                         expanded = expanded,
-                        onExpandedChange = { if (viewModel.add || viewModel.edit) expanded = it },
+                        onExpandedChange = { if (state.adding || state.editing) expanded = it },
                         modifier = Modifier.weight(1f)
                     ) {
                         OutlinedTextField(
@@ -483,23 +439,17 @@ private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
                                 .fillMaxWidth()
                                 .menuAnchor(),
                             readOnly = true,
-                            placeholder = { Text(resources.getString(R.string.intake_text_pick_period)) },
+                            placeholder = { Text(context.getString(R.string.intake_text_pick_period)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                             shape = RoundedCornerShape(14.dp)
                         )
                         ExposedDropdownMenu(expanded, { expanded = false }) {
-                            periods.forEach { selectionOption ->
+                            periods.forEachIndexed { index, selectionOption ->
                                 DropdownMenuItem(
                                     text = { Text(selectionOption) },
                                     onClick = {
-                                        period = selectionOption
-                                        expanded = false
-                                        when (period) {
-                                            periods[0] -> viewModel.updatePeriod("7")
-                                            periods[1] -> viewModel.updatePeriod("30")
-                                            periods[2] -> viewModel.updatePeriod(BLANK)
-                                            periods[3] -> viewModel.updatePeriod("38500")
-                                        }
+                                        period = selectionOption; expanded = false
+                                        onEvent(IntakeEvent.SetPeriod(index))
                                     },
                                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                                 )
@@ -507,22 +457,22 @@ private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
                         }
                     }
 
-                    if (period == periods[2] && (viewModel.add || viewModel.edit)) {
+                    if (period == periods[2] && (state.adding || state.editing)) {
                         var isError by rememberSaveable { mutableStateOf(false) }
 
                         fun validate(text: String) {
-                            isError = text.isBlank()
+                            isError = text.isEmpty()
                         }
 
                         OutlinedTextField(
-                            value = viewModel.periodD,
-                            onValueChange = { viewModel.updatePeriod(it); validate(it) },
+                            value = state.period,
+                            onValueChange = { onEvent(IntakeEvent.SetPeriod(it)); validate(it) },
                             modifier = Modifier.weight(1f),
-                            readOnly = !(viewModel.add || viewModel.edit),
+                            readOnly = state.default,
                             textStyle = MaterialTheme.typography.titleMedium,
                             placeholder = { Text("10") },
                             leadingIcon = { Icon(Icons.Default.DateRange, null) },
-                            suffix = { Text(resources.getString(R.string.text_days_short)) },
+                            suffix = { Text(context.getString(R.string.text_days_short)) },
                             isError = isError,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
@@ -532,25 +482,14 @@ private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
                 }
 
                 if (period.isNotEmpty() && period != periods[3]) {
-                    if (viewModel.add && viewModel.periodD.isNotEmpty()) {
-                        val today = System.currentTimeMillis()
-                        viewModel.updateDateS(getDateTime(today).format(FORMAT_S))
-                        viewModel.updateDateF(
-                            getDateTime(today).toLocalDate().plusDays(viewModel.periodD.toLong())
-                                .format(FORMAT_S)
-                        )
-                    }
-
-                    if (viewModel.edit && viewModel.periodD != BLANK) {
-                        val startDate = LocalDate.parse(viewModel.startDate, FORMAT_S)
-                        viewModel.updateDateF(
-                            startDate.plusDays(viewModel.periodD.toLong()).format(FORMAT_S)
-                        )
+                    if ((state.adding || state.editing) && state.period.isNotEmpty()) {
+                        onEvent(IntakeEvent.SetStart())
+                        onEvent(IntakeEvent.SetFinal())
                     }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         OutlinedTextField(
-                            value = viewModel.startDate,
+                            value = state.startDate,
                             onValueChange = {},
                             modifier = Modifier.weight(0.5f),
                             enabled = false,
@@ -563,7 +502,7 @@ private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
                             colors = fieldColorsInverted()
                         )
                         OutlinedTextField(
-                            value = viewModel.finalDate,
+                            value = state.finalDate,
                             onValueChange = {},
                             modifier = Modifier.weight(0.5f),
                             enabled = false,
@@ -581,24 +520,30 @@ private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
 
             else -> {
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    val state = rememberDateRangePickerState(selectableDates = dates())
+                    val dateState =
+                        rememberDateRangePickerState(selectableDates = object : SelectableDates {
+                            override fun isSelectableDate(utcTimeMillis: Long) =
+                                LocalDate.now() <= Instant.ofEpochMilli(utcTimeMillis)
+                                    .atZone(ZONE)
+                                    .toLocalDate()
+
+                            override fun isSelectableYear(year: Int) = LocalDate.now().year <= year
+                        })
 
                     var isError by rememberSaveable { mutableStateOf(false) }
                     var showPicker by remember { mutableStateOf(false) }
-                    var selectS by remember { mutableStateOf(dateST) }
-                    var selectF by remember { mutableStateOf(dateFT) }
-
-                    if (viewModel.add) viewModel.period = PERIODS[2]
+                    var selectS: String? by remember { mutableStateOf(null) }
+                    var selectF: String? by remember { mutableStateOf(null) }
 
                     OutlinedTextField(
-                        value = viewModel.startDate,
+                        value = state.startDate,
                         onValueChange = {},
                         modifier = Modifier
                             .weight(0.5f)
                             .clickable { showPicker = true },
                         enabled = false,
                         readOnly = true,
-                        placeholder = { Text(current.getString(R.string.placeholder_date)) },
+                        placeholder = { Text(context.getString(R.string.placeholder_date)) },
                         leadingIcon = { Icon(Icons.Default.DateRange, null) },
                         supportingText = { Text(dateST) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -607,14 +552,14 @@ private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
                         colors = fieldColorsInverted(isError)
                     )
                     OutlinedTextField(
-                        value = viewModel.finalDate,
+                        value = state.finalDate,
                         onValueChange = {},
                         modifier = Modifier
                             .weight(0.5f)
                             .clickable { showPicker = true },
                         enabled = false,
                         readOnly = true,
-                        placeholder = { Text(current.getString(R.string.placeholder_date)) },
+                        placeholder = { Text(context.getString(R.string.placeholder_date)) },
                         leadingIcon = { Icon(Icons.Default.DateRange, null) },
                         supportingText = { Text(dateFT) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -623,112 +568,46 @@ private fun Period(viewModel: IntakeViewModel, settings: SettingsHelper) {
                         colors = fieldColorsInverted(isError)
                     )
 
-                    if (state.selectedStartDateMillis != null)
-                        selectS = getDateTime(state.selectedStartDateMillis!!).format(FORMAT_D_MM_Y)
-
-                    if (state.selectedEndDateMillis != null)
-                        selectF = getDateTime(state.selectedEndDateMillis!!).format(FORMAT_D_MM_Y)
-
-                    if (viewModel.startDate.isNotEmpty() && viewModel.finalDate.isNotEmpty()) {
-                        val milliS = LocalDate.parse(viewModel.startDate, FORMAT_S)
-                        val milliF = LocalDate.parse(viewModel.finalDate, FORMAT_S)
-
-                        if (milliF < milliS) {
-                            viewModel.periodD = BLANK
-                            isError = true
-                        } else {
-                            viewModel.periodD = PERIODS[2]
-                            isError = false
-                        }
+                    dateState.selectedStartDateMillis?.let { start ->
+                        selectS = getDateTime(start).format(FORMAT_D_MM_Y)
                     }
 
-                    if (showPicker)
-                        Dialog(
-                            onDismissRequest = { showPicker = false },
-                            properties = DialogProperties(usePlatformDefaultWidth = false)
-                        ) {
-                            Surface {
-                                Column(Modifier.fillMaxSize(), Arrangement.Top) {
-                                    Row(
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .padding(12.dp, 12.dp, 12.dp, 0.dp),
-                                        Arrangement.SpaceBetween,
-                                        Alignment.CenterVertically
-                                    ) {
-                                        IconButton(onClick = { showPicker = false }) {
-                                            Icon(Icons.Default.Clear, null)
-                                        }
-                                        IconButton(onClick = {
-                                            if (selectS != dateST) viewModel.updateDateS(selectS)
-                                            if (selectF != dateFT) viewModel.updateDateF(selectF)
-                                            showPicker = false
-                                        }) { Icon(Icons.Default.Check, null) }
-                                    }
+                    dateState.selectedEndDateMillis?.let { end ->
+                        selectF = getDateTime(end).format(FORMAT_D_MM_Y)
+                    }
 
-                                    DateRangePicker(
-                                        state = state,
-                                        title = {
-                                            Text(
-                                                text = current.getString(R.string.intake_text_pick_period),
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(20.dp),
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                style = MaterialTheme.typography.labelLarge
-                                            )
-                                        },
-                                        headline = {
-                                            Row(
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(bottom = 12.dp),
-                                                Arrangement.spacedBy(
-                                                    8.dp,
-                                                    Alignment.CenterHorizontally
-                                                ),
-                                                Alignment.CenterVertically,
-                                            ) {
-                                                Text(
-                                                    stringResource(
-                                                        R.string.period_dates,
-                                                        selectS,
-                                                        selectF
-                                                    )
-                                                )
-                                            }
-                                        },
-                                        showModeToggle = false
-                                    )
-                                }
-                            }
+                    if (state.startDate.isNotEmpty() && state.finalDate.isNotEmpty()) {
+                        val milliS = LocalDate.parse(state.startDate, FORMAT_S)
+                        val milliF = LocalDate.parse(state.finalDate, FORMAT_S)
+
+                        isError = milliF < milliS
+                        if (!isError)
+                            onEvent(IntakeEvent.SetPeriod(Period.between(milliS, milliF).days))
+                    }
+
+                    if (showPicker) DateRangePicker(
+                        state = dateState,
+                        start = selectS,
+                        final = selectF,
+                        onDismiss = { showPicker = false },
+                        onConfirm = {
+                            selectS?.let { onEvent(IntakeEvent.SetStart(it)) }
+                            selectF?.let { onEvent(IntakeEvent.SetFinal(it)) }
+                            showPicker = false
                         }
+                    )
                 }
             }
         }
     }
 }
 
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun dates() = object : SelectableDates {
-    override fun isSelectableDate(utcTimeMillis: Long) =
-        LocalDate.now() <= Instant.ofEpochMilli(utcTimeMillis).atZone(ZONE).toLocalDate()
-
-    override fun isSelectableYear(year: Int) = LocalDate.now().year <= year
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-private fun Time(viewModel: IntakeViewModel) {
-    val state = rememberTimePickerState(12, 0, true)
-    val timesStates = remember { mutableStateListOf(state) }
-    while (timesStates.size != viewModel.timesAmount)
-        timesStates.add(TimePickerState(12, 0, true))
-
-    var showPicker by rememberSaveable { mutableStateOf(false) }
-    var fieldIndex by rememberSaveable { mutableIntStateOf(0) }
+private fun Time(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
+    var picker by rememberSaveable { mutableStateOf(false) }
+    var field by rememberSaveable { mutableIntStateOf(0) }
 
     Column(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
@@ -737,26 +616,27 @@ private fun Time(viewModel: IntakeViewModel) {
         LabelText(R.string.intake_text_time)
 
         when {
-            viewModel.add || viewModel.edit -> {
-                repeat(viewModel.timesAmount) { index ->
+            state.adding || state.editing -> {
+                repeat(state.time.size) { index ->
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         OutlinedTextField(
-                            value = viewModel.timesValues[index],
+                            value = state.time[index],
                             onValueChange = {},
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
-                                .clickable { fieldIndex = index; showPicker = true },
+                                .clickable { field = index; picker = true },
                             enabled = false,
                             placeholder = {
                                 Text(
                                     String.format(
-                                        LocalContext.current.resources.getString(R.string.placeholder_time),
+                                        LocalContext.current.getString(R.string.placeholder_time),
                                         index + 1
                                     )
-                                ) },
+                                )
+                            },
                             leadingIcon = { Icon(painterResource(R.drawable.vector_time), null) },
                             shape = RoundedCornerShape(14.dp),
                             colors = fieldColorsInverted()
@@ -774,25 +654,15 @@ private fun Time(viewModel: IntakeViewModel) {
                                 color = Color(MaterialTheme.colorScheme.secondaryContainer.value)
                                 icon = R.drawable.vector_add
                                 tint = MaterialTheme.colorScheme.onSecondaryContainer
-                                onClick = {
-                                    viewModel.incAmount()
-                                    viewModel.timesValues.add(BLANK)
-                                    timesStates.add(TimePickerState(12, 0, true))
-                                }
+                                onClick = { onEvent(IntakeEvent.IncTime) }
                             }
 
-                            viewModel.timesAmount -> {
+                            state.time.size -> {
                                 showBox = true
                                 color = Color(MaterialTheme.colorScheme.errorContainer.value)
                                 icon = R.drawable.vector_remove
                                 tint = MaterialTheme.colorScheme.onErrorContainer
-                                onClick = {
-                                    if (viewModel.timesAmount > 1) {
-                                        timesStates.removeLast()
-                                        viewModel.timesValues.removeLast()
-                                        viewModel.decAmount()
-                                    }
-                                }
+                                onClick = { onEvent(IntakeEvent.DecTime) }
                             }
 
                             else -> showBox = false
@@ -813,28 +683,20 @@ private fun Time(viewModel: IntakeViewModel) {
                     }
                 }
 
-                if (showPicker) {
-                    TimePickerDialog(
-                        onCancel = { showPicker = false },
-                        onConfirm = {
-                            val timeS = timesStates[fieldIndex]
-                            val time = LocalTime.of(timeS.hour, timeS.minute)
-                            viewModel.timesValues[fieldIndex] = time.format(FORMAT_H)
-                            showPicker = false
-                        },
-                    ) { TimePicker(timesStates[fieldIndex]) }
-                }
+                if (picker) TimePickerDialog(
+                    onCancel = { picker = false },
+                    onConfirm = { onEvent((IntakeEvent.SetTime(field))); picker = false },
+                ) { TimePicker(state.times[field]) }
             }
 
             else -> {
-                viewModel.updateTime()
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    repeat(viewModel.timesAmount) { index ->
+                    repeat(state.time.size) { index ->
                         OutlinedTextField(
-                            value = viewModel.timesValues[index],
+                            value = state.time[index],
                             onValueChange = {},
                             modifier = Modifier.width(120.dp),
                             enabled = false,
@@ -862,25 +724,14 @@ fun fieldColorsInverted(isError: Boolean = false) = TextFieldDefaults.colors(
 )
 
 @Composable
-private fun LabelText(id: Int) {
+private fun LabelText(id: Int, text: String = LocalContext.current.getString(id)) {
     Text(
-        text = LocalContext.current.resources.getString(id),
+        text = text,
         color = MaterialTheme.colorScheme.onSurface,
         fontWeight = FontWeight.SemiBold,
         style = MaterialTheme.typography.titleLarge
     )
 }
-
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-private fun CheckPostNotificationPermission() {
-    val state = rememberPermissionState(android.Manifest.permission.POST_NOTIFICATIONS)
-    if (!state.status.isGranted) {
-        Dialog(onDismissRequest = {}) { Surface { state.launchPermissionRequest() } }
-    }
-}
-
 @Composable
 private fun CreateNotificationChannel(context: Context = LocalContext.current) {
     val channel = NotificationChannel(
@@ -893,3 +744,9 @@ private fun CreateNotificationChannel(context: Context = LocalContext.current) {
     val manager = context.getSystemService(NotificationManager::class.java)
     manager.createNotificationChannel(channel)
 }
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private fun checkNotificationPermission(
+    context: ComponentActivity,
+    permission: String = Manifest.permission.POST_NOTIFICATIONS
+): Boolean = context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED

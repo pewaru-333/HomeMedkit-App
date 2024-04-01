@@ -1,8 +1,8 @@
 package ru.application.homemedkit.activities;
 
-import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_INTAKE;
-import static ru.application.homemedkit.helpers.ConstantsHelper.NEW_MEDICINE;
-import static ru.application.homemedkit.helpers.ConstantsHelper.SETTINGS_CHANGED;
+import static ru.application.homemedkit.helpers.ConstantsHelperKt.NEW_INTAKE;
+import static ru.application.homemedkit.helpers.ConstantsHelperKt.NEW_MEDICINE;
+import static ru.application.homemedkit.helpers.ConstantsHelperKt.SETTINGS_CHANGED;
 
 import android.os.Bundle;
 

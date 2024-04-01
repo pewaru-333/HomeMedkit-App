@@ -1,0 +1,4 @@
+— Added the ability to select the medicine icon.
+— Added a Spanish translation.
+— Improved the process of obtaining information about the medicine when scanning its label.
+— Fixed an error that caused the application to crash in some cases when selecting the "Indefinite" period in the intake screen.
