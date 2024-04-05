@@ -5,7 +5,6 @@ appcompat = "1.6.1"
 codeScanner = "2.3.2"
 coilCompose = "2.6.0"
 composeBom = "2024.03.00"
-constraintlayout = "2.1.4"
 googleKsp = "1.9.23-1.0.19"
 jetbrainsKotlin = "1.9.23"
 kotlinBom = "1.9.23"
@@ -22,7 +21,6 @@ roomCompiler = "2.6.1"
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
-androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }

@@ -11,7 +11,6 @@ import ru.application.homemedkit.databaseController.Alarm
 import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.helpers.ALARM_ID
 import ru.application.homemedkit.helpers.DateHelper.expirationCheckTime
-import ru.application.homemedkit.helpers.EXP_CODE
 
 class AlarmSetter(private val context: Context) {
 
@@ -78,11 +77,10 @@ class AlarmSetter(private val context: Context) {
     }
 
     fun checkExpiration() {
-        val intent = Intent(context, ExpirationReceiver::class.java)
         val pending = getBroadcast(
             context,
-            EXP_CODE,
-            intent,
+            81000,
+            Intent(context, ExpirationReceiver::class.java),
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
         manager.setExactAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), pending)

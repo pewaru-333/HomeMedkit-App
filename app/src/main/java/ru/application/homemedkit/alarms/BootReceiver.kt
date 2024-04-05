@@ -10,11 +10,10 @@ class BootReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == ACTION_BOOT_COMPLETED) {
-            val database = MedicineDatabase.getInstance(context)
-            val alarms = database.alarmDAO().getAll()
-            val alarmSetter = AlarmSetter(context)
+            val alarms = MedicineDatabase.getInstance(context).alarmDAO().getAll()
+            val setter = AlarmSetter(context)
 
-            if (alarms.isNotEmpty()) alarms.forEach { alarmSetter.setAlarm(it.alarmId) }
+            if (alarms.isNotEmpty()) alarms.forEach { setter.setAlarm(it.alarmId) }
         }
     }
 }

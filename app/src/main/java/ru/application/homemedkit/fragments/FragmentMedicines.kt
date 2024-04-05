@@ -55,7 +55,6 @@ import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DateHelper
 import ru.application.homemedkit.helpers.FiltersHelper
 import ru.application.homemedkit.helpers.ID
-import ru.application.homemedkit.helpers.SettingsHelper
 import ru.application.homemedkit.helpers.SortingHelper
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.shortName
@@ -63,7 +62,6 @@ import ru.application.homemedkit.ui.theme.AppTheme
 
 class FragmentMedicines : Fragment() {
 
-    private lateinit var preferences: SettingsHelper
     private lateinit var database: MedicineDatabase
     private lateinit var medicines: List<Medicine>
     private lateinit var types: Array<String>
@@ -71,7 +69,6 @@ class FragmentMedicines : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        preferences = SettingsHelper(context)
         database = MedicineDatabase.getInstance(requireContext())
         medicines = database.medicineDAO().getAll()
         types = resources.getStringArray(R.array.sorting_types)
@@ -159,7 +156,6 @@ class FragmentMedicines : Fragment() {
                                         text = getString(R.string.sorting_a_z),
                                         sort = {
                                             comparator = SortingHelper.inName
-                                            preferences.sortingOrder = types[0]
                                             filtered.sortedWith(comparator)
                                         }
                                     )
@@ -167,7 +163,6 @@ class FragmentMedicines : Fragment() {
                                         text = getString(R.string.sorting_z_a),
                                         sort = {
                                             comparator = SortingHelper.reName
-                                            preferences.sortingOrder = types[1]
                                             filtered.sortedWith(comparator)
                                         }
                                     )
@@ -175,7 +170,6 @@ class FragmentMedicines : Fragment() {
                                         text = getString(R.string.sorting_from_oldest),
                                         sort = {
                                             comparator = SortingHelper.inDate
-                                            preferences.sortingOrder = types[2]
                                             filtered.sortedWith(comparator)
                                         }
                                     )
@@ -183,7 +177,6 @@ class FragmentMedicines : Fragment() {
                                         text = getString(R.string.sorting_from_newest),
                                         sort = {
                                             comparator = SortingHelper.reDate
-                                            preferences.sortingOrder = types[3]
                                             filtered.sortedWith(comparator)
                                         }
                                     )

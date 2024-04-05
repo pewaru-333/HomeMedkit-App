@@ -2,11 +2,15 @@ package ru.application.homemedkit.alarms
 
 import android.annotation.SuppressLint
 import android.app.Notification
-import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
+import android.app.PendingIntent.getActivity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.RingtoneManager
+import android.media.RingtoneManager.TYPE_NOTIFICATION
+import android.media.RingtoneManager.getDefaultUri
+import android.media.RingtoneManager.getRingtone
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import ru.application.homemedkit.R
@@ -14,35 +18,27 @@ import ru.application.homemedkit.activities.MainActivity
 import ru.application.homemedkit.databaseController.Intake
 import ru.application.homemedkit.databaseController.MedicineDatabase.Companion.getInstance
 import ru.application.homemedkit.helpers.ALARM_ID
-import ru.application.homemedkit.helpers.BOUND
 import ru.application.homemedkit.helpers.DateHelper
 import ru.application.homemedkit.helpers.NEW_INTAKE
 import ru.application.homemedkit.helpers.SOUND_GROUP
 import ru.application.homemedkit.helpers.shortName
-import java.util.Random
 
 class AlarmReceiver : BroadcastReceiver() {
-
     private fun intakeNotification(context: Context, medicineId: Long, flag: Boolean): Notification {
-        val database = getInstance(context)
-        val productName = database.medicineDAO().getProductName(medicineId)
-        val code = Random().nextInt(BOUND)
-        var title = context.getString(R.string.text_intake_time) + shortName(productName)
-
-        if (!flag) title += context.getString(R.string.text_medicine_amount_not_enough)
         val intent = Intent(context, MainActivity::class.java)
+            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            .putExtra(NEW_INTAKE, true)
+        val productName = getInstance(context).medicineDAO().getProductName(medicineId)
+        val title = String.format(context.getString(if (flag) R.string.text_intake_time
+        else R.string.text_medicine_amount_not_enough), shortName(productName))
 
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        intent.putExtra(NEW_INTAKE, true)
-
-        val pending = PendingIntent.getActivity(
-            context, code, intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        return NotificationCompat.Builder(
+        val pending = getActivity(
             context,
-            context.getString(R.string.notification_channel_name)
+            medicineId.toInt(),
+            intent,
+            FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
         )
+        return NotificationCompat.Builder(context, context.getString(R.string.notification_channel_name))
             .setSmallIcon(R.drawable.vector_time)
             .setContentTitle(context.getString(R.string.text_do_intake))
             .setCategory(NotificationCompat.CATEGORY_ALARM)
@@ -57,7 +53,6 @@ class AlarmReceiver : BroadcastReceiver() {
             .build()
     }
 
-
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         val database = getInstance(context)
@@ -68,7 +63,6 @@ class AlarmReceiver : BroadcastReceiver() {
         val alarmDAO = database.alarmDAO()
 
         val notification: Notification
-        val compat: NotificationManagerCompat
 
         val alarmId = intent.getLongExtra(ALARM_ID, 0L)
         val alarm = alarmDAO.getByPK(alarmId)
@@ -79,29 +73,21 @@ class AlarmReceiver : BroadcastReceiver() {
             val medicineId = intakeDAO.getByPK(intakeId)!!.medicineId
             val amount = intakeDAO.getByPK(intakeId)!!.amount
 
-            if (medicineDAO.getProdAmount(medicineId) > amount) {
+            if (medicineDAO.getProdAmount(medicineId) >= amount) {
                 medicineDAO.intakeMedicine(medicineId, amount)
                 notification = intakeNotification(context, medicineId, true)
-                compat = NotificationManagerCompat.from(context)
-
                 alarmSetter.resetAlarm(alarmId)
             } else {
                 notification = intakeNotification(context, medicineId, false)
-                compat = NotificationManagerCompat.from(context)
                 intakeDAO.remove(Intake(intakeId))
             }
 
             playSound(context)
-            compat.notify(Random().nextInt(BOUND), notification)
+            NotificationManagerCompat.from(context).notify(intakeId.toInt(), notification)
         } else {
             alarmSetter.removeAlarm(alarmId)
         }
     }
 
-    private fun playSound(context: Context) {
-        RingtoneManager.getRingtone(
-            context,
-            RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        ).play()
-    }
+    private fun playSound(context: Context) = getRingtone(context, getDefaultUri(TYPE_NOTIFICATION)).play()
 }

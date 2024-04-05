@@ -13,6 +13,7 @@
     <string name="preference_app_theme">Тема приложения</string>
     <string name="preference_start_page">Стартовая страница</string>
     <string name="preference_sorting_type">Сортировка лекарств</string>
+    <string name="preference_download_images">Загружать изображения лекарств</string>
     <string name="preference_easy_period_picker">Упрощённый выбор периода приёма лекарства</string>
     <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
     <string name="preference_system">Системные</string>
@@ -30,8 +31,8 @@
     <string name="text_attention">Обратите внимание!</string>
     <string name="text_do_intake">Примите лекарство</string>
     <string name="text_expire_soon">"Истекает срок годности лекарства %1$s"</string>
-    <string name="text_intake_time">Время приёма лекарства\u0020</string>
-    <string name="text_medicine_amount_not_enough">, но его оставшегося количества меньше предписанного! Переназначьте приём!</string>
+    <string name="text_intake_time">Время приёма лекарства %1$s</string>
+    <string name="text_medicine_amount_not_enough">Время приёма лекарства %1$s, но его оставшегося количества меньше предписанного! Переназначьте приём!</string>
 
     <!-- "Заполнители" -->
     <string name="placeholder_date">дд.мм.гггг</string>
@@ -56,6 +57,10 @@
 
     <string name="intake_card_text_from">(с %1$s)</string>
     <string name="intake_text_amount">Количество</string>
+    <string name="intake_text_food">Сочетание с пищей</string>
+    <string name="intake_text_food_after">После еды</string>
+    <string name="intake_text_food_before">Перед едой</string>
+    <string name="intake_text_food_during">Во время еды</string>
     <string name="intake_text_interval">Интервал</string>
     <string name="intake_text_left">Осталось</string>
     <string name="intake_text_period">Период</string>
@@ -76,7 +81,6 @@
     <!-- Всплывающие окна -->
     <string name="text_code_not_found">Код не найден!</string>
     <string name="text_connection_error">Ошибка при подключении!</string>
-    <string name="text_encode_code_error">Ошибка распознавания кода!</string>
     <string name="text_medicine_duplicate">Лекарство уже было добавлено</string>
     <string name="text_not_medicine_code">Это не код лекарства!</string>
     <string name="text_unknown_error">Неверный тип кода!</string>

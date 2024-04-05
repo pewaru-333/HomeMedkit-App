@@ -94,6 +94,7 @@ import ru.application.homemedkit.helpers.ICONS_MED
 import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.MEDICINE_ID
 import ru.application.homemedkit.helpers.NEW_MEDICINE
+import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.fromHTML
@@ -104,6 +105,7 @@ import ru.application.homemedkit.viewModels.ActivityEvents
 import ru.application.homemedkit.viewModels.MedicineEvent
 import ru.application.homemedkit.viewModels.MedicineViewModel
 import ru.application.homemedkit.viewModels.ResponseState
+import java.io.File
 
 class MedicineActivity : ComponentActivity() {
 
@@ -120,7 +122,9 @@ class MedicineActivity : ComponentActivity() {
         val cis = intent.getStringExtra(CIS) ?: BLANK
 
         val intents = listOf(
-            Intent(this, MainActivity::class.java).putExtra(NEW_MEDICINE, true),
+            Intent(this, MainActivity::class.java)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                .putExtra(NEW_MEDICINE, true),
             Intent(this, IntakeActivity::class.java).putExtra(MEDICINE_ID, id)
         )
 
@@ -131,6 +135,7 @@ class MedicineActivity : ComponentActivity() {
 
             val state by viewModel.uiState.collectAsStateWithLifecycle()
             val response by viewModel.response.collectAsState(ResponseState.Default)
+            val path = LocalContext.current.filesDir
 
             if (id == 0L) {
                 viewModel.onEvent(MedicineEvent.SetAdding)
@@ -147,7 +152,10 @@ class MedicineActivity : ComponentActivity() {
                                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         )
 
-                        ActivityEvents.Close -> startActivity(intents[0])
+                        ActivityEvents.Close -> {
+                            File(path, state.image).delete()
+                            startActivity(intents[0])
+                        }
                     }
                 }
             }
@@ -284,7 +292,7 @@ private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) 
             value = state.productName,
             onValueChange = { onEvent(MedicineEvent.SetProductName(it)) },
             modifier = Modifier.fillMaxWidth(),
-            readOnly = !state.adding,
+            readOnly = state.default || state.technical.verified,
             textStyle = MaterialTheme.typography.titleLarge.copy(
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
@@ -308,15 +316,24 @@ private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) 
 
 @Composable
 private fun ProductImage(viewModel: MedicineViewModel, state: MedicineState) {
+    val isIcon = state.image.contains(TYPE)
+    val noIcon = state.image.isEmpty()
+    val image = when {
+        isIcon -> ICONS_MED[state.image]
+        noIcon -> R.drawable.vector_type_unknown
+        else -> File(LocalContext.current.filesDir, state.image)
+    }
     var showPicker by remember { mutableStateOf(false) }
-    val image = ICONS_MED[state.image] ?: R.drawable.vector_type_unknown
 
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(192.dp)
             .padding(horizontal = 16.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.secondaryContainer)
+        colors = CardDefaults.cardColors(
+            if (isIcon || noIcon) MaterialTheme.colorScheme.secondaryContainer
+            else MaterialTheme.colorScheme.background
+        )
     ) {
         AsyncImage(
             model = image,
@@ -324,10 +341,14 @@ private fun ProductImage(viewModel: MedicineViewModel, state: MedicineState) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .clickable { if(!state.default) showPicker = true },
+                .clickable(!state.default && isIcon || noIcon) { showPicker = true },
             alignment = Alignment.Center,
             contentScale = ContentScale.Fit,
-            alpha = if(state.default) 1f else 0.4f
+            alpha = when {
+                state.default -> 1f
+                isIcon || noIcon -> 0.4f
+                else -> 1f
+            }
         )
     }
 

@@ -3,6 +3,7 @@ package ru.application.homemedkit.helpers
 import android.app.Activity
 import ru.application.homemedkit.R
 import ru.application.homemedkit.databaseController.Medicine
+import ru.application.homemedkit.fragments.FragmentSettings
 import java.util.Comparator.comparing
 
 
@@ -15,14 +16,13 @@ class SortingHelper(private val activity: Activity) {
     }
 
     fun getSorting(): Comparator<Medicine> {
-        val preferences = SettingsHelper(activity)
         val types = activity.resources.getStringArray(R.array.sorting_types)
-        val type = preferences.sortingOrder
+        val type = FragmentSettings().getSortingOrder()
 
-        return when {
-            type.equals(types[0]) -> inName
-            type.equals(types[1]) -> reName
-            type.equals(types[2]) -> inDate
+        return when (type) {
+            types[0] -> inName
+            types[1] -> reName
+            types[2] -> inDate
             else -> reDate
         }
     }

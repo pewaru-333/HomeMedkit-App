@@ -1,5 +1,6 @@
 package ru.application.homemedkit.viewModels
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,6 +16,7 @@ import ru.application.homemedkit.connectionController.NetworkAPI
 import ru.application.homemedkit.databaseController.Medicine
 import ru.application.homemedkit.databaseController.MedicineDAO
 import ru.application.homemedkit.databaseController.Technical
+import ru.application.homemedkit.fragments.FragmentSettings
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CATEGORY
 import ru.application.homemedkit.states.MedicineState
@@ -29,7 +31,7 @@ class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
     var alert by mutableStateOf(false)
     var show by mutableStateOf(false)
 
-    fun fetchData(code: String) {
+    fun fetchData(context: Context, code: String) {
         viewModelScope.launch {
             _response.emit(ResponseState.Loading)
 
@@ -51,9 +53,10 @@ class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
                                                 expDate = body.drugsData.expireDate,
                                                 prodFormNormName = body.drugsData.foiv.prodFormNormName,
                                                 prodDNormName = body.drugsData.foiv.prodDNormName ?: BLANK,
-                                                prodAmount = 0.0,
+                                                prodAmount = body.drugsData.foiv.prodPack1Size?.toDoubleOrNull() ?: 0.0,
                                                 phKinetics = body.drugsData.vidalData.phKinetics ?: BLANK,
                                                 comment = _uiState.value.comment.ifEmpty { BLANK },
+                                                image = getImage(context, body.drugsData.vidalData.images),
                                                 technical = Technical(
                                                     scanned = true,
                                                     verified = true
@@ -81,6 +84,19 @@ class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
                 }
             }
         }
+    }
+
+    private suspend fun getImage(context: Context, url: List<String>?): String {
+        if (url.isNullOrEmpty() || !FragmentSettings().getDownloadNeeded()) return BLANK
+        else try {
+            NetworkAPI.client.getImage(url.first()).apply {
+                if (isSuccessful) body()?.let { body ->
+                    val name = url.first().substringAfterLast("/").substringBefore(".")
+                    context.openFileOutput(name, Context.MODE_PRIVATE).use { it.write(body.bytes()) }
+                    return name
+                } else return BLANK
+            }
+        } catch (throwable: Throwable) { return BLANK }; return BLANK
     }
 }
 

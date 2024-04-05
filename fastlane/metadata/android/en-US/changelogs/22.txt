@@ -1,0 +1,5 @@
+— Added the ability to download images of medicines when scanning labels.
+— Added automatic receipt of the amount of medicine in the package (if available).
+— Added the option to select a combination of medicine and food.
+— Fixed a bug that prevented the name of a manually added medicine from being edited.
+— Fixed a bug that in some cases it was impossible to make an intake with the choice of an "Indefinite" period.

@@ -24,6 +24,7 @@ data class Intake(
     val medicineId: Long = 0L,
     val amount: Double = 0.0,
     val interval: Int = 0,
+    val foodType: Int = -1,
     @TypeConverters(Converters::class)
     val time: List<LocalTime> = emptyList(),
     val period: Int = 0,

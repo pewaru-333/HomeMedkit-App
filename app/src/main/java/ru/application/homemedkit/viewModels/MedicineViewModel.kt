@@ -223,11 +223,9 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                                             productName = body.drugsData.prodDescLabel,
                                             expDate = body.drugsData.expireDate,
                                             prodFormNormName = body.drugsData.foiv.prodFormNormName,
-                                            prodDNormName = body.drugsData.foiv.prodDNormName
-                                                ?: BLANK,
-                                            prodAmount = 0.0,
-                                            phKinetics = body.drugsData.vidalData.phKinetics
-                                                ?: BLANK,
+                                            prodDNormName = body.drugsData.foiv.prodDNormName ?: BLANK,
+                                            prodAmount = body.drugsData.foiv.prodPack1Size?.toDoubleOrNull() ?: 0.0,
+                                            phKinetics = body.drugsData.vidalData.phKinetics ?: BLANK,
                                             comment = _uiState.value.comment.ifEmpty { BLANK },
                                             technical = Technical(
                                                 scanned = true,

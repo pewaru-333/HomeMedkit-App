@@ -52,6 +52,7 @@ class IntakeViewModel(
                         interval = intake.interval.toString(),
                         period = intake.period.toString(),
                         periodD = intake.period,
+                        foodType = intake.foodType,
                         time = intake.time.mapTo(SnapshotStateList()) { it.format(FORMAT_H) },
                         startDate = intake.startDate,
                         finalDate = intake.finalDate
@@ -67,6 +68,7 @@ class IntakeViewModel(
                 val medicineId = uiState.value.medicineId
                 val amount = uiState.value.amount.toDouble()
                 val interval = uiState.value.interval.toInt()
+                val foodType = uiState.value.foodType
                 val time = uiState.value.time.map { LocalTime.parse(it, FORMAT_H) }
                 val period = uiState.value.period.toInt()
                 val startDate = uiState.value.startDate
@@ -76,6 +78,7 @@ class IntakeViewModel(
                     medicineId = medicineId,
                     amount = amount,
                     interval = interval,
+                    foodType = foodType,
                     time = time,
                     period = period,
                     startDate = startDate,
@@ -97,6 +100,7 @@ class IntakeViewModel(
                 val medicineId = uiState.value.medicineId
                 val amount = uiState.value.amount.toDouble()
                 val interval = uiState.value.interval.toInt()
+                val foodType = uiState.value.foodType
                 val time = uiState.value.time.map { LocalTime.parse(it, FORMAT_H) }
                 val period = uiState.value.period.toInt()
                 val startDate = uiState.value.startDate
@@ -107,6 +111,7 @@ class IntakeViewModel(
                     medicineId = medicineId,
                     amount = amount,
                     interval = interval,
+                    foodType = foodType,
                     time = time,
                     period = period,
                     startDate = startDate,
@@ -182,6 +187,15 @@ class IntakeViewModel(
                             else -> -1
                         }
 
+                        if(days == 38500) {
+                            val start = getDateTime(System.currentTimeMillis()).format(FORMAT_S)
+                            val final = getDateTime(System.currentTimeMillis())
+                                .plusDays(days.toLong())
+                                .format(FORMAT_S)
+
+                            _uiState.update { it.copy(startDate = start, finalDate = final) }
+                        }
+
                         _uiState.update { it.copy(period = days.toString(), periodD = days) }
                     }
 
@@ -214,6 +228,10 @@ class IntakeViewModel(
                             times = it.times.apply { removeLast() }
                         )
                     }
+            }
+
+            is IntakeEvent.SetFoodType -> {
+                _uiState.update { it.copy(foodType = event.type) }
             }
 
             is IntakeEvent.SetTime -> {
@@ -297,6 +315,7 @@ sealed interface IntakeEvent {
     data class SetPeriod(val period: Any) : IntakeEvent
     data object IncTime : IntakeEvent
     data object DecTime : IntakeEvent
+    data class SetFoodType(val type: Int): IntakeEvent
     data class SetTime(val time: Int) : IntakeEvent
     data class SetStart(val start: String = BLANK) : IntakeEvent
     data class SetFinal(val final: String = BLANK) : IntakeEvent

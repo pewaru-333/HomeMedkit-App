@@ -17,6 +17,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -77,6 +79,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -88,6 +91,7 @@ import ru.application.homemedkit.alarms.AlarmSetter
 import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.dialogs.DateRangePicker
 import ru.application.homemedkit.dialogs.TimePickerDialog
+import ru.application.homemedkit.fragments.FragmentSettings
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_MM_Y
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_S
@@ -97,7 +101,6 @@ import ru.application.homemedkit.helpers.DateHelper.getPeriod
 import ru.application.homemedkit.helpers.INTAKE_ID
 import ru.application.homemedkit.helpers.MEDICINE_ID
 import ru.application.homemedkit.helpers.NEW_INTAKE
-import ru.application.homemedkit.helpers.SettingsHelper
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.viewModelFactory
 import ru.application.homemedkit.states.IntakeState
@@ -110,14 +113,12 @@ import java.time.Period
 
 class IntakeActivity : ComponentActivity() {
 
-    private lateinit var settings: SettingsHelper
     private lateinit var database: MedicineDatabase
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        settings = SettingsHelper(this)
         database = MedicineDatabase.getInstance(this)
         val medicineDAO = database.medicineDAO()
 
@@ -126,8 +127,8 @@ class IntakeActivity : ComponentActivity() {
         else database.intakeDAO().getByPK(intakeId)?.medicineId ?: 0L
 
         val newIntent = Intent(this, MainActivity::class.java)
+            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
             .putExtra(NEW_INTAKE, true)
-            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
         setContent {
             val viewModel = viewModel<IntakeViewModel>(factory = viewModelFactory {
@@ -248,7 +249,8 @@ class IntakeActivity : ComponentActivity() {
                         Title(medicineDAO.getProductName(medicineId))
                         Amount(viewModel::onEvent, state, medicineDAO.getProdAmount(medicineId))
                         Interval(viewModel::onEvent, state)
-                        Period(viewModel::onEvent, state, settings)
+                        Period(viewModel::onEvent, state)
+                        Food(viewModel::onEvent, state)
                         Time(viewModel::onEvent, state)
                     }
                 }
@@ -400,7 +402,7 @@ private fun Interval(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState, settings: SettingsHelper) {
+private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
     val context = LocalContext.current
     val dateST = context.getString(R.string.text_start_date)
     val dateFT = context.getString(R.string.text_finish_date)
@@ -409,7 +411,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState, settings:
         LabelText(R.string.intake_text_period)
 
         when {
-            settings.lightPeriod -> {
+            FragmentSettings().getLightPeriod() -> {
                 val periods = context.resources.getStringArray(R.array.period_types_name)
                 var period by rememberSaveable {
                     mutableStateOf(
@@ -458,7 +460,11 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState, settings:
                     }
 
                     if (period == periods[2] && (state.adding || state.editing)) {
+                        if(state.editing) LaunchedEffect(Unit) {
+                            onEvent(IntakeEvent.SetPeriod(getPeriod(state.startDate, state.finalDate)))
+                        }
                         var isError by rememberSaveable { mutableStateOf(false) }
+
 
                         fun validate(text: String) {
                             isError = text.isEmpty()
@@ -602,6 +608,66 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState, settings:
     }
 }
 
+@Composable
+private fun Food(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
+    val context = LocalContext.current
+    val icons = listOf(
+        R.drawable.vector_before_food,
+        R.drawable.vector_in_food,
+        R.drawable.vector_after_food
+    )
+    val options = listOf(
+        context.getString(R.string.intake_text_food_before),
+        context.getString(R.string.intake_text_food_during),
+        context.getString(R.string.intake_text_food_after)
+    )
+    var selected by remember { mutableIntStateOf(state.foodType) }
+
+    Column(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(8.dp)) {
+        LabelText(R.string.intake_text_food)
+        Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+            options.forEachIndexed { index, label ->
+                Column(
+                    modifier = Modifier
+                        .width(112.dp)
+                        .height(96.dp)
+                        .border(
+                            1.dp,
+                            MaterialTheme.colorScheme.onSurface,
+                            RoundedCornerShape(16.dp)
+                        )
+                        .background(
+                            if (index == selected) MaterialTheme.colorScheme.secondaryContainer
+                            else Color.Transparent,
+                            RoundedCornerShape(16.dp)
+                        )
+                        .clickable {
+                            if (!state.default) {
+                                selected = if (selected == index) -1 else index
+                                onEvent(IntakeEvent.SetFoodType(selected))
+                            }
+                        },
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        painter = painterResource(icons[index]),
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Text(
+                        text = label,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -698,7 +764,7 @@ private fun Time(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                         OutlinedTextField(
                             value = state.time[index],
                             onValueChange = {},
-                            modifier = Modifier.width(120.dp),
+                            modifier = Modifier.width(128.dp),
                             enabled = false,
                             leadingIcon = { Icon(painterResource(R.drawable.vector_time), null) },
                             shape = RoundedCornerShape(14.dp),

@@ -121,7 +121,7 @@ class ScannerActivity : ComponentActivity() {
                                     setErrorCallback { viewModel.alert = true }
                                     setDecodeCallback { result ->
                                         if (result.barcodeFormat == BarcodeFormat.DATA_MATRIX)
-                                            viewModel.fetchData(result.text.substring(1))
+                                            viewModel.fetchData(context, result.text.substring(1))
                                         else viewModel.show = true
                                     }
 

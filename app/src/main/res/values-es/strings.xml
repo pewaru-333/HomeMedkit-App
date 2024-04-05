@@ -13,6 +13,7 @@
     <string name="preference_app_theme">Tema de la aplicación</string>
     <string name="preference_start_page">Página de inicio</string>
     <string name="preference_sorting_type">Ordenación de medicamentos</string>
+    <string name="preference_download_images">Descargar imágenes de medicamentos</string>
     <string name="preference_easy_period_picker">Selección sencilla del periodo de ingesta</string>
     <string name="preference_check_expiration_date">Comprobar la fecha de caducidad de los medicamentos</string>
     <string name="preference_system">Sistema</string>
@@ -30,8 +31,8 @@
     <string name="text_attention">¡Atención!</string>
     <string name="text_do_intake">Toma tus medicamentos</string>
     <string name="text_expire_soon">¡%1$s está a punto de caducar!</string>
-    <string name="text_intake_time">Es la hora de tomar\u0020</string>
-    <string name="text_medicine_amount_not_enough">, pero hay menos cantidad de la prescrita. Vuelve a crear el recordatorio.</string>
+    <string name="text_intake_time">Es la hora de tomar %1$s</string>
+    <string name="text_medicine_amount_not_enough">Es la hora de tomar %1$s, pero hay menos cantidad de la prescrita. Vuelve a crear el recordatorio.</string>
 
     <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.aaaa</string>
@@ -56,6 +57,10 @@
 
     <string name="intake_card_text_from">(desde %1$s)</string>
     <string name="intake_text_amount">Cantidad</string>
+    <string name="intake_text_food">Comida y Medicina</string>
+    <string name="intake_text_food_after">Después de la comida</string>
+    <string name="intake_text_food_before">Antes de la comida</string>
+    <string name="intake_text_food_during">Durante la comida</string>
     <string name="intake_text_interval">Intervalo</string>
     <string name="intake_text_left">Restante</string>
     <string name="intake_text_period">Periodo</string>
@@ -76,7 +81,6 @@
     <!-- Códigos de barras -->
     <string name="text_code_not_found">Código no encontrado</string>
     <string name="text_connection_error">Error de conexión</string>
-    <string name="text_encode_code_error">Error de encodificación del código</string>
     <string name="text_medicine_duplicate">Ya se ha añadido ese medicamento</string>
     <string name="text_not_medicine_code">Este código no es un medicamento</string>
     <string name="text_unknown_error">Código erróneo</string>

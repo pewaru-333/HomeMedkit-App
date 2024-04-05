@@ -13,6 +13,7 @@
     <string name="preference_app_theme">App theme</string>
     <string name="preference_start_page">Home page</string>
     <string name="preference_sorting_type">Medicine sorting</string>
+    <string name="preference_download_images">Download medicine images</string>
     <string name="preference_easy_period_picker">Easier intake period selection</string>
     <string name="preference_check_expiration_date">Checking the expiration date of medicines</string>
     <string name="preference_system">System</string>
@@ -30,8 +31,8 @@
     <string name="text_attention">Attention!</string>
     <string name="text_do_intake">Do intake</string>
     <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
-    <string name="text_intake_time">It\'s time to intake\u0020</string>
-    <string name="text_medicine_amount_not_enough">, but its quantity is less than prescribed! Recreate intake!</string>
+    <string name="text_intake_time">It\'s time to intake %1$s</string>
+    <string name="text_medicine_amount_not_enough">It\'s time to intake %1$s, but its quantity is less than prescribed! Recreate intake!</string>
 
     <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.yyyy</string>
@@ -56,6 +57,10 @@
 
     <string name="intake_card_text_from">(from %1$s)</string>
     <string name="intake_text_amount">Quantity</string>
+    <string name="intake_text_food">Food &amp; Med</string>
+    <string name="intake_text_food_after">After meal</string>
+    <string name="intake_text_food_before">Before meal</string>
+    <string name="intake_text_food_during">During meal</string>
     <string name="intake_text_interval">Interval</string>
     <string name="intake_text_left">Left</string>
     <string name="intake_text_period">Period</string>
@@ -76,7 +81,6 @@
     <!-- Snackbars -->
     <string name="text_code_not_found">Code not found!</string>
     <string name="text_connection_error">Connection error!</string>
-    <string name="text_encode_code_error">Code encode error!</string>
     <string name="text_medicine_duplicate">The medicine has already been added</string>
     <string name="text_not_medicine_code">This code is not medicine\'s</string>
     <string name="text_unknown_error">Wrong code scanned!</string>

@@ -2,10 +2,6 @@ package ru.application.homemedkit.helpers
 
 import ru.application.homemedkit.R
 
-// ============================== Numbers ==============================
-const val BOUND = 200
-const val EXP_CODE = 81000
-
 // ============================== Strings ==============================
 const val ADDING = "adding"
 const val ALARM_ID = "alarmId"
@@ -16,22 +12,30 @@ const val CHECK_EXP_DATE = "check_exp_date"
 const val DUPLICATE = "duplicate"
 const val ID = "id"
 const val INTAKE_ID = "intakeId"
+const val KEY_APP_THEME = "app_theme"
+const val KEY_DOWNLOAD = "download_images"
+const val KEY_FRAGMENT = "default_start_fragment"
+const val KEY_LANGUAGE = "language"
+const val KEY_LIGHT_PERIOD = "light_period_picker"
+const val KEY_ORDER = "sorting_order"
 const val MEDICINE_ID = "medicine_id"
 const val NEW_INTAKE = "newIntake"
 const val NEW_MEDICINE = "newMedicine"
 const val SEMICOLON = ","
 const val SETTINGS_CHANGED = "settingsChanged"
 const val SOUND_GROUP = "Sound group"
+const val TYPE = "vector_type"
 const val WHITESPACE = " "
 
 // ============================== Collections ==============================
-val INTERVALS: List<String> = mutableListOf("daily", "weekly", "custom")
-val PERIODS: List<String> = mutableListOf("week", "month", "other", "indefinite")
+val PAGES = listOf("Home", "Medicines", "Intakes", "Settings")
 val SNACKS = listOf(
     R.string.text_medicine_duplicate,
     R.string.text_not_medicine_code, R.string.text_code_not_found,
     R.string.text_unknown_error, R.string.text_unknown_error, R.string.text_connection_error
 )
+val SORTING = listOf("A-z", "z-A", "old-new", "new-old")
+val THEMES = listOf("System", "Light", "Dark")
 
 val ICONS_MED: Map<String, Int> = mapOf(
     "vector_type_tablets" to R.drawable.vector_type_tablets,
