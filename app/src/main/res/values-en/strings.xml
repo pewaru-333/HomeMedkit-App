@@ -113,13 +113,13 @@
         <item quantity="other">%d times a day</item>
     </plurals>
 
-
     <!-- Arrays -->
     <string-array name="languages_name">
         <item>System</item>
         <item>Russian</item>
         <item>English</item>
         <item>Spanish</item>
+        <item>Turkish</item>
     </string-array>
 
     <string-array name="sorting_types_name">

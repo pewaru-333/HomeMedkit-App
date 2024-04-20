@@ -121,6 +121,7 @@
         <item>Русский</item>
         <item>Английский</item>
         <item>Испанский</item>
+        <item>турецкий</item>      
     </string-array>
 
     <string-array name="sorting_types_name">

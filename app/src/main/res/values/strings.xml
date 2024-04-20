@@ -123,6 +123,7 @@
         <item>ru</item>
         <item>en-US</item>
         <item>es</item>
+        <item>tr</item>
     </string-array>
 
     <string-array name="languages_name">
@@ -130,6 +131,7 @@
         <item>Russian</item>
         <item>English</item>
         <item>Spanish</item>
+        <item>Turkish</item>
     </string-array>
 
     <string-array name="sorting_types">
