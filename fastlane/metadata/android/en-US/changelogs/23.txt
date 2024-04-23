@@ -1,0 +1,3 @@
+— Added the "Dynamic colors" option in the settings on compatible devices.
+— Changed the color of the expired medicine card in the "Medicines" menu.
+— Fixed a bug that in some cases caused the application to crash at the same time when activating the checking expiration date of medicines.

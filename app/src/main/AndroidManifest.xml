@@ -25,16 +25,8 @@
         android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="false"
-        android:theme="@style/Theme.HomeMeds"
+        android:theme="@style/Theme.Material3.DayNight.NoActionBar"
         tools:targetApi="34">
-        <activity
-            android:name=".activities.IntakeActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:exported="false" />
-        <activity
-            android:name=".activities.MedicineActivity"
-            android:exported="false"
-            android:configChanges="orientation|screenSize|keyboardHidden"/>
         <activity
             android:name=".activities.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -45,7 +37,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.ScannerActivity" />
 
         <receiver
             android:name=".alarms.AlarmReceiver"

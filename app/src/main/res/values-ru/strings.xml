@@ -10,7 +10,6 @@
 
     <!-- Настройки -->
     <string name="preference_app_view">Вид приложения</string>
-    <string name="preference_app_theme">Тема приложения</string>
     <string name="preference_start_page">Стартовая страница</string>
     <string name="preference_sorting_type">Сортировка лекарств</string>
     <string name="preference_download_images">Загружать изображения лекарств</string>
@@ -18,6 +17,8 @@
     <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
     <string name="preference_system">Системные</string>
     <string name="preference_language">Язык приложения</string>
+    <string name="preference_app_theme">Тема приложения</string>
+    <string name="preference_dynamic_color">Системные цвета</string>
 
     <!-- Сортировка -->
     <string name="sorting_a_z">Названию (от А до Я)</string>
@@ -94,7 +95,7 @@
     <string name="text_delete">Удалить</string>
     <string name="text_edit">Изменить</string>
     <string name="text_empty">Пусто</string>
-    <string name="text_enter_product_name">Введите название лекарства</string>
+    <string name="text_enter_product_name">Поиск</string>
     <string name="text_every">Каждые\u0020</string>
     <string name="text_finish_date">Конечная дата</string>
     <string name="text_manual_add">Добавление лекарства вручную</string>
@@ -103,7 +104,6 @@
     <string name="text_off">Отключено</string>
     <string name="text_on">Включено</string>
     <string name="text_save">Сохранить</string>
-    <string name="text_sort_type">Сортировать по</string>
     <string name="text_start_date">Начальная дата</string>
     <string name="text_yes">Да</string>
 

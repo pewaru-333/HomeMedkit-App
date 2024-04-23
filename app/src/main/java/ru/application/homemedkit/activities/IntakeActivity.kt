@@ -5,15 +5,12 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_HIGH
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.Build
 import android.os.Build.VERSION
-import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -85,22 +82,23 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.IntakesScreenDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.R
 import ru.application.homemedkit.alarms.AlarmSetter
 import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.dialogs.DateRangePicker
 import ru.application.homemedkit.dialogs.TimePickerDialog
-import ru.application.homemedkit.fragments.FragmentSettings
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_MM_Y
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_S
 import ru.application.homemedkit.helpers.DateHelper.ZONE
 import ru.application.homemedkit.helpers.DateHelper.getDateTime
 import ru.application.homemedkit.helpers.DateHelper.getPeriod
-import ru.application.homemedkit.helpers.INTAKE_ID
-import ru.application.homemedkit.helpers.MEDICINE_ID
-import ru.application.homemedkit.helpers.NEW_INTAKE
+import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.viewModelFactory
 import ru.application.homemedkit.states.IntakeState
@@ -111,152 +109,144 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
 
-class IntakeActivity : ComponentActivity() {
 
-    private lateinit var database: MedicineDatabase
+@OptIn(ExperimentalMaterial3Api::class)
+@Destination<RootGraph>
+@Composable
+fun IntakeScreen(
+    intakeId: Long = 0L,
+    medicineId: Long = 0L,
+    navigator: DestinationsNavigator,
+    context: Context = LocalContext.current,
+    resources: Resources = context.resources,
+    lifecycle: Lifecycle = LocalLifecycleOwner.current.lifecycle
+) {
+    val database = MedicineDatabase.getInstance(context)
+    val medicineDAO = database.medicineDAO()
+    val medId = if (intakeId == 0L) medicineId else
+        database.intakeDAO().getByPK(intakeId)?.medicineId ?: 0L
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    val viewModel = viewModel<IntakeViewModel>(factory = viewModelFactory {
+        IntakeViewModel(database.intakeDAO(), intakeId, AlarmSetter(context))
+    })
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    viewModel.onEvent(IntakeEvent.SetMedicineId(medId))
 
-        database = MedicineDatabase.getInstance(this)
-        val medicineDAO = database.medicineDAO()
+    var permissionGranted by remember {
+        if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            mutableStateOf(checkNotificationPermission(context))
+        else mutableStateOf(true)
+    }
+    var showRationale by remember { mutableStateOf(false) }
 
-        val intakeId = intent.getLongExtra(INTAKE_ID, 0L)
-        val medicineId = if (intakeId == 0L) intent.getLongExtra(MEDICINE_ID, 0L)
-        else database.intakeDAO().getByPK(intakeId)?.medicineId ?: 0L
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) permissionGranted = true
+            else showRationale = true
+        }
+    )
 
-        val newIntent = Intent(this, MainActivity::class.java)
-            .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            .putExtra(NEW_INTAKE, true)
+    LaunchedEffect(Unit) {
+        viewModel.events.collectLatest { navigator.navigate(IntakesScreenDestination) }
+    }
 
-        setContent {
-            val viewModel = viewModel<IntakeViewModel>(factory = viewModelFactory {
-                IntakeViewModel(database.intakeDAO(), intakeId, AlarmSetter(this))
-            })
-            val state by viewModel.uiState.collectAsStateWithLifecycle()
-            viewModel.onEvent(IntakeEvent.SetMedicineId(medicineId))
-
-            var permissionGranted by remember {
-                if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                    mutableStateOf(checkNotificationPermission(this))
-                else mutableStateOf(true)
-            }
-            var showRationale by remember { mutableStateOf(false) }
-
-            val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.RequestPermission(),
-                onResult = { isGranted ->
-                    if (isGranted) permissionGranted = true
-                    else showRationale = true
-                }
-            )
-
-            LaunchedEffect(Unit) { viewModel.events.collectLatest { startActivity(newIntent) } }
-
-            DisposableEffect(LocalLifecycleOwner.current) {
-                val observer = LifecycleEventObserver { _, event ->
-                    if (event == Lifecycle.Event.ON_RESUME && VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        permissionGranted = checkNotificationPermission(this@IntakeActivity)
-                        showRationale = !permissionGranted
-                    }
-                }
-                lifecycle.addObserver(observer)
-                onDispose { lifecycle.removeObserver(observer) }
-            }
-
-            AppTheme {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = {},
-                            navigationIcon = {
-                                IconButton({
-                                    startActivity(
-                                        Intent(this, MainActivity::class.java)
-                                            .putExtra(NEW_INTAKE, true)
-                                    )
-                                }
-                                ) { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
-                            },
-                            actions = {
-                                when {
-                                    state.adding -> {
-                                        IconButton(
-                                            onClick = { viewModel.onEvent(IntakeEvent.Add) },
-                                            enabled = viewModel.validate()
-                                        )
-                                        { Icon(Icons.Default.Check, null) }
-                                    }
-
-                                    state.editing -> {
-                                        IconButton(
-                                            onClick = { viewModel.onEvent(IntakeEvent.Update) },
-                                            enabled = viewModel.validate()
-                                        )
-                                        { Icon(Icons.Default.Check, null) }
-                                    }
-
-                                    else -> {
-                                        LocalFocusManager.current.clearFocus(true)
-                                        var expanded by remember { mutableStateOf(false) }
-
-                                        IconButton({ expanded = true }) {
-                                            Icon(Icons.Default.MoreVert, null)
-                                        }
-
-                                        DropdownMenu(expanded, { expanded = false }) {
-                                            DropdownMenuItem(
-                                                { Text(resources.getString(R.string.text_edit)) },
-                                                { viewModel.onEvent(IntakeEvent.SetEditing) })
-                                            DropdownMenuItem(
-                                                { Text(resources.getString(R.string.text_delete)) },
-                                                { viewModel.onEvent(IntakeEvent.Delete) }
-                                            )
-                                        }
-                                    }
-                                }
-                            },
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                                navigationIconContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                                actionIconContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                            )
-                        )
-                    }
-                ) { paddingValues ->
-
-                    CreateNotificationChannel()
-                    if (!permissionGranted) {
-                        LaunchedEffect(Unit) {
-                            if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                                launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        }
-                        if (showRationale) PermissionDialog(id = R.string.text_request_post)
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(
-                                top = paddingValues
-                                    .calculateTopPadding()
-                                    .plus(16.dp)
-                            )
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(32.dp)
-                    ) {
-                        Title(medicineDAO.getProductName(medicineId))
-                        Amount(viewModel::onEvent, state, medicineDAO.getProdAmount(medicineId))
-                        Interval(viewModel::onEvent, state)
-                        Period(viewModel::onEvent, state)
-                        Food(viewModel::onEvent, state)
-                        Time(viewModel::onEvent, state)
-                    }
-                }
-                BackHandler { startActivity(newIntent) }
+    DisposableEffect(LocalLifecycleOwner.current) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME && VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                permissionGranted = checkNotificationPermission(context)
+                showRationale = !permissionGranted
             }
         }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
+
+    AppTheme {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        IconButton({ navigator.navigate(IntakesScreenDestination) })
+                        { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
+                    },
+                    actions = {
+                        when {
+                            state.adding -> {
+                                IconButton(
+                                    onClick = { viewModel.onEvent(IntakeEvent.Add) },
+                                    enabled = viewModel.validate()
+                                )
+                                { Icon(Icons.Default.Check, null) }
+                            }
+
+                            state.editing -> {
+                                IconButton(
+                                    onClick = { viewModel.onEvent(IntakeEvent.Update) },
+                                    enabled = viewModel.validate()
+                                )
+                                { Icon(Icons.Default.Check, null) }
+                            }
+
+                            else -> {
+                                LocalFocusManager.current.clearFocus(true)
+                                var expanded by remember { mutableStateOf(false) }
+
+                                IconButton({ expanded = true }) {
+                                    Icon(Icons.Default.MoreVert, null)
+                                }
+
+                                DropdownMenu(expanded, { expanded = false }) {
+                                    DropdownMenuItem(
+                                        { Text(resources.getString(R.string.text_edit)) },
+                                        { viewModel.onEvent(IntakeEvent.SetEditing) })
+                                    DropdownMenuItem(
+                                        { Text(resources.getString(R.string.text_delete)) },
+                                        { viewModel.onEvent(IntakeEvent.Delete) }
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                )
+            }
+        ) { paddingValues ->
+
+            CreateNotificationChannel()
+            if (!permissionGranted) {
+                LaunchedEffect(Unit) {
+                    if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                        launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                if (showRationale) PermissionDialog(id = R.string.text_request_post)
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        top = paddingValues
+                            .calculateTopPadding()
+                            .plus(16.dp)
+                    )
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
+                Title(medicineDAO.getProductName(medId))
+                Amount(viewModel::onEvent, state, medicineDAO.getProdAmount(medId))
+                Interval(viewModel::onEvent, state)
+                Period(viewModel::onEvent, state)
+                Food(viewModel::onEvent, state)
+                Time(viewModel::onEvent, state)
+            }
+        }
+        BackHandler { navigator.navigate(IntakesScreenDestination) }
     }
 }
 
@@ -411,7 +401,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
         LabelText(R.string.intake_text_period)
 
         when {
-            FragmentSettings().getLightPeriod() -> {
+            Preferences(context).getLightPeriod() -> {
                 val periods = context.resources.getStringArray(R.array.period_types_name)
                 var period by rememberSaveable {
                     mutableStateOf(
@@ -813,6 +803,6 @@ private fun CreateNotificationChannel(context: Context = LocalContext.current) {
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private fun checkNotificationPermission(
-    context: ComponentActivity,
+    context: Context,
     permission: String = Manifest.permission.POST_NOTIFICATIONS
 ): Boolean = context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED

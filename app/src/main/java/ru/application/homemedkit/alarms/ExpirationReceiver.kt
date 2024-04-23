@@ -14,18 +14,17 @@ import android.media.RingtoneManager.getDefaultUri
 import android.media.RingtoneManager.getRingtone
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.preference.PreferenceManager
 import ru.application.homemedkit.R
-import ru.application.homemedkit.activities.MedicineActivity
+import ru.application.homemedkit.activities.MainActivity
 import ru.application.homemedkit.databaseController.MedicineDatabase
-import ru.application.homemedkit.helpers.CHECK_EXP_DATE
 import ru.application.homemedkit.helpers.ID
+import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.SOUND_GROUP
 
 class ExpirationReceiver: BroadcastReceiver() {
     private fun expirationNotification(context: Context, medicineId: Long): Notification {
         val database = MedicineDatabase.getInstance(context)
-        val intent = Intent(context, MedicineActivity::class.java)
+        val intent = Intent(context, MainActivity::class.java)
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             .putExtra(ID, medicineId)
         val productName = database.medicineDAO().getProductName(medicineId)
@@ -47,14 +46,14 @@ class ExpirationReceiver: BroadcastReceiver() {
             .setDefaults(Notification.DEFAULT_ALL)
             .setGroup(SOUND_GROUP)
             .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-            .setContentIntent(pending)
+          //  .setContentIntent(pending)
             .build()
     }
 
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         val medicines = MedicineDatabase.getInstance(context).medicineDAO().getAll()
-        val check = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(CHECK_EXP_DATE,true)
+        val check = Preferences(context).getCheckExpDate()
 
         if (check && medicines.isNotEmpty()) {
             medicines.forEach { medicine ->
