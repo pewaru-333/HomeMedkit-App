@@ -53,4 +53,8 @@ It is a reliable and convenient assistant that will help you monitor your health
 
 # Translations
 
-Coming soon...
+You can help with translations for your language.
+
+<a href="https://hosted.weblate.org/engage/homemedkit/">
+<img src="https://hosted.weblate.org/widget/homemedkit/multi-auto.svg" alt="Состояние перевода" />
+</a>
