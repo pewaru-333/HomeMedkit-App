@@ -9,7 +9,6 @@
 
     <!-- Preferences -->
     <string name="preference_app_view">App view</string>
-    <string name="preference_app_theme">App theme</string>
     <string name="preference_start_page">Home page</string>
     <string name="preference_sorting_type">Medicine sorting</string>
     <string name="preference_download_images">Download medicine images</string>
@@ -17,6 +16,8 @@
     <string name="preference_check_expiration_date">Checking the expiration date of medicines</string>
     <string name="preference_system">System</string>
     <string name="preference_language">App language</string>
+    <string name="preference_app_theme">App theme</string>
+    <string name="preference_dynamic_color">Dynamic color</string>
 
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabetically (A to z)</string>
@@ -94,7 +95,7 @@
     <string name="text_delete">Delete</string>
     <string name="text_edit">Edit</string>
     <string name="text_empty">Empty</string>
-    <string name="text_enter_product_name">Enter medicine name</string>
+    <string name="text_enter_product_name">Search</string>
     <string name="text_every">Every\u0020</string>
     <string name="text_finish_date">Finish date</string>
     <string name="text_manual_add">Manual medicine adding</string>
@@ -103,7 +104,6 @@
     <string name="text_off">Turned off</string>
     <string name="text_on">Turned on</string>
     <string name="text_save">Save</string>
-    <string name="text_sort_type">Sorting type</string>
     <string name="text_start_date">Start date</string>
     <string name="text_yes">Yes</string>
 
@@ -118,13 +118,6 @@
     </plurals>
 
     <!-- Arrays -->
-    <string-array name="languages">
-        <item>null</item>
-        <item>ru</item>
-        <item>en-US</item>
-        <item>es</item>
-        <item>tr</item>
-    </string-array>
 
     <string-array name="languages_name">
         <item>System</item>
@@ -134,13 +127,6 @@
         <item>Turkish</item>
     </string-array>
 
-    <string-array name="sorting_types">
-        <item>A-z</item>
-        <item>z-A</item>
-        <item>old-new</item>
-        <item>new-old</item>
-    </string-array>
-
     <string-array name="sorting_types_name">
         <item>Alphabetically (A to Z)</item>
         <item>Alphabetically (Z to a)</item>
@@ -148,24 +134,11 @@
         <item>Expiration date (from newest)</item>
     </string-array>
 
-    <string-array name="fragment_pages">
-        <item>Home</item>
-        <item>Medicines</item>
-        <item>Intakes</item>
-        <item>Settings</item>
-    </string-array>
-
     <string-array name="fragment_pages_name">
         <item>Home</item>
         <item>Medicines</item>
         <item>Intakes</item>
         <item>Settings</item>
-    </string-array>
-
-    <string-array name="app_themes">
-        <item>System</item>
-        <item>Light</item>
-        <item>Dark</item>
     </string-array>
 
     <string-array name="app_themes_name">

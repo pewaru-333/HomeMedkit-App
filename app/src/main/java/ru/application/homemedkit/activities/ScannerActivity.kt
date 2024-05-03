@@ -5,11 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Bundle
 import android.provider.Settings
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -52,118 +49,119 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.budiyev.android.codescanner.CodeScanner
 import com.budiyev.android.codescanner.CodeScannerView
 import com.google.zxing.BarcodeFormat
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ScannerScreenDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
 import ru.application.homemedkit.R
 import ru.application.homemedkit.databaseController.MedicineDatabase
-import ru.application.homemedkit.helpers.CIS
-import ru.application.homemedkit.helpers.DUPLICATE
-import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.SNACKS
 import ru.application.homemedkit.helpers.viewModelFactory
 import ru.application.homemedkit.ui.theme.AppTheme
 import ru.application.homemedkit.viewModels.ResponseState
 import ru.application.homemedkit.viewModels.ScannerViewModel
 
-class ScannerActivity : ComponentActivity() {
+@Destination<RootGraph>
+@Composable
+fun ScannerScreen(
+    navigator: DestinationsNavigator,
+    context: Context = LocalContext.current,
+    lifecycle: Lifecycle = LocalLifecycleOwner.current.lifecycle
+) {
+    val dao = MedicineDatabase.getInstance(context).medicineDAO()
+    val viewModel = viewModel<ScannerViewModel>(factory = viewModelFactory { ScannerViewModel(dao) })
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val response by viewModel.response.collectAsState(ResponseState.Default)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    var permissionGranted by remember { mutableStateOf(checkCameraPermission(context)) }
+    var showRationale by remember { mutableStateOf(false) }
 
-        val dao = MedicineDatabase.getInstance(this).medicineDAO()
-        val toMed = Intent(this, MedicineActivity::class.java)
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) permissionGranted = true
+            else showRationale = true
+        }
+    )
 
-        setContent {
-            val viewModel = viewModel<ScannerViewModel>(factory = viewModelFactory {
-                ScannerViewModel(dao)
-            })
-            val state by viewModel.uiState.collectAsStateWithLifecycle()
-            val response by viewModel.response.collectAsState(ResponseState.Default)
+    DisposableEffect(LocalLifecycleOwner.current) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                permissionGranted = checkCameraPermission(context)
+                showRationale = !permissionGranted
+            }
+        }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
 
-            var permissionGranted by remember { mutableStateOf(checkCameraPermission(this)) }
-            var showRationale by remember { mutableStateOf(false) }
-
-            val launcher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.RequestPermission(),
-                onResult = { isGranted ->
-                    if (isGranted) permissionGranted = true
-                    else showRationale = true
-                }
-            )
-
-            DisposableEffect(LocalLifecycleOwner.current) {
-                val observer = LifecycleEventObserver { _, event ->
-                    if (event == Lifecycle.Event.ON_RESUME) {
-                        permissionGranted = checkCameraPermission(this@ScannerActivity)
-                        showRationale = !permissionGranted
-                    }
-                }
-                lifecycle.addObserver(observer)
-                onDispose { lifecycle.removeObserver(observer) }
+    AppTheme {
+        when (permissionGranted) {
+            false -> {
+                LaunchedEffect(Unit) { launcher.launch(Manifest.permission.CAMERA) }
+                if (showRationale) PermissionDialog(id = R.string.text_request_camera)
             }
 
-            AppTheme {
-                when (permissionGranted) {
-                    false -> {
-                        LaunchedEffect(Unit) { launcher.launch(Manifest.permission.CAMERA) }
-                        if (showRationale) PermissionDialog(id = R.string.text_request_camera)
-                    }
+            true -> {
+                AndroidView(
+                    factory = { context ->
+                        val scannerView = CodeScannerView(context).apply {
+                            frameCornersRadius = 48.dp.value.toInt()
+                            frameThickness = 16.dp.value.toInt()
+                            isMaskVisible = true
+                        }
 
-                    true -> {
-                        AndroidView(
-                            factory = { context ->
-                                val scannerView = CodeScannerView(context).apply {
-                                    frameCornersRadius = 48.dp.value.toInt()
-                                    frameThickness = 16.dp.value.toInt()
-                                    isMaskVisible = true
-                                }
-
-                                CodeScanner(context, scannerView).apply {
-                                    setErrorCallback { viewModel.alert = true }
-                                    setDecodeCallback { result ->
-                                        if (result.barcodeFormat == BarcodeFormat.DATA_MATRIX)
-                                            viewModel.fetchData(context, result.text.substring(1))
-                                        else viewModel.show = true
-                                    }
-
-                                    startPreview()
-                                }
-
-                                scannerView
+                        CodeScanner(context, scannerView).apply {
+                            setErrorCallback { viewModel.alert = true }
+                            setDecodeCallback { result ->
+                                if (result.barcodeFormat == BarcodeFormat.DATA_MATRIX)
+                                    viewModel.fetchData(context, result.text.substring(1))
+                                else viewModel.show = true
                             }
-                        )
+
+                            startPreview()
+                        }
+
+                        scannerView
                     }
-                }
+                )
+            }
+        }
 
-                if (viewModel.show) {
-                    try {
-                        ResponseState.Errors.valueOf(response.toString()).ordinal
-                    } catch (e: IllegalArgumentException) {
-                        ResponseState.Errors.FETCH_ERROR.ordinal
-                    }.also { Snackbar(it) }
+        if (viewModel.show) {
+            try {
+                ResponseState.Errors.valueOf(response.toString()).ordinal
+            } catch (e: IllegalArgumentException) {
+                ResponseState.Errors.FETCH_ERROR.ordinal
+            }.also { Snackbar(it) }
 
-                    LaunchedEffect(Unit) {
-                        delay(2000)
-                        viewModel.show = false
-                        recreate()
-                    }
-                }
+            LaunchedEffect(Unit) {
+                delay(2000)
+                viewModel.show = false
+                navigator.navigate(ScannerScreenDestination)
+            }
+        }
 
-                if (viewModel.alert) AddMedicineDialog(toMed = toMed.putExtra(CIS, state.cis))
+        if (viewModel.alert)
+            AddMedicineDialog(
+                navController = navigator,
+                cis = state.cis,
+                onDismiss = { viewModel.alert = false; navigator.navigate(ScannerScreenDestination) }
+            )
 
-                when (response) {
-                    ResponseState.Default -> {}
-                    ResponseState.Loading -> LoadingDialog()
-                    ResponseState.Success -> startActivity(toMed.putExtra(ID, state.id))
+        when (response) {
+            ResponseState.Default -> {}
+            ResponseState.Loading -> LoadingDialog()
+            ResponseState.Success -> navigator.navigate(MedicineScreenDestination(state.id))
+            ResponseState.Duplicate -> navigator.navigate(
+                MedicineScreenDestination(id = state.id, duplicate = true)
+            )
 
-                    ResponseState.Duplicate -> startActivity(
-                        toMed.putExtra(ID, state.id).putExtra(DUPLICATE, true)
-                    )
-
-                    else -> when (response) {
-                        ResponseState.Errors.NO_NETWORK -> viewModel.alert = true
-                        else -> viewModel.show = true
-                    }
-                }
+            else -> when (response) {
+                ResponseState.Errors.NO_NETWORK -> viewModel.alert = true
+                else -> viewModel.show = true
             }
         }
     }
@@ -197,14 +195,15 @@ fun Snackbar(id: Int = 0) {
 
 @Composable
 private fun AddMedicineDialog(
-    context: ComponentActivity = LocalContext.current as ComponentActivity,
-    intent: Intent = context.intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP),
-    toMed: Intent
+    navController: DestinationsNavigator,
+    cis: String,
+    onDismiss: () -> Unit,
+    context: Context = LocalContext.current,
 ) {
     AlertDialog(
-        onDismissRequest = { context.startActivity(intent) },
+        onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton({ context.startActivity(toMed) }) {
+            TextButton({ navController.navigate(MedicineScreenDestination(cis = cis)) }) {
                 Text(
                     text = context.resources.getString(R.string.text_yes),
                     color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -212,7 +211,7 @@ private fun AddMedicineDialog(
             }
         },
         dismissButton = {
-            TextButton({ context.startActivity(intent) }) {
+            TextButton(onDismiss) {
                 Text(
                     text = context.resources.getString(R.string.text_no),
                     color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -273,6 +272,6 @@ fun PermissionDialog(context: Context = LocalContext.current, id: Int) {
 }
 
 private fun checkCameraPermission(
-    context: ComponentActivity,
+    context: Context,
     permission: String = Manifest.permission.CAMERA
 ): Boolean = checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED

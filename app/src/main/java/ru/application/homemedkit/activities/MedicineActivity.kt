@@ -1,10 +1,8 @@
 package ru.application.homemedkit.activities
 
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
+import android.content.Context
+import android.content.res.Resources
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -80,20 +78,21 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.IntakeScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.MedicinesScreenDestination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.R
 import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.dialogs.MonthYear
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.CIS
-import ru.application.homemedkit.helpers.DUPLICATE
 import ru.application.homemedkit.helpers.DateHelper.toExpDate
 import ru.application.homemedkit.helpers.DateHelper.toTimestamp
 import ru.application.homemedkit.helpers.ICONS_MED
-import ru.application.homemedkit.helpers.ID
-import ru.application.homemedkit.helpers.MEDICINE_ID
-import ru.application.homemedkit.helpers.NEW_MEDICINE
 import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
@@ -107,171 +106,158 @@ import ru.application.homemedkit.viewModels.MedicineViewModel
 import ru.application.homemedkit.viewModels.ResponseState
 import java.io.File
 
-class MedicineActivity : ComponentActivity() {
 
-    private lateinit var database: MedicineDatabase
+@OptIn(ExperimentalMaterial3Api::class)
+@Destination<RootGraph>
+@Composable
+fun MedicineScreen(
+    id: Long = 0L,
+    cis: String = BLANK,
+    duplicate: Boolean = false,
+    navigator: DestinationsNavigator,
+    context: Context = LocalContext.current,
+    resources: Resources = context.resources
+) {
+    val database = MedicineDatabase.getInstance(context)
+    val viewModel = viewModel<MedicineViewModel>(factory = viewModelFactory {
+        MedicineViewModel(database.medicineDAO(), id)
+    })
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val response by viewModel.response.collectAsState(ResponseState.Default)
+    val path = context.filesDir
 
-        database = MedicineDatabase.getInstance(this)
+    if (id == 0L) {
+        viewModel.onEvent(MedicineEvent.SetAdding)
+        viewModel.onEvent(MedicineEvent.SetCis(cis))
+    }
 
-        val id = intent.getLongExtra(ID, 0)
-        val duplicate = intent.getBooleanExtra(DUPLICATE, false)
-        val cis = intent.getStringExtra(CIS) ?: BLANK
+    if (duplicate) viewModel.show = true
 
-        val intents = listOf(
-            Intent(this, MainActivity::class.java)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                .putExtra(NEW_MEDICINE, true),
-            Intent(this, IntakeActivity::class.java).putExtra(MEDICINE_ID, id)
-        )
-
-        setContent {
-            val viewModel = viewModel<MedicineViewModel>(factory = viewModelFactory {
-                MedicineViewModel(database.medicineDAO(), id)
-            })
-
-            val state by viewModel.uiState.collectAsStateWithLifecycle()
-            val response by viewModel.response.collectAsState(ResponseState.Default)
-            val path = LocalContext.current.filesDir
-
-            if (id == 0L) {
-                viewModel.onEvent(MedicineEvent.SetAdding)
-                viewModel.onEvent(MedicineEvent.SetCis(cis))
-            }
-
-            if (duplicate) viewModel.show = true
-
-            LaunchedEffect(Unit) {
-                viewModel.events.collectLatest { event ->
-                    when (event) {
-                        ActivityEvents.Start -> startActivity(
-                            intent.putExtra(ID, state.id)
-                                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        )
-
-                        ActivityEvents.Close -> {
-                            File(path, state.image).delete()
-                            startActivity(intents[0])
-                        }
-                    }
+    LaunchedEffect(Unit) {
+        viewModel.events.collectLatest { event ->
+            when (event) {
+                ActivityEvents.Start -> navigator.navigate(MedicineScreenDestination(state.id))
+                ActivityEvents.Close -> {
+                    File(path, state.image).delete()
+                    navigator.navigate(MedicinesScreenDestination)
                 }
-            }
-
-            AppTheme {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = {},
-                            navigationIcon = {
-                                IconButton({ startActivity(intents[0]) }) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                }
-                            },
-                            actions = {
-                                when {
-                                    state.adding -> {
-                                        IconButton(
-                                            onClick = { viewModel.onEvent(MedicineEvent.Add) },
-                                            enabled = state.productName.isNotEmpty()
-                                        )
-                                        { Icon(Icons.Default.Check, null) }
-                                    }
-
-                                    state.editing -> {
-                                        IconButton(
-                                            onClick = { viewModel.onEvent(MedicineEvent.Update) },
-                                            enabled = state.productName.isNotEmpty()
-                                        )
-                                        { Icon(Icons.Default.Check, null) }
-                                    }
-
-                                    else -> {
-                                        LocalFocusManager.current.clearFocus(true)
-                                        var expanded by remember { mutableStateOf(false) }
-
-                                        IconButton(onClick = { startActivity(intents[1]) }) {
-                                            Icon(Icons.Default.Notifications, null)
-                                        }
-
-                                        IconButton({ expanded = true }) {
-                                            Icon(Icons.Default.MoreVert, null)
-                                        }
-
-                                        DropdownMenu(expanded, { expanded = false }) {
-                                            DropdownMenuItem(
-                                                text = { Text(resources.getString(R.string.text_edit)) },
-                                                onClick = { viewModel.onEvent(MedicineEvent.SetEditing) }
-                                            )
-                                            DropdownMenuItem(
-                                                text = { Text(resources.getString(R.string.text_delete)) },
-                                                onClick = { viewModel.onEvent(MedicineEvent.Delete) }
-                                            )
-                                        }
-                                    }
-                                }
-                            },
-
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        )
-                    }
-                ) { paddingValues ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(
-                                top = paddingValues
-                                    .calculateTopPadding()
-                                    .plus(16.dp)
-                            )
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(32.dp)
-                    ) {
-                        ProductName(viewModel::onEvent, state)
-                        ProductImage(viewModel, state)
-                        ExpirationDate(viewModel::onEvent, state)
-                        ProductFormName(viewModel::onEvent, state)
-                        ProductNormName(viewModel::onEvent, state)
-                        PhKinetics(viewModel::onEvent, state)
-                        Comment(viewModel::onEvent, state)
-                    }
-                }
-
-                if (viewModel.show) {
-                    try {
-                        if (!duplicate) ResponseState.Errors.valueOf(response.toString()).ordinal
-                        else 0
-                    } catch (e: IllegalArgumentException) {
-                        ResponseState.Errors.FETCH_ERROR.ordinal
-                    }.also { Snackbar(it) }
-
-                    LaunchedEffect(Unit) {
-                        delay(2000)
-                        viewModel.show = false
-                    }
-                }
-
-                when (response) {
-                    ResponseState.Default -> {}
-                    ResponseState.Loading -> LoadingDialog()
-                    ResponseState.Success -> startActivity(intent)
-
-                    else -> viewModel.show = true
-                }
-
-                BackHandler { startActivity(intents[0]) }
             }
         }
+    }
+
+    AppTheme {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        IconButton({ navigator.navigate(MedicinesScreenDestination) }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    },
+                    actions = {
+                        when {
+                            state.adding -> {
+                                IconButton(
+                                    onClick = { viewModel.onEvent(MedicineEvent.Add) },
+                                    enabled = state.productName.isNotEmpty()
+                                )
+                                { Icon(Icons.Default.Check, null) }
+                            }
+
+                            state.editing -> {
+                                IconButton(
+                                    onClick = { viewModel.onEvent(MedicineEvent.Update) },
+                                    enabled = state.productName.isNotEmpty()
+                                )
+                                { Icon(Icons.Default.Check, null) }
+                            }
+
+                            else -> {
+                                LocalFocusManager.current.clearFocus(true)
+                                var expanded by remember { mutableStateOf(false) }
+
+                                IconButton({
+                                    navigator.navigate(
+                                        IntakeScreenDestination(medicineId = state.id)
+                                    )
+                                }) { Icon(Icons.Default.Notifications, null) }
+
+                                IconButton({ expanded = true }) {
+                                    Icon(Icons.Default.MoreVert, null)
+                                }
+
+                                DropdownMenu(expanded, { expanded = false }) {
+                                    DropdownMenuItem(
+                                        text = { Text(resources.getString(R.string.text_edit)) },
+                                        onClick = { viewModel.onEvent(MedicineEvent.SetEditing) }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(resources.getString(R.string.text_delete)) },
+                                        onClick = { viewModel.onEvent(MedicineEvent.Delete) }
+                                    )
+                                }
+                            }
+                        }
+                    },
+
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                )
+            }
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(
+                        top = paddingValues
+                            .calculateTopPadding()
+                            .plus(16.dp)
+                    )
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
+                ProductName(viewModel::onEvent, state)
+                ProductImage(viewModel, state)
+                ExpirationDate(viewModel::onEvent, state)
+                ProductFormName(viewModel::onEvent, state)
+                ProductNormName(viewModel::onEvent, state)
+                PhKinetics(viewModel::onEvent, state)
+                Comment(viewModel::onEvent, state)
+            }
+        }
+
+        if (viewModel.show) {
+            try {
+                if (!duplicate) ResponseState.Errors.valueOf(response.toString()).ordinal
+                else 0
+            } catch (e: IllegalArgumentException) {
+                ResponseState.Errors.FETCH_ERROR.ordinal
+            }.also { Snackbar(it) }
+
+            LaunchedEffect(Unit) {
+                delay(2000)
+                viewModel.show = false
+            }
+        }
+
+        when (response) {
+            ResponseState.Default -> {}
+            ResponseState.Loading -> LoadingDialog()
+            ResponseState.Success -> navigator.navigate(MedicineScreenDestination(state.id))
+
+            else -> viewModel.show = true
+        }
+
+        BackHandler { navigator.navigate(MedicinesScreenDestination) }
     }
 }
 
@@ -341,7 +327,7 @@ private fun ProductImage(viewModel: MedicineViewModel, state: MedicineState) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .clickable(!state.default && isIcon || noIcon) { showPicker = true },
+                .clickable(!state.default && (isIcon || noIcon)) { showPicker = true },
             alignment = Alignment.Center,
             contentScale = ContentScale.Fit,
             alpha = when {

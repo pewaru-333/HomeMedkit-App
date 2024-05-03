@@ -1,34 +1,37 @@
 package ru.application.homemedkit.helpers
 
+import com.ramcosta.composedestinations.generated.destinations.HomeScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.IntakesScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.MedicinesScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.SettingsScreenDestination
 import ru.application.homemedkit.R
 
 // ============================== Strings ==============================
-const val ADDING = "adding"
 const val ALARM_ID = "alarmId"
 const val BLANK = ""
 const val CATEGORY = "drugs"
 const val CIS = "cis"
 const val CHECK_EXP_DATE = "check_exp_date"
-const val DUPLICATE = "duplicate"
 const val ID = "id"
-const val INTAKE_ID = "intakeId"
 const val KEY_APP_THEME = "app_theme"
+const val KEY_APP_SYSTEM = "app_system"
+const val KEY_APP_VIEW = "app_view"
+const val KEY_DYNAMIC_COLOR = "dynamic_color"
 const val KEY_DOWNLOAD = "download_images"
 const val KEY_FRAGMENT = "default_start_fragment"
 const val KEY_LANGUAGE = "language"
 const val KEY_LIGHT_PERIOD = "light_period_picker"
 const val KEY_ORDER = "sorting_order"
-const val MEDICINE_ID = "medicine_id"
 const val NEW_INTAKE = "newIntake"
-const val NEW_MEDICINE = "newMedicine"
 const val SEMICOLON = ","
-const val SETTINGS_CHANGED = "settingsChanged"
 const val SOUND_GROUP = "Sound group"
 const val TYPE = "vector_type"
 const val WHITESPACE = " "
 
 // ============================== Collections ==============================
-val PAGES = listOf("Home", "Medicines", "Intakes", "Settings")
+val LANGUAGES = listOf("System", "ru", "en-US", "es")
+val MENUS = listOf(HomeScreenDestination.route, MedicinesScreenDestination.route,
+    IntakesScreenDestination.route, SettingsScreenDestination.route)
 val SNACKS = listOf(
     R.string.text_medicine_duplicate,
     R.string.text_not_medicine_code, R.string.text_code_not_found,

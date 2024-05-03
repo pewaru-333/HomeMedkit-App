@@ -12,13 +12,14 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.application.homemedkit.activities.MainActivity
 import ru.application.homemedkit.connectionController.NetworkAPI
 import ru.application.homemedkit.databaseController.Medicine
 import ru.application.homemedkit.databaseController.MedicineDAO
 import ru.application.homemedkit.databaseController.Technical
-import ru.application.homemedkit.fragments.FragmentSettings
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CATEGORY
+import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.states.MedicineState
 
 class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
@@ -87,7 +88,7 @@ class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
     }
 
     private suspend fun getImage(context: Context, url: List<String>?): String {
-        if (url.isNullOrEmpty() || !FragmentSettings().getDownloadNeeded()) return BLANK
+        if (url.isNullOrEmpty() || !Preferences(context).getDownloadNeeded()) return BLANK
         else try {
             NetworkAPI.client.getImage(url.first()).apply {
                 if (isSuccessful) body()?.let { body ->

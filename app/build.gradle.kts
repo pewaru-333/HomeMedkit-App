@@ -13,8 +13,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 34
-        versionCode = 22
-        versionName = "1.3.2"
+        versionCode = 23
+        versionName = "1.3.3"
     }
 
     room {
@@ -39,25 +39,21 @@ android {
     }
     buildFeatures {
         compose = true
-        viewBinding = true
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.11"
+        kotlinCompilerExtensionVersion = "1.5.12"
     }
 }
 
 dependencies {
 
     // ==================== Android ====================
-    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
-    implementation(libs.androidx.preference.ktx)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.material)
 
     // ==================== BOMs ====================
@@ -74,9 +70,16 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.converter.moshi)
 
+    // ==================== Navigation ====================
+    ksp(libs.compose.destinations.ksp)
+    implementation(libs.compose.destinations)
+
     // ==================== Scanner ====================
     implementation(libs.code.scanner)
 
     // ==================== Coil ====================
     implementation(libs.coil.compose)
+
+    // ==================== Settings ====================
+    implementation(libs.librarySettingsM3)
 }

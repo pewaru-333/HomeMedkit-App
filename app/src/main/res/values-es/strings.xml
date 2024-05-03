@@ -10,7 +10,6 @@
 
     <!-- Preferencias -->
     <string name="preference_app_view">Aplicación</string>
-    <string name="preference_app_theme">Tema de la aplicación</string>
     <string name="preference_start_page">Página de inicio</string>
     <string name="preference_sorting_type">Ordenación de medicamentos</string>
     <string name="preference_download_images">Descargar imágenes de medicamentos</string>
@@ -18,6 +17,8 @@
     <string name="preference_check_expiration_date">Comprobar la fecha de caducidad de los medicamentos</string>
     <string name="preference_system">Sistema</string>
     <string name="preference_language">Idioma de la aplicación</string>
+    <string name="preference_app_theme">Tema de la aplicación</string>
+    <string name="preference_dynamic_color">Dynamic color</string>
 
     <!-- Ordenación -->
     <string name="sorting_a_z">Alfabéticamente (de A a z)</string>
@@ -94,7 +95,7 @@
     <string name="text_delete">Borrar</string>
     <string name="text_edit">Editar</string>
     <string name="text_empty">En blanco</string>
-    <string name="text_enter_product_name">Introduce el nombre del medicamento</string>
+    <string name="text_enter_product_name">Buscar</string>
     <string name="text_every">Cada\u0020</string>
     <string name="text_finish_date">Fecha de finalización</string>
     <string name="text_manual_add">Añadir medicamento manualmente</string>
@@ -103,7 +104,6 @@
     <string name="text_off">Desactivado</string>
     <string name="text_on">Activado</string>
     <string name="text_save">Guardar</string>
-    <string name="text_sort_type">Ordenar por</string>
     <string name="text_start_date">Fecha de inicio</string>
     <string name="text_yes">Sí</string>
 

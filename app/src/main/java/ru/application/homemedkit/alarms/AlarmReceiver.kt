@@ -49,7 +49,7 @@ class AlarmReceiver : BroadcastReceiver() {
             .setDefaults(Notification.DEFAULT_ALL)
             .setGroup(SOUND_GROUP)
             .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-            .setContentIntent(pending)
+           // .setContentIntent(pending)
             .build()
     }
 
