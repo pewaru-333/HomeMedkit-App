@@ -1,9 +1,6 @@
 package ru.application.homemedkit.activities
 
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.NotificationManager.IMPORTANCE_HIGH
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
@@ -13,6 +10,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,6 +32,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
@@ -67,10 +66,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -80,6 +82,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ramcosta.composedestinations.annotation.Destination
@@ -122,9 +125,9 @@ fun IntakeScreen(
     lifecycle: Lifecycle = LocalLifecycleOwner.current.lifecycle
 ) {
     val database = MedicineDatabase.getInstance(context)
-    val medicineDAO = database.medicineDAO()
     val medId = if (intakeId == 0L) medicineId else
         database.intakeDAO().getByPK(intakeId)?.medicineId ?: 0L
+    val medicine = database.medicineDAO().getByPK(medId)!!
 
     val viewModel = viewModel<IntakeViewModel>(factory = viewModelFactory {
         IntakeViewModel(database.intakeDAO(), intakeId, AlarmSetter(context))
@@ -218,7 +221,6 @@ fun IntakeScreen(
             }
         ) { paddingValues ->
 
-            CreateNotificationChannel()
             if (!permissionGranted) {
                 LaunchedEffect(Unit) {
                     if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -238,8 +240,8 @@ fun IntakeScreen(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(32.dp)
             ) {
-                Title(medicineDAO.getProductName(medId))
-                Amount(viewModel::onEvent, state, medicineDAO.getProdAmount(medId))
+                Title(medicine.productName)
+                Amount(viewModel::onEvent, state, medicine.prodAmount, medicine.doseType)
                 Interval(viewModel::onEvent, state)
                 Period(viewModel::onEvent, state)
                 Food(viewModel::onEvent, state)
@@ -265,7 +267,7 @@ private fun Title(name: String) {
 }
 
 @Composable
-private fun Amount(onEvent: (IntakeEvent) -> Unit, state: IntakeState, prodAmount: Double) {
+private fun Amount(onEvent: (IntakeEvent) -> Unit, state: IntakeState, prodAmount: Double, type: String) {
     var isError by rememberSaveable { mutableStateOf(false) }
 
     fun validate(text: String) {
@@ -302,7 +304,7 @@ private fun Amount(onEvent: (IntakeEvent) -> Unit, state: IntakeState, prodAmoun
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
                 leadingIcon = { Icon(Icons.Default.Home, null) },
-                suffix = { Text(LocalContext.current.resources.getString(R.string.placeholder_pcs)) },
+                suffix = { Text(type) },
                 shape = RoundedCornerShape(14.dp)
             )
         }
@@ -700,7 +702,7 @@ private fun Time(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 
                         val showBox: Boolean
                         var color = Color(MaterialTheme.colorScheme.secondaryContainer.value)
-                        var icon = R.drawable.vector_add
+                        var icon = Icons.Default.Add
                         var tint = MaterialTheme.colorScheme.onSecondaryContainer
                         var onClick = {}
 
@@ -708,7 +710,7 @@ private fun Time(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                             1 -> {
                                 showBox = true
                                 color = Color(MaterialTheme.colorScheme.secondaryContainer.value)
-                                icon = R.drawable.vector_add
+                                icon = Icons.Default.Add
                                 tint = MaterialTheme.colorScheme.onSecondaryContainer
                                 onClick = { onEvent(IntakeEvent.IncTime) }
                             }
@@ -716,7 +718,7 @@ private fun Time(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                             state.time.size -> {
                                 showBox = true
                                 color = Color(MaterialTheme.colorScheme.errorContainer.value)
-                                icon = R.drawable.vector_remove
+                                icon = ImageVector.vectorResource(R.drawable.vector_remove)
                                 tint = MaterialTheme.colorScheme.onErrorContainer
                                 onClick = { onEvent(IntakeEvent.DecTime) }
                             }
@@ -730,10 +732,10 @@ private fun Time(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                                 .background(color, RoundedCornerShape(12.dp))
                                 .clickable { onClick() }, Alignment.Center
                         ) {
-                            Icon(
-                                painter = painterResource(icon),
+                            Image(
+                                painter = rememberVectorPainter(icon),
                                 contentDescription = null,
-                                tint = tint
+                                colorFilter = ColorFilter.tint(tint)
                             )
                         }
                     }
@@ -787,18 +789,6 @@ private fun LabelText(id: Int, text: String = LocalContext.current.getString(id)
         fontWeight = FontWeight.SemiBold,
         style = MaterialTheme.typography.titleLarge
     )
-}
-@Composable
-private fun CreateNotificationChannel(context: Context = LocalContext.current) {
-    val channel = NotificationChannel(
-        context.getString(R.string.notification_channel_name),
-        context.getString(R.string.notification_channel_name),
-        IMPORTANCE_HIGH
-    )
-    channel.description = context.getString(R.string.notification_channel_description)
-
-    val manager = context.getSystemService(NotificationManager::class.java)
-    manager.createNotificationChannel(channel)
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)

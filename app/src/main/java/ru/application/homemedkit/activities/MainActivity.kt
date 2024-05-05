@@ -12,9 +12,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        val medicineId = intent.getLongExtra(ID, 0L)
-//        val doIntake = intent.getBooleanExtra(NEW_INTAKE, false)
-
         AlarmSetter(this).checkExpiration()
 
         setContent {

@@ -40,10 +40,7 @@ import ru.application.homemedkit.helpers.THEMES
 
 @Destination<RootGraph>
 @Composable
-fun SettingsScreen(
-    context: Context = LocalContext.current,
-    preferences: Preferences = Preferences(context)
-) {
+fun SettingsScreen(context: Context = LocalContext.current, preferences: Preferences = Preferences(context)) {
     val pages = context.resources.getStringArray(R.array.fragment_pages_name)
     val sorting = context.resources.getStringArray(R.array.sorting_types_name)
     val languages = context.resources.getStringArray(R.array.languages_name)

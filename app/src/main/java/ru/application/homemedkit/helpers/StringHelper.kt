@@ -7,8 +7,8 @@ import androidx.core.text.HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS
 import androidx.core.text.HtmlCompat.fromHtml
 import ru.application.homemedkit.R
 
-fun formName(name: String) = name.substringBefore(WHITESPACE)
-fun shortName(name: String) = name.substringBefore(SEMICOLON)
+fun formName(name: String) = name.substringBefore(" ")
+fun shortName(name: String) = name.substringBefore(",")
 fun fromHTML(text: String) = fromHtml(text, FROM_HTML_OPTION_USE_CSS_COLORS).toString()
 fun decimalFormat(text: Any): String {
     val amount = try {

@@ -20,6 +20,9 @@
     <string name="preference_app_theme">Тема приложения</string>
     <string name="preference_dynamic_color">Системные цвета</string>
 
+    <!-- Языки -->
+    <string name="lang_system">Системный</string>
+
     <!-- Сортировка -->
     <string name="sorting_a_z">Названию (от А до Я)</string>
     <string name="sorting_z_a">Названию (от Я до А)</string>
@@ -32,15 +35,13 @@
     <string name="text_attention">Обратите внимание!</string>
     <string name="text_do_intake">Примите лекарство</string>
     <string name="text_expire_soon">"Истекает срок годности лекарства %1$s"</string>
-    <string name="text_intake_time">Время приёма лекарства %1$s</string>
+    <string name="text_intake_time">Время приёма лекарства %1$s\nКоличество: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Время приёма лекарства %1$s, но его оставшегося количества меньше предписанного! Переназначьте приём!</string>
 
     <!-- "Заполнители" -->
     <string name="placeholder_date">дд.мм.гггг</string>
     <string name="placeholder_dose">0,5 мг + 84 мкг</string>
     <string name="placeholder_exp_date">31 мая 2029 г.</string>
-    <string name="placeholder_form_name">Таблетки</string>
-    <string name="placeholder_pcs">шт.</string>
     <string name="placeholder_time">Время #%1$d</string>
 
     <!-- Лекарства -->
@@ -116,19 +117,11 @@
     </plurals>
 
     <!-- Массивы строк -->
-    <string-array name="languages_name">
-        <item>Системный</item>
-        <item>Русский</item>
-        <item>Английский</item>
-        <item>Испанский</item>
-        <item>турецкий</item>      
-    </string-array>
-
     <string-array name="sorting_types_name">
-        <item>Название (от А до Я)</item>
-        <item>Название (от Я до А)</item>
-        <item>Срок годности (со старых)</item>
-        <item>Срок годности (с новых)</item>
+        <item>@string/sorting_a_z</item>
+        <item>@string/sorting_z_a</item>
+        <item>@string/sorting_from_oldest</item>
+        <item>@string/sorting_from_newest</item>
     </string-array>
 
     <string-array name="fragment_pages_name">
@@ -155,6 +148,15 @@
         <item>месяц</item>
         <item>другой</item>
         <item>бессрочно</item>
+    </string-array>
+
+    <string-array name="medicine_dose_types">
+        <item>ЕД</item>
+        <item>шт</item>
+        <item>г</item>
+        <item>мг</item>
+        <item>л</item>
+        <item>мл</item>
     </string-array>
 
     <string-array name="medicine_types">

@@ -2,7 +2,6 @@ package ru.application.homemedkit.databaseController
 
 import androidx.room.TypeConverter
 import ru.application.homemedkit.helpers.DateHelper.FORMAT_H
-import ru.application.homemedkit.helpers.SEMICOLON
 import java.time.LocalTime
 
 class Converters {
@@ -11,7 +10,7 @@ class Converters {
         return times
             .sortedWith(compareBy { it })
             .joinToString(
-                separator = SEMICOLON,
+                separator = ",",
                 transform = { it.format(FORMAT_H) }
             )
     }
@@ -19,7 +18,7 @@ class Converters {
     @TypeConverter
     fun toTimeList(times: String): List<LocalTime> {
         return times
-            .split(SEMICOLON)
+            .split(",")
             .sortedWith(compareBy { LocalTime.parse(it, FORMAT_H) })
             .map { LocalTime.parse(it, FORMAT_H) }
     }

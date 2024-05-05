@@ -15,6 +15,7 @@ data class Medicine(
     val prodFormNormName: String = BLANK,
     val prodDNormName: String = BLANK,
     val prodAmount: Double = -1.0,
+    val doseType: String = BLANK,
     val phKinetics: String = BLANK,
     val comment: String = BLANK,
     val image: String = BLANK,

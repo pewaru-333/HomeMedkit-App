@@ -1,8 +1,13 @@
 package ru.application.homemedkit.fragments
 
+import android.app.Activity
 import android.content.Context
+import android.os.Bundle
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -10,29 +15,33 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.IntakesScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.MedicinesScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsScreenDestination
-import com.ramcosta.composedestinations.navigation.navigate
-import com.ramcosta.composedestinations.navigation.popBackStack
-import com.ramcosta.composedestinations.navigation.popUpTo
 import com.ramcosta.composedestinations.spec.DirectionDestinationSpec
 import com.ramcosta.composedestinations.utils.currentDestinationAsState
 import com.ramcosta.composedestinations.utils.findDestination
 import com.ramcosta.composedestinations.utils.isRouteOnBackStack
+import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.ramcosta.composedestinations.utils.startDestination
 import ru.application.homemedkit.R
+import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.Preferences
 
 @Composable
 fun RootScreen(navController: NavHostController, context: Context = LocalContext.current) {
+    val navigator = navController.rememberDestinationsNavigator()
     val current by navController.currentDestinationAsState()
+    val activity = context as Activity
 
     Scaffold(
         bottomBar = {
@@ -43,11 +52,11 @@ fun RootScreen(navController: NavHostController, context: Context = LocalContext
                             selected = current == screen.route,
                             onClick = {
                                 if(navController.isRouteOnBackStack(screen.route)){
-                                    navController.popBackStack(screen.route, false)
+                                    navigator.popBackStack(screen.route, false)
                                     return@NavigationBarItem
                                 }
 
-                                navController.navigate(screen.route) {
+                                navigator.navigate(screen.route) {
                                     popUpTo(NavGraphs.root) {
                                         saveState = true
                                     }
@@ -56,7 +65,14 @@ fun RootScreen(navController: NavHostController, context: Context = LocalContext
                                     restoreState = true
                                 }
                             },
-                            icon = { Icon(painterResource(screen.icon), null) },
+                            icon = {
+                                Image(
+                                    rememberVectorPainter(
+                                        if (screen.icon is ImageVector) screen.icon
+                                        else ImageVector.vectorResource(screen.icon as Int)
+                                    ), null
+                                )
+                            },
                             label = { Text(context.getString(screen.title)) }
                         )
                     }
@@ -66,16 +82,21 @@ fun RootScreen(navController: NavHostController, context: Context = LocalContext
         DestinationsNavHost(
             navGraph = NavGraphs.root,
             modifier = Modifier.padding(paddingValues),
-            startRoute = NavGraphs.root
-                .findDestination(Preferences(context).getHomePage())?.startDestination ?: HomeScreenDestination,
+            startRoute = NavGraphs.root.findDestination(Preferences(context).getHomePage())?.startDestination
+                ?: HomeScreenDestination,
             navController = navController
         )
+
+        if (activity.intent.getLongExtra(ID, 0L) != 0L) {
+            navigator.navigate(MedicineScreenDestination(activity.intent.getLongExtra(ID, 0L)))
+            activity.intent.replaceExtras(Bundle())
+        }
     }
 }
 
-enum class Menu(val route: DirectionDestinationSpec, val title: Int, val icon: Int) {
-    Home(HomeScreenDestination, R.string.bottom_bar_main, R.drawable.vector_home),
+enum class Menu(val route: DirectionDestinationSpec, val title: Int, val icon: Any) {
+    Home(HomeScreenDestination, R.string.bottom_bar_main, Icons.Default.Home),
     Medicines(MedicinesScreenDestination, R.string.bottom_bar_medicines, R.drawable.vector_medicine),
     Intakes(IntakesScreenDestination, R.string.bottom_bar_intakes, R.drawable.vector_time),
-    Settings(SettingsScreenDestination, R.string.bottom_bar_settings, R.drawable.vector_settings)
+    Settings(SettingsScreenDestination, R.string.bottom_bar_settings, Icons.Default.Settings)
 }

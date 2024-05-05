@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -37,6 +38,8 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -77,7 +80,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.IntakeScreenDestination
@@ -263,8 +266,6 @@ fun MedicineScreen(
 
 @Composable
 private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    val source = remember(::MutableInteractionSource)
-
     Column(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(4.dp)) {
 
         if (state.adding)
@@ -283,19 +284,20 @@ private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) 
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold
             ),
-            decorationBox = decorationBox(
-                state = state,
-                text = state.productName,
-                source = source
-            )
+            decorationBox = { innerTextField ->
+                when {
+                    state.default || state.technical.verified
+                        -> NoDecorationBox(state.productName, innerTextField)
+
+                    else -> DecorationBox(state.productName, innerTextField)
+                }
+            }
         )
 
-        if (state.default)
+        if (state.default || state.technical.verified)
             Text(
                 text = formName(state.prodFormNormName),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                style = MaterialTheme.typography.titleMedium.copy(MaterialTheme.colorScheme.onSurface)
             )
     }
 }
@@ -321,8 +323,8 @@ private fun ProductImage(viewModel: MedicineViewModel, state: MedicineState) {
             else MaterialTheme.colorScheme.background
         )
     ) {
-        AsyncImage(
-            model = image,
+        Image(
+            painter = rememberAsyncImagePainter(image),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -439,8 +441,6 @@ private fun ExpirationDate(onEvent: (MedicineEvent) -> Unit, state: MedicineStat
 
 @Composable
 private fun ProductFormName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    val source = remember { MutableInteractionSource() }
-
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Text(
             text = LocalContext.current.getString(R.string.text_medicine_description),
@@ -453,23 +453,23 @@ private fun ProductFormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            readOnly = state.default,
+            readOnly = state.default || state.technical.verified,
             textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
-            decorationBox = decorationBox(
-                state = state,
-                text = state.prodFormNormName,
-                id = R.string.placeholder_form_name,
-                source = source
-            )
+            decorationBox = { innerTextField ->
+                when {
+                    state.default || state.technical.verified
+                        -> NoDecorationBox(state.prodFormNormName, innerTextField)
+
+                    else -> DecorationBox(state.prodFormNormName, innerTextField)
+                }
+            }
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    val sourceA = remember(::MutableInteractionSource)
-    val sourceB = remember(::MutableInteractionSource)
-
     Row(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(16.dp)) {
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
             Text(
@@ -481,14 +481,33 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
                 value = state.prodDNormName,
                 onValueChange = { onEvent(MedicineEvent.SetProdDNormName(it)) },
                 modifier = Modifier.fillMaxWidth(),
-                readOnly = state.default,
+                readOnly = state.default || state.technical.verified,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
-                decorationBox = decorationBox(
-                    state = state,
-                    text = state.prodDNormName,
-                    id = R.string.placeholder_dose,
-                    source = sourceA
-                )
+                decorationBox = { innerTextField ->
+                    when {
+                        state.adding || state.editing && !state.technical.verified ->
+                            OutlinedTextFieldDefaults.DecorationBox(
+                                value = state.prodDNormName,
+                                innerTextField = innerTextField,
+                                enabled = true,
+                                singleLine = false,
+                                visualTransformation = VisualTransformation.None,
+                                interactionSource = remember(::MutableInteractionSource),
+                                placeholder = { Text(LocalContext.current.getString(R.string.placeholder_dose)) }
+                            )
+
+                        else -> OutlinedTextFieldDefaults.DecorationBox(
+                            value = state.prodDNormName,
+                            innerTextField = innerTextField,
+                            enabled = true,
+                            singleLine = false,
+                            visualTransformation = VisualTransformation.None,
+                            interactionSource = remember(::MutableInteractionSource),
+                            contentPadding = PaddingValues(0.dp),
+                            container = {}
+                        )
+                    }
+                }
             )
         }
 
@@ -499,9 +518,10 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
             )
 
             BasicTextField(
-                value = if(state.default) decimalFormat(state.prodAmount) else state.prodAmount,
+                value = if (state.default) "${decimalFormat(state.prodAmount)} ${state.doseType}"
+                else state.prodAmount,
                 onValueChange = { onEvent(MedicineEvent.SetProdAmount(it)) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.wrapContentSize(),
                 readOnly = state.default,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -511,12 +531,59 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
                         OffsetMapping.Identity
                     )
                 },
-                decorationBox = decorationBox(
-                    state = state,
-                    text = state.prodAmount,
-                    id = R.string.placeholder_amount,
-                    source = sourceB
-                )
+                interactionSource = remember(::MutableInteractionSource),
+                decorationBox = { innerTextField ->
+                    when {
+                        state.default -> NoDecorationBox(state.prodAmount, innerTextField)
+                        else -> OutlinedTextFieldDefaults.DecorationBox(
+                            value = state.prodAmount,
+                            innerTextField = innerTextField,
+                            enabled = true,
+                            singleLine = false,
+                            visualTransformation = VisualTransformation.None,
+                            interactionSource = remember(::MutableInteractionSource),
+                            placeholder = { Text("50") },
+                            trailingIcon = {
+                                val list = LocalContext.current
+                                    .resources.getStringArray(R.array.medicine_dose_types)
+
+                                var expanded by remember { mutableStateOf(false) }
+                                var selected by remember { mutableStateOf(state.doseType) }
+
+                                ExposedDropdownMenuBox(
+                                    expanded = expanded,
+                                    onExpandedChange = { expanded = it },
+                                    modifier = Modifier.fillMaxWidth(0.6f)
+                                ) {
+                                    OutlinedTextField(
+                                        value = selected,
+                                        onValueChange = { selected = it },
+                                        modifier = Modifier.menuAnchor(),
+                                        readOnly = true,
+                                        trailingIcon = {
+                                            ExposedDropdownMenuDefaults.TrailingIcon(expanded)
+                                        }
+                                    )
+                                    ExposedDropdownMenu(
+                                        expanded = expanded,
+                                        onDismissRequest = { expanded = false }
+                                    ) {
+                                        list.forEach { item ->
+                                            DropdownMenuItem(
+                                                text = { Text(item) },
+                                                onClick = {
+                                                    selected = item
+                                                    onEvent(MedicineEvent.SetDoseType(selected))
+                                                    expanded = false
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
             )
         }
     }
@@ -525,8 +592,6 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
 
 @Composable
 private fun PhKinetics(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    val source = remember(::MutableInteractionSource)
-
     if (state.adding || state.editing || state.phKinetics.isNotEmpty())
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             Text(
@@ -542,19 +607,18 @@ private fun PhKinetics(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
                     .padding(vertical = 8.dp),
                 readOnly = state.default,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
-                decorationBox = decorationBox(
-                    state = state,
-                    text = state.phKinetics,
-                    source = source
-                )
+                decorationBox = { innerTextField ->
+                    when {
+                        state.default -> NoDecorationBox(state.phKinetics, innerTextField)
+                        else -> DecorationBox(state.phKinetics, innerTextField)
+                    }
+                }
             )
         }
 }
 
 @Composable
 private fun Comment(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    val source = remember(::MutableInteractionSource)
-
     if (state.adding || state.editing || state.comment.isNotEmpty())
         Column(modifier = Modifier.padding(16.dp, 0.dp, 16.dp, 16.dp)) {
             Text(
@@ -570,58 +634,43 @@ private fun Comment(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
                     .padding(vertical = 8.dp),
                 readOnly = state.default,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
-                decorationBox = decorationBox(
-                    state = state,
-                    text = state.comment,
-                    source = source
-                )
+                decorationBox = { innerTextField ->
+                    when {
+                        state.default -> NoDecorationBox(state.comment, innerTextField)
+                        else -> DecorationBox(state.comment, innerTextField)
+                    }
+                }
             )
         }
 }
 
-@Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun decorationBox(
-    state: MedicineState,
-    text: String,
-    id: Int = R.string.text_empty,
-    source: MutableInteractionSource
-): @Composable (innerTextField: @Composable () -> Unit) -> Unit {
-    return {
-        when {
-            state.adding || state.editing && text == state.prodAmount ||
-                    state.editing && text == state.comment ||
-                    state.editing && !state.technical.verified ->
-                OutlinedTextFieldDefaults.DecorationBox(
-                    value = text,
-                    innerTextField = it,
-                    enabled = true,
-                    singleLine = false,
-                    visualTransformation = VisualTransformation.None,
-                    interactionSource = source,
-                    placeholder = { Text(LocalContext.current.getString(id)) },
-                    container = {
-                        OutlinedTextFieldDefaults.ContainerBox(
-                            enabled = true,
-                            isError = false,
-                            interactionSource = source,
-                            colors = OutlinedTextFieldDefaults.colors()
-                        )
-                    }
-                )
+@Composable
+private fun DecorationBox(text: String, innerTextField: @Composable () -> Unit) {
+    OutlinedTextFieldDefaults.DecorationBox(
+        value = text,
+        innerTextField = innerTextField,
+        enabled = true,
+        singleLine = false,
+        visualTransformation = VisualTransformation.None,
+        interactionSource = remember(::MutableInteractionSource),
+        placeholder = { Text(LocalContext.current.getString(R.string.text_empty)) }
+    )
+}
 
-            else -> OutlinedTextFieldDefaults.DecorationBox(
-                value = text,
-                innerTextField = it,
-                enabled = true,
-                singleLine = false,
-                visualTransformation = VisualTransformation.None,
-                interactionSource = source,
-                contentPadding = PaddingValues(0.dp),
-                container = {}
-            )
-        }
-    }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NoDecorationBox(text: String, innerTextField: @Composable () -> Unit) {
+    OutlinedTextFieldDefaults.DecorationBox(
+        value = text,
+        innerTextField = innerTextField,
+        enabled = true,
+        singleLine = false,
+        visualTransformation = VisualTransformation.None,
+        interactionSource = remember(::MutableInteractionSource),
+        contentPadding = PaddingValues(0.dp),
+        container = {}
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -630,7 +679,7 @@ private fun IconPicker(onEvent: (MedicineEvent) -> Unit, onCancel: () -> Unit) {
     val context = LocalContext.current
     val names = context.resources.getStringArray(R.array.medicine_types)
 
-    Dialog(onDismissRequest = onCancel) {
+    Dialog(onCancel) {
         Surface(Modifier.padding(vertical = 64.dp), RoundedCornerShape(16.dp)) {
             FlowRow(
                 modifier = Modifier

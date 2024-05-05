@@ -2,6 +2,7 @@ package ru.application.homemedkit.fragments
 
 import android.app.AlarmManager
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,7 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.IntakeScreenDestination
@@ -60,10 +61,12 @@ import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DateHelper
 import ru.application.homemedkit.helpers.FiltersHelper
 import ru.application.homemedkit.helpers.ICONS_MED
+import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.intervalName
 import ru.application.homemedkit.helpers.shortName
+import java.io.File
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -229,7 +232,12 @@ fun IntakeList(
     val medicine = database.medicineDAO().getByPK(intake.medicineId)
     val productName = medicine?.productName ?: BLANK
     val shortName = shortName(productName)
-    val icon = ICONS_MED[medicine?.image ?: BLANK] ?: R.drawable.vector_type_unknown
+    val image = medicine?.image ?: BLANK
+    val icon = when {
+        image.contains(TYPE) -> ICONS_MED[image]
+        image.isEmpty() -> R.drawable.vector_type_unknown
+        else -> File(context.filesDir, image)
+    }
     val startDate = LocalContext.current.resources.getString(
         R.string.intake_card_text_from,
         intake.startDate
@@ -252,7 +260,7 @@ fun IntakeList(
             horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(model = icon, null, Modifier.size(64.dp))
+            Image(rememberAsyncImagePainter(icon), null, Modifier.size(64.dp))
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.Start
@@ -310,13 +318,18 @@ fun IntakeSchedule(
             val medicine = medicineDAO.getByPK(intake?.medicineId ?: 0L)
             val productName = medicine?.productName ?: BLANK
             val shortName = shortName(productName)
+            val image = medicine?.image ?: BLANK
             val form = medicine?.prodFormNormName ?: BLANK
             val formName =
                 if (form.isEmpty()) context.resources.getString(R.string.text_amount) else formName(
                     form
                 )
             val amount = intake?.amount ?: 0.0
-            val icon = ICONS_MED[medicine?.image ?: BLANK] ?: R.drawable.vector_type_unknown
+            val icon = when {
+                image.contains(TYPE) -> ICONS_MED[image]
+                image.isEmpty() -> R.drawable.vector_type_unknown
+                else -> File(context.filesDir, image)
+            }
 
             ElevatedCard(
                 modifier = Modifier.height(100.dp),
@@ -329,8 +342,10 @@ fun IntakeSchedule(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    AsyncImage(
-                        icon, null, Modifier
+                    Image(
+                        painter = rememberAsyncImagePainter(icon),
+                        contentDescription = null,
+                        modifier = Modifier
                             .size(64.dp)
                             .weight(0.2f)
                     )

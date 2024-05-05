@@ -35,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +43,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.budiyev.android.codescanner.CodeScanner
@@ -241,7 +241,7 @@ private fun AddMedicineDialog(
 
 @Composable
 fun LoadingDialog() {
-    Dialog(onDismissRequest = {}) {
+    Dialog({}) {
         Box(Modifier.fillMaxSize(), Alignment.Center)
         { CircularProgressIndicator() }
     }

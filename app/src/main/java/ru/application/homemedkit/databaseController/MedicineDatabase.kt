@@ -10,7 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 private const val DATABASE_NAME = "medicines"
 
-@Database(entities = [Medicine::class, Intake::class, Alarm::class], version = 5)
+@Database(entities = [Medicine::class, Intake::class, Alarm::class], version = 6)
 @TypeConverters(Converters::class)
 abstract class MedicineDatabase : RoomDatabase() {
 
@@ -29,7 +29,7 @@ abstract class MedicineDatabase : RoomDatabase() {
                     MedicineDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_1_4, MIGRATION_4_5, MIGRATION_5_6)
                     .allowMainThreadQueries()
                     .build()
                 INSTANCE = instance
@@ -131,6 +131,12 @@ abstract class MedicineDatabase : RoomDatabase() {
         private val MIGRATION_4_5 = object : Migration(4,5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE intakes ADD COLUMN foodType INTEGER NOT NULL DEFAULT -1")
+            }
+        }
+
+        private val MIGRATION_5_6 = object : Migration(5,6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE medicines ADD COLUMN doseType TEXT NOT NULL DEFAULT '' ")
             }
         }
     }

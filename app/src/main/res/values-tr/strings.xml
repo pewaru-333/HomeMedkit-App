@@ -18,10 +18,14 @@
     <string name="preference_check_expiration_date">İlaçların son kullanma tarihinin kontrolü</string>
     <string name="preference_system">Sistem</string>
     <string name="preference_language">Uygulama dili</string>
+    <string name="preference_dynamic_color">Dinamik renk</string>
+
+    <!-- Languages -->
+    <string name="lang_system">Sistem</string>
 
     <!-- Sorting -->
-    <string name="sorting_a_z">Alfabetik olarak (A'dan Z'ye)</string>
-    <string name="sorting_z_a">Alfabetik (Z'den A'ya)</string>
+    <string name="sorting_a_z">Alfabetik olarak (A\'dan Z\'ye)</string>
+    <string name="sorting_z_a">Alfabetik (Z\'den A\'ya)</string>
     <string name="sorting_from_oldest">Son kullanma tarihi (en eskiden)</string>
     <string name="sorting_from_newest">Son kullanma tarihi (en yeniden)</string>
 
@@ -30,16 +34,14 @@
     <string name="notification_channel_name">Sesli bildirimler</string>
     <string name="text_attention">Dikkat!</string>
     <string name="text_do_intake">Alım yapın</string>
-    <string name="text_expire_soon">1$s'nin son kullanma tarihi sona ermek üzere</string>
-    <string name="text_intake_time">1$s'yi alma zamanı</string>
+    <string name="text_expire_soon">%1$s\'nin son kullanma tarihi sona ermek üzere</string>
+    <string name="text_intake_time">%1$s\'yi alma zamanı\nMiktar: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">1$s alımının zamanı geldi, ancak miktarı öngörülenden daha az! Alımı yeniden oluşturun!</string>
 
     <!-- Placeholders -->
     <string name="placeholder_date">gg.aa.yyyy</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 Mayıs 2029</string>
-    <string name="placeholder_form_name">Tabletler</string>
-    <string name="placeholder_pcs">adet</string>
     <string name="placeholder_time">Saat #%1$d</string>
 
     <!-- Medicines -->
@@ -55,7 +57,7 @@
     <string name="intakes_tab_list">Liste</string>
     <string name="intakes_tab_taken">Alınan</string>
 
-    <string name="intake_card_text_from">(%1$s'den itibaren)</string>
+    <string name="intake_card_text_from">(%1$s\'den itibaren)</string>
     <string name="intake_text_amount">Adet</string>
     <string name="intake_text_food">Yemek &amp; İlaç</string>
     <string name="intake_text_food_after">Yemekten sonra</string>
@@ -88,7 +90,7 @@
     <!-- Strings -->
     <string name="text_amount">Tutar</string>
     <string name="text_cancel">İptal</string>
-    <string name="text_daily_at">Her gün saat 12:00'de</string>
+    <string name="text_daily_at">Her gün saat 12:00\'de</string>
     <string name="text_data_matrix_scanner">DataMatrix etiketini tarat (yalnızca RU için)</string>
     <string name="text_days_short">g.</string>
     <string name="text_delete">Sil</string>
@@ -103,29 +105,16 @@
     <string name="text_off">Kapalı</string>
     <string name="text_on">Açık</string>
     <string name="text_save">Kaydet</string>
-    <string name="text_sort_type">Sıralama türü</string>
     <string name="text_start_date">Başlangıç tarihi</string>
     <string name="text_yes">Evet</string>
 
     <!-- Plurals -->
     <plurals name="intakes_a_day">
-        <item quantity="zero">Günde %d kez</item>
         <item quantity="one">Günde %d kez</item>
-        <item quantity="two">Günde %d kez</item>
-        <item quantity="few">Günde %d kez</item>
-        <item quantity="many">Günde %d kez</item>
         <item quantity="other">Günde %d kez</item>
     </plurals>
 
     <!-- Arrays -->
-    <string-array name="languages_name">
-        <item>Sistem</item>
-        <item>Rusça</item>
-        <item>İngilizce</item>
-        <item>İspanyolca</item>
-        <item>Türkçe</item>
-    </string-array>
-
     <string-array name="sorting_types_name">
         <item>@string/bottom_bar_main</item>
         <item>@string/bottom_bar_medicines</item>
@@ -134,10 +123,10 @@
     </string-array>
 
     <string-array name="fragment_pages_name">
-        <item>Anasayfa</item>
-        <item>İlaçlar</item>
-        <item>Alımlar</item>
-        <item>Ayarlar</item>
+        <item>@string/bottom_bar_main</item>
+        <item>@string/bottom_bar_medicines</item>
+        <item>@string/bottom_bar_intakes</item>
+        <item>@string/bottom_bar_settings</item>
     </string-array>
 
     <string-array name="app_themes_name">
@@ -157,6 +146,15 @@
         <item>ay</item>
         <item>diğer</item>
         <item>süresiz</item>
+    </string-array>
+
+    <string-array name="medicine_dose_types">
+        <item>ED</item>
+        <item>adet</item>
+        <item>g</item>
+        <item>mg</item>
+        <item>l</item>
+        <item>ml</item>
     </string-array>
 
     <string-array name="medicine_types">

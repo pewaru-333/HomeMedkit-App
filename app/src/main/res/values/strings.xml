@@ -19,6 +19,13 @@
     <string name="preference_app_theme">App theme</string>
     <string name="preference_dynamic_color">Dynamic color</string>
 
+    <!-- Languages -->
+    <string name="lang_system">System</string>
+    <string name="lang_ru" translatable="false">Русский</string>
+    <string name="lang_en" translatable="false">English</string>
+    <string name="lang_es" translatable="false">Español</string>
+    <string name="lang_tr" translatable="false">Türkçe</string>
+
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabetically (A to z)</string>
     <string name="sorting_z_a">Alphabetically (z to A)</string>
@@ -31,16 +38,13 @@
     <string name="text_attention">Attention!</string>
     <string name="text_do_intake">Do intake</string>
     <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
-    <string name="text_intake_time">It\'s time to intake %1$s</string>
+    <string name="text_intake_time">It\'s time to intake %1$s\nAmount: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">It\'s time to intake %1$s, but its quantity is less than prescribed! Recreate intake!</string>
 
     <!-- Placeholders -->
-    <string name="placeholder_amount" translatable="false">50</string>
     <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 May 2029</string>
-    <string name="placeholder_form_name">Tablets</string>
-    <string name="placeholder_pcs">pcs</string>
     <string name="placeholder_time">Time #%1$d</string>
 
     <!-- Medicines -->
@@ -118,27 +122,26 @@
     </plurals>
 
     <!-- Arrays -->
-
-    <string-array name="languages_name">
-        <item>System</item>
-        <item>Russian</item>
-        <item>English</item>
-        <item>Spanish</item>
-        <item>Turkish</item>
+    <string-array name="languages_name" translatable="false">
+        <item>@string/lang_system</item>
+        <item>@string/lang_ru</item>
+        <item>@string/lang_en</item>
+        <item>@string/lang_es</item>
+        <item>@string/lang_tr</item>
     </string-array>
 
     <string-array name="sorting_types_name">
-        <item>Alphabetically (A to Z)</item>
-        <item>Alphabetically (Z to a)</item>
-        <item>Expiration date (from oldest)</item>
-        <item>Expiration date (from newest)</item>
+        <item>@string/sorting_a_z</item>
+        <item>@string/sorting_z_a</item>
+        <item>@string/sorting_from_oldest</item>
+        <item>@string/sorting_from_newest</item>
     </string-array>
 
     <string-array name="fragment_pages_name">
-        <item>Home</item>
-        <item>Medicines</item>
-        <item>Intakes</item>
-        <item>Settings</item>
+        <item>@string/bottom_bar_main</item>
+        <item>@string/bottom_bar_medicines</item>
+        <item>@string/bottom_bar_intakes</item>
+        <item>@string/bottom_bar_settings</item>
     </string-array>
 
     <string-array name="app_themes_name">
@@ -158,6 +161,15 @@
         <item>month</item>
         <item>other</item>
         <item>indefinite</item>
+    </string-array>
+
+    <string-array name="medicine_dose_types">
+        <item>ED</item>
+        <item>pcs</item>
+        <item>g</item>
+        <item>mg</item>
+        <item>l</item>
+        <item>ml</item>
     </string-array>
 
     <string-array name="medicine_types">

@@ -17,6 +17,7 @@ data class MedicineState(
     val prodFormNormName: String = BLANK,
     val prodDNormName: String = BLANK,
     val prodAmount: String = BLANK,
+    val doseType: String = BLANK,
     val phKinetics: String = BLANK,
     val comment: String = BLANK,
     val image: String = ICONS_MED.keys.elementAt(0),

@@ -11,6 +11,7 @@ const val ALARM_ID = "alarmId"
 const val BLANK = ""
 const val CATEGORY = "drugs"
 const val CIS = "cis"
+const val CHANNEL_ID = "intake_notifications"
 const val CHECK_EXP_DATE = "check_exp_date"
 const val ID = "id"
 const val KEY_APP_THEME = "app_theme"
@@ -22,14 +23,11 @@ const val KEY_FRAGMENT = "default_start_fragment"
 const val KEY_LANGUAGE = "language"
 const val KEY_LIGHT_PERIOD = "light_period_picker"
 const val KEY_ORDER = "sorting_order"
-const val NEW_INTAKE = "newIntake"
-const val SEMICOLON = ","
 const val SOUND_GROUP = "Sound group"
 const val TYPE = "vector_type"
-const val WHITESPACE = " "
 
 // ============================== Collections ==============================
-val LANGUAGES = listOf("System", "ru", "en-US", "es")
+val LANGUAGES = listOf("System", "ru", "en-US", "es", "tr")
 val MENUS = listOf(HomeScreenDestination.route, MedicinesScreenDestination.route,
     IntakesScreenDestination.route, SettingsScreenDestination.route)
 val SNACKS = listOf(

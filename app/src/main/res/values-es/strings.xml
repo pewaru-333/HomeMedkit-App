@@ -20,6 +20,9 @@
     <string name="preference_app_theme">Tema de la aplicación</string>
     <string name="preference_dynamic_color">Dynamic color</string>
 
+    <!-- Languages -->
+    <string name="lang_system">Sistema</string>
+
     <!-- Ordenación -->
     <string name="sorting_a_z">Alfabéticamente (de A a z)</string>
     <string name="sorting_z_a">Alfabéticamente (de z a A)</string>
@@ -32,15 +35,13 @@
     <string name="text_attention">¡Atención!</string>
     <string name="text_do_intake">Toma tus medicamentos</string>
     <string name="text_expire_soon">¡%1$s está a punto de caducar!</string>
-    <string name="text_intake_time">Es la hora de tomar %1$s</string>
+    <string name="text_intake_time">Es la hora de tomar %1$s\nImporte: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Es la hora de tomar %1$s, pero hay menos cantidad de la prescrita. Vuelve a crear el recordatorio.</string>
 
     <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.aaaa</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 mayo 2029</string>
-    <string name="placeholder_form_name">Pastillas</string>
-    <string name="placeholder_pcs">pcs</string>
     <string name="placeholder_time">Hora #%1$d</string>
 
     <!-- Medicamentos -->
@@ -115,14 +116,6 @@
     </plurals>
 
     <!-- Arrays -->
-    <string-array name="languages_name">
-        <item>Idioma del sistema</item>
-        <item>Ruso</item>
-        <item>Inglés</item>
-        <item>Español</item>
-        <item>Turco</item>
-    </string-array>
-
     <string-array name="sorting_types_name">
         <item>@string/sorting_a_z</item>
         <item>@string/sorting_z_a</item>
@@ -154,6 +147,15 @@
         <item>mes</item>
         <item>otro</item>
         <item>indefinido</item>
+    </string-array>
+
+    <string-array name="medicine_dose_types">
+        <item>ED</item>
+        <item>piezas</item>
+        <item>g</item>
+        <item>mg</item>
+        <item>l</item>
+        <item>ml</item>
     </string-array>
 
     <string-array name="medicine_types">

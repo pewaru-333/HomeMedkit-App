@@ -48,6 +48,7 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                         prodFormNormName = medicine.prodFormNormName,
                         prodDNormName = medicine.prodDNormName,
                         prodAmount = medicine.prodAmount.toString(),
+                        doseType = medicine.doseType,
                         phKinetics = medicine.phKinetics,
                         comment = medicine.comment,
                         image = medicine.image,
@@ -70,6 +71,7 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                 val prodFormNormName = uiState.value.prodFormNormName
                 val prodDNormName = uiState.value.prodDNormName
                 val prodAmount = uiState.value.prodAmount.ifEmpty { "0.0" }
+                val doseType = uiState.value.doseType
                 val phKinetics = uiState.value.phKinetics
                 val comment = uiState.value.comment
                 val image = uiState.value.image
@@ -83,6 +85,7 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                     prodFormNormName = prodFormNormName,
                     prodDNormName = prodDNormName,
                     prodAmount = prodAmount.toDouble(),
+                    doseType = doseType,
                     phKinetics = phKinetics,
                     comment = comment,
                     image = image,
@@ -111,6 +114,7 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                 val prodFormNormName = uiState.value.prodFormNormName
                 val prodDNormName = uiState.value.prodDNormName
                 val prodAmount = uiState.value.prodAmount.ifEmpty { "0.0" }
+                val doseType = uiState.value.doseType
                 val phKinetics = uiState.value.phKinetics
                 val comment = uiState.value.comment
                 val image = uiState.value.image
@@ -125,6 +129,7 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                     prodFormNormName = prodFormNormName,
                     prodDNormName = prodDNormName,
                     prodAmount = prodAmount.toDouble(),
+                    doseType = doseType,
                     phKinetics = phKinetics,
                     comment = comment,
                     image = image,
@@ -190,6 +195,10 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                         }
                     }
                 } else _uiState.update { it.copy(prodAmount = BLANK) }
+            }
+
+            is MedicineEvent.SetDoseType -> {
+                _uiState.update { it.copy(doseType = event.doseType) }
             }
 
             is MedicineEvent.SetPhKinetics -> {
@@ -262,6 +271,7 @@ sealed interface MedicineEvent {
     data class SetProdFormNormName(val prodFormNormName: String) : MedicineEvent
     data class SetProdDNormName(val prodDNormName: String) : MedicineEvent
     data class SetProdAmount(val prodAmount: String) : MedicineEvent
+    data class SetDoseType(val doseType: String) : MedicineEvent
     data class SetPhKinetics(val phKinetics: String) : MedicineEvent
     data class SetComment(val comment: String) : MedicineEvent
     data class SetImage(val image: String) : MedicineEvent

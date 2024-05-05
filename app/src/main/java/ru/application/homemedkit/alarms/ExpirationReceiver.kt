@@ -9,51 +9,28 @@ import android.app.PendingIntent.getActivity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.RingtoneManager.TYPE_NOTIFICATION
-import android.media.RingtoneManager.getDefaultUri
-import android.media.RingtoneManager.getRingtone
-import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.Builder
+import androidx.core.app.NotificationCompat.CATEGORY_ALARM
+import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
+import androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY
+import androidx.core.app.NotificationCompat.PRIORITY_HIGH
 import androidx.core.app.NotificationManagerCompat
 import ru.application.homemedkit.R
 import ru.application.homemedkit.activities.MainActivity
 import ru.application.homemedkit.databaseController.MedicineDatabase
+import ru.application.homemedkit.helpers.CHANNEL_ID
 import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.SOUND_GROUP
 
-class ExpirationReceiver: BroadcastReceiver() {
-    private fun expirationNotification(context: Context, medicineId: Long): Notification {
-        val database = MedicineDatabase.getInstance(context)
-        val intent = Intent(context, MainActivity::class.java)
-            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            .putExtra(ID, medicineId)
-        val productName = database.medicineDAO().getProductName(medicineId)
-
-        val pending = getActivity(
-            context,
-            medicineId.toInt(),
-            intent,
-            FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
-        )
-        return NotificationCompat.Builder(context, context.getString(R.string.notification_channel_name))
-            .setSmallIcon(R.drawable.vector_time)
-            .setContentTitle(context.getString(R.string.text_attention))
-            .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setAutoCancel(true)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setContentText(String.format(context.getString(R.string.text_expire_soon), productName))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setDefaults(Notification.DEFAULT_ALL)
-            .setGroup(SOUND_GROUP)
-            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-          //  .setContentIntent(pending)
-            .build()
-    }
+class ExpirationReceiver : BroadcastReceiver() {
 
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         val medicines = MedicineDatabase.getInstance(context).medicineDAO().getAll()
         val check = Preferences(context).getCheckExpDate()
+
+        createNotificationChannel(context)
 
         if (check && medicines.isNotEmpty()) {
             medicines.forEach { medicine ->
@@ -66,6 +43,32 @@ class ExpirationReceiver: BroadcastReceiver() {
             }
         }
     }
+}
 
-    private fun playSound(context: Context) = getRingtone(context, getDefaultUri(TYPE_NOTIFICATION)).play()
+private fun expirationNotification(context: Context, medicineId: Long): Notification {
+    val productName = MedicineDatabase.getInstance(context).medicineDAO().getProductName(medicineId)
+
+    val pending = getActivity(
+        context,
+        medicineId.toInt(),
+        Intent(context, MainActivity::class.java).apply {
+            putExtra(ID, medicineId)
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        },
+        FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
+    )
+
+    return Builder(context, CHANNEL_ID)
+        .setAutoCancel(true)
+        .setCategory(CATEGORY_ALARM)
+        .setContentIntent(pending)
+        .setContentText(String.format(context.getString(R.string.text_expire_soon), productName))
+        .setContentTitle(context.getString(R.string.text_attention))
+        .setDefaults(Notification.DEFAULT_ALL)
+        .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
+        .setGroup(SOUND_GROUP)
+        .setGroupAlertBehavior(GROUP_ALERT_SUMMARY)
+        .setPriority(PRIORITY_HIGH)
+        .setSmallIcon(R.drawable.vector_time)
+        .build()
 }
