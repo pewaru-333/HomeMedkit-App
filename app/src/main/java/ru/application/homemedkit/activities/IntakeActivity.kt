@@ -284,6 +284,7 @@ private fun Amount(onEvent: (IntakeEvent) -> Unit, state: IntakeState, prodAmoun
                 readOnly = state.default,
                 placeholder = { Text("0,25") },
                 leadingIcon = { Icon(painterResource(R.drawable.vector_medicine), null) },
+                suffix = { Text(type) },
                 isError = isError,
                 visualTransformation = {
                     TransformedText(
@@ -292,6 +293,7 @@ private fun Amount(onEvent: (IntakeEvent) -> Unit, state: IntakeState, prodAmoun
                     )
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                maxLines = 1,
                 shape = RoundedCornerShape(14.dp)
             )
         }
@@ -305,6 +307,7 @@ private fun Amount(onEvent: (IntakeEvent) -> Unit, state: IntakeState, prodAmoun
                 readOnly = true,
                 leadingIcon = { Icon(Icons.Default.Home, null) },
                 suffix = { Text(type) },
+                maxLines = 1,
                 shape = RoundedCornerShape(14.dp)
             )
         }

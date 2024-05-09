@@ -19,7 +19,7 @@ class FiltersHelper(private val context: Context) {
         if (text.isEmpty()) {
             filtered.addAll(medicines)
         } else {
-            for (medicine in medicines) {
+            medicines.forEach { medicine ->
                 val productName = database.medicineDAO().getProductName(medicine.id)
                 if (productName.lowercase(Locale.ROOT).contains(text.lowercase(Locale.ROOT))) {
                     filtered.add(medicine)
@@ -40,7 +40,7 @@ class FiltersHelper(private val context: Context) {
         if (text.isEmpty()) {
             filtered.addAll(intakes)
         } else {
-            for (medicine in intakes) {
+            intakes.forEach { medicine ->
                 val productName = database.medicineDAO().getProductName(medicine.medicineId)
                 if (productName.lowercase(Locale.ROOT).contains(text.lowercase(Locale.ROOT))) {
                     filtered.add(medicine)

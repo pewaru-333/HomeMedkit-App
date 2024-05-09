@@ -67,7 +67,7 @@
     <string name="intake_text_left">Sol</string>
     <string name="intake_text_period">Dönem</string>
     <string name="intake_text_pick_period">Dönem seç</string>
-    <string name="intake_text_quantity">%1$s: %2$s adet</string>
+    <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
     <string name="intake_text_select_interval">Aralık seç</string>
     <string name="intake_text_time">Saat</string>
 

@@ -4,7 +4,7 @@ appcompat = "1.6.1"
 codeScanner = "2.3.2"
 coilCompose = "2.6.0"
 composeBom = "2024.05.00"
-composeDestinations = "2.1.0-beta02"
+composeDestinations = "2.1.0-beta05"
 googleKsp = "1.9.23-1.0.19"
 jetbrainsKotlin = "1.9.23"
 kotlinBom = "1.9.23"
@@ -13,7 +13,6 @@ lifecycleViewmodelCompose = "2.7.0"
 material = "1.12.0"
 material3 = "1.2.1"
 moshiKotlin = "1.15.1"
-navigationFragmentKtx = "2.7.7"
 retrofit = "2.11.0"
 roomCompiler = "2.6.1"
 
@@ -23,7 +22,6 @@ androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = 
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationFragmentKtx" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompiler" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCompiler" }

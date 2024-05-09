@@ -13,8 +13,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 34
-        versionCode = 24
-        versionName = "1.3.4"
+        versionCode = 25
+        versionName = "1.3.5"
     }
 
     room {
@@ -53,7 +53,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.navigation.compose)
     implementation(libs.material)
 
     // ==================== BOMs ====================

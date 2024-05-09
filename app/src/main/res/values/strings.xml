@@ -70,7 +70,7 @@
     <string name="intake_text_left">Left</string>
     <string name="intake_text_period">Period</string>
     <string name="intake_text_pick_period">Pick period</string>
-    <string name="intake_text_quantity">%1$s: %2$s pcs</string>
+    <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
     <string name="intake_text_select_interval">Select interval</string>
     <string name="intake_text_time">Time</string>
 

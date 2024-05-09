@@ -320,11 +320,9 @@ fun IntakeSchedule(
             val shortName = shortName(productName)
             val image = medicine?.image ?: BLANK
             val form = medicine?.prodFormNormName ?: BLANK
-            val formName =
-                if (form.isEmpty()) context.resources.getString(R.string.text_amount) else formName(
-                    form
-                )
+            val formName = if (form.isEmpty()) context.resources.getString(R.string.text_amount) else formName(form)
             val amount = intake?.amount ?: 0.0
+            val doseType = medicine?.doseType ?: BLANK
             val icon = when {
                 image.contains(TYPE) -> ICONS_MED[image]
                 image.isEmpty() -> R.drawable.vector_type_unknown
@@ -367,7 +365,8 @@ fun IntakeSchedule(
                             text = stringResource(
                                 R.string.intake_text_quantity,
                                 formName,
-                                decimalFormat(amount)
+                                decimalFormat(amount),
+                                doseType
                             )
                         )
                     }

@@ -67,7 +67,7 @@
     <string name="intake_text_left">Осталось</string>
     <string name="intake_text_period">Период</string>
     <string name="intake_text_pick_period">Выберите период</string>
-    <string name="intake_text_quantity">%1$s: %2$s шт.</string>
+    <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
     <string name="intake_text_select_interval">Выберите интервал</string>
     <string name="intake_text_time">Время</string>
 
