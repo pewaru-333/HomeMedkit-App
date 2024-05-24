@@ -2,6 +2,7 @@ package ru.application.homemedkit.ui.theme
 
 import android.app.Activity
 import android.content.Context
+import android.os.Build
 import android.view.View
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -16,7 +17,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.google.android.material.color.DynamicColors.isDynamicColorAvailable
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.THEMES
 
@@ -112,8 +112,11 @@ fun AppTheme(
 }
 
 @Composable
-private fun isNightMode() = when (Preferences(LocalContext.current).getAppTheme()) {
-    THEMES[1] -> false
-    THEMES[2] -> true
-    else -> isSystemInDarkTheme()
-}
+private fun isNightMode(context: Context = LocalContext.current): Boolean =
+    when (Preferences(context).getAppTheme()) {
+        THEMES[1] -> false
+        THEMES[2] -> true
+        else -> isSystemInDarkTheme()
+    }
+
+fun isDynamicColorAvailable(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

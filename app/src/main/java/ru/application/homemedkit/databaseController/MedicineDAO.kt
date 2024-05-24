@@ -7,7 +7,7 @@ import androidx.room.Query
 import androidx.room.Update
 
 @Dao
-interface MedicineDAO{
+interface MedicineDAO {
     // ============================== Queries ==============================
     @Query("SELECT * FROM medicines")
     fun getAll(): List<Medicine>
@@ -23,6 +23,12 @@ interface MedicineDAO{
 
     @Query("SELECT * FROM medicines WHERE id = :id ")
     fun getByPK(id: Long): Medicine?
+
+    @Query("SELECT title FROM kits WHERE kitId = :kitId")
+    fun getKitTitle(kitId: Long?): String?
+
+    @Query("SELECT * FROM medicines WHERE kitId = :kitId")
+    fun getByKitId(kitId: Long?): List<Medicine>
 
     @Query("SELECT cis from medicines")
     fun getAllCIS(): List<String>

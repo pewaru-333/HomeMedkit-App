@@ -13,8 +13,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 34
-        versionCode = 25
-        versionName = "1.3.5"
+        versionCode = 26
+        versionName = "1.3.6"
     }
 
     room {
@@ -42,7 +42,7 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.12"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
 }
 
@@ -53,7 +53,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.material3)
-    implementation(libs.material)
 
     // ==================== BOMs ====================
     implementation(platform(libs.androidx.compose.bom))

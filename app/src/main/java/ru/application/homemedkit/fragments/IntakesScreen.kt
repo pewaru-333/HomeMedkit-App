@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
@@ -116,10 +118,10 @@ fun IntakesScreen(navigator: DestinationsNavigator, context: Context = LocalCont
             )
         }
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(top = paddingValues.calculateTopPadding())) {
+        Column(Modifier.padding(top = paddingValues.calculateTopPadding())) {
             Row {
                 Column {
-                    TabRow(selectedTabIndex = selectedIndex) {
+                    TabRow(selectedIndex) {
                         tabs.forEachIndexed { index, tab ->
                             Tab(
                                 selected = selectedIndex == index,
@@ -133,12 +135,26 @@ fun IntakesScreen(navigator: DestinationsNavigator, context: Context = LocalCont
 
             when (selectedIndex) {
                 0 -> {
-                    LazyColumn(
+                    val filtered = FiltersHelper(context).intakes(text)
+
+                    if (filtered.isNotEmpty()) LazyColumn(
                         state = stateOne,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) { items(filtered.size) { IntakeList(filtered[it], database, navigator) } }
+                    else Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(
+                                start = 16.dp,
+                                top = paddingValues.calculateTopPadding(),
+                                end = 16.dp
+                            ),
+                        contentAlignment = Alignment.Center
                     ) {
-                        val filtered = FiltersHelper(context).intakes(text)
-                        items(filtered.size) { IntakeList(filtered[it], database, navigator) }
+                        Text(
+                            text = context.getString(R.string.text_no_intakes_found),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
 

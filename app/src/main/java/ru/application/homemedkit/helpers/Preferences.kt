@@ -18,9 +18,9 @@ class Preferences(private val context: Context) {
     val preferences: SharedPreferences =
         context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)
 
-
     fun getHomePage() = preferences.getString(KEY_FRAGMENT, MENUS[0]) ?: MENUS[0]
     fun getSortingOrder() = preferences.getString(KEY_ORDER, SORTING[0]) ?: SORTING[0]
+    fun getLastKit() = preferences.getLong(KEY_LAST_KIT, 0L)
     fun getDownloadNeeded() = preferences.getBoolean(KEY_DOWNLOAD, false)
     fun getCheckExpDate() = preferences.getBoolean(CHECK_EXP_DATE, false)
     fun getLightPeriod() = preferences.getBoolean(KEY_LIGHT_PERIOD, true)
@@ -28,6 +28,7 @@ class Preferences(private val context: Context) {
     fun getAppTheme() = preferences.getString(KEY_APP_THEME, THEMES[0]) ?: THEMES[0]
     fun getDynamicColors() = preferences.getBoolean(KEY_DYNAMIC_COLOR, false)
 
+    fun setLastKit(kitId: Long?) = preferences.edit().putLong(KEY_LAST_KIT, kitId ?: 0L).apply()
     fun setLanguage(language: String) = when {
         SDK_INT >= TIRAMISU -> context.getSystemService(LocaleManager::class.java)
             .applicationLocales = LocaleList.forLanguageTags(language)

@@ -10,6 +10,7 @@
 
     <!-- Preferences -->
     <string name="preference_app_view">App view</string>
+    <string name="preference_kits_group">Medicine groups</string>
     <string name="preference_start_page">Home page</string>
     <string name="preference_sorting_type">Medicine sorting</string>
     <string name="preference_download_images">Download medicine images</string>
@@ -19,6 +20,7 @@
     <string name="preference_language">App language</string>
     <string name="preference_app_theme">App theme</string>
     <string name="preference_dynamic_color">Dynamic color</string>
+    <string name="preference_import_export">Import/Export</string>
 
     <!-- Languages -->
     <string name="lang_system">System</string>
@@ -42,6 +44,7 @@
     <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 May 2029</string>
+    <string name="placeholder_kitchen">Kitchen</string>
     <string name="placeholder_time">Time #%1$d</string>
 
     <!-- Medicines -->
@@ -74,7 +77,9 @@
     <!-- Dialogs -->
     <string name="manual_add">Do you want to add medicine manually?</string>
     <string name="text_confirm_exit">Confirm exit</string>
+    <string name="text_export_import_description">This is an experimental feature.\nWhen exporting, you can change the file name.\nWhen importing, the current data will be deleted! Please, relaunch app after it!</string>
     <string name="text_grant_permission">Grant permission</string>
+    <string name="text_new_group">New group</string>
     <string name="text_request_camera">To scan the label, the application must be given permission to use the camera</string>
     <string name="text_request_post">To receive notifications, the application must be granted the appropriate permission</string>
     <string name="text_select_time">Select time</string>
@@ -88,8 +93,11 @@
     <string name="text_unknown_error">Wrong code scanned!</string>
 
     <!-- Strings -->
+    <string name="text_add">Add</string>
+    <string name="text_all">All</string>
     <string name="text_amount">Amount</string>
     <string name="text_cancel">Cancel</string>
+    <string name="text_clear">Clear</string>
     <string name="text_daily_at">Daily at 12:00</string>
     <string name="text_data_matrix_scanner">Scanning DataMatrix label (only for RU)</string>
     <string name="text_days_short">d.</string>
@@ -97,15 +105,21 @@
     <string name="text_edit">Edit</string>
     <string name="text_empty">Empty</string>
     <string name="text_enter_product_name">Search</string>
+    <string name="text_error">Error!</string>
     <string name="text_every">Every\u0020</string>
+    <string name="text_export">Export</string>
     <string name="text_finish_date">Finish date</string>
+    <string name="text_import">Import</string>
     <string name="text_manual_add">Manual medicine adding</string>
-    <string name="text_no_data_found">Nothing found!</string>
+    <string name="text_no_data_found">No medicines found. Add them or change the filter.</string>
+    <string name="text_no_intakes_found">No intakes found. Add them via medicine information card or change the search value.</string>
     <string name="text_no">No</string>
     <string name="text_off">Turned off</string>
     <string name="text_on">Turned on</string>
     <string name="text_save">Save</string>
     <string name="text_start_date">Start date</string>
+    <string name="text_success">Successfully!</string>
+    <string name="text_tap_to_view">Tap to view</string>
     <string name="text_yes">Yes</string>
 
     <!-- Plurals -->

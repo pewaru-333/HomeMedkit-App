@@ -1,16 +1,15 @@
 [versions]
-androidGradle = "8.4.0"
+androidGradle = "8.4.1"
 appcompat = "1.6.1"
 codeScanner = "2.3.2"
 coilCompose = "2.6.0"
 composeBom = "2024.05.00"
-composeDestinations = "2.1.0-beta05"
-googleKsp = "1.9.23-1.0.19"
-jetbrainsKotlin = "1.9.23"
-kotlinBom = "1.9.23"
+composeDestinations = "2.1.0-beta06"
+googleKsp = "1.9.24-1.0.20"
+jetbrainsKotlin = "1.9.24"
+kotlinBom = "1.9.24"
 librarySettingsM3 = "1.0.0"
-lifecycleViewmodelCompose = "2.7.0"
-material = "1.12.0"
+lifecycleViewmodelCompose = "2.8.0"
 material3 = "1.2.1"
 moshiKotlin = "1.15.1"
 retrofit = "2.11.0"
@@ -32,7 +31,6 @@ compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
 kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlinBom" }
 librarySettingsM3 = { module = "me.zhanghai.compose.preference:library", version.ref = "librarySettingsM3" }
-material = { module = "com.google.android.material:material", version.ref = "material" }
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshiKotlin" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 

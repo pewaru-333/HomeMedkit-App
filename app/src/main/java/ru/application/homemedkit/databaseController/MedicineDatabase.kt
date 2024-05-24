@@ -10,13 +10,14 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 private const val DATABASE_NAME = "medicines"
 
-@Database(entities = [Medicine::class, Intake::class, Alarm::class], version = 6)
+@Database(entities = [Medicine::class, Intake::class, Alarm::class, Kit::class], version = 8)
 @TypeConverters(Converters::class)
 abstract class MedicineDatabase : RoomDatabase() {
 
     abstract fun medicineDAO(): MedicineDAO
     abstract fun intakeDAO(): IntakeDAO
     abstract fun alarmDAO(): AlarmDAO
+    abstract fun kitDAO(): KitDAO
 
     companion object {
         @Volatile
@@ -29,7 +30,7 @@ abstract class MedicineDatabase : RoomDatabase() {
                     MedicineDatabase::class.java,
                     DATABASE_NAME
                 )
-                    .addMigrations(MIGRATION_1_4, MIGRATION_4_5, MIGRATION_5_6)
+                    .addMigrations(MIGRATION_1_4, MIGRATION_4_6, MIGRATION_6_7, MIGRATION_7_8)
                     .allowMainThreadQueries()
                     .build()
                 INSTANCE = instance
@@ -128,15 +129,66 @@ abstract class MedicineDatabase : RoomDatabase() {
             }
         }
 
-        private val MIGRATION_4_5 = object : Migration(4,5) {
+        private val MIGRATION_4_6 = object : Migration(4, 6) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE intakes ADD COLUMN foodType INTEGER NOT NULL DEFAULT -1")
+                db.execSQL("ALTER TABLE medicines ADD COLUMN doseType TEXT NOT NULL DEFAULT '' ")
             }
         }
 
-        private val MIGRATION_5_6 = object : Migration(5,6) {
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE medicines ADD COLUMN doseType TEXT NOT NULL DEFAULT '' ")
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS kits (`kitId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`title` TEXT NOT NULL)"
+                )
+                db.execSQL(
+                    "CREATE TABLE medicines_r (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`kitId` INTEGER NOT NULL DEFAULT 0, " +
+                            "`cis` TEXT NOT NULL, `productName` TEXT NOT NULL, " +
+                            "`expDate` INTEGER NOT NULL, `prodFormNormName` TEXT NOT NULL, " +
+                            "`prodDNormName` TEXT NOT NULL, `prodAmount` REAL NOT NULL, " +
+                            "`doseType` TEXT NOT NULL DEFAULT '', " +
+                            "`phKinetics` TEXT NOT NULL, `comment` TEXT NOT NULL, " +
+                            "`image` TEXT NOT NULL DEFAULT '', " +
+                            "`scanned` INTEGER NOT NULL, `verified` INTEGER NOT NULL, " +
+                            "FOREIGN KEY (kitId) REFERENCES kits (kitId) ON DELETE SET DEFAULT " +
+                            "ON UPDATE CASCADE)"
+                )
+                db.execSQL(
+                    "INSERT INTO medicines_r (id, cis, productName, expDate, prodFormNormName, " +
+                            "prodDNormName, prodAmount, doseType, phKinetics, comment, image, scanned, verified) " +
+                            "SELECT id, cis, productName, expDate, prodFormNormName, prodDNormName, " +
+                            "prodAmount, doseType, phKinetics, comment, image, scanned, verified FROM medicines"
+                )
+                db.execSQL("DROP TABLE medicines")
+                db.execSQL("ALTER TABLE medicines_r RENAME TO medicines")
+            }
+        }
+
+        private val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE medicines_r (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`kitId` INTEGER DEFAULT NULL, " +
+                            "`cis` TEXT NOT NULL, `productName` TEXT NOT NULL, " +
+                            "`expDate` INTEGER NOT NULL, `prodFormNormName` TEXT NOT NULL, " +
+                            "`prodDNormName` TEXT NOT NULL, `prodAmount` REAL NOT NULL, " +
+                            "`doseType` TEXT NOT NULL DEFAULT '', " +
+                            "`phKinetics` TEXT NOT NULL, `comment` TEXT NOT NULL, " +
+                            "`image` TEXT NOT NULL DEFAULT '', " +
+                            "`scanned` INTEGER NOT NULL, `verified` INTEGER NOT NULL, " +
+                            "FOREIGN KEY (kitId) REFERENCES kits (kitId) ON DELETE SET NULL " +
+                            "ON UPDATE CASCADE)"
+                )
+                db.execSQL(
+                    "INSERT INTO medicines_r (id, cis, productName, expDate, prodFormNormName, " +
+                            "prodDNormName, prodAmount, doseType, phKinetics, comment, image, scanned, verified) " +
+                            "SELECT id, cis, productName, expDate, prodFormNormName, prodDNormName, " +
+                            "prodAmount, doseType, phKinetics, comment, image, scanned, verified FROM medicines"
+                )
+                db.execSQL("DROP TABLE medicines")
+                db.execSQL("ALTER TABLE medicines_r RENAME TO medicines")
             }
         }
     }

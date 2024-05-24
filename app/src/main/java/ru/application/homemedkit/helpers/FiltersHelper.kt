@@ -1,8 +1,6 @@
 package ru.application.homemedkit.helpers
 
 import android.content.Context
-import android.widget.Toast
-import ru.application.homemedkit.R
 import ru.application.homemedkit.databaseController.Intake
 import ru.application.homemedkit.databaseController.Medicine
 import ru.application.homemedkit.databaseController.MedicineDatabase
@@ -12,8 +10,9 @@ class FiltersHelper(private val context: Context) {
 
     private val database: MedicineDatabase = MedicineDatabase.getInstance(context)
 
-    fun medicines(text: String): List<Medicine> {
-        val medicines = database.medicineDAO().getAll()
+    fun medicines(text: String, kitId: Long): List<Medicine> {
+        val medicines = if (kitId == 0L) database.medicineDAO().getAll()
+        else database.medicineDAO().getByKitId(kitId)
         val filtered = ArrayList<Medicine>(medicines.size)
 
         if (text.isEmpty()) {
@@ -26,9 +25,6 @@ class FiltersHelper(private val context: Context) {
                 }
             }
         }
-
-        if (text.isNotEmpty() && filtered.isEmpty())
-            Toast.makeText(context, R.string.text_no_data_found, Toast.LENGTH_SHORT).show()
 
         return filtered
     }
@@ -47,9 +43,6 @@ class FiltersHelper(private val context: Context) {
                 }
             }
         }
-
-        if (text.isNotEmpty() && filtered.isEmpty())
-            Toast.makeText(context, R.string.text_no_data_found, Toast.LENGTH_SHORT).show()
 
         return filtered
     }

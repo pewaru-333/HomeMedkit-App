@@ -10,6 +10,7 @@
 
     <!-- Preferences -->
     <string name="preference_app_view">Uygulama görünümü</string>
+    <string name="preference_kits_group">Medicine groups</string>
     <string name="preference_app_theme">Uygulama teması</string>
     <string name="preference_start_page">Anasayfa</string>
     <string name="preference_sorting_type">İlaç sıralama</string>
@@ -19,6 +20,7 @@
     <string name="preference_system">Sistem</string>
     <string name="preference_language">Uygulama dili</string>
     <string name="preference_dynamic_color">Dinamik renk</string>
+    <string name="preference_import_export">Import/Export</string>
 
     <!-- Languages -->
     <string name="lang_system">Sistem</string>
@@ -42,6 +44,7 @@
     <string name="placeholder_date">gg.aa.yyyy</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 Mayıs 2029</string>
+    <string name="placeholder_kitchen">Kitchen</string>
     <string name="placeholder_time">Saat #%1$d</string>
 
     <!-- Medicines -->
@@ -74,7 +77,9 @@
     <!-- Dialogs -->
     <string name="manual_add">İlacı manuel olarak eklemek istiyor musunuz?</string>
     <string name="text_confirm_exit">Çıkışı onayla</string>
+    <string name="text_export_import_description">This is an experimental feature.\nWhen exporting, you can change the file name.\nWhen importing, the current data will be deleted! Please, relaunch app after it!</string>
     <string name="text_grant_permission">İzin ver</string>
+    <string name="text_new_group">New group</string>
     <string name="text_request_camera">Etiketi taramak için uygulamaya kamerayı kullanma izni verilmelidir</string>
     <string name="text_request_post">Bildirim almak için başvuruya uygun izin verilmelidir</string>
     <string name="text_select_time">Saat seç</string>
@@ -88,8 +93,11 @@
     <string name="text_unknown_error">Yanlış kod tarandı!</string>
 
     <!-- Strings -->
+    <string name="text_add">Add</string>
+    <string name="text_all">All</string>
     <string name="text_amount">Tutar</string>
     <string name="text_cancel">İptal</string>
+    <string name="text_clear">Clear</string>
     <string name="text_daily_at">Her gün saat 12:00\'de</string>
     <string name="text_data_matrix_scanner">DataMatrix etiketini tarat (yalnızca RU için)</string>
     <string name="text_days_short">g.</string>
@@ -97,15 +105,21 @@
     <string name="text_edit">Düzenle</string>
     <string name="text_empty">Boş</string>
     <string name="text_enter_product_name">İlaç adını girin</string>
+    <string name="text_error">Error!</string>
     <string name="text_every">Her\u0020</string>
+    <string name="text_export">Export</string>
     <string name="text_finish_date">Bitiş tarihi</string>
+    <string name="text_import">Import</string>
     <string name="text_manual_add">Manuel ilaç ekleme</string>
-    <string name="text_no_data_found">Hiçbir şey bulunamadı!</string>
+    <string name="text_no_data_found">No medicines found. Add them or change the filter.</string>
+    <string name="text_no_intakes_found">No intakes found. Add them via medicine information card or change the search value.</string>
     <string name="text_no">Hayır</string>
     <string name="text_off">Kapalı</string>
     <string name="text_on">Açık</string>
     <string name="text_save">Kaydet</string>
     <string name="text_start_date">Başlangıç tarihi</string>
+    <string name="text_success">Successfully!</string>
+    <string name="text_tap_to_view">Tap to view</string>
     <string name="text_yes">Evet</string>
 
     <!-- Plurals -->

@@ -42,6 +42,8 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                         default = true,
                         fetch = ResponseState.Default,
                         id = medicine.id,
+                        kitId = medicine.kitId,
+                        kitTitle = dao.getKitTitle(medicine.kitId) ?: BLANK,
                         cis = medicine.cis,
                         productName = medicine.productName,
                         expDate = medicine.expDate,
@@ -65,6 +67,7 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
     fun onEvent(event: MedicineEvent) {
         when (event) {
             MedicineEvent.Add -> {
+                val kitId = uiState.value.kitId
                 val cis = uiState.value.cis
                 val productName = uiState.value.productName
                 val expDate = uiState.value.expDate
@@ -79,6 +82,7 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                 val verified = uiState.value.technical.verified
 
                 val medicine = Medicine(
+                    kitId = kitId,
                     cis = cis,
                     productName = productName,
                     expDate = expDate,
@@ -108,6 +112,7 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
 
             MedicineEvent.Update -> {
                 val id = uiState.value.id
+                val kitId = uiState.value.kitId
                 val cis = uiState.value.cis
                 val productName = uiState.value.productName
                 val expDate = uiState.value.expDate
@@ -123,6 +128,7 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
 
                 val medicine = Medicine(
                     id = id,
+                    kitId = kitId,
                     cis = cis,
                     productName = productName,
                     expDate = expDate,
@@ -164,6 +170,12 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
 
             is MedicineEvent.SetMedicineId -> {
                 _uiState.update { it.copy(id = event.medicineId) }
+            }
+
+            is MedicineEvent.SetKitId -> {
+                _uiState.update {
+                    it.copy(kitId = event.kitId, kitTitle = dao.getKitTitle(event.kitId) ?: BLANK)
+                }
             }
 
             is MedicineEvent.SetCis -> {
@@ -228,6 +240,7 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                                     if (body.codeFounded && body.checkResult) {
                                         val medicine = Medicine(
                                             id = _uiState.value.id,
+                                            kitId = _uiState.value.kitId,
                                             cis = body.cis,
                                             productName = body.drugsData.prodDescLabel,
                                             expDate = body.drugsData.expireDate,
@@ -265,6 +278,7 @@ sealed interface MedicineEvent {
     data object Update : MedicineEvent
     data object Delete : MedicineEvent
     data class SetMedicineId(val medicineId: Long) : MedicineEvent
+    data class SetKitId(val kitId: Long?) : MedicineEvent
     data class SetCis(val cis: String) : MedicineEvent
     data class SetProductName(val productName: String) : MedicineEvent
     data class SetExpDate(val expDate: Long) : MedicineEvent

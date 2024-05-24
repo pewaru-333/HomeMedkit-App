@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -33,6 +35,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -46,9 +49,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -68,6 +73,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -220,11 +226,7 @@ fun MedicineScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(
-                        top = paddingValues
-                            .calculateTopPadding()
-                            .plus(16.dp)
-                    )
+                    .padding(top = paddingValues.calculateTopPadding())
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(32.dp)
             ) {
@@ -265,12 +267,12 @@ fun MedicineScreen(
 }
 
 @Composable
-private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    Column(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(4.dp)) {
+private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState, context: Context = LocalContext.current) {
+    Column(Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp), Arrangement.spacedBy(4.dp)) {
 
         if (state.adding)
             Text(
-                text = LocalContext.current.getString(R.string.text_medicine_product_name),
+                text = context.getString(R.string.text_medicine_product_name),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
@@ -287,18 +289,87 @@ private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) 
             decorationBox = { innerTextField ->
                 when {
                     state.default || state.technical.verified
-                        -> NoDecorationBox(state.productName, innerTextField)
+                    -> NoDecorationBox(state.productName, innerTextField)
 
                     else -> DecorationBox(state.productName, innerTextField)
                 }
             }
         )
 
-        if (state.default || state.technical.verified)
-            Text(
-                text = formName(state.prodFormNormName),
-                style = MaterialTheme.typography.titleMedium.copy(MaterialTheme.colorScheme.onSurface)
-            )
+        if (state.default || state.technical.verified) Text(
+            text = formName(state.prodFormNormName),
+            style = MaterialTheme.typography.titleMedium.copy(MaterialTheme.colorScheme.onSurface)
+        )
+
+        when {
+            state.default -> {
+                if (state.kitTitle.isNotBlank()) Text(
+                    text = state.kitTitle,
+                    style = MaterialTheme.typography.titleMedium.copy(MaterialTheme.colorScheme.onSurface)
+                )
+            }
+
+            state.adding || state.editing -> {
+                val kits = MedicineDatabase.getInstance(context).kitDAO().getAll()
+                var show by remember { mutableStateOf(false) }
+                var kitId by remember { mutableStateOf(state.kitId) }
+
+                OutlinedTextField(
+                    value = state.kitTitle,
+                    onValueChange = {},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .clickable { show = true },
+                    enabled = false,
+                    readOnly = true,
+                    placeholder = { Text(context.getString(R.string.placeholder_kitchen)) },
+                    colors = fieldColorsInverted()
+                )
+
+                if (show) AlertDialog(
+                    onDismissRequest = { show = false },
+                    confirmButton = {
+                        TextButton(
+                            onClick = { onEvent(MedicineEvent.SetKitId(kitId)); show = false },
+                            enabled = kitId != null,
+                        ) {
+                            Text(context.getString(R.string.text_save))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton({ onEvent(MedicineEvent.SetKitId(null)); show = false }) {
+                            Text(context.getString(R.string.text_clear))
+                        }
+                    },
+                    title = { Text(context.getString(R.string.preference_kits_group)) },
+                    text = {
+                        Column(Modifier.selectableGroup()) {
+                            kits.forEach { kit ->
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .height(56.dp)
+                                        .selectable(
+                                            selected = kitId == kit.kitId,
+                                            onClick = { kitId = kit.kitId },
+                                            role = Role.RadioButton
+                                        ),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    RadioButton(kitId == kit.kitId, null)
+                                    Text(
+                                        text = kit.title,
+                                        modifier = Modifier.padding(start = 16.dp),
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -309,7 +380,9 @@ private fun ProductImage(viewModel: MedicineViewModel, state: MedicineState) {
     val image = when {
         isIcon -> ICONS_MED[state.image]
         noIcon -> R.drawable.vector_type_unknown
-        else -> File(LocalContext.current.filesDir, state.image)
+        else -> File(LocalContext.current.filesDir, state.image).run {
+            if (this.exists()) this else R.drawable.vector_type_unknown
+        }
     }
     var showPicker by remember { mutableStateOf(false) }
 
@@ -441,7 +514,7 @@ private fun ExpirationDate(onEvent: (MedicineEvent) -> Unit, state: MedicineStat
 
 @Composable
 private fun ProductFormName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+    Column(Modifier.padding(horizontal = 16.dp)) {
         Text(
             text = LocalContext.current.getString(R.string.text_medicine_description),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
@@ -593,7 +666,7 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
 @Composable
 private fun PhKinetics(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
     if (state.adding || state.editing || state.phKinetics.isNotEmpty())
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Column(Modifier.padding(horizontal = 16.dp)) {
             Text(
                 text = LocalContext.current.getString(R.string.text_indications_for_use),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
@@ -620,7 +693,7 @@ private fun PhKinetics(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
 @Composable
 private fun Comment(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
     if (state.adding || state.editing || state.comment.isNotEmpty())
-        Column(modifier = Modifier.padding(16.dp, 0.dp, 16.dp, 16.dp)) {
+        Column(Modifier.padding(16.dp, 0.dp, 16.dp, 16.dp)) {
             Text(
                 text = LocalContext.current.getString(R.string.text_medicine_comment),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)

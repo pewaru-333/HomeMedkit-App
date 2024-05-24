@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.application.homemedkit.activities.MainActivity
 import ru.application.homemedkit.connectionController.NetworkAPI
 import ru.application.homemedkit.databaseController.Medicine
 import ru.application.homemedkit.databaseController.MedicineDAO
@@ -49,6 +48,7 @@ class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
                                             _response.emit(ResponseState.Duplicate)
                                         } else {
                                             val medicine = Medicine(
+                                               // kitId = 0L,
                                                 cis = body.cis,
                                                 productName = body.drugsData.prodDescLabel,
                                                 expDate = body.drugsData.expireDate,
