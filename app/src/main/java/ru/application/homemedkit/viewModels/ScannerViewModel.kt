@@ -48,7 +48,6 @@ class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
                                             _response.emit(ResponseState.Duplicate)
                                         } else {
                                             val medicine = Medicine(
-                                               // kitId = 0L,
                                                 cis = body.cis,
                                                 productName = body.drugsData.prodDescLabel,
                                                 expDate = body.drugsData.expireDate,

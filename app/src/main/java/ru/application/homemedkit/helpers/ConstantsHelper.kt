@@ -13,7 +13,6 @@ const val CATEGORY = "drugs"
 const val CIS = "cis"
 const val CHANNEL_ID = "intake_notifications"
 const val CHECK_EXP_DATE = "check_exp_date"
-const val CODE_EXPORT = 2020
 const val ID = "id"
 const val KEY_APP_THEME = "app_theme"
 const val KEY_APP_SYSTEM = "app_system"
@@ -31,7 +30,7 @@ const val SOUND_GROUP = "Sound group"
 const val TYPE = "vector_type"
 
 // ============================== Collections ==============================
-val LANGUAGES = listOf("System", "ru", "en-US", "es", "tr")
+val LANGUAGES = listOf("System", "ru", "en-US", "de", "es", "pt-BR", "tr")
 val MENUS = listOf(HomeScreenDestination.route, MedicinesScreenDestination.route,
     IntakesScreenDestination.route, SettingsScreenDestination.route)
 val SNACKS = listOf(

@@ -252,7 +252,9 @@ fun IntakeList(
     val icon = when {
         image.contains(TYPE) -> ICONS_MED[image]
         image.isEmpty() -> R.drawable.vector_type_unknown
-        else -> File(context.filesDir, image)
+        else -> File(context.filesDir, image).run {
+            if (exists()) this else R.drawable.vector_type_unknown
+        }
     }
     val startDate = LocalContext.current.resources.getString(
         R.string.intake_card_text_from,
@@ -342,7 +344,9 @@ fun IntakeSchedule(
             val icon = when {
                 image.contains(TYPE) -> ICONS_MED[image]
                 image.isEmpty() -> R.drawable.vector_type_unknown
-                else -> File(context.filesDir, image)
+                else -> File(context.filesDir, image).run {
+                    if(exists()) this else R.drawable.vector_type_unknown
+                }
             }
 
             ElevatedCard(

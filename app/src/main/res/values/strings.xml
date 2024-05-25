@@ -25,7 +25,9 @@
     <string name="lang_system">System</string>
     <string name="lang_ru" translatable="false">Русский</string>
     <string name="lang_en" translatable="false">English</string>
+    <string name="lang_de" translatable="false">Deutsch</string>
     <string name="lang_es" translatable="false">Español</string>
+    <string name="lang_pt_BR" translatable="false">Portugal (Brasil)</string>
     <string name="lang_tr" translatable="false">Türkçe</string>
 
     <!-- Sorting -->
@@ -80,7 +82,7 @@
     <!-- Dialogs -->
     <string name="manual_add">Do you want to add medicine manually?</string>
     <string name="text_confirm_exit">Confirm exit</string>
-    <string name="text_export_import_description">This is an experimental feature.\nWhen exporting, you can change the file name.\nWhen importing, the current data will be deleted! Please, relaunch app after it!</string>
+    <string name="text_export_import_description">This is an experimental feature. When exporting, you can change the file name. When importing, the current data will be deleted! Please, relaunch app after it!</string>
     <string name="text_grant_permission">Grant permission</string>
     <string name="text_new_group">New group</string>
     <string name="text_request_camera">To scan the label, the application must be given permission to use the camera</string>
@@ -140,7 +142,9 @@
         <item>@string/lang_system</item>
         <item>@string/lang_ru</item>
         <item>@string/lang_en</item>
+        <item>@string/lang_de</item>
         <item>@string/lang_es</item>
+        <item>@string/lang_pt_BR</item>
         <item>@string/lang_tr</item>
     </string-array>
 

@@ -381,7 +381,7 @@ private fun ProductImage(viewModel: MedicineViewModel, state: MedicineState) {
         isIcon -> ICONS_MED[state.image]
         noIcon -> R.drawable.vector_type_unknown
         else -> File(LocalContext.current.filesDir, state.image).run {
-            if (this.exists()) this else R.drawable.vector_type_unknown
+            if (exists()) this else R.drawable.vector_type_unknown
         }
     }
     var showPicker by remember { mutableStateOf(false) }

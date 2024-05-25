@@ -2,6 +2,7 @@ package ru.application.homemedkit.alarms
 
 import android.app.AlarmManager
 import android.app.AlarmManager.RTC_WAKEUP
+import android.app.PendingIntent.FLAG_CANCEL_CURRENT
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.PendingIntent.getBroadcast
@@ -76,13 +77,34 @@ class AlarmSetter(private val context: Context) {
         database.alarmDAO().delete(alarm)
     }
 
-    fun checkExpiration() {
-        val pending = getBroadcast(
+    fun resetAll() = database.alarmDAO().getAll().forEach { alarm ->
+        manager.setExactAndAllowWhileIdle(
+            RTC_WAKEUP, alarm.trigger, getBroadcast(
+                context,
+                alarm.alarmId.toInt(),
+                Intent(context, AlarmReceiver::class.java).putExtra(ALARM_ID, alarm.alarmId),
+                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
+            )
+        )
+    }
+
+    fun cancelAll() = database.alarmDAO().getAll().forEach { alarm ->
+        manager.cancel(
+            getBroadcast(
+                context,
+                alarm.alarmId.toInt(),
+                Intent(context, AlarmReceiver::class.java).putExtra(ALARM_ID, alarm.alarmId),
+                FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
+            )
+        )
+    }
+
+    fun checkExpiration() = manager.setExactAndAllowWhileIdle(
+        RTC_WAKEUP, expirationCheckTime(), getBroadcast(
             context,
             81000,
             Intent(context, ExpirationReceiver::class.java),
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
-        manager.setExactAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), pending)
-    }
+    )
 }

@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
+
+    <!-- Menu -->
     <string name="bottom_bar_main">Início</string>
     <string name="bottom_bar_medicines">Medicamentos</string>
     <string name="bottom_bar_intakes">Consumo</string>
     <string name="bottom_bar_settings">Configurações</string>
+
+    <!-- Preferences -->
     <string name="preference_app_view">Exibição do aplicativo</string>
     <string name="preference_kits_group">Grupos de medicamentos</string>
+
 </resources>

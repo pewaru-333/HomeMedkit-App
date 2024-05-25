@@ -38,6 +38,10 @@ abstract class MedicineDatabase : RoomDatabase() {
             }
         }
 
+        fun setNull() {
+            INSTANCE = null
+        }
+
         private val MIGRATION_1_4 = object : Migration(1, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(

@@ -1,0 +1,2 @@
+— Now, after importing a database, the application will restart automatically with the changes applied.
+— Fixed the reassignment of intakes notifications after importing a database.

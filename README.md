@@ -30,9 +30,13 @@
 * Автоматическое добавление лекарства при помощи сканирования маркировки.
 * Возможность добавления лекарства вручную.
 * Обновление информации о лекарстве, если оно было отсканировано без подключения к интернету.
-* Оповещение об истечении срока годности лекарства.
+* Редактирование информации о лекарствах, добавленных вручную.
 * Сортировка лекарств по срокам годности.
+* Группировка лекарств по категориям.
 * Звуковое уведомление о необходимости приема лекарства.
+* Отображение ближайшего расписания приёма лекарств.
+* Напоминание об истечении срока годности лекарств.
+* Экспорт и импорт базы данных на другие устройства.
 
 # Home medkit (English)
 
@@ -42,12 +46,16 @@ It is a reliable and convenient assistant that will help you monitor your health
 
 # Main features
 
-* Automatic addition of medication by scanning the label (only for RU users).
-* Adding medication manually.
-* Editing information about medicines added manually.
-* Notification of the expiration date of the medicine.
+* Automatic addition of medicines by scanning the label.
+* The ability to add medicines manually.
+* Update information about the medicine if it was scanned without an internet connection.
+* Edit information about medicines added manually.
 * Sorting of medicines by expiration date.
-* Sound notification of the need to take medicine.
+* Grouping of medicines by categories.
+* Notification of the need to take medicine.
+* Display of the nearest medicines schedule.
+* Reminder of the expiration date of medicines.
+* Export and import the database to other devices.
 
 </div>
 

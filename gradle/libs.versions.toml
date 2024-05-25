@@ -4,10 +4,10 @@ appcompat = "1.6.1"
 codeScanner = "2.3.2"
 coilCompose = "2.6.0"
 composeBom = "2024.05.00"
-composeDestinations = "2.1.0-beta06"
-googleKsp = "1.9.24-1.0.20"
-jetbrainsKotlin = "1.9.24"
-kotlinBom = "1.9.24"
+composeDestinations = "2.1.0-beta07"
+googleKsp = "2.0.0-1.0.21"
+jetbrainsKotlin = "2.0.0"
+kotlinBom = "2.0.0"
 librarySettingsM3 = "1.0.0"
 lifecycleViewmodelCompose = "2.8.0"
 material3 = "1.2.1"
@@ -38,4 +38,5 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 androidApplication = { id = "com.android.application", version.ref = "androidGradle" }
 googleKsp = { id = "com.google.devtools.ksp", version.ref = "googleKsp" }
 jetbrainsKotlin = { id = "org.jetbrains.kotlin.android", version.ref = "jetbrainsKotlin" }
+composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "jetbrainsKotlin" }
 roomPlugin = {id = "androidx.room", version.ref = "roomCompiler"}

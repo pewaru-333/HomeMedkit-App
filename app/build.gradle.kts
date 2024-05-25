@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.androidApplication)
+    alias(libs.plugins.composeCompiler)
     alias(libs.plugins.jetbrainsKotlin)
     alias(libs.plugins.googleKsp)
     alias(libs.plugins.roomPlugin)
@@ -13,8 +14,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 34
-        versionCode = 26
-        versionName = "1.3.6"
+        versionCode = 27
+        versionName = "1.3.7"
     }
 
     room {

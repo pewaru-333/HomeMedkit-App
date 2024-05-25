@@ -1,6 +1,10 @@
 package ru.application.homemedkit.fragments
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
 import android.database.sqlite.SQLiteDatabase.openDatabase
@@ -56,6 +60,8 @@ import me.zhanghai.compose.preference.preference
 import me.zhanghai.compose.preference.preferenceCategory
 import me.zhanghai.compose.preference.switchPreference
 import ru.application.homemedkit.R
+import ru.application.homemedkit.activities.MainActivity
+import ru.application.homemedkit.alarms.AlarmSetter
 import ru.application.homemedkit.databaseController.Kit
 import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.helpers.BLANK
@@ -292,6 +298,7 @@ private fun ExportImport(onDismiss: () -> Unit, context: Context = LocalContext.
                 output?.let { path.inputStream().copyTo(it) }
             }.also {
                 onDismiss()
+                MedicineDatabase.setNull()
                 showToast(true)
             }
         }
@@ -314,14 +321,22 @@ private fun ExportImport(onDismiss: () -> Unit, context: Context = LocalContext.
                 val newDB = openDatabase(tempFile.path, null, OPEN_READONLY)
                 val newHash = if (hasTable(newDB)) getHash(newDB) else BLANK
 
-                if (currentHash == newHash)
+                if (currentHash == newHash) {
+                    MedicineDatabase.setNull().also { AlarmSetter(context).cancelAll() }
+
                     context.contentResolver.openInputStream(uriN).use { input ->
                         path.outputStream().use { output -> input?.copyTo(output) }
                     }.also {
-                        onDismiss()
+                        (context as Activity).finishAndRemoveTask()
+                        context.startActivity(
+                            Intent(context, MainActivity::class.java)
+                                .setFlags(FLAG_ACTIVITY_CLEAR_TASK or FLAG_ACTIVITY_NEW_TASK)
+                        )
+
+                        MedicineDatabase.setNull().also { AlarmSetter(context).resetAll() }
                         showToast(true)
                     }
-                else showToast(false)
+                } else showToast(false)
             } catch (e: Exception) {
                 showToast(false)
             } finally {

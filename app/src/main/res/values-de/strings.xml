@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Medkit</string>
+
+    <!-- Menu -->
+    <string name="bottom_bar_main">Startseite</string>
+    <string name="bottom_bar_medicines">Medizin</string>
+    <string name="bottom_bar_intakes">Lufteinlässe</string>
+    <string name="bottom_bar_settings">Einstellung</string>
+
+    <!-- Preferences -->
+    <string name="preference_app_view">App-Ansicht</string>
+    <string name="preference_kits_group">Medizinische Gruppen</string>
+    <string name="preference_start_page">Homepage</string>
+    <string name="preference_sorting_type">Medizinsortierung</string>
+    <string name="preference_download_images">Medizinbilder herunterladen</string>
+    <string name="preference_easy_period_picker">Einfachere Auswahl des Einnahmezeitraums</string>
+    <string name="preference_check_expiration_date">Überprüfung des Verfallsdatums von Arzneimitteln</string>
+    <string name="preference_system">System</string>
+    <string name="preference_language">App-Sprache</string>
+    <string name="preference_app_theme">App-Thema</string>
+    <string name="preference_dynamic_color">Dynamische Farbe</string>
+    <string name="preference_import_export">Importieren / Exportieren</string>
+
+    <!-- Languages -->
+    <string name="lang_system">System</string>
+
+</resources>
