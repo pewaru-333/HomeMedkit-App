@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Medkit</string>
+
+    <!-- Menu -->
+    <string name="bottom_bar_main">Home</string>
+    <string name="bottom_bar_medicines">Medicinali</string>
+    <string name="bottom_bar_intakes">Assunzioni</string>
+    <string name="bottom_bar_settings">Impostazioni</string>
+
+    <!-- Preferences -->
+    <string name="preference_app_view">Vista app</string>
+    <string name="preference_kits_group">Gruppi di medicina</string>
+    <string name="preference_start_page">Pagina iniziale</string>
+    <string name="preference_sorting_type">Ordinamento della medicina</string>
+    <string name="preference_download_images">Scarica le immagini della medicina</string>
+    <string name="preference_easy_period_picker">Selezione del periodo di assunzione più semplice</string>
+    <string name="preference_check_expiration_date">Controllo della data di scadenza dei medicinali</string>
+    <string name="preference_system">Sistema</string>
+    <string name="preference_language">Lingua dell\'app</string>
+    <string name="preference_app_theme">Tema app </string>
+    <string name="preference_dynamic_color">Colore dinamico</string>
+    <string name="preference_import_export">Importa / Esporta</string>
+
+    <!-- Languages -->
+    <string name="lang_system">System</string>
+
+</resources>

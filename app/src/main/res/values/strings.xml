@@ -26,8 +26,10 @@
     <string name="lang_ru" translatable="false">Русский</string>
     <string name="lang_en" translatable="false">English</string>
     <string name="lang_de" translatable="false">Deutsch</string>
+    <string name="lang_it" translatable="false">Italiano</string>
     <string name="lang_es" translatable="false">Español</string>
     <string name="lang_pt_BR" translatable="false">Portugal (Brasil)</string>
+    <string name="lang_pl" translatable="false">Polskie</string>
     <string name="lang_tr" translatable="false">Türkçe</string>
 
     <!-- Sorting -->
@@ -143,8 +145,10 @@
         <item>@string/lang_ru</item>
         <item>@string/lang_en</item>
         <item>@string/lang_de</item>
+        <item>@string/lang_it</item>
         <item>@string/lang_es</item>
         <item>@string/lang_pt_BR</item>
+        <item>@string/lang_pl</item>
         <item>@string/lang_tr</item>
     </string-array>
 
@@ -214,5 +218,4 @@
         <item>SPRAY</item>
         <item>DROPS</item>
     </string-array>
-
 </resources>
