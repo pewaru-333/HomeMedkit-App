@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Medkit</string>
+    <string name="bottom_bar_main">Strona główna</string>
+    <string name="bottom_bar_settings">Ustawienia</string>
+    <string name="bottom_bar_medicines">Leki</string>
+    <string name="preference_app_view">Widok aplikacji</string>
+    <string name="preference_start_page">Strona główna</string>
+    <string name="preference_sorting_type">Sortowanie leków</string>
+</resources>
