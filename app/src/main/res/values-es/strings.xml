@@ -59,6 +59,7 @@
     <string name="intakes_tab_current">Actual</string>
     <string name="intakes_tab_list">Lista</string>
     <string name="intakes_tab_taken">Ya tomado</string>
+
     <string name="intake_card_text_from">(desde %1$s)</string>
     <string name="intake_text_amount">Cantidad</string>
     <string name="intake_text_food">Comida y Medicina</string>

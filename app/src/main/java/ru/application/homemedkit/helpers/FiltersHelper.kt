@@ -6,7 +6,7 @@ import ru.application.homemedkit.databaseController.Medicine
 import ru.application.homemedkit.databaseController.MedicineDatabase
 import java.util.Locale
 
-class FiltersHelper(private val context: Context) {
+class FiltersHelper(context: Context) {
 
     private val database: MedicineDatabase = MedicineDatabase.getInstance(context)
 

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.app.AppCompatDelegate.setApplicationLocales
 import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import androidx.core.os.LocaleListCompat
+import ru.application.homemedkit.alarms.AlarmSetter
 
 class Preferences(private val context: Context) {
     val preferences: SharedPreferences =
@@ -27,8 +28,10 @@ class Preferences(private val context: Context) {
     fun getLanguage() = preferences.getString(KEY_LANGUAGE, LANGUAGES[0]) ?: LANGUAGES[0]
     fun getAppTheme() = preferences.getString(KEY_APP_THEME, THEMES[0]) ?: THEMES[0]
     fun getDynamicColors() = preferences.getBoolean(KEY_DYNAMIC_COLOR, false)
-
     fun setLastKit(kitId: Long?) = preferences.edit().putLong(KEY_LAST_KIT, kitId ?: 0L).apply()
+    fun setCheckExpDate(check: Boolean) = AlarmSetter(context).checkExpiration(check)
+        .also { preferences.edit().putBoolean(CHECK_EXP_DATE, check).apply() }
+
     fun setLanguage(language: String) = when {
         SDK_INT >= TIRAMISU -> context.getSystemService(LocaleManager::class.java)
             .applicationLocales = LocaleList.forLanguageTags(language)

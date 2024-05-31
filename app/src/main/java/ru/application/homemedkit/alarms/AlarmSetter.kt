@@ -99,12 +99,14 @@ class AlarmSetter(private val context: Context) {
         )
     }
 
-    fun checkExpiration() = manager.setExactAndAllowWhileIdle(
-        RTC_WAKEUP, expirationCheckTime(), getBroadcast(
+    fun checkExpiration(check: Boolean) {
+        val broadcast = getBroadcast(
             context,
             81000,
             Intent(context, ExpirationReceiver::class.java),
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
-    )
+        if (check) manager.setExactAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
+        else manager.cancel(broadcast)
+    }
 }

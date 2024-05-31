@@ -7,23 +7,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -41,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -77,12 +75,7 @@ import java.time.LocalDateTime
 @Destination<RootGraph>
 @Composable
 fun IntakesScreen(navigator: DestinationsNavigator, context: Context = LocalContext.current) {
-    val database = MedicineDatabase.getInstance(context)
     val tabs = listOf(R.string.intakes_tab_list, R.string.intakes_tab_current, R.string.intakes_tab_taken)
-
-    val stateOne = rememberLazyListState()
-    val stateTwo = rememberLazyListState()
-    val stateThr = rememberLazyListState()
 
     var text by rememberSaveable { mutableStateOf(BLANK) }
     var selectedIndex by remember { mutableIntStateOf(0) }
@@ -99,7 +92,7 @@ fun IntakesScreen(navigator: DestinationsNavigator, context: Context = LocalCont
                         leadingIcon = { Icon(Icons.Default.Search, null) },
                         trailingIcon = {
                             if (text.isNotEmpty())
-                                IconButton(onClick = { text = BLANK })
+                                IconButton({ text = BLANK })
                                 { Icon(Icons.Outlined.Clear, null) }
                         },
                         singleLine = true,
@@ -119,66 +112,55 @@ fun IntakesScreen(navigator: DestinationsNavigator, context: Context = LocalCont
         }
     ) { paddingValues ->
         Column(Modifier.padding(top = paddingValues.calculateTopPadding())) {
-            Row {
-                Column {
-                    TabRow(selectedIndex) {
-                        tabs.forEachIndexed { index, tab ->
-                            Tab(
-                                selected = selectedIndex == index,
-                                onClick = { selectedIndex = index },
-                                text = { Text(context.getString(tab)) }
-                            )
-                        }
-                    }
+            TabRow(selectedIndex) {
+                tabs.forEachIndexed { index, tab ->
+                    Tab(
+                        selected = selectedIndex == index,
+                        onClick = { selectedIndex = index },
+                        text = { Text(context.getString(tab)) }
+                    )
                 }
             }
 
-            when (selectedIndex) {
-                0 -> {
-                    val filtered = FiltersHelper(context).intakes(text)
+            LazyColumn(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                state = rememberLazyListState(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                reverseLayout = selectedIndex == 2
+            ) {
+                when (selectedIndex) {
+                    0 -> {
+                        val filtered = FiltersHelper(context).intakes(text)
 
-                    if (filtered.isNotEmpty()) LazyColumn(
-                        state = stateOne,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) { items(filtered.size) { IntakeList(filtered[it], database, navigator) } }
-                    else Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(
-                                start = 16.dp,
-                                top = paddingValues.calculateTopPadding(),
-                                end = 16.dp
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = context.getString(R.string.text_no_intakes_found),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                }
-
-                1 -> {
-                    val result = getTriggers(text, false, context)
-
-                    LazyColumn(state = stateTwo) {
-                        items(result.size) {
-                            Column {
-                                IntakeSchedule(result.entries.elementAt(it), database, context)
+                        if (filtered.isEmpty())
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(
+                                            start = 16.dp,
+                                            top = paddingValues.calculateTopPadding(),
+                                            end = 16.dp
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = context.getString(R.string.text_no_intakes_found),
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
                             }
-                        }
+                        else items(filtered.size) { IntakeList(filtered[it], navigator, context) }
                     }
-                }
 
-                2 -> {
-                    val result = getTriggers(text, true, context)
+                    1 -> {
+                        val result = getTriggers(text, false, context)
+                        items(result.size) { IntakeSchedule(result.entries.elementAt(it)) }
+                    }
 
-                    LazyColumn(state = stateThr, reverseLayout = true) {
-                        items(result.size) {
-                            Column {
-                                IntakeSchedule(result.entries.elementAt(it), database, context)
-                            }
-                        }
+                    2 -> {
+                        val result = getTriggers(text, true, context)
+                        items(result.size) { IntakeSchedule(result.entries.elementAt(it)) }
                     }
                 }
             }
@@ -239,16 +221,10 @@ private fun getTriggers(text: String, taken: Boolean, context: Context): Map<Lon
 }
 
 @Composable
-fun IntakeList(
-    intake: Intake,
-    database: MedicineDatabase,
-    navigator: DestinationsNavigator,
-    context: Context = LocalContext.current
-) {
-    val medicine = database.medicineDAO().getByPK(intake.medicineId)
-    val productName = medicine?.productName ?: BLANK
-    val shortName = shortName(productName)
-    val image = medicine?.image ?: BLANK
+fun IntakeList(intake: Intake, navigator: DestinationsNavigator, context: Context) {
+    val medicine = MedicineDatabase.getInstance(context).medicineDAO().getByPK(intake.medicineId)!!
+    val shortName = shortName(medicine.productName)
+    val image = medicine.image
     val icon = when {
         image.contains(TYPE) -> ICONS_MED[image]
         image.isEmpty() -> R.drawable.vector_type_unknown
@@ -264,50 +240,32 @@ fun IntakeList(
     val intervalName = if (count == 1) intervalName(context, intake.interval)
     else context.resources.getQuantityString(R.plurals.intakes_a_day, count, count)
 
-    ElevatedCard(
+    ListItem(
+        headlineContent = { Text("$intervalName $startDate") },
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .clickable { navigator.navigate(IntakeScreenDestination(intakeId = intake.intakeId)) },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            .clickable { navigator.navigate(IntakeScreenDestination(intakeId = intake.intakeId)) }
+            .padding(vertical = 8.dp)
+            .clip(MaterialTheme.shapes.medium),
+        overlineContent = {
+            Text(
+                text = shortName,
+                fontWeight = FontWeight.Bold,
+                overflow = TextOverflow.Clip,
+                softWrap = false,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        supportingContent = { Text(intake.time.joinToString(", ")) },
+        leadingContent = {
             Image(rememberAsyncImagePainter(icon), null, Modifier.size(64.dp))
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-                horizontalAlignment = Alignment.Start
-            ) {
-                Text(
-                    text = shortName,
-                    fontWeight = FontWeight.SemiBold,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.headlineSmall
-                )
-                Text(
-                    text = "$intervalName $startDate",
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Text(
-                    text = intake.time.joinToString(", "),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-    }
+        },
+        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+    )
 }
 
 @Composable
-fun IntakeSchedule(
-    data: Map.Entry<Long, List<Alarm>>,
-    database: MedicineDatabase,
-    context: Context = LocalContext.current
-) {
+fun IntakeSchedule(data: Map.Entry<Long, List<Alarm>>, context: Context = LocalContext.current) {
+    val database = MedicineDatabase.getInstance(context)
     val medicineDAO = database.medicineDAO()
     val intakeDAO = database.intakeDAO()
 
@@ -317,14 +275,7 @@ fun IntakeSchedule(
         else DateHelper.FORMAT_D_M_Y
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(16.dp, 8.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.Top),
-        horizontalAlignment = Alignment.Start
-    ) {
+    Column(Modifier.padding(vertical = 8.dp), Arrangement.spacedBy(12.dp)) {
         Text(
             text = textDate,
             color = MaterialTheme.colorScheme.onSurface,
@@ -332,76 +283,59 @@ fun IntakeSchedule(
             style = MaterialTheme.typography.titleLarge
         )
         data.value.forEach { alarm ->
-            val intake = intakeDAO.getByPK(alarm.intakeId)
-            val medicine = medicineDAO.getByPK(intake?.medicineId ?: 0L)
-            val productName = medicine?.productName ?: BLANK
-            val shortName = shortName(productName)
-            val image = medicine?.image ?: BLANK
-            val form = medicine?.prodFormNormName ?: BLANK
+            val intake = intakeDAO.getByPK(alarm.intakeId)!!
+            val medicine = medicineDAO.getByPK(intake.medicineId)!!
+            val shortName = shortName(medicine.productName)
+            val image = medicine.image
+            val form = medicine.prodFormNormName
             val formName = if (form.isEmpty()) context.resources.getString(R.string.text_amount) else formName(form)
-            val amount = intake?.amount ?: 0.0
-            val doseType = medicine?.doseType ?: BLANK
+            val amount = intake.amount
+            val doseType = medicine.doseType
             val icon = when {
                 image.contains(TYPE) -> ICONS_MED[image]
                 image.isEmpty() -> R.drawable.vector_type_unknown
                 else -> File(context.filesDir, image).run {
-                    if(exists()) this else R.drawable.vector_type_unknown
+                    if (exists()) this else R.drawable.vector_type_unknown
                 }
             }
 
-            ElevatedCard(
-                modifier = Modifier.height(100.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Image(
-                        painter = rememberAsyncImagePainter(icon),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(64.dp)
-                            .weight(0.2f)
+            ListItem(
+                headlineContent = {
+                    Text(
+                        text = shortName,
+                        fontWeight = FontWeight.SemiBold,
+                        overflow = TextOverflow.Clip,
+                        softWrap = false,
+                        style = MaterialTheme.typography.titleLarge
                     )
-                    Column(
-                        modifier = Modifier
-                            .height(64.dp)
-                            .weight(0.55f),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        Text(
-                            text = shortName,
-                            fontWeight = FontWeight.SemiBold,
-                            overflow = TextOverflow.Ellipsis,
-                            softWrap = false,
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                        Text(
-                            text = stringResource(
-                                R.string.intake_text_quantity,
-                                formName,
-                                decimalFormat(amount),
-                                doseType
-                            )
-                        )
-                    }
+                },
+                modifier = Modifier.clip(MaterialTheme.shapes.medium),
+                supportingContent = {
+                    Text(
+                        text = stringResource(
+                            R.string.intake_text_quantity,
+                            formName,
+                            decimalFormat(amount),
+                            doseType
+                        ),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                },
+                leadingContent = {
+                    Image(rememberAsyncImagePainter(icon), null, Modifier.size(56.dp))
+                },
+                trailingContent = {
                     Text(
                         text = LocalDateTime.ofInstant(
                             Instant.ofEpochMilli(alarm.trigger),
                             DateHelper.ZONE
                         )
                             .format(DateHelper.FORMAT_H),
-                        modifier = Modifier.weight(0.25f),
-                        color = MaterialTheme.colorScheme.onTertiaryContainer,
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.titleLarge
                     )
-                }
-            }
+                },
+                colors = ListItemDefaults.colors(MaterialTheme.colorScheme.tertiaryContainer)
+            )
         }
     }
 }

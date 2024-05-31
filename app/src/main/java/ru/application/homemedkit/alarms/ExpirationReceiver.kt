@@ -20,7 +20,6 @@ import ru.application.homemedkit.activities.MainActivity
 import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.helpers.CHANNEL_ID
 import ru.application.homemedkit.helpers.ID
-import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.SOUND_GROUP
 
 class ExpirationReceiver : BroadcastReceiver() {
@@ -28,17 +27,16 @@ class ExpirationReceiver : BroadcastReceiver() {
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         val medicines = MedicineDatabase.getInstance(context).medicineDAO().getAll()
-        val check = Preferences(context).getCheckExpDate()
 
         createNotificationChannel(context)
 
-        if (check && medicines.isNotEmpty()) {
+        if (medicines.isNotEmpty()) {
             medicines.forEach { medicine ->
                 if (medicine.expDate < System.currentTimeMillis() + 30 * AlarmManager.INTERVAL_DAY && medicine.prodAmount > 0) {
                     NotificationManagerCompat.from(context)
                         .notify(medicine.id.toInt(), expirationNotification(context, medicine.id))
                     playSound(context)
-                    AlarmSetter(context).checkExpiration()
+                    AlarmSetter(context).checkExpiration(true)
                 }
             }
         }

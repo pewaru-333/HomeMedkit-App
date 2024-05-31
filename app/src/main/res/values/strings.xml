@@ -84,7 +84,7 @@
     <!-- Dialogs -->
     <string name="manual_add">Do you want to add medicine manually?</string>
     <string name="text_confirm_exit">Confirm exit</string>
-    <string name="text_export_import_description">This is an experimental feature. When exporting, you can change the file name. When importing, the current data will be deleted! Please, relaunch app after it!</string>
+    <string name="text_export_import_description">This is an experimental feature.\nWhen exporting, you can change the file name.\nWhen importing, the current data will be deleted! Please, relaunch app after it!</string>
     <string name="text_grant_permission">Grant permission</string>
     <string name="text_new_group">New group</string>
     <string name="text_request_camera">To scan the label, the application must be given permission to use the camera</string>

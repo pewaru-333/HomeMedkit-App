@@ -59,6 +59,7 @@
     <string name="intakes_tab_current">Текущее</string>
     <string name="intakes_tab_list">Список</string>
     <string name="intakes_tab_taken">Принятое</string>
+
     <string name="intake_card_text_from">(с %1$s)</string>
     <string name="intake_text_amount">Количество</string>
     <string name="intake_text_food">Сочетание с пищей</string>

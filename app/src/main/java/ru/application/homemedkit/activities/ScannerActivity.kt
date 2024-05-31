@@ -57,7 +57,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
 import ru.application.homemedkit.R
 import ru.application.homemedkit.databaseController.MedicineDatabase
-import ru.application.homemedkit.helpers.SNACKS
 import ru.application.homemedkit.helpers.viewModelFactory
 import ru.application.homemedkit.ui.theme.AppTheme
 import ru.application.homemedkit.viewModels.ResponseState
@@ -169,6 +168,11 @@ fun ScannerScreen(
 
 @Composable
 fun Snackbar(id: Int = 0) {
+    val alerts = listOf(
+        R.string.text_medicine_duplicate,
+        R.string.text_not_medicine_code, R.string.text_code_not_found,
+        R.string.text_unknown_error, R.string.text_unknown_error, R.string.text_connection_error
+    )
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -184,7 +188,7 @@ fun Snackbar(id: Int = 0) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = LocalContext.current.getString(SNACKS[id]),
+                text = LocalContext.current.getString(alerts[id]),
                 modifier = Modifier.padding(start = 16.dp),
                 color = MaterialTheme.colorScheme.onErrorContainer,
                 style = MaterialTheme.typography.labelLarge

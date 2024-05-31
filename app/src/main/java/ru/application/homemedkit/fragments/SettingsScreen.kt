@@ -65,7 +65,6 @@ import ru.application.homemedkit.alarms.AlarmSetter
 import ru.application.homemedkit.databaseController.Kit
 import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.CHECK_EXP_DATE
 import ru.application.homemedkit.helpers.KEY_APP_SYSTEM
 import ru.application.homemedkit.helpers.KEY_APP_VIEW
 import ru.application.homemedkit.helpers.KEY_DOWNLOAD
@@ -138,12 +137,16 @@ fun SettingsScreen(context: Context = LocalContext.current, preferences: Prefere
                 summary = { Text(context.getString(if (it) R.string.text_on else R.string.text_off)) }
             )
 
-            switchPreference(
-                key = CHECK_EXP_DATE,
-                defaultValue = false,
-                title = { Text(context.getString(R.string.preference_check_expiration_date)) },
-                summary = { Text(context.getString(if (it) R.string.text_daily_at else R.string.text_off)) }
-            )
+            item {
+                var value by remember { mutableStateOf(preferences.getCheckExpDate()) }
+
+                SwitchPreference(
+                    value = value,
+                    onValueChange = { value = it; preferences.setCheckExpDate(value) },
+                    title = { Text(context.getString(R.string.preference_check_expiration_date)) },
+                    summary = { Text(context.getString(if (value) R.string.text_daily_at else R.string.text_off)) }
+                )
+            }
 
             preferenceCategory(
                 key = KEY_APP_SYSTEM,

@@ -1,6 +1,7 @@
 package ru.application.homemedkit.fragments
 
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -18,13 +19,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -42,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -50,7 +52,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
@@ -61,10 +65,13 @@ import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DateHelper
 import ru.application.homemedkit.helpers.FiltersHelper
+import ru.application.homemedkit.helpers.ICONS_MED
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.SortingHelper
+import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.shortName
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>
@@ -150,7 +157,6 @@ fun MedicinesScreen(navigator: DestinationsNavigator, context: Context = LocalCo
             )
         }
     ) { paddingValues ->
-        val database = MedicineDatabase.getInstance(context)
         val filtered = FiltersHelper(context).medicines(text, kitId).sortedWith(comparator)
 
         if (filtered.isNotEmpty()) LazyColumn(
@@ -158,7 +164,7 @@ fun MedicinesScreen(navigator: DestinationsNavigator, context: Context = LocalCo
             contentPadding = paddingValues,
             verticalArrangement = Arrangement.spacedBy(16.dp),
         )
-        { items(filtered.size) { MedicineCard(database, filtered[it], navigator) } }
+        { items(filtered.size) { MedicineCard(filtered[it], navigator, context) } }
         else Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -178,54 +184,64 @@ fun MedicinesScreen(navigator: DestinationsNavigator, context: Context = LocalCo
 }
 
 @Composable
-private fun MedicineCard(database: MedicineDatabase, medicine: Medicine, navigator: DestinationsNavigator) {
+private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator, context: Context) {
+    val database = MedicineDatabase.getInstance(context)
     val shortName = shortName(medicine.productName)
     val formName = formName(medicine.prodFormNormName)
     val expDate = DateHelper.inCard(medicine.expDate)
     val kitTitle = database.medicineDAO().getKitTitle(medicine.kitId) ?: BLANK
+    val image = medicine.image
+    val icon = when {
+        image.contains(TYPE) -> ICONS_MED[image]
+        image.isEmpty() -> R.drawable.vector_type_unknown
+        else -> File(context.filesDir, image).run {
+            if (exists()) this else R.drawable.vector_type_unknown
+        }
+    }
 
-    ElevatedCard(
+    ListItem(
+        headlineContent = {
+            Text(
+                text = shortName,
+                modifier = Modifier.padding(vertical = 8.dp),
+                fontWeight = FontWeight.SemiBold,
+                overflow = TextOverflow.Clip,
+                softWrap = false,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
         modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
+            .clickable { navigator.navigate(MedicineScreenDestination(id = medicine.id)) }
             .padding(vertical = 8.dp)
-            .clickable { navigator.navigate(MedicineScreenDestination(id = medicine.id)) },
-        colors = CardDefaults.cardColors(
+            .clip(MaterialTheme.shapes.medium),
+        overlineContent = {
+            Text(
+                text = formName,
+                style = MaterialTheme.typography.labelLarge
+            )
+        },
+        supportingContent = {
+            Text(
+                text = expDate,
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        leadingContent = {
+            Image(rememberAsyncImagePainter(icon), null, Modifier.size(64.dp))
+        },
+        trailingContent = {
+            Text(
+                text = kitTitle,
+                style = MaterialTheme.typography.labelLarge
+            )
+        },
+        colors = ListItemDefaults.colors(
             containerColor = when {
                 medicine.expDate < System.currentTimeMillis() -> MaterialTheme.colorScheme.errorContainer
                 else -> MaterialTheme.colorScheme.secondaryContainer
             }
         )
-    ) {
-        Column(Modifier.padding(start = 36.dp, end = 16.dp), Arrangement.spacedBy(8.dp)) {
-            Text(
-                text = shortName,
-                modifier = Modifier.padding(top = 16.dp, end = 8.dp),
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Text(
-                text = formName,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                Text(
-                    text = expDate,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = kitTitle,
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-    }
+    )
 }
 
 @Composable
