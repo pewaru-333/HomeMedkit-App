@@ -67,7 +67,9 @@
     <!-- Diálogos -->
     <string name="manual_add">¿Quieres añadir un medicamento manualmente?</string>
     <string name="text_confirm_exit">Confirmar salida</string>
-    <string name="text_export_import_description">Se trata de una función experimental. Al exportar, puedes cambiar el nombre del archivo. Al importar, se borrarán los datos actuales. ¡Por favor, reinicia la aplicación después!</string>
+    <string name="text_export_import_description">Esta es una característica experimental.
+\nAl exportar, puedes cambiar el nombre del archivo.
+\n¡Al importar, los datos actuales se eliminarán! ¡Por favor, reinicia la aplicación después!</string>
     <string name="text_grant_permission">Otorgar permiso</string>
     <string name="text_new_group">Nuevo grupo</string>
     <string name="text_request_camera">Para escanear la etiqueta, la aplicación debe tener permiso para usar la cámara</string>
