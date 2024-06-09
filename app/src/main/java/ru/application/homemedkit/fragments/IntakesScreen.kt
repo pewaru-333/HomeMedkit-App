@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -88,7 +89,7 @@ fun IntakesScreen(navigator: DestinationsNavigator, context: Context = LocalCont
                         value = text,
                         onValueChange = { text = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text(context.getString(R.string.text_enter_product_name)) },
+                        label = { Text(stringResource(R.string.text_enter_product_name)) },
                         leadingIcon = { Icon(Icons.Default.Search, null) },
                         trailingIcon = {
                             if (text.isNotEmpty())
@@ -117,7 +118,7 @@ fun IntakesScreen(navigator: DestinationsNavigator, context: Context = LocalCont
                     Tab(
                         selected = selectedIndex == index,
                         onClick = { selectedIndex = index },
-                        text = { Text(context.getString(tab)) }
+                        text = { Text(stringResource(tab)) }
                     )
                 }
             }
@@ -145,7 +146,7 @@ fun IntakesScreen(navigator: DestinationsNavigator, context: Context = LocalCont
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = context.getString(R.string.text_no_intakes_found),
+                                        text = stringResource(R.string.text_no_intakes_found),
                                         textAlign = TextAlign.Center
                                     )
                                 }
@@ -232,10 +233,7 @@ fun IntakeList(intake: Intake, navigator: DestinationsNavigator, context: Contex
             if (exists()) this else R.drawable.vector_type_unknown
         }
     }
-    val startDate = LocalContext.current.resources.getString(
-        R.string.intake_card_text_from,
-        intake.startDate
-    )
+    val startDate = stringResource(R.string.intake_card_text_from, intake.startDate)
     val count = intake.time.size
     val intervalName = if (count == 1) intervalName(context, intake.interval)
     else context.resources.getQuantityString(R.plurals.intakes_a_day, count, count)
@@ -257,7 +255,13 @@ fun IntakeList(intake: Intake, navigator: DestinationsNavigator, context: Contex
         },
         supportingContent = { Text(intake.time.joinToString(", ")) },
         leadingContent = {
-            Image(rememberAsyncImagePainter(icon), null, Modifier.size(64.dp))
+            Image(
+                painter = rememberAsyncImagePainter(icon),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(64.dp)
+                    .offset(y = 4.dp)
+            )
         },
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
     )
@@ -288,7 +292,7 @@ fun IntakeSchedule(data: Map.Entry<Long, List<Alarm>>, context: Context = LocalC
             val shortName = shortName(medicine.productName)
             val image = medicine.image
             val form = medicine.prodFormNormName
-            val formName = if (form.isEmpty()) context.resources.getString(R.string.text_amount) else formName(form)
+            val formName = if (form.isEmpty()) stringResource(R.string.text_amount) else formName(form)
             val amount = intake.amount
             val doseType = medicine.doseType
             val icon = when {

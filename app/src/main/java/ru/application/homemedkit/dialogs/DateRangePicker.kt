@@ -1,6 +1,5 @@
 package ru.application.homemedkit.dialogs
 
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -34,18 +33,17 @@ fun DateRangePicker(
     start: String?,
     final: String?,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-    context: Context = LocalContext.current
+    onConfirm: () -> Unit
 ) {
     Dialog(onDismiss, DialogProperties(usePlatformDefaultWidth = false)) {
         Surface {
             Column(Modifier.fillMaxSize(), Arrangement.Top) {
                 Row(
-                    Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp, 12.dp, 12.dp, 0.dp),
-                    Arrangement.SpaceBetween,
-                    Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(onDismiss) { Icon(Icons.Default.Clear, null) }
                     IconButton(onConfirm) { Icon(Icons.Default.Check, null) }
@@ -55,7 +53,7 @@ fun DateRangePicker(
                     state = state,
                     title = {
                         Text(
-                            text = context.getString(R.string.intake_text_pick_period),
+                            text = stringResource(R.string.intake_text_pick_period),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(20.dp),

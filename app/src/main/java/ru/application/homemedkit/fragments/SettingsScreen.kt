@@ -47,6 +47,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -83,11 +85,11 @@ import java.io.File
 
 @Destination<RootGraph>
 @Composable
-fun SettingsScreen(context: Context = LocalContext.current, preferences: Preferences = Preferences(context)) {
-    val pages = context.resources.getStringArray(R.array.fragment_pages_name)
-    val sorting = context.resources.getStringArray(R.array.sorting_types_name)
-    val languages = context.resources.getStringArray(R.array.languages_name)
-    val themes = context.resources.getStringArray(R.array.app_themes_name)
+fun SettingsScreen(preferences: Preferences = Preferences(LocalContext.current)) {
+    val pages = stringArrayResource(R.array.fragment_pages_name)
+    val sorting = stringArrayResource(R.array.sorting_types_name)
+    val languages = stringArrayResource(R.array.languages_name)
+    val themes = stringArrayResource(R.array.app_themes_name)
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var showExport by rememberSaveable { mutableStateOf(false) }
     
@@ -95,21 +97,21 @@ fun SettingsScreen(context: Context = LocalContext.current, preferences: Prefere
         LazyColumn {
             preferenceCategory(
                 key = KEY_APP_VIEW,
-                title = { Text(context.getString(R.string.preference_app_view)) },
+                title = { Text(stringResource(R.string.preference_app_view)) },
             )
 
             preference(
                 key = KEY_KITS,
-                title = { Text(context.getString(R.string.preference_kits_group)) },
+                title = { Text(stringResource(R.string.preference_kits_group)) },
                 onClick = { showDialog = true },
-                summary = { Text(context.getString(R.string.text_tap_to_view)) }
+                summary = { Text(stringResource(R.string.text_tap_to_view)) }
             )
 
             listPreference(
                 key = KEY_FRAGMENT,
                 defaultValue = MENUS[0],
                 values = MENUS,
-                title = { Text(context.getString(R.string.preference_start_page)) },
+                title = { Text(stringResource(R.string.preference_start_page)) },
                 summary = { Text(localize(it, MENUS, pages)) },
                 valueToText = { localize(it, MENUS, pages) }
             )
@@ -118,7 +120,7 @@ fun SettingsScreen(context: Context = LocalContext.current, preferences: Prefere
                 key = KEY_ORDER,
                 defaultValue = SORTING[0],
                 values = SORTING,
-                title = { Text(context.getString(R.string.preference_sorting_type)) },
+                title = { Text(stringResource(R.string.preference_sorting_type)) },
                 summary = { Text(localize(it, SORTING, sorting)) },
                 valueToText = { localize(it, SORTING, sorting) }
             )
@@ -126,15 +128,15 @@ fun SettingsScreen(context: Context = LocalContext.current, preferences: Prefere
             switchPreference(
                 key = KEY_DOWNLOAD,
                 defaultValue = true,
-                title = { Text(context.getString(R.string.preference_download_images)) },
-                summary = { Text(context.getString(if (it) R.string.text_on else R.string.text_off)) }
+                title = { Text(stringResource(R.string.preference_download_images)) },
+                summary = { Text(stringResource(if (it) R.string.text_on else R.string.text_off)) }
             )
 
             switchPreference(
                 key = KEY_LIGHT_PERIOD,
                 defaultValue = true,
-                title = { Text(context.getString(R.string.preference_easy_period_picker)) },
-                summary = { Text(context.getString(if (it) R.string.text_on else R.string.text_off)) }
+                title = { Text(stringResource(R.string.preference_easy_period_picker)) },
+                summary = { Text(stringResource(if (it) R.string.text_on else R.string.text_off)) }
             )
 
             item {
@@ -143,14 +145,14 @@ fun SettingsScreen(context: Context = LocalContext.current, preferences: Prefere
                 SwitchPreference(
                     value = value,
                     onValueChange = { value = it; preferences.setCheckExpDate(value) },
-                    title = { Text(context.getString(R.string.preference_check_expiration_date)) },
-                    summary = { Text(context.getString(if (value) R.string.text_daily_at else R.string.text_off)) }
+                    title = { Text(stringResource(R.string.preference_check_expiration_date)) },
+                    summary = { Text(stringResource(if (value) R.string.text_daily_at else R.string.text_off)) }
                 )
             }
 
             preferenceCategory(
                 key = KEY_APP_SYSTEM,
-                title = { Text(context.getString(R.string.preference_system)) },
+                title = { Text(stringResource(R.string.preference_system)) },
                 modifier = Modifier.drawBehind {
                     drawLine(Color.LightGray, Offset(0f, 0f), Offset(size.width, 0f), 2f)
                 }
@@ -163,7 +165,7 @@ fun SettingsScreen(context: Context = LocalContext.current, preferences: Prefere
                     value = value,
                     onValueChange = { value = it; preferences.setLanguage(value) },
                     values = LANGUAGES,
-                    title = { Text(context.getString(R.string.preference_language)) },
+                    title = { Text(stringResource(R.string.preference_language)) },
                     summary = { Text(localize(value, LANGUAGES, languages)) },
                     valueToText = { localize(it, LANGUAGES, languages) }
                 )
@@ -176,7 +178,7 @@ fun SettingsScreen(context: Context = LocalContext.current, preferences: Prefere
                     value = value,
                     onValueChange = { value = it; preferences.setTheme(value) },
                     values = THEMES,
-                    title = { Text(context.getString(R.string.preference_app_theme)) },
+                    title = { Text(stringResource(R.string.preference_app_theme)) },
                     summary = { Text(localize(value, THEMES, themes)) },
                     valueToText = { localize(it, THEMES, themes) }
                 )
@@ -188,14 +190,14 @@ fun SettingsScreen(context: Context = LocalContext.current, preferences: Prefere
                 SwitchPreference(
                     value = value,
                     onValueChange = { value = it; preferences.setDynamicColors(value) },
-                    title = { Text(context.getString(R.string.preference_dynamic_color)) },
+                    title = { Text(stringResource(R.string.preference_dynamic_color)) },
                     enabled = isDynamicColorAvailable()
                 )
             }
 
             preference(
                 key = KEY_EXP_IMP,
-                title = { Text(context.getString(R.string.preference_import_export)) },
+                title = { Text(stringResource(R.string.preference_import_export)) },
                 onClick = { showExport = true }
             )
         }
@@ -218,7 +220,7 @@ private fun KitsManager(onDismiss: () -> Unit, context: Context = LocalContext.c
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text(context.getString(R.string.preference_kits_group)) },
+                        title = { Text(stringResource(R.string.preference_kits_group)) },
                         navigationIcon = {
                             IconButton(onDismiss) {
                                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
@@ -228,7 +230,7 @@ private fun KitsManager(onDismiss: () -> Unit, context: Context = LocalContext.c
                 },
                 floatingActionButton = {
                     ExtendedFloatingActionButton(
-                        { Text(context.getString(R.string.text_add)) },
+                        { Text(stringResource(R.string.text_add)) },
                         { Icon(Icons.Default.Add, null) },
                         { show = true },
                     )
@@ -255,19 +257,19 @@ private fun KitsManager(onDismiss: () -> Unit, context: Context = LocalContext.c
                     TextButton(
                         onClick = { dao.add(Kit(title = text)); text = BLANK; show = false },
                         enabled = text.isNotEmpty()
-                    ) { Text(context.getString(R.string.text_save)) }
+                    ) { Text(stringResource(R.string.text_save)) }
                 },
                 dismissButton = {
                     TextButton({ show = false; text = BLANK }) {
-                        Text(context.getString(R.string.text_cancel))
+                        Text(stringResource(R.string.text_cancel))
                     }
                 },
-                title = { Text(context.getString(R.string.text_new_group)) },
+                title = { Text(stringResource(R.string.text_new_group)) },
                 text = {
                     OutlinedTextField(
                         value = text,
                         onValueChange = { text = it },
-                        placeholder = { Text(context.getString(R.string.placeholder_kitchen)) }
+                        placeholder = { Text(stringResource(R.string.placeholder_kitchen)) }
                     )
                 }
             )
@@ -350,12 +352,12 @@ private fun ExportImport(onDismiss: () -> Unit, context: Context = LocalContext.
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { Button({ importer.launch(mimes) }) { Text(context.getString(R.string.text_import)) }},
-        dismissButton = { Button({ exporter.launch(name) }) { Text(context.getString(R.string.text_export)) }},
-        title = { Text(context.getString(R.string.text_attention)) },
+        confirmButton = { Button({ importer.launch(mimes) }) { Text(stringResource(R.string.text_import)) }},
+        dismissButton = { Button({ exporter.launch(name) }) { Text(stringResource(R.string.text_export)) }},
+        title = { Text(stringResource(R.string.text_attention)) },
         text = {
             Text(
-                text = context.getString(R.string.text_export_import_description),
+                text = stringResource(R.string.text_export_import_description),
                 style = MaterialTheme.typography.titleMedium
             )
         }

@@ -3,7 +3,6 @@ package ru.application.homemedkit.activities
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.os.Build
 import android.os.Build.VERSION
 import androidx.activity.compose.BackHandler
@@ -72,6 +71,8 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -121,7 +122,6 @@ fun IntakeScreen(
     medicineId: Long = 0L,
     navigator: DestinationsNavigator,
     context: Context = LocalContext.current,
-    resources: Resources = context.resources,
     lifecycle: Lifecycle = LocalLifecycleOwner.current.lifecycle
 ) {
     val database = MedicineDatabase.getInstance(context)
@@ -202,10 +202,10 @@ fun IntakeScreen(
 
                                 DropdownMenu(expanded, { expanded = false }) {
                                     DropdownMenuItem(
-                                        { Text(resources.getString(R.string.text_edit)) },
+                                        { Text(stringResource(R.string.text_edit)) },
                                         { viewModel.onEvent(IntakeEvent.SetEditing) })
                                     DropdownMenuItem(
-                                        { Text(resources.getString(R.string.text_delete)) },
+                                        { Text(stringResource(R.string.text_delete)) },
                                         { viewModel.onEvent(IntakeEvent.Delete) }
                                     )
                                 }
@@ -318,8 +318,7 @@ private fun Amount(onEvent: (IntakeEvent) -> Unit, state: IntakeState, prodAmoun
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Interval(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
-    val resources = LocalContext.current.resources
-    val intervals = resources.getStringArray(R.array.interval_types_name)
+    val intervals = stringArrayResource(R.array.interval_types_name)
     var interval by remember {
         mutableStateOf(
             try {
@@ -352,7 +351,7 @@ private fun Interval(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                         .fillMaxWidth()
                         .menuAnchor(),
                     readOnly = true,
-                    placeholder = { Text(resources.getString(R.string.intake_text_select_interval)) },
+                    placeholder = { Text(stringResource(R.string.intake_text_select_interval)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                     shape = RoundedCornerShape(14.dp)
                 )
@@ -383,8 +382,8 @@ private fun Interval(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                     modifier = Modifier.weight(0.5f),
                     readOnly = state.default,
                     placeholder = { Text("N") },
-                    prefix = { Text(resources.getString(R.string.text_every)) },
-                    suffix = { Text(resources.getString(R.string.text_days_short)) },
+                    prefix = { Text(stringResource(R.string.text_every)) },
+                    suffix = { Text(stringResource(R.string.text_days_short)) },
                     isError = isError,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
@@ -398,16 +397,15 @@ private fun Interval(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
-    val context = LocalContext.current
-    val dateST = context.getString(R.string.text_start_date)
-    val dateFT = context.getString(R.string.text_finish_date)
+    val dateST = stringResource(R.string.text_start_date)
+    val dateFT = stringResource(R.string.text_finish_date)
 
     Column(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(8.dp)) {
         LabelText(R.string.intake_text_period)
 
         when {
-            Preferences(context).getLightPeriod() -> {
-                val periods = context.resources.getStringArray(R.array.period_types_name)
+            Preferences(LocalContext.current).getLightPeriod() -> {
+                val periods = stringArrayResource(R.array.period_types_name)
                 var period by rememberSaveable {
                     mutableStateOf(
                         when (state.periodD) {
@@ -436,7 +434,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                                 .fillMaxWidth()
                                 .menuAnchor(),
                             readOnly = true,
-                            placeholder = { Text(context.getString(R.string.intake_text_pick_period)) },
+                            placeholder = { Text(stringResource(R.string.intake_text_pick_period)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                             shape = RoundedCornerShape(14.dp)
                         )
@@ -473,7 +471,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                             textStyle = MaterialTheme.typography.titleMedium,
                             placeholder = { Text("10") },
                             leadingIcon = { Icon(Icons.Default.DateRange, null) },
-                            suffix = { Text(context.getString(R.string.text_days_short)) },
+                            suffix = { Text(stringResource(R.string.text_days_short)) },
                             isError = isError,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
@@ -544,7 +542,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                             .clickable { showPicker = true },
                         enabled = false,
                         readOnly = true,
-                        placeholder = { Text(context.getString(R.string.placeholder_date)) },
+                        placeholder = { Text(stringResource(R.string.placeholder_date)) },
                         leadingIcon = { Icon(Icons.Default.DateRange, null) },
                         supportingText = { Text(dateST) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -560,7 +558,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                             .clickable { showPicker = true },
                         enabled = false,
                         readOnly = true,
-                        placeholder = { Text(context.getString(R.string.placeholder_date)) },
+                        placeholder = { Text(stringResource(R.string.placeholder_date)) },
                         leadingIcon = { Icon(Icons.Default.DateRange, null) },
                         supportingText = { Text(dateFT) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -605,16 +603,15 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 
 @Composable
 private fun Food(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
-    val context = LocalContext.current
     val icons = listOf(
         R.drawable.vector_before_food,
         R.drawable.vector_in_food,
         R.drawable.vector_after_food
     )
     val options = listOf(
-        context.getString(R.string.intake_text_food_before),
-        context.getString(R.string.intake_text_food_during),
-        context.getString(R.string.intake_text_food_after)
+        stringResource(R.string.intake_text_food_before),
+        stringResource(R.string.intake_text_food_during),
+        stringResource(R.string.intake_text_food_after)
     )
     var selected by remember { mutableIntStateOf(state.foodType) }
 
@@ -626,11 +623,7 @@ private fun Food(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                     modifier = Modifier
                         .width(112.dp)
                         .height(96.dp)
-                        .border(
-                            1.dp,
-                            MaterialTheme.colorScheme.onSurface,
-                            RoundedCornerShape(16.dp)
-                        )
+                        .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(16.dp))
                         .background(
                             if (index == selected) MaterialTheme.colorScheme.secondaryContainer
                             else Color.Transparent,
@@ -645,18 +638,12 @@ private fun Food(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                     verticalArrangement = Arrangement.SpaceEvenly,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(
-                        painter = painterResource(icons[index]),
-                        contentDescription = null,
-                        modifier = Modifier.size(32.dp)
-                    )
+                    Icon(painterResource(icons[index]), null, Modifier.size(32.dp))
                     Text(
                         text = label,
                         textAlign = TextAlign.Center,
                         maxLines = 2,
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold)
                     )
                 }
             }
@@ -692,10 +679,7 @@ private fun Time(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                             enabled = false,
                             placeholder = {
                                 Text(
-                                    String.format(
-                                        LocalContext.current.getString(R.string.placeholder_time),
-                                        index + 1
-                                    )
+                                    String.format(stringResource(R.string.placeholder_time), index + 1)
                                 )
                             },
                             leadingIcon = { Icon(painterResource(R.drawable.vector_time), null) },
@@ -785,14 +769,12 @@ fun fieldColorsInverted(isError: Boolean = false) = TextFieldDefaults.colors(
 )
 
 @Composable
-private fun LabelText(id: Int, text: String = LocalContext.current.getString(id)) {
-    Text(
-        text = text,
-        color = MaterialTheme.colorScheme.onSurface,
-        fontWeight = FontWeight.SemiBold,
-        style = MaterialTheme.typography.titleLarge
-    )
-}
+private fun LabelText(id: Int) = Text(
+    text = stringResource(id),
+    color = MaterialTheme.colorScheme.onSurface,
+    fontWeight = FontWeight.SemiBold,
+    style = MaterialTheme.typography.titleLarge
+)
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private fun checkNotificationPermission(

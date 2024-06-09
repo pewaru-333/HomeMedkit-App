@@ -1,12 +1,14 @@
 package ru.application.homemedkit.connectionController.models
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import ru.application.homemedkit.helpers.BLANK
 
+@JsonClass(generateAdapter = true)
 data class MainModel(
-    @field:Json val codeFounded: Boolean,
-    @field:Json val checkResult: Boolean,
-    @field:Json val category: String? = BLANK,
-    @field:Json val cis: String = BLANK,
-    @field:Json val drugsData: DrugsData = DrugsData()
+    @Json val codeFounded: Boolean,
+    @Json val checkResult: Boolean,
+    @Json val category: String? = BLANK,
+    @Json val cis: String = BLANK,
+    @Json val drugsData: DrugsData = DrugsData()
 )

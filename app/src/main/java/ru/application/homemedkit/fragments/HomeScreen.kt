@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -49,7 +50,7 @@ import ru.application.homemedkit.R
 
 @Destination<RootGraph>(start = true)
 @Composable
-fun HomeScreen(navController: DestinationsNavigator, context: Context = LocalContext.current) {
+fun HomeScreen(navigator: DestinationsNavigator, context: Context = LocalContext.current) {
     var show by rememberSaveable { mutableStateOf(false) }
 
     Row(
@@ -58,15 +59,15 @@ fun HomeScreen(navController: DestinationsNavigator, context: Context = LocalCon
         Alignment.CenterVertically
     ) {
         Card(
-            context.resources.getString(R.string.text_data_matrix_scanner),
+            stringResource(R.string.text_data_matrix_scanner),
             ImageVector.vectorResource(R.drawable.vector_scanner),
-            navController,
+            navigator,
             ScannerScreenDestination
         )
         Card(
-            context.resources.getString(R.string.text_manual_add),
+            stringResource(R.string.text_manual_add),
             Icons.Outlined.Create,
-            navController,
+            navigator,
             MedicineScreenDestination()
         )
     }
@@ -120,12 +121,10 @@ private fun Card(text: String, icon: ImageVector, navigator: DestinationsNavigat
 }
 
 @Composable
-private fun ExitDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, context: Context = LocalContext.current) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = { TextButton(onConfirm) { Text(context.getString(R.string.text_yes)) } },
-        dismissButton = { TextButton(onDismiss) { Text(context.getString(R.string.text_no)) } },
-        title = { Text(context.getString(R.string.text_confirm_exit)) },
-        text = { Text(context.getString(R.string.text_sure_to_exit)) }
-    )
-}
+private fun ExitDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) = AlertDialog(
+    onDismissRequest = onDismiss,
+    confirmButton = { TextButton(onConfirm) { Text(stringResource(R.string.text_yes)) } },
+    dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_no)) } },
+    title = { Text(stringResource(R.string.text_confirm_exit)) },
+    text = { Text(stringResource(R.string.text_sure_to_exit)) }
+)

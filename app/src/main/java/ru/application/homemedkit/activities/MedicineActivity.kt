@@ -1,7 +1,6 @@
 package ru.application.homemedkit.activities
 
 import android.content.Context
-import android.content.res.Resources
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -73,6 +72,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -124,8 +125,7 @@ fun MedicineScreen(
     cis: String = BLANK,
     duplicate: Boolean = false,
     navigator: DestinationsNavigator,
-    context: Context = LocalContext.current,
-    resources: Resources = context.resources
+    context: Context = LocalContext.current
 ) {
     val database = MedicineDatabase.getInstance(context)
     val viewModel = viewModel<MedicineViewModel>(factory = viewModelFactory {
@@ -203,11 +203,11 @@ fun MedicineScreen(
 
                                 DropdownMenu(expanded, { expanded = false }) {
                                     DropdownMenuItem(
-                                        text = { Text(resources.getString(R.string.text_edit)) },
+                                        text = { Text(stringResource(R.string.text_edit)) },
                                         onClick = { viewModel.onEvent(MedicineEvent.SetEditing) }
                                     )
                                     DropdownMenuItem(
-                                        text = { Text(resources.getString(R.string.text_delete)) },
+                                        text = { Text(stringResource(R.string.text_delete)) },
                                         onClick = { viewModel.onEvent(MedicineEvent.Delete) }
                                     )
                                 }
@@ -267,12 +267,12 @@ fun MedicineScreen(
 }
 
 @Composable
-private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState, context: Context = LocalContext.current) {
+private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
     Column(Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp), Arrangement.spacedBy(4.dp)) {
 
         if (state.adding)
             Text(
-                text = context.getString(R.string.text_medicine_product_name),
+                text = stringResource(R.string.text_medicine_product_name),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
@@ -310,7 +310,7 @@ private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState, 
             }
 
             state.adding || state.editing -> {
-                val kits = MedicineDatabase.getInstance(context).kitDAO().getAll()
+                val kits = MedicineDatabase.getInstance(LocalContext.current).kitDAO().getAll()
                 var show by remember { mutableStateOf(false) }
                 var kitId by remember { mutableStateOf(state.kitId) }
 
@@ -323,7 +323,7 @@ private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState, 
                         .clickable { show = true },
                     enabled = false,
                     readOnly = true,
-                    placeholder = { Text(context.getString(R.string.placeholder_kitchen)) },
+                    placeholder = { Text(stringResource(R.string.placeholder_kitchen)) },
                     colors = fieldColorsInverted()
                 )
 
@@ -334,15 +334,15 @@ private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState, 
                             onClick = { onEvent(MedicineEvent.SetKitId(kitId)); show = false },
                             enabled = kitId != null,
                         ) {
-                            Text(context.getString(R.string.text_save))
+                            Text(stringResource(R.string.text_save))
                         }
                     },
                     dismissButton = {
                         TextButton({ onEvent(MedicineEvent.SetKitId(null)); show = false }) {
-                            Text(context.getString(R.string.text_clear))
+                            Text(stringResource(R.string.text_clear))
                         }
                     },
-                    title = { Text(context.getString(R.string.preference_kits_group)) },
+                    title = { Text(stringResource(R.string.preference_kits_group)) },
                     text = {
                         Column(Modifier.selectableGroup()) {
                             kits.forEach { kit ->
@@ -418,7 +418,6 @@ private fun ProductImage(viewModel: MedicineViewModel, state: MedicineState) {
 
 @Composable
 private fun ExpirationDate(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    val context = LocalContext.current
     var size by remember { mutableStateOf(IntSize.Zero) }
 
     Row(
@@ -430,7 +429,7 @@ private fun ExpirationDate(onEvent: (MedicineEvent) -> Unit, state: MedicineStat
     ) {
         Column(Modifier.onGloballyPositioned { size = it.size }) {
             Text(
-                text = context.getString(R.string.text_exp_date),
+                text = stringResource(R.string.text_exp_date),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = if (state.default) MaterialTheme.typography.titleLarge
                 else MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
@@ -457,7 +456,7 @@ private fun ExpirationDate(onEvent: (MedicineEvent) -> Unit, state: MedicineStat
                             .clickable { showPicker = true },
                         enabled = false,
                         readOnly = true,
-                        placeholder = { Text(context.getString(R.string.placeholder_exp_date)) },
+                        placeholder = { Text(stringResource(R.string.placeholder_exp_date)) },
                         leadingIcon = { Icon(Icons.Default.DateRange, null) },
                         colors = fieldColorsInverted()
                     )
@@ -516,7 +515,7 @@ private fun ExpirationDate(onEvent: (MedicineEvent) -> Unit, state: MedicineStat
 private fun ProductFormName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
     Column(Modifier.padding(horizontal = 16.dp)) {
         Text(
-            text = LocalContext.current.getString(R.string.text_medicine_description),
+            text = stringResource(R.string.text_medicine_description),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
 
@@ -546,7 +545,7 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
     Row(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(16.dp)) {
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
             Text(
-                text = LocalContext.current.getString(R.string.text_medicine_dose),
+                text = stringResource(R.string.text_medicine_dose),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
 
@@ -566,7 +565,7 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
                                 singleLine = false,
                                 visualTransformation = VisualTransformation.None,
                                 interactionSource = remember(::MutableInteractionSource),
-                                placeholder = { Text(LocalContext.current.getString(R.string.placeholder_dose)) }
+                                placeholder = { Text(stringResource(R.string.placeholder_dose)) }
                             )
 
                         else -> OutlinedTextFieldDefaults.DecorationBox(
@@ -586,7 +585,7 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
 
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
             Text(
-                text = LocalContext.current.getString(R.string.text_amount),
+                text = stringResource(R.string.text_amount),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
 
@@ -617,8 +616,7 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
                             interactionSource = remember(::MutableInteractionSource),
                             placeholder = { Text("50") },
                             trailingIcon = {
-                                val list = LocalContext.current
-                                    .resources.getStringArray(R.array.medicine_dose_types)
+                                val list = stringArrayResource(R.array.medicine_dose_types)
 
                                 var expanded by remember { mutableStateOf(false) }
                                 var selected by remember { mutableStateOf(state.doseType) }
@@ -668,7 +666,7 @@ private fun PhKinetics(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
     if (state.adding || state.editing || state.phKinetics.isNotEmpty())
         Column(Modifier.padding(horizontal = 16.dp)) {
             Text(
-                text = LocalContext.current.getString(R.string.text_indications_for_use),
+                text = stringResource(R.string.text_indications_for_use),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
 
@@ -695,7 +693,7 @@ private fun Comment(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
     if (state.adding || state.editing || state.comment.isNotEmpty())
         Column(Modifier.padding(16.dp, 0.dp, 16.dp, 16.dp)) {
             Text(
-                text = LocalContext.current.getString(R.string.text_medicine_comment),
+                text = stringResource(R.string.text_medicine_comment),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
 
@@ -727,7 +725,7 @@ private fun DecorationBox(text: String, innerTextField: @Composable () -> Unit) 
         singleLine = false,
         visualTransformation = VisualTransformation.None,
         interactionSource = remember(::MutableInteractionSource),
-        placeholder = { Text(LocalContext.current.getString(R.string.text_empty)) }
+        placeholder = { Text(stringResource(R.string.text_empty)) }
     )
 }
 
@@ -749,8 +747,7 @@ private fun NoDecorationBox(text: String, innerTextField: @Composable () -> Unit
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun IconPicker(onEvent: (MedicineEvent) -> Unit, onCancel: () -> Unit) {
-    val context = LocalContext.current
-    val names = context.resources.getStringArray(R.array.medicine_types)
+    val names = stringArrayResource(R.array.medicine_types)
 
     Dialog(onCancel) {
         Surface(Modifier.padding(vertical = 64.dp), RoundedCornerShape(16.dp)) {

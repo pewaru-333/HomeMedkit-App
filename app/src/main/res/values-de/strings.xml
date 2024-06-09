@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
+
     <!-- Menu -->
     <string name="bottom_bar_main">Startseite</string>
     <string name="bottom_bar_medicines">Medizin</string>
     <string name="bottom_bar_intakes">Einnahmen</string>
     <string name="bottom_bar_settings">Einstellung</string>
+
     <!-- Preferences -->
     <string name="preference_app_view">App-Ansicht</string>
     <string name="preference_kits_group">Medizinische Gruppen</string>
@@ -19,27 +21,33 @@
     <string name="preference_app_theme">App-Thema</string>
     <string name="preference_dynamic_color">Dynamische Farbe</string>
     <string name="preference_import_export">Importieren / Exportieren</string>
+
     <!-- Languages -->
     <string name="lang_system">System</string>
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabetisch (A bis z)</string>
     <string name="sorting_z_a">Alphabetisch (z bis A)</string>
+
     <!-- Notifications -->
     <string name="notification_channel_name">Ton-Benachrichtigungen</string>
     <string name="text_attention">Achtung!</string>
     <string name="text_do_intake">Einnehmen</string>
+
     <!-- Placeholders -->
     <string name="placeholder_kitchen">Küche</string>
     <string name="placeholder_time">Zeit #%1$d</string>
+
     <!-- Medicines -->
     <string name="text_exp_date">Ablaufdatum</string>
     <string name="text_medicine_comment">Kommentar</string>
     <string name="text_medicine_description">Beschreibung</string>
     <string name="text_medicine_dose">Dosis</string>
     <string name="text_medicine_product_name">Produktname</string>
+
     <!-- Intakes -->
     <string name="intakes_tab_current">Aktuell</string>
     <string name="intakes_tab_list">Liste</string>
+
     <string name="intake_text_interval">Intervall</string>
     <string name="intake_text_left">Links</string>
     <string name="intake_text_period">Zeitraum</string>
@@ -51,16 +59,19 @@
     <string name="intake_text_food_after">Nach dem Essen</string>
     <string name="intake_text_food_before">Vor dem Essen</string>
     <string name="intake_text_food_during">Während dem Essen</string>
+
     <!-- Dialogs -->
     <string name="text_grant_permission">Berechtigung gewähren</string>
     <string name="text_new_group">Neue Gruppe</string>
     <string name="text_select_time">Zeit auswählen</string>
     <string name="text_confirm_exit">Beenden bestätigen</string>
     <string name="text_error">Fehler!</string>
+
     <!-- Snackbars -->
     <string name="text_code_not_found">Code nicht gefunden!</string>
     <string name="text_connection_error">Verbindungsfehler!</string>
     <string name="text_unknown_error">Falscher Code gescannt!</string>
+
     <!-- Strings -->
     <string name="text_every">"Alle "</string>
     <string name="text_export">Exportieren</string>

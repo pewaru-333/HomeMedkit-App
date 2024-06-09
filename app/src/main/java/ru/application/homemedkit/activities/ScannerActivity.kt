@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -145,9 +146,9 @@ fun ScannerScreen(
 
         if (viewModel.alert)
             AddMedicineDialog(
-                navController = navigator,
+                navigator = navigator,
                 cis = state.cis,
-                onDismiss = { viewModel.alert = false; navigator.navigate(ScannerScreenDestination) }
+                dismiss = { viewModel.alert = false; navigator.navigate(ScannerScreenDestination) }
             )
 
         when (response) {
@@ -188,7 +189,7 @@ fun Snackbar(id: Int = 0) {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = LocalContext.current.getString(alerts[id]),
+                text = stringResource(alerts[id]),
                 modifier = Modifier.padding(start = 16.dp),
                 color = MaterialTheme.colorScheme.onErrorContainer,
                 style = MaterialTheme.typography.labelLarge
@@ -198,33 +199,28 @@ fun Snackbar(id: Int = 0) {
 }
 
 @Composable
-private fun AddMedicineDialog(
-    navController: DestinationsNavigator,
-    cis: String,
-    onDismiss: () -> Unit,
-    context: Context = LocalContext.current,
-) {
+private fun AddMedicineDialog(navigator: DestinationsNavigator, cis: String, dismiss: () -> Unit) {
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = dismiss,
         confirmButton = {
-            TextButton({ navController.navigate(MedicineScreenDestination(cis = cis)) }) {
+            TextButton({ navigator.navigate(MedicineScreenDestination(cis = cis)) }) {
                 Text(
-                    text = context.resources.getString(R.string.text_yes),
+                    text = stringResource(R.string.text_yes),
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
         },
         dismissButton = {
-            TextButton(onDismiss) {
+            TextButton(dismiss) {
                 Text(
-                    text = context.resources.getString(R.string.text_no),
+                    text = stringResource(R.string.text_no),
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
         },
         title = {
             Text(
-                text = context.resources.getString(R.string.text_connection_error),
+                text = stringResource(R.string.text_connection_error),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold
@@ -233,7 +229,7 @@ private fun AddMedicineDialog(
         },
         text = {
             Text(
-                text = context.resources.getString(R.string.manual_add),
+                text = stringResource(R.string.manual_add),
                 style = MaterialTheme.typography.bodyLarge
             )
         },
@@ -244,11 +240,9 @@ private fun AddMedicineDialog(
 }
 
 @Composable
-fun LoadingDialog() {
-    Dialog({}) {
-        Box(Modifier.fillMaxSize(), Alignment.Center)
-        { CircularProgressIndicator() }
-    }
+fun LoadingDialog() = Dialog({}) {
+    Box(Modifier.fillMaxSize(), Alignment.Center)
+    { CircularProgressIndicator() }
 }
 
 @Composable
@@ -256,7 +250,7 @@ fun PermissionDialog(context: Context = LocalContext.current, id: Int) {
     Dialog({ Intent(context, MainActivity::class.java).also(context::startActivity) }) {
         ElevatedCard {
             Text(
-                text = context.getString(id),
+                text = stringResource(id),
                 modifier = Modifier.padding(16.dp),
                 style = MaterialTheme.typography.bodyLarge
             )
@@ -270,7 +264,7 @@ fun PermissionDialog(context: Context = LocalContext.current, id: Int) {
                         .also(context::startActivity)
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text(text = context.getString(R.string.text_grant_permission)) }
+            ) { Text(text = stringResource(R.string.text_grant_permission)) }
         }
     }
 }

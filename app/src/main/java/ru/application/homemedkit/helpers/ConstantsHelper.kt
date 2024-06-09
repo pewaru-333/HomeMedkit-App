@@ -30,7 +30,7 @@ const val SOUND_GROUP = "Sound group"
 const val TYPE = "vector_type"
 
 // ============================== Collections ==============================
-val LANGUAGES = listOf("System", "ru", "en-US", "de", "it", "es", "pt-BR", "pl", "tr")
+val LANGUAGES = listOf("System", "ru", "en-US", "de", "it", "es", "pt-BR", "pl", "tr", "vi")
 val MENUS = listOf(HomeScreenDestination.route, MedicinesScreenDestination.route,
     IntakesScreenDestination.route, SettingsScreenDestination.route)
 val SORTING = listOf("A-z", "z-A", "old-new", "new-old")

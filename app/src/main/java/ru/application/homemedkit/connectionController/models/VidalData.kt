@@ -1,9 +1,11 @@
 package ru.application.homemedkit.connectionController.models
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import ru.application.homemedkit.helpers.BLANK
 
+@JsonClass(generateAdapter = true)
 data class VidalData(
-    @field:Json val phKinetics: String? = BLANK,
-    @field:Json val images: List<String>? = emptyList()
+    @Json val phKinetics: String? = BLANK,
+    @Json val images: List<String>? = emptyList()
 )

@@ -14,8 +14,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 34
-        versionCode = 28
-        versionName = "1.3.8"
+        versionCode = 29
+        versionName = "1.3.9"
     }
 
     room {
@@ -65,8 +65,8 @@ dependencies {
     implementation(libs.androidx.room.ktx)
 
     // ==================== Retrofit ====================
+    ksp(libs.moshi.kotlin.codegen)
     implementation(libs.retrofit)
-    implementation(libs.moshi.kotlin)
     implementation(libs.converter.moshi)
 
     // ==================== Navigation ====================

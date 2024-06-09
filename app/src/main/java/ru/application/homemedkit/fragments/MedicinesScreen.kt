@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -49,6 +50,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -93,7 +95,7 @@ fun MedicinesScreen(navigator: DestinationsNavigator, context: Context = LocalCo
                         value = text,
                         onValueChange = { text = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text(context.getString(R.string.text_enter_product_name)) },
+                        label = { Text(stringResource(R.string.text_enter_product_name)) },
                         leadingIcon = { Icon(Icons.Default.Search, null) },
                         trailingIcon = {
                             if (text.isNotEmpty())
@@ -124,19 +126,19 @@ fun MedicinesScreen(navigator: DestinationsNavigator, context: Context = LocalCo
 
                     DropdownMenu(showSort, { showSort = false }) {
                         DropdownMenuItem(
-                            { Text(context.getString(R.string.sorting_a_z)) },
+                            { Text(stringResource(R.string.sorting_a_z)) },
                             { comparator = SortingHelper.inName }
                         )
                         DropdownMenuItem(
-                            { Text(context.getString(R.string.sorting_z_a)) },
+                            { Text(stringResource(R.string.sorting_z_a)) },
                             { comparator = SortingHelper.reName }
                         )
                         DropdownMenuItem(
-                            { Text(context.getString(R.string.sorting_from_oldest)) },
+                            { Text(stringResource(R.string.sorting_from_oldest)) },
                             { comparator = SortingHelper.inDate }
                         )
                         DropdownMenuItem(
-                            { Text(context.getString(R.string.sorting_from_newest)) },
+                            { Text(stringResource(R.string.sorting_from_newest)) },
                             { comparator = SortingHelper.reDate }
                         )
                     }
@@ -176,7 +178,7 @@ fun MedicinesScreen(navigator: DestinationsNavigator, context: Context = LocalCo
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = context.getString(R.string.text_no_data_found),
+                text = stringResource(R.string.text_no_data_found),
                 textAlign = TextAlign.Center
             )
         }
@@ -227,7 +229,13 @@ private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator, c
             )
         },
         leadingContent = {
-            Image(rememberAsyncImagePainter(icon), null, Modifier.size(64.dp))
+            Image(
+                painter = rememberAsyncImagePainter(icon),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(64.dp)
+                    .offset(y = 12.dp)
+            )
         },
         trailingContent = {
             Text(
@@ -253,10 +261,10 @@ private fun KitsDialog(onConfirm: (Long) -> Unit, onDismiss: () -> Unit, context
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton({ Preferences(context).setLastKit(kitId);onConfirm(kitId); run(onDismiss) })
-            { Text(context.getString(R.string.text_save)) }
+            { Text(stringResource(R.string.text_save)) }
         },
-        dismissButton = { TextButton(onDismiss) { Text(context.getString(R.string.text_cancel)) } },
-        title = { Text(context.getString(R.string.preference_kits_group)) },
+        dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_cancel)) } },
+        title = { Text(stringResource(R.string.preference_kits_group)) },
         text = {
             Column(Modifier.selectableGroup()) {
                 Row(
@@ -272,7 +280,7 @@ private fun KitsDialog(onConfirm: (Long) -> Unit, onDismiss: () -> Unit, context
                 ) {
                     RadioButton(kitId == 0L, null)
                     Text(
-                        text = context.getString(R.string.text_all),
+                        text = stringResource(R.string.text_all),
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(start = 16.dp)
                     )

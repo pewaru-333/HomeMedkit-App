@@ -1,11 +1,13 @@
 package ru.application.homemedkit.connectionController.models
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 import ru.application.homemedkit.helpers.BLANK
 
+@JsonClass(generateAdapter = true)
 data class DrugsData(
-    @field:Json val prodDescLabel: String = BLANK,
-    @field:Json val foiv: Foiv = Foiv(),
-    @field:Json val expireDate: Long = -1L,
-    @field:Json val vidalData: VidalData = VidalData()
+    @Json val prodDescLabel: String = BLANK,
+    @Json val foiv: Foiv = Foiv(),
+    @Json val expireDate: Long = -1L,
+    @Json val vidalData: VidalData = VidalData()
 )

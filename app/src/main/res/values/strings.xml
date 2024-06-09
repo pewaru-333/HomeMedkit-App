@@ -31,6 +31,7 @@
     <string name="lang_pt_BR" translatable="false">Portugal (Brasil)</string>
     <string name="lang_pl" translatable="false">Polskie</string>
     <string name="lang_tr" translatable="false">Türkçe</string>
+    <string name="lang_vi" translatable="false">Tiếng việt</string>
 
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabetically (A to z)</string>
@@ -150,6 +151,7 @@
         <item>@string/lang_pt_BR</item>
         <item>@string/lang_pl</item>
         <item>@string/lang_tr</item>
+        <item>@string/lang_vi</item>
     </string-array>
 
     <string-array name="sorting_types_name">
