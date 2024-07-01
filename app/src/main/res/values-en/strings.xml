@@ -77,6 +77,8 @@
     <!-- Dialogs -->
     <string name="manual_add">Do you want to add medicine manually?</string>
     <string name="text_confirm_exit">Confirm exit</string>
+    <string name="text_connection_error">Connection error!</string>
+    <string name="text_duplicate">This medicine has been already added!</string>
     <string name="text_export_import_description">This is an experimental feature.\nWhen exporting, you can change the file name.\nWhen importing, the current data will be deleted! Please, relaunch app after it!</string>
     <string name="text_grant_permission">Grant permission</string>
     <string name="text_new_group">New group</string>
@@ -84,13 +86,6 @@
     <string name="text_request_post">To receive notifications, the application must be granted the appropriate permission</string>
     <string name="text_select_time">Select time</string>
     <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
-
-    <!-- Snackbars -->
-    <string name="text_code_not_found">Code not found!</string>
-    <string name="text_connection_error">Connection error!</string>
-    <string name="text_medicine_duplicate">The medicine has already been added</string>
-    <string name="text_not_medicine_code">This code is not medicine\'s</string>
-    <string name="text_unknown_error">Wrong code scanned!</string>
 
     <!-- Strings -->
     <string name="text_add">Add</string>

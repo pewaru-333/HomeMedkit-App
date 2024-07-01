@@ -106,7 +106,6 @@ import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.viewModelFactory
 import ru.application.homemedkit.states.IntakeState
-import ru.application.homemedkit.ui.theme.AppTheme
 import ru.application.homemedkit.viewModels.IntakeEvent
 import ru.application.homemedkit.viewModels.IntakeViewModel
 import java.time.Instant
@@ -142,13 +141,17 @@ fun IntakeScreen(
     }
     var showRationale by remember { mutableStateOf(false) }
 
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            if (isGranted) permissionGranted = true
-            else showRationale = true
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        if (it) permissionGranted = true else showRationale = true
+    }
+
+    if (!permissionGranted) {
+        LaunchedEffect(Unit) {
+            if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
-    )
+        if (showRationale) PermissionDialog(R.string.text_request_post)
+    }
 
     LaunchedEffect(Unit) {
         viewModel.events.collectLatest { navigator.navigate(IntakesScreenDestination) }
@@ -165,91 +168,76 @@ fun IntakeScreen(
         onDispose { lifecycle.removeObserver(observer) }
     }
 
-    AppTheme {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {},
-                    navigationIcon = {
-                        IconButton({ navigator.navigate(IntakesScreenDestination) })
-                        { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
-                    },
-                    actions = {
-                        when {
-                            state.adding -> {
-                                IconButton(
-                                    onClick = { viewModel.onEvent(IntakeEvent.Add) },
-                                    enabled = viewModel.validate()
-                                )
-                                { Icon(Icons.Default.Check, null) }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton({ navigator.navigate(IntakesScreenDestination) })
+                    { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
+                },
+                actions = {
+                    when {
+                        state.adding -> {
+                            IconButton(
+                                onClick = { viewModel.onEvent(IntakeEvent.Add) },
+                                enabled = viewModel.validate()
+                            )
+                            { Icon(Icons.Default.Check, null) }
+                        }
+
+                        state.editing -> {
+                            IconButton(
+                                onClick = { viewModel.onEvent(IntakeEvent.Update) },
+                                enabled = viewModel.validate()
+                            )
+                            { Icon(Icons.Default.Check, null) }
+                        }
+
+                        else -> {
+                            LocalFocusManager.current.clearFocus(true)
+                            var expanded by remember { mutableStateOf(false) }
+
+                            IconButton({ expanded = true }) {
+                                Icon(Icons.Default.MoreVert, null)
                             }
 
-                            state.editing -> {
-                                IconButton(
-                                    onClick = { viewModel.onEvent(IntakeEvent.Update) },
-                                    enabled = viewModel.validate()
+                            DropdownMenu(expanded, { expanded = false }) {
+                                DropdownMenuItem(
+                                    { Text(stringResource(R.string.text_edit)) },
+                                    { viewModel.onEvent(IntakeEvent.SetEditing) })
+                                DropdownMenuItem(
+                                    { Text(stringResource(R.string.text_delete)) },
+                                    { viewModel.onEvent(IntakeEvent.Delete) }
                                 )
-                                { Icon(Icons.Default.Check, null) }
-                            }
-
-                            else -> {
-                                LocalFocusManager.current.clearFocus(true)
-                                var expanded by remember { mutableStateOf(false) }
-
-                                IconButton({ expanded = true }) {
-                                    Icon(Icons.Default.MoreVert, null)
-                                }
-
-                                DropdownMenu(expanded, { expanded = false }) {
-                                    DropdownMenuItem(
-                                        { Text(stringResource(R.string.text_edit)) },
-                                        { viewModel.onEvent(IntakeEvent.SetEditing) })
-                                    DropdownMenuItem(
-                                        { Text(stringResource(R.string.text_delete)) },
-                                        { viewModel.onEvent(IntakeEvent.Delete) }
-                                    )
-                                }
                             }
                         }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                        actionIconContentColor = MaterialTheme.colorScheme.onTertiaryContainer
-                    )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                    actionIconContentColor = MaterialTheme.colorScheme.onTertiaryContainer
                 )
-            }
-        ) { paddingValues ->
-
-            if (!permissionGranted) {
-                LaunchedEffect(Unit) {
-                    if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                        launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-                if (showRationale) PermissionDialog(id = R.string.text_request_post)
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        top = paddingValues
-                            .calculateTopPadding()
-                            .plus(16.dp)
-                    )
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(32.dp)
-            ) {
-                Title(medicine.productName)
-                Amount(viewModel::onEvent, state, medicine.prodAmount, medicine.doseType)
-                Interval(viewModel::onEvent, state)
-                Period(viewModel::onEvent, state)
-                Food(viewModel::onEvent, state)
-                Time(viewModel::onEvent, state)
-            }
+            )
         }
-        BackHandler { navigator.navigate(IntakesScreenDestination) }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = paddingValues.calculateTopPadding().plus(16.dp))
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(32.dp)
+        ) {
+            Title(medicine.productName)
+            Amount(viewModel::onEvent, state, medicine.prodAmount, medicine.doseType)
+            Interval(viewModel::onEvent, state)
+            Period(viewModel::onEvent, state)
+            Food(viewModel::onEvent, state)
+            Time(viewModel::onEvent, state)
+        }
     }
+    BackHandler { navigator.navigate(IntakesScreenDestination) }
 }
 
 @Composable
@@ -623,7 +611,11 @@ private fun Food(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                     modifier = Modifier
                         .width(112.dp)
                         .height(96.dp)
-                        .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(16.dp))
+                        .border(
+                            1.dp,
+                            MaterialTheme.colorScheme.onSurface,
+                            RoundedCornerShape(16.dp)
+                        )
                         .background(
                             if (index == selected) MaterialTheme.colorScheme.secondaryContainer
                             else Color.Transparent,

@@ -77,6 +77,8 @@
     <!-- Diálogos -->
     <string name="manual_add">¿Quieres añadir un medicamento manualmente?</string>
     <string name="text_confirm_exit">Confirmar salida</string>
+    <string name="text_connection_error">Error de conexión!</string>
+    <string name="text_duplicate">¡Este medicamento ya ha sido agregado!</string>
     <string name="text_export_import_description">Esta es una característica experimental.\nAl exportar, puedes cambiar el nombre del archivo.\n¡Al importar, los datos actuales se eliminarán! ¡Por favor, reinicia la aplicación después!</string>
     <string name="text_grant_permission">Otorgar permiso</string>
     <string name="text_new_group">Nuevo grupo</string>
@@ -84,13 +86,6 @@
     <string name="text_request_post">Para recibir notificaciones, se debe otorgar a la aplicación el permiso apropiado</string>
     <string name="text_select_time">Seleccionar hora</string>
     <string name="text_sure_to_exit">¿Quieres cerrar la aplicación?</string>
-
-    <!-- Códigos de barras -->
-    <string name="text_code_not_found">¡Código no encontrado!</string>
-    <string name="text_connection_error">¡Error de conexión!</string>
-    <string name="text_medicine_duplicate">Ya se ha añadido ese medicamento</string>
-    <string name="text_not_medicine_code">Este código no es un medicamento</string>
-    <string name="text_unknown_error">¡Código erróneo!</string>
 
     <!-- Strings -->
     <string name="text_add">Añadir</string>

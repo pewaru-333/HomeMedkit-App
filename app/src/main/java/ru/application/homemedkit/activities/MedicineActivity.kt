@@ -57,7 +57,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -109,7 +108,6 @@ import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.fromHTML
 import ru.application.homemedkit.helpers.viewModelFactory
 import ru.application.homemedkit.states.MedicineState
-import ru.application.homemedkit.ui.theme.AppTheme
 import ru.application.homemedkit.viewModels.ActivityEvents
 import ru.application.homemedkit.viewModels.MedicineEvent
 import ru.application.homemedkit.viewModels.MedicineViewModel
@@ -133,7 +131,7 @@ fun MedicineScreen(
     })
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val response by viewModel.response.collectAsState(ResponseState.Default)
+    val response by viewModel.response.collectAsStateWithLifecycle()
     val path = context.filesDir
 
     if (id == 0L) {
@@ -141,7 +139,12 @@ fun MedicineScreen(
         viewModel.onEvent(MedicineEvent.SetCis(cis))
     }
 
-    if (duplicate) viewModel.show = true
+    if (duplicate) {
+        var show by remember { mutableStateOf(true) }
+        if (show) Snackbar(R.string.text_duplicate)
+
+        LaunchedEffect(Unit) { delay(2000); show = false }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.events.collectLatest { event ->
@@ -155,115 +158,98 @@ fun MedicineScreen(
         }
     }
 
-    AppTheme {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {},
-                    navigationIcon = {
-                        IconButton({ navigator.navigate(MedicinesScreenDestination) }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    IconButton({ navigator.navigate(MedicinesScreenDestination) }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                },
+                actions = {
+                    when {
+                        state.adding -> {
+                            IconButton(
+                                onClick = { viewModel.onEvent(MedicineEvent.Add) },
+                                enabled = state.productName.isNotEmpty()
                             )
+                            { Icon(Icons.Default.Check, null) }
                         }
-                    },
-                    actions = {
-                        when {
-                            state.adding -> {
-                                IconButton(
-                                    onClick = { viewModel.onEvent(MedicineEvent.Add) },
-                                    enabled = state.productName.isNotEmpty()
-                                )
-                                { Icon(Icons.Default.Check, null) }
+
+                        state.editing -> {
+                            IconButton(
+                                onClick = { viewModel.onEvent(MedicineEvent.Update) },
+                                enabled = state.productName.isNotEmpty()
+                            )
+                            { Icon(Icons.Default.Check, null) }
+                        }
+
+                        else -> {
+                            LocalFocusManager.current.clearFocus(true)
+                            var expanded by remember { mutableStateOf(false) }
+
+                            IconButton({
+                                navigator.navigate(IntakeScreenDestination(medicineId = state.id))
+                            }) { Icon(Icons.Default.Notifications, null) }
+
+                            IconButton({ expanded = true }) {
+                                Icon(Icons.Default.MoreVert, null)
                             }
 
-                            state.editing -> {
-                                IconButton(
-                                    onClick = { viewModel.onEvent(MedicineEvent.Update) },
-                                    enabled = state.productName.isNotEmpty()
+                            DropdownMenu(expanded, { expanded = false }) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.text_edit)) },
+                                    onClick = { viewModel.onEvent(MedicineEvent.SetEditing) }
                                 )
-                                { Icon(Icons.Default.Check, null) }
-                            }
-
-                            else -> {
-                                LocalFocusManager.current.clearFocus(true)
-                                var expanded by remember { mutableStateOf(false) }
-
-                                IconButton({
-                                    navigator.navigate(
-                                        IntakeScreenDestination(medicineId = state.id)
-                                    )
-                                }) { Icon(Icons.Default.Notifications, null) }
-
-                                IconButton({ expanded = true }) {
-                                    Icon(Icons.Default.MoreVert, null)
-                                }
-
-                                DropdownMenu(expanded, { expanded = false }) {
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.text_edit)) },
-                                        onClick = { viewModel.onEvent(MedicineEvent.SetEditing) }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.text_delete)) },
-                                        onClick = { viewModel.onEvent(MedicineEvent.Delete) }
-                                    )
-                                }
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.text_delete)) },
+                                    onClick = { viewModel.onEvent(MedicineEvent.Delete) }
+                                )
                             }
                         }
-                    },
+                    }
+                },
 
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
-            }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = paddingValues.calculateTopPadding())
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(32.dp)
-            ) {
-                ProductName(viewModel::onEvent, state)
-                ProductImage(viewModel, state)
-                ExpirationDate(viewModel::onEvent, state)
-                ProductFormName(viewModel::onEvent, state)
-                ProductNormName(viewModel::onEvent, state)
-                PhKinetics(viewModel::onEvent, state)
-                Comment(viewModel::onEvent, state)
-            }
+            )
         }
-
-        if (viewModel.show) {
-            try {
-                if (!duplicate) ResponseState.Errors.valueOf(response.toString()).ordinal
-                else 0
-            } catch (e: IllegalArgumentException) {
-                ResponseState.Errors.FETCH_ERROR.ordinal
-            }.also { Snackbar(it) }
-
-            LaunchedEffect(Unit) {
-                delay(2000)
-                viewModel.show = false
-            }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = paddingValues.calculateTopPadding())
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(32.dp)
+        ) {
+            ProductName(viewModel::onEvent, state)
+            ProductImage(viewModel, state)
+            ExpirationDate(viewModel::onEvent, state)
+            ProductFormName(viewModel::onEvent, state)
+            ProductNormName(viewModel::onEvent, state)
+            PhKinetics(viewModel::onEvent, state)
+            Comment(viewModel::onEvent, state)
         }
-
-        when (response) {
-            ResponseState.Default -> {}
-            ResponseState.Loading -> LoadingDialog()
-            ResponseState.Success -> navigator.navigate(MedicineScreenDestination(state.id))
-
-            else -> viewModel.show = true
-        }
-
-        BackHandler { navigator.navigate(MedicinesScreenDestination) }
     }
+
+    when (val data = response) {
+        ResponseState.Default -> {}
+        ResponseState.Loading -> LoadingDialog()
+        is ResponseState.Success -> navigator.navigate(MedicineScreenDestination(data.id))
+        is ResponseState.NoNetwork -> Snackbar(R.string.text_connection_error)
+
+        else -> Snackbar(R.string.text_try_again)
+    }
+
+    BackHandler { navigator.navigate(MedicinesScreenDestination) }
 }
 
 @Composable

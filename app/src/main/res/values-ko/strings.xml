@@ -1,2 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_name">Medkit</string>
+
+    <!-- Menu -->
+    <string name="bottom_bar_main">홈</string>
+    <string name="bottom_bar_medicines">의약품</string>
+    <string name="bottom_bar_intakes">섭취</string>
+    <string name="bottom_bar_settings">설정</string>
+</resources>

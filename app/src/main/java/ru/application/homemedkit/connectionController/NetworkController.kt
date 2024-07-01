@@ -23,9 +23,10 @@ private val retrofit = Retrofit.Builder()
     .build()
 
 interface NetworkCall {
+
     @FormUrlEncoded
     @POST(API_URL)
-    suspend fun requestData(@Field(CIS) cis: String): Response<MainModel>
+    suspend fun requestData(@Field(CIS) cis: String): MainModel
 
     @GET
     @Streaming

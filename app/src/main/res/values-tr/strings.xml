@@ -81,13 +81,6 @@
     <string name="text_select_time">Saat seç</string>
     <string name="text_sure_to_exit">Uygulamadan çıkmak istediğinizden emin misiniz?</string>
 
-    <!-- Snackbars -->
-    <string name="text_code_not_found">Kod bulunamadı!</string>
-    <string name="text_connection_error">Bağlantı hatası!</string>
-    <string name="text_medicine_duplicate">İlaç zaten eklendi</string>
-    <string name="text_not_medicine_code">Bu kod ilacın kodu değildir</string>
-    <string name="text_unknown_error">Yanlış kod tarandı!</string>
-
     <!-- Strings -->
     <string name="text_amount">Tutar</string>
     <string name="text_cancel">İptal</string>

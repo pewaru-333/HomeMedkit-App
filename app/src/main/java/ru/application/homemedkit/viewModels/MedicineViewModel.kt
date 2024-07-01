@@ -1,10 +1,8 @@
 package ru.application.homemedkit.viewModels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -12,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.connectionController.NetworkAPI
+import ru.application.homemedkit.connectionController.models.MainModel
 import ru.application.homemedkit.databaseController.Medicine
 import ru.application.homemedkit.databaseController.MedicineDAO
 import ru.application.homemedkit.databaseController.Technical
@@ -20,17 +19,15 @@ import ru.application.homemedkit.helpers.CATEGORY
 import ru.application.homemedkit.states.MedicineState
 import ru.application.homemedkit.states.TechnicalState
 
-class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewModel() {
+class MedicineViewModel(private val dao: MedicineDAO, private val medicineId: Long) : ViewModel() {
     private val _uiState = MutableStateFlow(MedicineState())
     val uiState = _uiState.asStateFlow()
 
-    private val _response = MutableSharedFlow<ResponseState>()
-    val response = _response.asSharedFlow()
+    private val _response = MutableStateFlow<ResponseState>(ResponseState.Default)
+    val response = _response.asStateFlow()
 
     private val _events = MutableSharedFlow<ActivityEvents>()
     val events = _events.asSharedFlow()
-
-    var show by mutableStateOf(false)
 
     init {
         viewModelScope.launch {
@@ -160,17 +157,9 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                 }
             }
 
-            MedicineEvent.SetAdding -> {
-                _uiState.update { it.copy(adding = true, default = false) }
-            }
-
-            MedicineEvent.SetEditing -> {
-                _uiState.update { it.copy(editing = true, default = false) }
-            }
-
-            is MedicineEvent.SetMedicineId -> {
-                _uiState.update { it.copy(id = event.medicineId) }
-            }
+            MedicineEvent.SetAdding -> _uiState.update { it.copy(adding = true, default = false) }
+            MedicineEvent.SetEditing -> _uiState.update { it.copy(editing = true, default = false) }
+            is MedicineEvent.SetMedicineId -> _uiState.update { it.copy(id = event.medicineId) }
 
             is MedicineEvent.SetKitId -> {
                 _uiState.update {
@@ -178,25 +167,11 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                 }
             }
 
-            is MedicineEvent.SetCis -> {
-                _uiState.update { it.copy(cis = event.cis) }
-            }
-
-            is MedicineEvent.SetProductName -> {
-                _uiState.update { it.copy(productName = event.productName) }
-            }
-
-            is MedicineEvent.SetExpDate -> {
-                _uiState.update { it.copy(expDate = event.expDate) }
-            }
-
-            is MedicineEvent.SetProdFormNormName -> {
-                _uiState.update { it.copy(prodFormNormName = event.prodFormNormName) }
-            }
-
-            is MedicineEvent.SetProdDNormName -> {
-                _uiState.update { it.copy(prodDNormName = event.prodDNormName) }
-            }
+            is MedicineEvent.SetCis -> _uiState.update { it.copy(cis = event.cis) }
+            is MedicineEvent.SetProductName -> _uiState.update { it.copy(productName = event.productName) }
+            is MedicineEvent.SetExpDate -> _uiState.update { it.copy(expDate = event.expDate) }
+            is MedicineEvent.SetProdFormNormName -> _uiState.update { it.copy(prodFormNormName = event.prodFormNormName) }
+            is MedicineEvent.SetProdDNormName -> _uiState.update { it.copy(prodDNormName = event.prodDNormName) }
 
             is MedicineEvent.SetProdAmount -> {
                 if (event.prodAmount.isNotEmpty()) {
@@ -209,21 +184,10 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
                 } else _uiState.update { it.copy(prodAmount = BLANK) }
             }
 
-            is MedicineEvent.SetDoseType -> {
-                _uiState.update { it.copy(doseType = event.doseType) }
-            }
-
-            is MedicineEvent.SetPhKinetics -> {
-                _uiState.update { it.copy(phKinetics = event.phKinetics) }
-            }
-
-            is MedicineEvent.SetComment -> {
-                _uiState.update { it.copy(comment = event.comment) }
-            }
-
-            is MedicineEvent.SetImage -> {
-                _uiState.update { it.copy(image = event.image) }
-            }
+            is MedicineEvent.SetDoseType -> _uiState.update { it.copy(doseType = event.doseType) }
+            is MedicineEvent.SetPhKinetics -> _uiState.update { it.copy(phKinetics = event.phKinetics) }
+            is MedicineEvent.SetComment -> _uiState.update { it.copy(comment = event.comment) }
+            is MedicineEvent.SetImage -> _uiState.update { it.copy(image = event.image) }
         }
     }
 
@@ -233,43 +197,41 @@ class MedicineViewModel(private val dao: MedicineDAO, medicineId: Long) : ViewMo
 
             try {
                 NetworkAPI.client.requestData(_uiState.value.cis).apply {
-                    if (isSuccessful) {
-                        body()?.let { body ->
-                            body.category?.let { category ->
-                                if (category == CATEGORY) {
-                                    if (body.codeFounded && body.checkResult) {
-                                        val medicine = Medicine(
-                                            id = _uiState.value.id,
-                                            kitId = _uiState.value.kitId,
-                                            cis = body.cis,
-                                            productName = body.drugsData.prodDescLabel,
-                                            expDate = body.drugsData.expireDate,
-                                            prodFormNormName = body.drugsData.foiv.prodFormNormName,
-                                            prodDNormName = body.drugsData.foiv.prodDNormName ?: BLANK,
-                                            prodAmount = body.drugsData.foiv.prodPack1Size?.toDoubleOrNull() ?: 0.0,
-                                            phKinetics = body.drugsData.vidalData.phKinetics ?: BLANK,
-                                            comment = _uiState.value.comment.ifEmpty { BLANK },
-                                            technical = Technical(
-                                                scanned = true,
-                                                verified = true
-                                            )
-                                        )
+                    when(category == CATEGORY && codeFounded && checkResult) {
+                        true -> {
+                            dao.update(fetchMedicine())
+                            _response.emit(ResponseState.Success(medicineId))
+                            _events.emit(ActivityEvents.Start)
+                        }
 
-                                        dao.update(medicine)
-                                        _response.emit(ResponseState.Success)
-                                        _events.emit(ActivityEvents.Start)
-
-                                    } else _response.emit(ResponseState.Errors.CODE_NOT_FOUND)
-                                } else _response.emit(ResponseState.Errors.WRONG_CATEGORY)
-                            } ?: _response.emit(ResponseState.Errors.FETCH_ERROR)
-                        } ?: _response.emit(ResponseState.Errors.WRONG_CODE_CATEGORY)
-                    } else _response.emit(ResponseState.Errors.WRONG_CODE_CATEGORY)
+                        false -> {
+                            _response.emit(ResponseState.Error)
+                            delay(2000)
+                            _events.emit(ActivityEvents.Start)
+                        }
+                    }
                 }
-            } catch (throwable: Throwable) {
-                _response.emit(ResponseState.Errors.NO_NETWORK)
+            } catch (e: Throwable) {
+                _response.emit(ResponseState.NoNetwork(_uiState.value.cis))
+                delay(2000)
+                _events.emit(ActivityEvents.Start)
             }
         }
     }
+
+    private fun MainModel.fetchMedicine() = Medicine(
+        id = _uiState.value.id,
+        kitId = _uiState.value.kitId,
+        cis = cis,
+        productName = drugsData.prodDescLabel,
+        expDate = drugsData.expireDate,
+        prodFormNormName = drugsData.foiv.prodFormNormName,
+        prodDNormName = drugsData.foiv.prodDNormName ?: BLANK,
+        prodAmount = drugsData.foiv.prodPack1Size?.toDoubleOrNull() ?: 0.0,
+        phKinetics = drugsData.vidalData.phKinetics ?: BLANK,
+        comment = _uiState.value.comment.ifEmpty { BLANK },
+        technical = Technical(scanned = true, verified = true)
+    )
 }
 
 sealed interface MedicineEvent {

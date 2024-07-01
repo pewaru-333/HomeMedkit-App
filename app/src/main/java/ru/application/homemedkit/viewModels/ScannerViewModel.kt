@@ -1,35 +1,24 @@
 package ru.application.homemedkit.viewModels
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.connectionController.NetworkAPI
+import ru.application.homemedkit.connectionController.models.MainModel
 import ru.application.homemedkit.databaseController.Medicine
 import ru.application.homemedkit.databaseController.MedicineDAO
 import ru.application.homemedkit.databaseController.Technical
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CATEGORY
 import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.states.MedicineState
 
 class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
-    private val _uiState = MutableStateFlow(MedicineState())
-    val uiState = _uiState.asStateFlow()
-
-    private val _response = MutableSharedFlow<ResponseState>()
-    val response = _response.asSharedFlow()
-
-    var alert by mutableStateOf(false)
-    var show by mutableStateOf(false)
+    private val _response = MutableStateFlow<ResponseState>(ResponseState.Default)
+    val response = _response.asStateFlow()
 
     fun fetchData(context: Context, code: String) {
         viewModelScope.launch {
@@ -37,54 +26,41 @@ class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
 
             try {
                 NetworkAPI.client.requestData(code).apply {
-                    if (isSuccessful) {
-                        body()?.let { body ->
-                            body.category?.let { category ->
-                                if (category == CATEGORY) {
-                                    if (body.codeFounded && body.checkResult) {
-                                        if (dao.getAllCIS().contains(code)) {
-                                            val id = dao.getIDbyCis(code)
-                                            _uiState.update { it.copy(id = id) }
-                                            _response.emit(ResponseState.Duplicate)
-                                        } else {
-                                            val medicine = Medicine(
-                                                cis = body.cis,
-                                                productName = body.drugsData.prodDescLabel,
-                                                expDate = body.drugsData.expireDate,
-                                                prodFormNormName = body.drugsData.foiv.prodFormNormName,
-                                                prodDNormName = body.drugsData.foiv.prodDNormName ?: BLANK,
-                                                prodAmount = body.drugsData.foiv.prodPack1Size?.toDoubleOrNull() ?: 0.0,
-                                                phKinetics = body.drugsData.vidalData.phKinetics ?: BLANK,
-                                                comment = _uiState.value.comment.ifEmpty { BLANK },
-                                                image = getImage(context, body.drugsData.vidalData.images),
-                                                technical = Technical(
-                                                    scanned = true,
-                                                    verified = true
-                                                )
-                                            )
-
-                                            val id = dao.add(medicine)
-                                            _uiState.update { it.copy(id = id) }
-                                            _response.emit(ResponseState.Success)
-                                        }
-                                    } else _response.emit(ResponseState.Errors.CODE_NOT_FOUND)
-                                } else _response.emit(ResponseState.Errors.WRONG_CATEGORY)
-                            } ?: _response.emit(ResponseState.Errors.FETCH_ERROR)
-                        } ?: _response.emit(ResponseState.Errors.WRONG_CODE_CATEGORY)
-                    } else _response.emit(ResponseState.Errors.WRONG_CODE_CATEGORY)
+                    if (category == CATEGORY && codeFounded && checkResult) _response.emit(
+                        if (code in dao.getAllCIS()) ResponseState.Duplicate(dao.getIDbyCis(code))
+                        else ResponseState.Success(dao.add(mapMedicine(this, context)))
+                    ) else throwError()
                 }
-            } catch (throwable: Throwable) {
-                if (dao.getAllCIS().contains(code)) {
-                    val id = dao.getIDbyCis(code)
-                    _uiState.update { it.copy(id = id) }
-                    _response.emit(ResponseState.Duplicate)
-                } else {
-                    _uiState.update { it.copy(cis = code) }
-                    _response.emit(ResponseState.Errors.NO_NETWORK)
-                }
+            } catch (e: Throwable) {
+                _response.emit(
+                    if (code in dao.getAllCIS()) ResponseState.Duplicate(dao.getIDbyCis(code))
+                    else ResponseState.NoNetwork(code)
+                )
             }
         }
     }
+
+    fun throwError() {
+        viewModelScope.launch {
+            _response.apply {
+                emit(ResponseState.Error)
+                delay(2000)
+                emit(ResponseState.AfterError)
+            }
+        }
+    }
+
+    private suspend fun mapMedicine(model: MainModel, context: Context) = Medicine(
+        cis = model.cis,
+        productName = model.drugsData.prodDescLabel,
+        expDate = model.drugsData.expireDate,
+        prodFormNormName = model.drugsData.foiv.prodFormNormName,
+        prodDNormName = model.drugsData.foiv.prodDNormName ?: BLANK,
+        prodAmount = model.drugsData.foiv.prodPack1Size?.toDoubleOrNull() ?: 0.0,
+        phKinetics = model.drugsData.vidalData.phKinetics ?: BLANK,
+        image = getImage(context, model.drugsData.vidalData.images),
+        technical = Technical(scanned = true, verified = true)
+    )
 
     private suspend fun getImage(context: Context, url: List<String>?): String {
         if (url.isNullOrEmpty() || !Preferences(context).getDownloadNeeded()) return BLANK
@@ -102,11 +78,11 @@ class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
 
 sealed interface ResponseState {
     data object Default : ResponseState
-    data object Success : ResponseState
     data object Loading : ResponseState
-    data object Duplicate : ResponseState
-    enum class Errors : ResponseState {
-        NO_ERROR, WRONG_CODE_CATEGORY, WRONG_CATEGORY, CODE_NOT_FOUND, FETCH_ERROR, NO_NETWORK
-    }
+    data class Duplicate(val id: Long) : ResponseState
+    data class Success(val id: Long) : ResponseState
+    data class NoNetwork(val cis: String) : ResponseState
+    data object Error: ResponseState
+    data object AfterError: ResponseState
 }
 

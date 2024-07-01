@@ -14,8 +14,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 34
-        versionCode = 29
-        versionName = "1.3.9"
+        versionCode = 30
+        versionName = "1.3.10"
     }
 
     room {

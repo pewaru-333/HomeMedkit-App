@@ -77,6 +77,8 @@
     <!-- Диалоговые окна -->
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
     <string name="text_confirm_exit">Подтвердите выход</string>
+    <string name="text_connection_error">Ошибка при подключении!</string>
+    <string name="text_duplicate">Лекарство уже было добавлено!</string>
     <string name="text_export_import_description">Это экспериментальная функция.\nПри экспорте вы можете изменить название файла.\nПри импорте текущие данные будут удалены! Перезапустите приложение после него!</string>
     <string name="text_grant_permission">Выдать разрешение</string>
     <string name="text_new_group">Новая группа</string>
@@ -84,13 +86,7 @@
     <string name="text_request_post">Для получения уведомлений приложению необходимо выдать соответствующее разрешение</string>
     <string name="text_select_time">Выберите время</string>
     <string name="text_sure_to_exit">Вы точно хотите выйти из приложения?</string>
-
-    <!-- Всплывающие окна -->
-    <string name="text_code_not_found">Код не найден!</string>
-    <string name="text_connection_error">Ошибка при подключении!</string>
-    <string name="text_medicine_duplicate">Лекарство уже было добавлено</string>
-    <string name="text_not_medicine_code">Это не код лекарства!</string>
-    <string name="text_unknown_error">Неверный тип кода!</string>
+    <string name="text_try_again">Попробуйте отсканировать код ещё раз!</string>
 
     <!-- Строки -->
     <string name="text_add">Добавить</string>
