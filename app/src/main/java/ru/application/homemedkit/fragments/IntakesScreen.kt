@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Clear
@@ -125,7 +125,6 @@ fun IntakesScreen(navigator: DestinationsNavigator, context: Context = LocalCont
 
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                state = rememberLazyListState(),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 reverseLayout = selectedIndex == 2
             ) {
@@ -151,7 +150,7 @@ fun IntakesScreen(navigator: DestinationsNavigator, context: Context = LocalCont
                                     )
                                 }
                             }
-                        else items(filtered.size) { IntakeList(filtered[it], navigator, context) }
+                        else items(filtered) { IntakeList(it, navigator, context) }
                     }
 
                     1 -> {
@@ -282,9 +281,10 @@ fun IntakeSchedule(data: Map.Entry<Long, List<Alarm>>, context: Context = LocalC
     Column(Modifier.padding(vertical = 8.dp), Arrangement.spacedBy(12.dp)) {
         Text(
             text = textDate,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.SemiBold,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold
+            )
         )
         data.value.forEach { alarm ->
             val intake = intakeDAO.getByPK(alarm.intakeId)!!
@@ -307,10 +307,9 @@ fun IntakeSchedule(data: Map.Entry<Long, List<Alarm>>, context: Context = LocalC
                 headlineContent = {
                     Text(
                         text = shortName,
-                        fontWeight = FontWeight.SemiBold,
                         overflow = TextOverflow.Clip,
                         softWrap = false,
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
                     )
                 },
                 modifier = Modifier.clip(MaterialTheme.shapes.medium),

@@ -26,8 +26,8 @@
     <string name="lang_system">Sistem</string>
 
     <!-- Sorting -->
-    <string name="sorting_a_z">Alfabetik (A'dan Z'ye)</string>
-    <string name="sorting_z_a">Alfabetik (Z'den A'ya)</string>
+    <string name="sorting_a_z">Alfabetik (A\'dan Z\'ye)</string>
+    <string name="sorting_z_a">Alfabetik (Z\'den A\'ya)</string>
     <string name="sorting_from_oldest">Son kullanma tarihi (en eskiden)</string>
     <string name="sorting_from_newest">Son kullanma tarihi (en yeniden)</string>
 
@@ -36,7 +36,7 @@
     <string name="notification_channel_name">Sesli bildirimler</string>
     <string name="text_attention">Dikkat!</string>
     <string name="text_do_intake">Alımı yap</string>
-    <string name="text_expire_soon">%1$s'nin son kullanma tarihi yaklaşıyor</string>
+    <string name="text_expire_soon">%1$s\'nin son kullanma tarihi yaklaşıyor</string>
     <string name="text_intake_time">%1$s alım zamanı\nMiktar: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">%1$s alım zamanı, ancak miktarı reçetelenenden az! Alımı tekrar oluştur!</string>
 
@@ -181,6 +181,7 @@
         <item>EMÜLSİYON</item>
         <item>SÜSPANSİYON</item>
         <item>KARIŞIM</item>
+        <item>MIX</item>
         <item>MERHEM</item>
         <item>JEL</item>
         <item>PASTA</item>

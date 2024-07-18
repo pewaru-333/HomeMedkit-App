@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Create
@@ -84,8 +83,7 @@ private fun Card(text: String, icon: ImageVector, navigator: DestinationsNavigat
 
     ElevatedCard(
         modifier = Modifier
-            .width(160.dp)
-            .height(200.dp)
+            .size(160.dp, 200.dp)
             .clickable { navigator.navigate(route) },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {

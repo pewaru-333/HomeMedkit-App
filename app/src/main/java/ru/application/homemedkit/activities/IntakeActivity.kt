@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -609,8 +608,7 @@ private fun Food(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
             options.forEachIndexed { index, label ->
                 Column(
                     modifier = Modifier
-                        .width(112.dp)
-                        .height(96.dp)
+                        .size(112.dp, 96.dp)
                         .border(
                             1.dp,
                             MaterialTheme.colorScheme.onSurface,

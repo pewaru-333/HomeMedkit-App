@@ -64,19 +64,19 @@ class MedicineViewModel(private val dao: MedicineDAO, private val medicineId: Lo
     fun onEvent(event: MedicineEvent) {
         when (event) {
             MedicineEvent.Add -> {
-                val kitId = uiState.value.kitId
-                val cis = uiState.value.cis
-                val productName = uiState.value.productName
-                val expDate = uiState.value.expDate
-                val prodFormNormName = uiState.value.prodFormNormName
-                val prodDNormName = uiState.value.prodDNormName
-                val prodAmount = uiState.value.prodAmount.ifEmpty { "0.0" }
-                val doseType = uiState.value.doseType
-                val phKinetics = uiState.value.phKinetics
-                val comment = uiState.value.comment
-                val image = uiState.value.image
+                val kitId = _uiState.value.kitId
+                val cis = _uiState.value.cis
+                val productName = _uiState.value.productName
+                val expDate = _uiState.value.expDate
+                val prodFormNormName = _uiState.value.prodFormNormName
+                val prodDNormName = _uiState.value.prodDNormName
+                val prodAmount = _uiState.value.prodAmount.ifEmpty { "0.0" }
+                val doseType = _uiState.value.doseType
+                val phKinetics = _uiState.value.phKinetics
+                val comment = _uiState.value.comment
+                val image = _uiState.value.image
                 val scanned = cis.isNotBlank()
-                val verified = uiState.value.technical.verified
+                val verified = _uiState.value.technical.verified
 
                 val medicine = Medicine(
                     kitId = kitId,
@@ -108,20 +108,20 @@ class MedicineViewModel(private val dao: MedicineDAO, private val medicineId: Lo
             }
 
             MedicineEvent.Update -> {
-                val id = uiState.value.id
-                val kitId = uiState.value.kitId
-                val cis = uiState.value.cis
-                val productName = uiState.value.productName
-                val expDate = uiState.value.expDate
-                val prodFormNormName = uiState.value.prodFormNormName
-                val prodDNormName = uiState.value.prodDNormName
-                val prodAmount = uiState.value.prodAmount.ifEmpty { "0.0" }
-                val doseType = uiState.value.doseType
-                val phKinetics = uiState.value.phKinetics
-                val comment = uiState.value.comment
-                val image = uiState.value.image
-                val scanned = uiState.value.technical.scanned
-                val verified = uiState.value.technical.verified
+                val id = _uiState.value.id
+                val kitId = _uiState.value.kitId
+                val cis = _uiState.value.cis
+                val productName = _uiState.value.productName
+                val expDate = _uiState.value.expDate
+                val prodFormNormName = _uiState.value.prodFormNormName
+                val prodDNormName = _uiState.value.prodDNormName
+                val prodAmount = _uiState.value.prodAmount.ifEmpty { "0.0" }
+                val doseType = _uiState.value.doseType
+                val phKinetics = _uiState.value.phKinetics
+                val comment = _uiState.value.comment
+                val image = _uiState.value.image
+                val scanned = _uiState.value.technical.scanned
+                val verified = _uiState.value.technical.verified
 
                 val medicine = Medicine(
                     id = id,
@@ -149,7 +149,7 @@ class MedicineViewModel(private val dao: MedicineDAO, private val medicineId: Lo
             }
 
             MedicineEvent.Delete -> {
-                val medicine = Medicine(id = uiState.value.id)
+                val medicine = Medicine(id = _uiState.value.id)
 
                 viewModelScope.launch {
                     dao.delete(medicine)

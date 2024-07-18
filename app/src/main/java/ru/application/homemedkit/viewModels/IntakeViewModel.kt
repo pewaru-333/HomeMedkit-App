@@ -65,14 +65,14 @@ class IntakeViewModel(
     fun onEvent(event: IntakeEvent) {
         when (event) {
             IntakeEvent.Add -> {
-                val medicineId = uiState.value.medicineId
-                val amount = uiState.value.amount.toDouble()
-                val interval = uiState.value.interval.toInt()
-                val foodType = uiState.value.foodType
-                val time = uiState.value.time.map { LocalTime.parse(it, FORMAT_H) }
-                val period = uiState.value.period.toInt()
-                val startDate = uiState.value.startDate
-                val finalDate = uiState.value.finalDate
+                val medicineId = _uiState.value.medicineId
+                val amount = _uiState.value.amount.toDouble()
+                val interval = _uiState.value.interval.toInt()
+                val foodType = _uiState.value.foodType
+                val time = _uiState.value.time.map { LocalTime.parse(it, FORMAT_H) }
+                val period = _uiState.value.period.toInt()
+                val startDate = _uiState.value.startDate
+                val finalDate = _uiState.value.finalDate
 
                 val intake = Intake(
                     medicineId = medicineId,
@@ -96,15 +96,15 @@ class IntakeViewModel(
             }
 
             IntakeEvent.Update -> {
-                val intakeId = uiState.value.intakeId
-                val medicineId = uiState.value.medicineId
-                val amount = uiState.value.amount.toDouble()
-                val interval = uiState.value.interval.toInt()
-                val foodType = uiState.value.foodType
-                val time = uiState.value.time.map { LocalTime.parse(it, FORMAT_H) }
-                val period = uiState.value.period.toInt()
-                val startDate = uiState.value.startDate
-                val finalDate = uiState.value.finalDate
+                val intakeId = _uiState.value.intakeId
+                val medicineId = _uiState.value.medicineId
+                val amount = _uiState.value.amount.toDouble()
+                val interval = _uiState.value.interval.toInt()
+                val foodType = _uiState.value.foodType
+                val time = _uiState.value.time.map { LocalTime.parse(it, FORMAT_H) }
+                val period = _uiState.value.period.toInt()
+                val startDate = _uiState.value.startDate
+                val finalDate = _uiState.value.finalDate
 
                 val intake = Intake(
                     intakeId = intakeId,
@@ -119,11 +119,11 @@ class IntakeViewModel(
                 )
 
                 viewModelScope.launch {
-                    val alarms = dao.getAlarms(intakeId = uiState.value.intakeId)
+                    val alarms = dao.getAlarms(intakeId = _uiState.value.intakeId)
                     val triggers = longSeconds(startDate, time)
 
                     alarms.forEach { setter.removeAlarm(it.alarmId) }
-                    setter.setAlarm(intakeId = uiState.value.intakeId, triggers = triggers)
+                    setter.setAlarm(intakeId = _uiState.value.intakeId, triggers = triggers)
 
                     dao.update(intake)
                     _uiState.update { it.copy(adding = false, editing = false, default = true) }
@@ -131,8 +131,8 @@ class IntakeViewModel(
             }
 
             IntakeEvent.Delete -> {
-                val intake = Intake(intakeId = uiState.value.intakeId)
-                val alarms = dao.getAlarms(intakeId = uiState.value.intakeId)
+                val intake = Intake(intakeId = _uiState.value.intakeId)
+                val alarms = dao.getAlarms(intakeId = _uiState.value.intakeId)
                 alarms.forEach { setter.removeAlarm(it.alarmId) }
 
                 viewModelScope.launch {

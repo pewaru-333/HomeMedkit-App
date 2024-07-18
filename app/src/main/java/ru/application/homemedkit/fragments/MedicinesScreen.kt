@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
@@ -166,15 +167,11 @@ fun MedicinesScreen(navigator: DestinationsNavigator, context: Context = LocalCo
             contentPadding = paddingValues,
             verticalArrangement = Arrangement.spacedBy(16.dp),
         )
-        { items(filtered.size) { MedicineCard(filtered[it], navigator, context) } }
+        { items(filtered) { MedicineCard(it, navigator, context) } }
         else Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(
-                    start = 16.dp,
-                    top = paddingValues.calculateTopPadding(),
-                    end = 16.dp
-                ),
+                .padding(start = 16.dp, top = paddingValues.calculateTopPadding(), end = 16.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -206,28 +203,17 @@ private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator, c
             Text(
                 text = shortName,
                 modifier = Modifier.padding(vertical = 8.dp),
-                fontWeight = FontWeight.SemiBold,
                 overflow = TextOverflow.Clip,
                 softWrap = false,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
             )
         },
         modifier = Modifier
             .clickable { navigator.navigate(MedicineScreenDestination(id = medicine.id)) }
             .padding(vertical = 8.dp)
             .clip(MaterialTheme.shapes.medium),
-        overlineContent = {
-            Text(
-                text = formName,
-                style = MaterialTheme.typography.labelLarge
-            )
-        },
-        supportingContent = {
-            Text(
-                text = expDate,
-                fontWeight = FontWeight.SemiBold
-            )
-        },
+        overlineContent = { Text(text = formName, style = MaterialTheme.typography.labelLarge) },
+        supportingContent = { Text(text = expDate, fontWeight = FontWeight.SemiBold) },
         leadingContent = {
             Image(
                 painter = rememberAsyncImagePainter(icon),
@@ -237,12 +223,7 @@ private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator, c
                     .offset(y = 12.dp)
             )
         },
-        trailingContent = {
-            Text(
-                text = kitTitle,
-                style = MaterialTheme.typography.labelLarge
-            )
-        },
+        trailingContent = { Text(text = kitTitle, style = MaterialTheme.typography.labelLarge) },
         colors = ListItemDefaults.colors(
             containerColor = when {
                 medicine.expDate < System.currentTimeMillis() -> MaterialTheme.colorScheme.errorContainer
