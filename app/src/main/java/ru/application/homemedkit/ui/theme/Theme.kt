@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Build
 import android.view.View
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -18,7 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.THEMES
 
 
 private val LightColors = lightColorScheme(
@@ -52,7 +52,6 @@ private val LightColors = lightColorScheme(
     outlineVariant = md_theme_light_outlineVariant,
     scrim = md_theme_light_scrim,
 )
-
 
 private val DarkColors = darkColorScheme(
     primary = md_theme_dark_primary,
@@ -93,7 +92,7 @@ fun AppTheme(
     darkTheme: Boolean = isNightMode(),
     content: @Composable () -> Unit
 ) {
-    val dynamicColor = isDynamicColorAvailable() && Preferences(context).getDynamicColors()
+    val dynamicColor = isDynamicColorAvailable() && Preferences.getDynamicColors()
     val colors = when {
         dynamicColor && darkTheme -> dynamicDarkColorScheme(context)
         dynamicColor && !darkTheme -> dynamicLightColorScheme(context)
@@ -112,11 +111,10 @@ fun AppTheme(
 }
 
 @Composable
-private fun isNightMode(context: Context = LocalContext.current): Boolean =
-    when (Preferences(context).getAppTheme()) {
-        THEMES[1] -> false
-        THEMES[2] -> true
-        else -> isSystemInDarkTheme()
-    }
+private fun isNightMode() = when (AppCompatDelegate.getDefaultNightMode()) {
+    AppCompatDelegate.MODE_NIGHT_NO -> false
+    AppCompatDelegate.MODE_NIGHT_YES -> true
+    else -> isSystemInDarkTheme()
+}
 
-fun isDynamicColorAvailable(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+fun isDynamicColorAvailable() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

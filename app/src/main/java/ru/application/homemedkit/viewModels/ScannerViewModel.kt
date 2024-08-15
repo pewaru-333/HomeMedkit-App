@@ -7,34 +7,43 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import ru.application.homemedkit.activities.HomeMeds.Companion.database
 import ru.application.homemedkit.connectionController.NetworkAPI
 import ru.application.homemedkit.connectionController.models.MainModel
 import ru.application.homemedkit.databaseController.Medicine
-import ru.application.homemedkit.databaseController.MedicineDAO
 import ru.application.homemedkit.databaseController.Technical
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CATEGORY
 import ru.application.homemedkit.helpers.Preferences
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.AfterError
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Default
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Duplicate
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Error
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Loading
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.NoNetwork
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Success
 
-class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
-    private val _response = MutableStateFlow<ResponseState>(ResponseState.Default)
+class ScannerViewModel : ViewModel() {
+    private val dao = database.medicineDAO()
+
+    private val _response = MutableStateFlow<Response>(Default)
     val response = _response.asStateFlow()
 
     fun fetchData(context: Context, code: String) {
         viewModelScope.launch {
-            _response.emit(ResponseState.Loading)
+            _response.emit(Loading)
 
             try {
                 NetworkAPI.client.requestData(code).apply {
                     if (category == CATEGORY && codeFounded && checkResult) _response.emit(
-                        if (code in dao.getAllCIS()) ResponseState.Duplicate(dao.getIDbyCis(code))
-                        else ResponseState.Success(dao.add(mapMedicine(this, context)))
+                        if (code in dao.getAllCIS()) Duplicate(dao.getIDbyCis(code))
+                        else Success(dao.add(mapMedicine(this, context)))
                     ) else throwError()
                 }
             } catch (e: Throwable) {
                 _response.emit(
-                    if (code in dao.getAllCIS()) ResponseState.Duplicate(dao.getIDbyCis(code))
-                    else ResponseState.NoNetwork(code)
+                    if (code in dao.getAllCIS()) Duplicate(dao.getIDbyCis(code))
+                    else NoNetwork(code)
                 )
             }
         }
@@ -43,9 +52,9 @@ class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
     fun throwError() {
         viewModelScope.launch {
             _response.apply {
-                emit(ResponseState.Error)
+                emit(Error)
                 delay(2000)
-                emit(ResponseState.AfterError)
+                emit(AfterError)
             }
         }
     }
@@ -63,26 +72,34 @@ class ScannerViewModel(private val dao: MedicineDAO) : ViewModel() {
     )
 
     private suspend fun getImage(context: Context, url: List<String>?): String {
-        if (url.isNullOrEmpty() || !Preferences(context).getDownloadNeeded()) return BLANK
+        if (url.isNullOrEmpty() || !Preferences.getDownloadNeeded()) return BLANK
         else try {
             NetworkAPI.client.getImage(url.first()).apply {
                 if (isSuccessful) body()?.let { body ->
                     val name = url.first().substringAfterLast("/").substringBefore(".")
-                    context.openFileOutput(name, Context.MODE_PRIVATE).use { it.write(body.bytes()) }
+                    context.openFileOutput(name, Context.MODE_PRIVATE)
+                        .use { it.write(body.bytes()) }
                     return name
                 } else return BLANK
             }
-        } catch (throwable: Throwable) { return BLANK }; return BLANK
+        } catch (throwable: Throwable) {
+            return BLANK
+        }
+        return BLANK
+    }
+
+    sealed interface Response {
+        data object Default : Response
+        data object Loading : Response
+        data class Duplicate(val id: Long) : Response
+        data class Success(val id: Long) : Response
+        data class NoNetwork(val cis: String) : Response
+        data object Error : Response
+        data object AfterError : Response
     }
 }
 
-sealed interface ResponseState {
-    data object Default : ResponseState
-    data object Loading : ResponseState
-    data class Duplicate(val id: Long) : ResponseState
-    data class Success(val id: Long) : ResponseState
-    data class NoNetwork(val cis: String) : ResponseState
-    data object Error: ResponseState
-    data object AfterError: ResponseState
-}
-
+data class TechnicalState(
+    val scanned: Boolean = false,
+    val verified: Boolean = false
+)

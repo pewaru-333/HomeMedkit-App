@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <application
+        android:name=".activities.HomeMeds"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"

@@ -55,17 +55,26 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ScannerScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import ru.application.homemedkit.R
-import ru.application.homemedkit.databaseController.MedicineDatabase
-import ru.application.homemedkit.helpers.viewModelFactory
-import ru.application.homemedkit.viewModels.ResponseState
+import ru.application.homemedkit.R.string.manual_add
+import ru.application.homemedkit.R.string.text_connection_error
+import ru.application.homemedkit.R.string.text_grant_permission
+import ru.application.homemedkit.R.string.text_no
+import ru.application.homemedkit.R.string.text_request_camera
+import ru.application.homemedkit.R.string.text_try_again
+import ru.application.homemedkit.R.string.text_yes
 import ru.application.homemedkit.viewModels.ScannerViewModel
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.AfterError
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Default
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Duplicate
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Error
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Loading
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.NoNetwork
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Success
 
 @Destination<RootGraph>
 @Composable
 fun ScannerScreen(navigator: DestinationsNavigator, context: Context = LocalContext.current) {
-    val dao = MedicineDatabase.getInstance(context).medicineDAO()
-    val viewModel = viewModel<ScannerViewModel>(factory = viewModelFactory { ScannerViewModel(dao) })
+    val viewModel = viewModel<ScannerViewModel>()
     val response by viewModel.response.collectAsStateWithLifecycle()
 
     var permissionGranted by remember { mutableStateOf(checkCameraPermission(context)) }
@@ -90,7 +99,7 @@ fun ScannerScreen(navigator: DestinationsNavigator, context: Context = LocalCont
     when (permissionGranted) {
         false -> {
             LaunchedEffect(Unit) { launcher.launch(Manifest.permission.CAMERA) }
-            if (showRationale) PermissionDialog(R.string.text_request_camera)
+            if (showRationale) PermissionDialog(text_request_camera)
         }
 
         true -> {
@@ -120,16 +129,13 @@ fun ScannerScreen(navigator: DestinationsNavigator, context: Context = LocalCont
     }
 
     when (val data = response) {
-        ResponseState.Default -> {}
-        ResponseState.Loading -> LoadingDialog()
-        is ResponseState.Duplicate -> navigator.navigate(
-            MedicineScreenDestination(id = data.id, duplicate = true)
-        )
-
-        is ResponseState.Success -> navigator.navigate(MedicineScreenDestination(data.id))
-        is ResponseState.NoNetwork -> AddMedicineDialog(navigator, data.cis)
-        ResponseState.Error -> Snackbar(R.string.text_try_again)
-        ResponseState.AfterError -> navigator.navigate(ScannerScreenDestination)
+        Default -> {}
+        Loading -> LoadingDialog()
+        is Duplicate -> navigator.navigate(MedicineScreenDestination(id = data.id, duplicate = true))
+        is Success -> navigator.navigate(MedicineScreenDestination(data.id))
+        is NoNetwork -> AddMedicineDialog(navigator, data.cis)
+        Error -> Snackbar(text_try_again)
+        AfterError -> LaunchedEffect(Unit) { navigator.navigate(ScannerScreenDestination) }
     }
 }
 
@@ -164,32 +170,24 @@ private fun AddMedicineDialog(navigator: DestinationsNavigator, cis: String) = A
     onDismissRequest = { navigator.navigate(ScannerScreenDestination) },
     confirmButton = {
         TextButton({ navigator.navigate(MedicineScreenDestination(cis = cis)) }) {
-            Text(
-                text = stringResource(R.string.text_yes),
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
+            Text(stringResource(text_yes), color = MaterialTheme.colorScheme.onSecondaryContainer)
         }
     },
     dismissButton = {
         TextButton({ navigator.navigate(ScannerScreenDestination) }) {
-            Text(
-                text = stringResource(R.string.text_no),
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
+            Text(stringResource(text_no), color = MaterialTheme.colorScheme.onSecondaryContainer)
         }
     },
     title = {
         Text(
-            text = stringResource(R.string.text_connection_error),
+            text = stringResource(text_connection_error),
             style = MaterialTheme.typography.titleMedium.copy(
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold
             )
         )
     },
-    text = {
-        Text(text = stringResource(R.string.manual_add), style = MaterialTheme.typography.bodyLarge)
-    },
+    text = { Text(stringResource(manual_add), style = MaterialTheme.typography.bodyLarge) },
     containerColor = MaterialTheme.colorScheme.secondaryContainer,
     titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
     textContentColor = MaterialTheme.colorScheme.onSecondaryContainer
@@ -220,12 +218,10 @@ fun PermissionDialog(id: Int, context: Context = LocalContext.current) {
                         .also(context::startActivity)
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text(stringResource(R.string.text_grant_permission)) }
+            ) { Text(stringResource(text_grant_permission)) }
         }
     }
 }
 
-private fun checkCameraPermission(
-    context: Context,
-    permission: String = Manifest.permission.CAMERA
-): Boolean = checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+private fun checkCameraPermission(context: Context) =
+    checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED

@@ -1,6 +1,6 @@
 package ru.application.homemedkit.helpers;
 
-import static ru.application.homemedkit.helpers.ConstantsHelperKt.BLANK;
+import static ru.application.homemedkit.helpers.ConstantsKt.BLANK;
 
 import java.time.Duration;
 import java.time.Instant;

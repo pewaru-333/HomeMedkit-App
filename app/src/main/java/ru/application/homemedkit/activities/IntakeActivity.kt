@@ -91,8 +91,8 @@ import com.ramcosta.composedestinations.generated.destinations.IntakesScreenDest
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.R
+import ru.application.homemedkit.activities.HomeMeds.Companion.database
 import ru.application.homemedkit.alarms.AlarmSetter
-import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.dialogs.DateRangePicker
 import ru.application.homemedkit.dialogs.TimePickerDialog
 import ru.application.homemedkit.helpers.BLANK
@@ -104,9 +104,22 @@ import ru.application.homemedkit.helpers.DateHelper.getPeriod
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.viewModelFactory
-import ru.application.homemedkit.states.IntakeState
-import ru.application.homemedkit.viewModels.IntakeEvent
+import ru.application.homemedkit.viewModels.IntakeState
 import ru.application.homemedkit.viewModels.IntakeViewModel
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.Add
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.DecTime
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.Delete
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.IncTime
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetAmount
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetEditing
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetFinal
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetFoodType
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetInterval
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetMedicineId
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetPeriod
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetStart
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetTime
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event.Update
 import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
@@ -122,16 +135,15 @@ fun IntakeScreen(
     context: Context = LocalContext.current,
     lifecycle: Lifecycle = LocalLifecycleOwner.current.lifecycle
 ) {
-    val database = MedicineDatabase.getInstance(context)
     val medId = if (intakeId == 0L) medicineId else
         database.intakeDAO().getByPK(intakeId)?.medicineId ?: 0L
     val medicine = database.medicineDAO().getByPK(medId)!!
 
     val viewModel = viewModel<IntakeViewModel>(factory = viewModelFactory {
-        IntakeViewModel(database.intakeDAO(), intakeId, AlarmSetter(context))
+        IntakeViewModel(intakeId, AlarmSetter(context))
     })
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    viewModel.onEvent(IntakeEvent.SetMedicineId(medId))
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    viewModel.onEvent(SetMedicineId(medId))
 
     var permissionGranted by remember {
         if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -179,7 +191,7 @@ fun IntakeScreen(
                     when {
                         state.adding -> {
                             IconButton(
-                                onClick = { viewModel.onEvent(IntakeEvent.Add) },
+                                onClick = { viewModel.onEvent(Add) },
                                 enabled = viewModel.validate()
                             )
                             { Icon(Icons.Default.Check, null) }
@@ -187,7 +199,7 @@ fun IntakeScreen(
 
                         state.editing -> {
                             IconButton(
-                                onClick = { viewModel.onEvent(IntakeEvent.Update) },
+                                onClick = { viewModel.onEvent(Update) },
                                 enabled = viewModel.validate()
                             )
                             { Icon(Icons.Default.Check, null) }
@@ -204,10 +216,10 @@ fun IntakeScreen(
                             DropdownMenu(expanded, { expanded = false }) {
                                 DropdownMenuItem(
                                     { Text(stringResource(R.string.text_edit)) },
-                                    { viewModel.onEvent(IntakeEvent.SetEditing) })
+                                    { viewModel.onEvent(SetEditing) })
                                 DropdownMenuItem(
                                     { Text(stringResource(R.string.text_delete)) },
-                                    { viewModel.onEvent(IntakeEvent.Delete) }
+                                    { viewModel.onEvent(Delete) }
                                 )
                             }
                         }
@@ -254,7 +266,7 @@ private fun Title(name: String) {
 }
 
 @Composable
-private fun Amount(onEvent: (IntakeEvent) -> Unit, state: IntakeState, prodAmount: Double, type: String) {
+private fun Amount(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState, prodAmount: Double, type: String) {
     var isError by rememberSaveable { mutableStateOf(false) }
 
     fun validate(text: String) {
@@ -266,7 +278,7 @@ private fun Amount(onEvent: (IntakeEvent) -> Unit, state: IntakeState, prodAmoun
             LabelText(R.string.intake_text_amount)
             OutlinedTextField(
                 value = state.amount,
-                onValueChange = {if (!state.default) onEvent(IntakeEvent.SetAmount(it)); validate(it)},
+                onValueChange = {if (!state.default) onEvent(SetAmount(it)); validate(it)},
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = state.default,
                 placeholder = { Text("0,25") },
@@ -304,7 +316,7 @@ private fun Amount(onEvent: (IntakeEvent) -> Unit, state: IntakeState, prodAmoun
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Interval(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
+private fun Interval(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState) {
     val intervals = stringArrayResource(R.array.interval_types_name)
     var interval by remember {
         mutableStateOf(
@@ -348,7 +360,7 @@ private fun Interval(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                             text = { Text(selectionOption) },
                             onClick = {
                                 interval = selectionOption; expanded = false
-                                onEvent(IntakeEvent.SetInterval(index))
+                                onEvent(SetInterval(index))
                             },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                         )
@@ -365,7 +377,7 @@ private fun Interval(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 
                 OutlinedTextField(
                     value = state.interval,
-                    onValueChange = { onEvent(IntakeEvent.SetInterval(it)); validate(it) },
+                    onValueChange = { onEvent(SetInterval(it)); validate(it) },
                     modifier = Modifier.weight(0.5f),
                     readOnly = state.default,
                     placeholder = { Text("N") },
@@ -383,7 +395,7 @@ private fun Interval(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
+private fun Period(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState) {
     val dateST = stringResource(R.string.text_start_date)
     val dateFT = stringResource(R.string.text_finish_date)
 
@@ -391,7 +403,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
         LabelText(R.string.intake_text_period)
 
         when {
-            Preferences(LocalContext.current).getLightPeriod() -> {
+            Preferences.getLightPeriod() -> {
                 val periods = stringArrayResource(R.array.period_types_name)
                 var period by rememberSaveable {
                     mutableStateOf(
@@ -406,7 +418,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                 var expanded by remember { mutableStateOf(false) }
 
                 if (state.period.isBlank() && period != periods[2] && state.editing)
-                    onEvent(IntakeEvent.SetPeriod(getPeriod(state.startDate, state.finalDate)))
+                    onEvent(SetPeriod(getPeriod(state.startDate, state.finalDate)))
 
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     ExposedDropdownMenuBox(
@@ -431,7 +443,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                                     text = { Text(selectionOption) },
                                     onClick = {
                                         period = selectionOption; expanded = false
-                                        onEvent(IntakeEvent.SetPeriod(index))
+                                        onEvent(SetPeriod(index))
                                     },
                                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                                 )
@@ -441,7 +453,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 
                     if (period == periods[2] && (state.adding || state.editing)) {
                         if(state.editing) LaunchedEffect(Unit) {
-                            onEvent(IntakeEvent.SetPeriod(getPeriod(state.startDate, state.finalDate)))
+                            onEvent(SetPeriod(getPeriod(state.startDate, state.finalDate)))
                         }
                         var isError by rememberSaveable { mutableStateOf(false) }
 
@@ -452,7 +464,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 
                         OutlinedTextField(
                             value = state.period,
-                            onValueChange = { onEvent(IntakeEvent.SetPeriod(it)); validate(it) },
+                            onValueChange = { onEvent(SetPeriod(it)); validate(it) },
                             modifier = Modifier.weight(1f),
                             readOnly = state.default,
                             textStyle = MaterialTheme.typography.titleMedium,
@@ -469,8 +481,8 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 
                 if (period.isNotEmpty() && period != periods[3]) {
                     if ((state.adding || state.editing) && state.period.isNotEmpty()) {
-                        onEvent(IntakeEvent.SetStart())
-                        onEvent(IntakeEvent.SetFinal())
+                        onEvent(SetStart())
+                        onEvent(SetFinal())
                     }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -568,7 +580,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 
                         isError = milliF < milliS
                         if (!isError)
-                            onEvent(IntakeEvent.SetPeriod(Period.between(milliS, milliF).days))
+                            onEvent(SetPeriod(Period.between(milliS, milliF).days))
                     }
 
                     if (showPicker) DateRangePicker(
@@ -577,8 +589,8 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                         final = selectF,
                         onDismiss = { showPicker = false },
                         onConfirm = {
-                            selectS?.let { onEvent(IntakeEvent.SetStart(it)) }
-                            selectF?.let { onEvent(IntakeEvent.SetFinal(it)) }
+                            selectS?.let { onEvent(SetStart(it)) }
+                            selectF?.let { onEvent(SetFinal(it)) }
                             showPicker = false
                         }
                     )
@@ -589,7 +601,7 @@ private fun Period(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 }
 
 @Composable
-private fun Food(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
+private fun Food(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState) {
     val icons = listOf(
         R.drawable.vector_before_food,
         R.drawable.vector_in_food,
@@ -622,7 +634,7 @@ private fun Food(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                         .clickable {
                             if (!state.default) {
                                 selected = if (selected == index) -1 else index
-                                onEvent(IntakeEvent.SetFoodType(selected))
+                                onEvent(SetFoodType(selected))
                             }
                         },
                     verticalArrangement = Arrangement.SpaceEvenly,
@@ -643,7 +655,7 @@ private fun Food(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-private fun Time(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
+private fun Time(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState) {
     var picker by rememberSaveable { mutableStateOf(false) }
     var field by rememberSaveable { mutableIntStateOf(0) }
 
@@ -689,7 +701,7 @@ private fun Time(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                                 color = Color(MaterialTheme.colorScheme.secondaryContainer.value)
                                 icon = Icons.Default.Add
                                 tint = MaterialTheme.colorScheme.onSecondaryContainer
-                                onClick = { onEvent(IntakeEvent.IncTime) }
+                                onClick = { onEvent(IncTime) }
                             }
 
                             state.time.size -> {
@@ -697,7 +709,7 @@ private fun Time(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
                                 color = Color(MaterialTheme.colorScheme.errorContainer.value)
                                 icon = ImageVector.vectorResource(R.drawable.vector_remove)
                                 tint = MaterialTheme.colorScheme.onErrorContainer
-                                onClick = { onEvent(IntakeEvent.DecTime) }
+                                onClick = { onEvent(DecTime) }
                             }
 
                             else -> showBox = false
@@ -720,7 +732,7 @@ private fun Time(onEvent: (IntakeEvent) -> Unit, state: IntakeState) {
 
                 if (picker) TimePickerDialog(
                     onCancel = { picker = false },
-                    onConfirm = { onEvent((IntakeEvent.SetTime(field))); picker = false },
+                    onConfirm = { onEvent((SetTime(field))); picker = false },
                 ) { TimePicker(state.times[field]) }
             }
 

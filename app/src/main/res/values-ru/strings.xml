@@ -53,7 +53,12 @@
     <string name="text_medicine_comment">Комментарий</string>
     <string name="text_medicine_description">Описание</string>
     <string name="text_medicine_dose">Дозировка</string>
-    <string name="text_medicine_product_name">Название лекарства</string>
+    <string name="text_medicine_form">Форма выпуска</string>
+    <string name="text_medicine_group">Группа</string>
+    <string name="text_medicine_product_name">Название</string>
+    <string name="text_medicine_status_checked">Проверено</string>
+    <string name="text_medicine_status_scanned">Не проверено</string>
+    <string name="text_medicine_status_self_added">Добавлено вручную</string>
 
     <!-- Приём -->
     <string name="intakes_tab_current">Текущее</string>
@@ -114,8 +119,11 @@
     <string name="text_on">Включено</string>
     <string name="text_save">Сохранить</string>
     <string name="text_start_date">Начальная дата</string>
+    <string name="text_status">Статус</string>
     <string name="text_success">Успешно!</string>
     <string name="text_tap_to_view">Нажмите для просмотра</string>
+    <string name="text_unspecified">Не указано</string>
+    <string name="text_update">Загрузить</string>
     <string name="text_yes">Да</string>
 
     <!-- Множественные числительные -->

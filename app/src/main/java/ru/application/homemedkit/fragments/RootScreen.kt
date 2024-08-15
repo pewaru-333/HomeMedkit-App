@@ -3,11 +3,10 @@ package ru.application.homemedkit.fragments
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,13 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavHostController
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.animations.defaults.DefaultFadingTransitions
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.IntakesScreenDestination
@@ -36,7 +34,14 @@ import com.ramcosta.composedestinations.utils.findDestination
 import com.ramcosta.composedestinations.utils.isRouteOnBackStack
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import com.ramcosta.composedestinations.utils.startDestination
-import ru.application.homemedkit.R
+import ru.application.homemedkit.R.drawable.vector_home
+import ru.application.homemedkit.R.drawable.vector_medicine
+import ru.application.homemedkit.R.drawable.vector_settings
+import ru.application.homemedkit.R.drawable.vector_time
+import ru.application.homemedkit.R.string.bottom_bar_intakes
+import ru.application.homemedkit.R.string.bottom_bar_main
+import ru.application.homemedkit.R.string.bottom_bar_medicines
+import ru.application.homemedkit.R.string.bottom_bar_settings
 import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.Preferences
 
@@ -70,10 +75,7 @@ fun RootScreen(navController: NavHostController, context: Context = LocalContext
                             },
                             icon = {
                                 Image(
-                                    painter = rememberVectorPainter(
-                                        if (screen.icon is ImageVector) screen.icon
-                                        else ImageVector.vectorResource(screen.icon as Int)
-                                    ),
+                                    painter = painterResource(screen.icon),
                                     contentDescription = null,
                                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
                                 )
@@ -87,8 +89,8 @@ fun RootScreen(navController: NavHostController, context: Context = LocalContext
         DestinationsNavHost(
             navGraph = NavGraphs.root,
             modifier = Modifier.padding(paddingValues),
-            startRoute = NavGraphs.root.findDestination(Preferences(context).getHomePage())?.startDestination
-                ?: HomeScreenDestination,
+            startRoute = NavGraphs.root.findDestination(Preferences.getHomePage())?.startDestination ?: HomeScreenDestination,
+            defaultTransitions = DefaultFadingTransitions,
             navController = navController
         )
 
@@ -99,9 +101,9 @@ fun RootScreen(navController: NavHostController, context: Context = LocalContext
     }
 }
 
-enum class Menu(val route: DirectionDestinationSpec, val title: Int, val icon: Any) {
-    Home(HomeScreenDestination, R.string.bottom_bar_main, Icons.Default.Home),
-    Medicines(MedicinesScreenDestination, R.string.bottom_bar_medicines, R.drawable.vector_medicine),
-    Intakes(IntakesScreenDestination, R.string.bottom_bar_intakes, R.drawable.vector_time),
-    Settings(SettingsScreenDestination, R.string.bottom_bar_settings, Icons.Default.Settings)
+enum class Menu(val route: DirectionDestinationSpec, @StringRes val title: Int, @DrawableRes val icon: Int) {
+    Home(HomeScreenDestination, bottom_bar_main, vector_home),
+    Medicines(MedicinesScreenDestination, bottom_bar_medicines, vector_medicine),
+    Intakes(IntakesScreenDestination, bottom_bar_intakes, vector_time),
+    Settings(SettingsScreenDestination, bottom_bar_settings, vector_settings)
 }

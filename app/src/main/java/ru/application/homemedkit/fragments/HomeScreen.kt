@@ -3,6 +3,8 @@ package ru.application.homemedkit.fragments
 import android.app.Activity
 import android.content.Context
 import androidx.activity.compose.BackHandler
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,8 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -31,11 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -43,13 +41,20 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ScannerScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.Direction
-import ru.application.homemedkit.R
+import ru.application.homemedkit.R.drawable.vector_edit
+import ru.application.homemedkit.R.drawable.vector_scanner
+import ru.application.homemedkit.R.string.text_confirm_exit
+import ru.application.homemedkit.R.string.text_data_matrix_scanner
+import ru.application.homemedkit.R.string.text_manual_add
+import ru.application.homemedkit.R.string.text_no
+import ru.application.homemedkit.R.string.text_sure_to_exit
+import ru.application.homemedkit.R.string.text_yes
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator as Navigator
 
 @Destination<RootGraph>(start = true)
 @Composable
-fun HomeScreen(navigator: DestinationsNavigator, context: Context = LocalContext.current) {
+fun HomeScreen(navigator: Navigator, context: Context = LocalContext.current) {
     var show by rememberSaveable { mutableStateOf(false) }
 
     Row(
@@ -57,18 +62,8 @@ fun HomeScreen(navigator: DestinationsNavigator, context: Context = LocalContext
         Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         Alignment.CenterVertically
     ) {
-        Card(
-            stringResource(R.string.text_data_matrix_scanner),
-            ImageVector.vectorResource(R.drawable.vector_scanner),
-            navigator,
-            ScannerScreenDestination
-        )
-        Card(
-            stringResource(R.string.text_manual_add),
-            Icons.Outlined.Create,
-            navigator,
-            MedicineScreenDestination()
-        )
+        Card(text_data_matrix_scanner, vector_scanner, ScannerScreenDestination, navigator)
+        Card(text_manual_add, vector_edit, MedicineScreenDestination(), navigator)
     }
 
     BackHandler { show = true }
@@ -76,7 +71,7 @@ fun HomeScreen(navigator: DestinationsNavigator, context: Context = LocalContext
 }
 
 @Composable
-private fun Card(text: String, icon: ImageVector, navigator: DestinationsNavigator, route: Direction) {
+private fun Card(@StringRes text: Int, @DrawableRes icon: Int, route: Direction, navigator: Navigator) {
     val bodyLarge = MaterialTheme.typography.bodyLarge
     var textStyle by remember { mutableStateOf(bodyLarge) }
     var drawReady by remember { mutableStateOf(false) }
@@ -85,10 +80,10 @@ private fun Card(text: String, icon: ImageVector, navigator: DestinationsNavigat
         modifier = Modifier
             .size(160.dp, 200.dp)
             .clickable { navigator.navigate(route) },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
     ) {
         Image(
-            painter = rememberVectorPainter(icon),
+            painter = painterResource(icon),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -98,7 +93,7 @@ private fun Card(text: String, icon: ImageVector, navigator: DestinationsNavigat
             colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
         )
         Text(
-            text = text,
+            text = stringResource(text),
             modifier = Modifier
                 .wrapContentWidth()
                 .height(104.dp)
@@ -121,8 +116,8 @@ private fun Card(text: String, icon: ImageVector, navigator: DestinationsNavigat
 @Composable
 private fun ExitDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) = AlertDialog(
     onDismissRequest = onDismiss,
-    confirmButton = { TextButton(onConfirm) { Text(stringResource(R.string.text_yes)) } },
-    dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_no)) } },
-    title = { Text(stringResource(R.string.text_confirm_exit)) },
-    text = { Text(stringResource(R.string.text_sure_to_exit)) }
+    confirmButton = { TextButton(onConfirm) { Text(stringResource(text_yes)) } },
+    dismissButton = { TextButton(onDismiss) { Text(stringResource(text_no)) } },
+    title = { Text(stringResource(text_confirm_exit)) },
+    text = { Text(stringResource(text_sure_to_exit)) }
 )

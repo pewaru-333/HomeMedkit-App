@@ -85,11 +85,12 @@ import java.io.File
 
 @Destination<RootGraph>
 @Composable
-fun SettingsScreen(preferences: Preferences = Preferences(LocalContext.current)) {
+fun SettingsScreen(context: Context = LocalContext.current) {
     val pages = stringArrayResource(R.array.fragment_pages_name)
     val sorting = stringArrayResource(R.array.sorting_types_name)
     val languages = stringArrayResource(R.array.languages_name)
     val themes = stringArrayResource(R.array.app_themes_name)
+
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var showExport by rememberSaveable { mutableStateOf(false) }
     
@@ -140,11 +141,11 @@ fun SettingsScreen(preferences: Preferences = Preferences(LocalContext.current))
             )
 
             item {
-                var value by remember { mutableStateOf(preferences.getCheckExpDate()) }
+                var value by remember { mutableStateOf(Preferences.getCheckExpDate()) }
 
                 SwitchPreference(
                     value = value,
-                    onValueChange = { value = it; preferences.setCheckExpDate(value) },
+                    onValueChange = { value = it; Preferences.setCheckExpDate(context, it) },
                     title = { Text(stringResource(R.string.preference_check_expiration_date)) },
                     summary = { Text(stringResource(if (value) R.string.text_daily_at else R.string.text_off)) }
                 )
@@ -159,11 +160,11 @@ fun SettingsScreen(preferences: Preferences = Preferences(LocalContext.current))
             )
 
             item {
-                var value by remember { mutableStateOf(preferences.getLanguage()) }
+                var value by remember { mutableStateOf(Preferences.getLanguage()) }
 
                 ListPreference(
                     value = value,
-                    onValueChange = { value = it; preferences.setLanguage(value) },
+                    onValueChange = { value = it; Preferences.setLanguage(context, it) },
                     values = LANGUAGES,
                     title = { Text(stringResource(R.string.preference_language)) },
                     summary = { Text(localize(value, LANGUAGES, languages)) },
@@ -172,11 +173,11 @@ fun SettingsScreen(preferences: Preferences = Preferences(LocalContext.current))
             }
 
             item {
-                var value by remember { mutableStateOf(preferences.getAppTheme()) }
+                var value by remember { mutableStateOf(Preferences.getAppTheme()) }
 
                 ListPreference(
                     value = value,
-                    onValueChange = { value = it; preferences.setTheme(value) },
+                    onValueChange = { value = it; Preferences.setTheme(it) },
                     values = THEMES,
                     title = { Text(stringResource(R.string.preference_app_theme)) },
                     summary = { Text(localize(value, THEMES, themes)) },
@@ -185,11 +186,11 @@ fun SettingsScreen(preferences: Preferences = Preferences(LocalContext.current))
             }
 
             item {
-                var value by remember { mutableStateOf(preferences.getDynamicColors()) }
+                var value by remember { mutableStateOf(Preferences.getDynamicColors()) }
 
                 SwitchPreference(
                     value = value,
-                    onValueChange = { value = it; preferences.setDynamicColors(value) },
+                    onValueChange = { value = it; Preferences.setDynamicColors(context, it) },
                     title = { Text(stringResource(R.string.preference_dynamic_color)) },
                     enabled = isDynamicColorAvailable()
                 )

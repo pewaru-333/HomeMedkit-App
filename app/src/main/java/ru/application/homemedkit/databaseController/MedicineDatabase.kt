@@ -23,19 +23,17 @@ abstract class MedicineDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: MedicineDatabase? = null
 
-        fun getInstance(context: Context): MedicineDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    MedicineDatabase::class.java,
-                    DATABASE_NAME
-                )
-                    .addMigrations(MIGRATION_1_4, MIGRATION_4_6, MIGRATION_6_7, MIGRATION_7_8)
-                    .allowMainThreadQueries()
-                    .build()
-                INSTANCE = instance
-                instance
-            }
+        fun getInstance(context: Context): MedicineDatabase = INSTANCE ?: synchronized(this) {
+            val instance = Room.databaseBuilder(
+                context.applicationContext,
+                MedicineDatabase::class.java,
+                DATABASE_NAME
+            )
+                .addMigrations(MIGRATION_1_4, MIGRATION_4_6, MIGRATION_6_7, MIGRATION_7_8)
+                .allowMainThreadQueries()
+                .build()
+            INSTANCE = instance
+            instance
         }
 
         fun setNull() {

@@ -3,22 +3,23 @@ package ru.application.homemedkit.activities
 import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -27,13 +28,12 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -42,7 +42,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -63,12 +63,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
@@ -81,7 +78,6 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -96,6 +92,33 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.R
+import ru.application.homemedkit.R.string.placeholder_dose
+import ru.application.homemedkit.R.string.placeholder_exp_date
+import ru.application.homemedkit.R.string.placeholder_kitchen
+import ru.application.homemedkit.R.string.preference_kits_group
+import ru.application.homemedkit.R.string.text_amount
+import ru.application.homemedkit.R.string.text_clear
+import ru.application.homemedkit.R.string.text_connection_error
+import ru.application.homemedkit.R.string.text_delete
+import ru.application.homemedkit.R.string.text_duplicate
+import ru.application.homemedkit.R.string.text_edit
+import ru.application.homemedkit.R.string.text_empty
+import ru.application.homemedkit.R.string.text_exp_date
+import ru.application.homemedkit.R.string.text_indications_for_use
+import ru.application.homemedkit.R.string.text_medicine_comment
+import ru.application.homemedkit.R.string.text_medicine_description
+import ru.application.homemedkit.R.string.text_medicine_dose
+import ru.application.homemedkit.R.string.text_medicine_form
+import ru.application.homemedkit.R.string.text_medicine_group
+import ru.application.homemedkit.R.string.text_medicine_product_name
+import ru.application.homemedkit.R.string.text_medicine_status_checked
+import ru.application.homemedkit.R.string.text_medicine_status_scanned
+import ru.application.homemedkit.R.string.text_medicine_status_self_added
+import ru.application.homemedkit.R.string.text_save
+import ru.application.homemedkit.R.string.text_status
+import ru.application.homemedkit.R.string.text_try_again
+import ru.application.homemedkit.R.string.text_unspecified
+import ru.application.homemedkit.R.string.text_update
 import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.dialogs.MonthYear
 import ru.application.homemedkit.helpers.BLANK
@@ -107,11 +130,32 @@ import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.fromHTML
 import ru.application.homemedkit.helpers.viewModelFactory
-import ru.application.homemedkit.states.MedicineState
-import ru.application.homemedkit.viewModels.ActivityEvents
-import ru.application.homemedkit.viewModels.MedicineEvent
+import ru.application.homemedkit.viewModels.MedicineState
 import ru.application.homemedkit.viewModels.MedicineViewModel
-import ru.application.homemedkit.viewModels.ResponseState
+import ru.application.homemedkit.viewModels.MedicineViewModel.ActivityEvents.Close
+import ru.application.homemedkit.viewModels.MedicineViewModel.ActivityEvents.Start
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.Add
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.Delete
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.Fetch
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetAdding
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetCis
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetComment
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetDoseType
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetEditing
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetExpDate
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetImage
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetKitId
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetPhKinetics
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetProdAmount
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetProdDNormName
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetProdFormNormName
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.SetProductName
+import ru.application.homemedkit.viewModels.MedicineViewModel.Event.Update
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Default
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Loading
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.NoNetwork
+import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Success
 import java.io.File
 
 
@@ -125,33 +169,28 @@ fun MedicineScreen(
     navigator: DestinationsNavigator,
     context: Context = LocalContext.current
 ) {
-    val database = MedicineDatabase.getInstance(context)
-    val viewModel = viewModel<MedicineViewModel>(factory = viewModelFactory {
-        MedicineViewModel(database.medicineDAO(), id)
-    })
-
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val response by viewModel.response.collectAsStateWithLifecycle()
-    val path = context.filesDir
+    val model = viewModel<MedicineViewModel>(factory = viewModelFactory { MedicineViewModel(id) })
+    val state by model.state.collectAsStateWithLifecycle()
+    val response by model.response.collectAsStateWithLifecycle()
 
     if (id == 0L) {
-        viewModel.onEvent(MedicineEvent.SetAdding)
-        viewModel.onEvent(MedicineEvent.SetCis(cis))
+        model.onEvent(SetAdding)
+        model.onEvent(SetCis(cis))
     }
 
     if (duplicate) {
         var show by remember { mutableStateOf(true) }
-        if (show) Snackbar(R.string.text_duplicate)
+        if (show) Snackbar(text_duplicate)
 
         LaunchedEffect(Unit) { delay(2000); show = false }
     }
 
     LaunchedEffect(Unit) {
-        viewModel.events.collectLatest { event ->
-            when (event) {
-                ActivityEvents.Start -> navigator.navigate(MedicineScreenDestination(state.id))
-                ActivityEvents.Close -> {
-                    File(path, state.image).delete()
+        model.events.collectLatest {
+            when (it) {
+                Start -> navigator.navigate(MedicineScreenDestination(state.id))
+                Close -> {
+                    File(context.filesDir, state.image).delete()
                     navigator.navigate(MedicinesScreenDestination)
                 }
             }
@@ -163,9 +202,14 @@ fun MedicineScreen(
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton({ navigator.navigate(MedicinesScreenDestination) }) {
+                    IconButton({
+                        navigator.apply {
+                            if (getBackStackEntry(MedicinesScreenDestination) != null) popBackStack()
+                            else navigate(MedicinesScreenDestination)
+                        }
+                    }) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -175,18 +219,18 @@ fun MedicineScreen(
                     when {
                         state.adding -> {
                             IconButton(
-                                onClick = { viewModel.onEvent(MedicineEvent.Add) },
+                                onClick = { model.onEvent(Add) },
                                 enabled = state.productName.isNotEmpty()
                             )
-                            { Icon(Icons.Default.Check, null) }
+                            { Icon(Icons.Outlined.Check, null) }
                         }
 
                         state.editing -> {
                             IconButton(
-                                onClick = { viewModel.onEvent(MedicineEvent.Update) },
+                                onClick = { model.onEvent(Update) },
                                 enabled = state.productName.isNotEmpty()
                             )
-                            { Icon(Icons.Default.Check, null) }
+                            { Icon(Icons.Outlined.Check, null) }
                         }
 
                         else -> {
@@ -195,167 +239,285 @@ fun MedicineScreen(
 
                             IconButton({
                                 navigator.navigate(IntakeScreenDestination(medicineId = state.id))
-                            }) { Icon(Icons.Default.Notifications, null) }
+                            }) { Icon(Icons.Outlined.Notifications, null) }
 
                             IconButton({ expanded = true }) {
-                                Icon(Icons.Default.MoreVert, null)
+                                Icon(Icons.Outlined.MoreVert, null)
                             }
 
                             DropdownMenu(expanded, { expanded = false }) {
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.text_edit)) },
-                                    onClick = { viewModel.onEvent(MedicineEvent.SetEditing) }
+                                    text = { Text(stringResource(text_edit)) },
+                                    onClick = { model.onEvent(SetEditing) }
                                 )
                                 DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.text_delete)) },
-                                    onClick = { viewModel.onEvent(MedicineEvent.Delete) }
+                                    text = { Text(stringResource(text_delete)) },
+                                    onClick = { model.onEvent(Delete) }
                                 )
                             }
                         }
                     }
                 },
-
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             )
+        },
+        floatingActionButton = {
+            if (state.technical.scanned && !state.technical.verified)
+                ExtendedFloatingActionButton(
+                    text = { Text(stringResource(text_update)) },
+                    icon = { Icon(Icons.Outlined.Refresh, null) },
+                    onClick = { model.onEvent(Fetch) })
         }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = paddingValues.calculateTopPadding())
-                .verticalScroll(rememberScrollState()),
+    ) { values ->
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp, values.calculateTopPadding().plus(16.dp)),
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
-            ProductName(viewModel::onEvent, state)
-            ProductImage(viewModel, state)
-            ExpirationDate(viewModel::onEvent, state)
-            ProductFormName(viewModel::onEvent, state)
-            ProductNormName(viewModel::onEvent, state)
-            PhKinetics(viewModel::onEvent, state)
-            Comment(viewModel::onEvent, state)
+            item {
+                Row(Modifier.height(256.dp), Arrangement.spacedBy(12.dp)) {
+                    ProductImage(model, state)
+                    ProductBrief(model::onEvent, state)
+                }
+            }
+            item { ProductFormName(model::onEvent, state) }
+            item { ProductNormName(model::onEvent, state) }
+            if (state.adding || state.editing || state.phKinetics.isNotEmpty())
+                item { PhKinetics(model::onEvent, state) }
+            if (state.adding || state.editing || state.comment.isNotEmpty())
+                item { Comment(model::onEvent, state) }
         }
     }
 
     when (val data = response) {
-        ResponseState.Default -> {}
-        ResponseState.Loading -> LoadingDialog()
-        is ResponseState.Success -> navigator.navigate(MedicineScreenDestination(data.id))
-        is ResponseState.NoNetwork -> Snackbar(R.string.text_connection_error)
+        Default -> {}
+        Loading -> LoadingDialog()
+        is Success -> navigator.navigate(MedicineScreenDestination(data.id))
+        is NoNetwork -> Snackbar(text_connection_error)
 
-        else -> Snackbar(R.string.text_try_again)
+        else -> Snackbar(text_try_again)
     }
 
-    BackHandler { navigator.navigate(MedicinesScreenDestination) }
+    BackHandler {
+        navigator.apply {
+            if (getBackStackEntry(MedicinesScreenDestination) != null) popBackStack()
+            else navigate(MedicinesScreenDestination)
+        }
+    }
 }
 
 @Composable
-private fun ProductName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    Column(Modifier.padding(16.dp, 16.dp, 16.dp, 0.dp), Arrangement.spacedBy(4.dp)) {
+private fun ProductBrief(onEvent: (Event) -> Unit, state: MedicineState) = Column(
+    modifier = Modifier
+        .fillMaxHeight()
+        .verticalScroll(rememberScrollState()),
+    verticalArrangement = Arrangement.SpaceBetween
+) {
+    ProductName(onEvent, state)
+    if (state.default || state.technical.verified) ProductForm(state)
+    ProductKit(state, onEvent)
+    ProductExp(state, onEvent)
+    if (state.default) ProductStatus(state)
+}
 
-        if (state.adding)
+@Composable
+private fun ProductName(onEvent: (Event) -> Unit, state: MedicineState) = Column {
+    Text(
+        stringResource(text_medicine_product_name),
+        style = MaterialTheme.typography.titleMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.W400
+        )
+    )
+    BasicTextField(
+        value = state.productName,
+        onValueChange = { onEvent(SetProductName(it)) },
+        modifier = Modifier.fillMaxWidth(),
+        readOnly = state.default || state.technical.verified,
+        textStyle = MaterialTheme.typography.titleMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold
+        ),
+        decorationBox = {
+            when {
+                state.default || state.technical.verified -> NoDecorationBox(state.productName, it)
+
+                else -> DecorationBox(state.productName, it)
+            }
+        }
+    )
+}
+
+@Composable
+private fun ProductForm(state: MedicineState) = Column {
+    Text(
+        stringResource(text_medicine_form), style = MaterialTheme.typography.titleMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.W400
+        )
+    )
+    Text(
+        formName(state.prodFormNormName).ifEmpty { stringResource(text_unspecified) },
+        style = MaterialTheme.typography.titleMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.SemiBold
+        )
+    )
+}
+
+@Composable
+private fun ProductKit(state: MedicineState, onEvent: (Event) -> Unit) = Column {
+    Text(
+        stringResource(text_medicine_group), style = MaterialTheme.typography.titleMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.W400
+        )
+    )
+    when {
+        state.default ->
             Text(
-                text = stringResource(R.string.text_medicine_product_name),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                state.kitTitle.ifBlank { stringResource(text_unspecified) },
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
             )
 
-        BasicTextField(
-            value = state.productName,
-            onValueChange = { onEvent(MedicineEvent.SetProductName(it)) },
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = state.default || state.technical.verified,
-            textStyle = MaterialTheme.typography.titleLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = FontWeight.Bold
-            ),
-            decorationBox = { innerTextField ->
-                when {
-                    state.default || state.technical.verified
-                    -> NoDecorationBox(state.productName, innerTextField)
+        state.adding || state.editing -> {
+            val kits = MedicineDatabase.getInstance(LocalContext.current).kitDAO().getAll()
+            var show by remember { mutableStateOf(false) }
+            var kitId by remember { mutableStateOf(state.kitId) }
 
-                    else -> DecorationBox(state.productName, innerTextField)
-                }
-            }
-        )
+            OutlinedTextField(
+                value = state.kitTitle,
+                onValueChange = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { show = true },
+                enabled = false,
+                readOnly = true,
+                placeholder = { Text(stringResource(placeholder_kitchen)) },
+                colors = fieldColorsInverted()
+            )
 
-        if (state.default || state.technical.verified) Text(
-            text = formName(state.prodFormNormName),
-            style = MaterialTheme.typography.titleMedium.copy(MaterialTheme.colorScheme.onSurface)
-        )
-
-        when {
-            state.default -> {
-                if (state.kitTitle.isNotBlank()) Text(
-                    text = state.kitTitle,
-                    style = MaterialTheme.typography.titleMedium.copy(MaterialTheme.colorScheme.onSurface)
-                )
-            }
-
-            state.adding || state.editing -> {
-                val kits = MedicineDatabase.getInstance(LocalContext.current).kitDAO().getAll()
-                var show by remember { mutableStateOf(false) }
-                var kitId by remember { mutableStateOf(state.kitId) }
-
-                OutlinedTextField(
-                    value = state.kitTitle,
-                    onValueChange = {},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp)
-                        .clickable { show = true },
-                    enabled = false,
-                    readOnly = true,
-                    placeholder = { Text(stringResource(R.string.placeholder_kitchen)) },
-                    colors = fieldColorsInverted()
-                )
-
-                if (show) AlertDialog(
-                    onDismissRequest = { show = false },
-                    confirmButton = {
-                        TextButton(
-                            onClick = { onEvent(MedicineEvent.SetKitId(kitId)); show = false },
-                            enabled = kitId != null,
-                        ) {
-                            Text(stringResource(R.string.text_save))
-                        }
-                    },
-                    dismissButton = {
-                        TextButton({ onEvent(MedicineEvent.SetKitId(null)); show = false }) {
-                            Text(stringResource(R.string.text_clear))
-                        }
-                    },
-                    title = { Text(stringResource(R.string.preference_kits_group)) },
-                    text = {
-                        Column(Modifier.selectableGroup()) {
-                            kits.forEach { kit ->
-                                Row(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .height(56.dp)
-                                        .selectable(
-                                            selected = kitId == kit.kitId,
-                                            onClick = { kitId = kit.kitId },
-                                            role = Role.RadioButton
-                                        ),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    RadioButton(kitId == kit.kitId, null)
-                                    Text(
-                                        text = kit.title,
-                                        modifier = Modifier.padding(start = 16.dp),
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                }
+            if (show) AlertDialog(
+                onDismissRequest = { show = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = { onEvent(SetKitId(kitId)); show = false },
+                        enabled = kitId != null,
+                    ) {
+                        Text(stringResource(text_save))
+                    }
+                },
+                dismissButton = {
+                    TextButton({ onEvent(SetKitId(null)); show = false }) {
+                        Text(stringResource(text_clear))
+                    }
+                },
+                title = { Text(stringResource(preference_kits_group)) },
+                text = {
+                    Column(Modifier.selectableGroup()) {
+                        kits.forEach { kit ->
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp)
+                                    .selectable(
+                                        selected = kitId == kit.kitId,
+                                        onClick = { kitId = kit.kitId },
+                                        role = Role.RadioButton
+                                    ),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(kitId == kit.kitId, null)
+                                Text(
+                                    text = kit.title,
+                                    modifier = Modifier.padding(start = 16.dp),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
                             }
                         }
                     }
-                )
-            }
+                }
+            )
         }
+    }
+}
+
+@Composable
+private fun ProductExp(state: MedicineState, onEvent: (Event) -> Unit) = Column {
+    Text(
+        stringResource(text_exp_date), style = MaterialTheme.typography.titleMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.W400
+        )
+    )
+    when {
+        state.default || state.technical.verified ->
+            Text(
+                toExpDate(state.expDate).ifEmpty { stringResource(text_unspecified) },
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+
+        (state.adding || state.editing) && !state.technical.verified -> {
+            var showPicker by remember { mutableStateOf(false) }
+
+            OutlinedTextField(
+                value = toExpDate(state.expDate),
+                onValueChange = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showPicker = true },
+                enabled = false,
+                readOnly = true,
+                placeholder = { Text(stringResource(placeholder_exp_date)) },
+                leadingIcon = { Icon(Icons.Outlined.DateRange, null) },
+                colors = fieldColorsInverted()
+            )
+
+            if (showPicker) MonthYear(
+                onConfirm = { month, year ->
+                    onEvent(SetExpDate(toTimestamp(month, year)))
+                    showPicker = false
+                },
+                onCancel = { showPicker = false })
+        }
+    }
+}
+
+@Composable
+private fun ProductStatus(state: MedicineState) = Column {
+    Text(
+        stringResource(text_status), style = MaterialTheme.typography.titleMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.W400
+        )
+    )
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = stringResource(
+                when {
+                    state.technical.verified -> text_medicine_status_checked
+                    state.technical.scanned && !state.technical.verified -> text_medicine_status_scanned
+                    else -> text_medicine_status_self_added
+                }
+            ),
+            style = MaterialTheme.typography.titleMedium.copy(
+                color = when {
+                    state.technical.verified -> MaterialTheme.colorScheme.primary
+                    state.technical.scanned && !state.technical.verified -> MaterialTheme.colorScheme.onBackground
+                    else -> MaterialTheme.colorScheme.error
+                },
+                fontWeight = FontWeight.SemiBold
+            )
+        )
     }
 }
 
@@ -372,153 +534,48 @@ private fun ProductImage(viewModel: MedicineViewModel, state: MedicineState) {
     }
     var showPicker by remember { mutableStateOf(false) }
 
-    ElevatedCard(
+    Image(
+        painter = rememberAsyncImagePainter(image),
+        contentDescription = null,
         modifier = Modifier
-            .fillMaxWidth()
-            .height(192.dp)
-            .padding(horizontal = 16.dp),
-        colors = CardDefaults.cardColors(
-            if (isIcon || noIcon) MaterialTheme.colorScheme.secondaryContainer
-            else MaterialTheme.colorScheme.background
-        )
-    ) {
-        Image(
-            painter = rememberAsyncImagePainter(image),
-            contentDescription = null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .clickable(!state.default && (isIcon || noIcon)) { showPicker = true },
-            alignment = Alignment.Center,
-            contentScale = ContentScale.Fit,
-            alpha = when {
-                state.default -> 1f
-                isIcon || noIcon -> 0.4f
-                else -> 1f
-            }
-        )
-    }
+            .width(128.dp)
+            .fillMaxHeight()
+            .border(1.dp, MaterialTheme.colorScheme.onSurface, MaterialTheme.shapes.medium)
+            .padding(8.dp)
+            .clickable(!state.default && (isIcon || noIcon)) { showPicker = true },
+        alignment = Alignment.Center,
+        contentScale = ContentScale.Fit,
+        alpha = when {
+            state.default -> 1f
+            isIcon || noIcon -> 0.4f
+            else -> 1f
+        },
+        colorFilter = if (noIcon) ColorFilter.tint(MaterialTheme.colorScheme.onSurface) else null
+    )
 
-    if (showPicker) IconPicker(onEvent = viewModel::onEvent, onCancel = { showPicker = false })
+    if (showPicker) IconPicker(viewModel::onEvent) { showPicker = false }
 }
 
-@Composable
-private fun ExpirationDate(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    var size by remember { mutableStateOf(IntSize.Zero) }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(Modifier.onGloballyPositioned { size = it.size }) {
-            Text(
-                text = stringResource(R.string.text_exp_date),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = if (state.default) MaterialTheme.typography.titleLarge
-                else MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-            )
-
-            when {
-                state.default || state.technical.verified -> {
-                    Text(
-                        text = toExpDate(state.expDate),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                }
-
-                (state.adding || state.editing) && !state.technical.verified -> {
-                    var showPicker by remember { mutableStateOf(false) }
-
-                    OutlinedTextField(
-                        value = toExpDate(state.expDate),
-                        onValueChange = {},
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
-                            .clickable { showPicker = true },
-                        enabled = false,
-                        readOnly = true,
-                        placeholder = { Text(stringResource(R.string.placeholder_exp_date)) },
-                        leadingIcon = { Icon(Icons.Default.DateRange, null) },
-                        colors = fieldColorsInverted()
-                    )
-
-                    if (showPicker) MonthYear(
-                        onConfirm = { month, year ->
-                            onEvent(MedicineEvent.SetExpDate(toTimestamp(month, year)))
-                            showPicker = false
-                        },
-                        onCancel = { showPicker = false })
-                }
-            }
-        }
-
-        if (state.default) {
-            val icon: ImageVector
-            val color: Color
-            val onColor: Color
-            val onClick: () -> Unit
-
-            when {
-                state.technical.verified -> {
-                    color = MaterialTheme.colorScheme.primaryContainer
-                    onColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    icon = Icons.Default.Check
-                    onClick = {}
-                }
-
-                state.technical.scanned && !state.technical.verified -> {
-                    color = MaterialTheme.colorScheme.errorContainer
-                    onColor = MaterialTheme.colorScheme.onErrorContainer
-                    icon = Icons.Default.Refresh
-                    onClick = { onEvent(MedicineEvent.Fetch) }
-                }
-
-                else -> {
-                    color = MaterialTheme.colorScheme.error
-                    onColor = MaterialTheme.colorScheme.onError
-                    icon = Icons.Default.Info
-                    onClick = {}
-                }
-            }
-
-            Box(Modifier.background(color, RoundedCornerShape(16.dp))) {
-                IconButton(
-                    onClick = onClick,
-                    modifier = Modifier.size(with(LocalDensity.current) { size.height.toDp() })
-                ) { Icon(imageVector = icon, contentDescription = null, tint = onColor) }
-            }
-        }
-    }
-    HorizontalDivider(Modifier.padding(16.dp, 0.dp), 2.dp, MaterialTheme.colorScheme.outline)
-}
 
 @Composable
-private fun ProductFormName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    Column(Modifier.padding(horizontal = 16.dp)) {
+private fun ProductFormName(onEvent: (Event) -> Unit, state: MedicineState) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp))  {
         Text(
-            text = stringResource(R.string.text_medicine_description),
+            text = stringResource(text_medicine_description),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
 
         BasicTextField(
             value = state.prodFormNormName,
-            onValueChange = { onEvent(MedicineEvent.SetProdFormNormName(it)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
+            onValueChange = { onEvent(SetProdFormNormName(it)) },
+            modifier = Modifier.fillMaxWidth(),
             readOnly = state.default || state.technical.verified,
             textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
-            decorationBox = { innerTextField ->
+            decorationBox = {
                 when {
-                    state.default || state.technical.verified
-                        -> NoDecorationBox(state.prodFormNormName, innerTextField)
+                    state.default || state.technical.verified -> NoDecorationBox(state.prodFormNormName, it)
 
-                    else -> DecorationBox(state.prodFormNormName, innerTextField)
+                    else -> DecorationBox(state.prodFormNormName, it)
                 }
             }
         )
@@ -527,36 +584,36 @@ private fun ProductFormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    Row(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(16.dp)) {
+private fun ProductNormName(onEvent: (Event) -> Unit, state: MedicineState) {
+    Row(horizontalArrangement =  Arrangement.spacedBy(16.dp)) {
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
             Text(
-                text = stringResource(R.string.text_medicine_dose),
+                text = stringResource(text_medicine_dose),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
 
             BasicTextField(
                 value = state.prodDNormName,
-                onValueChange = { onEvent(MedicineEvent.SetProdDNormName(it)) },
+                onValueChange = { onEvent(SetProdDNormName(it)) },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = state.default || state.technical.verified,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
-                decorationBox = { innerTextField ->
+                decorationBox = {
                     when {
                         state.adding || state.editing && !state.technical.verified ->
                             OutlinedTextFieldDefaults.DecorationBox(
                                 value = state.prodDNormName,
-                                innerTextField = innerTextField,
+                                innerTextField = it,
                                 enabled = true,
                                 singleLine = false,
                                 visualTransformation = VisualTransformation.None,
                                 interactionSource = remember(::MutableInteractionSource),
-                                placeholder = { Text(stringResource(R.string.placeholder_dose)) }
+                                placeholder = { Text(stringResource(placeholder_dose)) }
                             )
 
                         else -> OutlinedTextFieldDefaults.DecorationBox(
-                            value = state.prodDNormName,
-                            innerTextField = innerTextField,
+                            value = state.prodDNormName.ifEmpty { stringResource(text_unspecified) },
+                            innerTextField = it,
                             enabled = true,
                             singleLine = false,
                             visualTransformation = VisualTransformation.None,
@@ -571,14 +628,14 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
 
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
             Text(
-                text = stringResource(R.string.text_amount),
+                text = stringResource(text_amount),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
 
             BasicTextField(
                 value = if (state.default) "${decimalFormat(state.prodAmount)} ${state.doseType}"
                 else state.prodAmount,
-                onValueChange = { onEvent(MedicineEvent.SetProdAmount(it)) },
+                onValueChange = { onEvent(SetProdAmount(it)) },
                 modifier = Modifier.wrapContentSize(),
                 readOnly = state.default,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
@@ -590,12 +647,12 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
                     )
                 },
                 interactionSource = remember(::MutableInteractionSource),
-                decorationBox = { innerTextField ->
+                decorationBox = { field ->
                     when {
-                        state.default -> NoDecorationBox(state.prodAmount, innerTextField)
+                        state.default -> NoDecorationBox(state.prodAmount, field)
                         else -> OutlinedTextFieldDefaults.DecorationBox(
                             value = state.prodAmount,
-                            innerTextField = innerTextField,
+                            innerTextField = field,
                             enabled = true,
                             singleLine = false,
                             visualTransformation = VisualTransformation.None,
@@ -621,16 +678,13 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
                                             ExposedDropdownMenuDefaults.TrailingIcon(expanded)
                                         }
                                     )
-                                    ExposedDropdownMenu(
-                                        expanded = expanded,
-                                        onDismissRequest = { expanded = false }
-                                    ) {
+                                    ExposedDropdownMenu(expanded, { expanded = false }) {
                                         list.forEach { item ->
                                             DropdownMenuItem(
                                                 text = { Text(item) },
                                                 onClick = {
                                                     selected = item
-                                                    onEvent(MedicineEvent.SetDoseType(selected))
+                                                    onEvent(SetDoseType(selected))
                                                     expanded = false
                                                 }
                                             )
@@ -646,81 +700,74 @@ private fun ProductNormName(onEvent: (MedicineEvent) -> Unit, state: MedicineSta
     }
 }
 
-
 @Composable
-private fun PhKinetics(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    if (state.adding || state.editing || state.phKinetics.isNotEmpty())
-        Column(Modifier.padding(horizontal = 16.dp)) {
-            Text(
-                text = stringResource(R.string.text_indications_for_use),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-            )
+private fun PhKinetics(onEvent: (Event) -> Unit, state: MedicineState) = Column(
+    verticalArrangement = Arrangement.spacedBy(8.dp)
+)
+{
+    Text(
+        text = stringResource(text_indications_for_use),
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+    )
 
-            BasicTextField(
-                value = fromHTML(state.phKinetics),
-                onValueChange = { onEvent(MedicineEvent.SetPhKinetics(it)) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                readOnly = state.default,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
-                decorationBox = { innerTextField ->
-                    when {
-                        state.default -> NoDecorationBox(state.phKinetics, innerTextField)
-                        else -> DecorationBox(state.phKinetics, innerTextField)
-                    }
-                }
-            )
+    BasicTextField(
+        value = fromHTML(state.phKinetics),
+        onValueChange = { onEvent(SetPhKinetics(it)) },
+        modifier = Modifier.fillMaxWidth(),
+        readOnly = state.default,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
+        decorationBox = {
+            when {
+                state.default -> NoDecorationBox(state.phKinetics, it)
+                else -> DecorationBox(state.phKinetics, it)
+            }
         }
+    )
 }
 
 @Composable
-private fun Comment(onEvent: (MedicineEvent) -> Unit, state: MedicineState) {
-    if (state.adding || state.editing || state.comment.isNotEmpty())
-        Column(Modifier.padding(16.dp, 0.dp, 16.dp, 16.dp)) {
-            Text(
-                text = stringResource(R.string.text_medicine_comment),
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-            )
+private fun Comment(onEvent: (Event) -> Unit, state: MedicineState) = Column(
+    verticalArrangement = Arrangement.spacedBy(8.dp)
+) {
+    Text(
+        text = stringResource(text_medicine_comment),
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+    )
 
-            BasicTextField(
-                value = state.comment,
-                onValueChange = { onEvent(MedicineEvent.SetComment(it)) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                readOnly = state.default,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
-                decorationBox = { innerTextField ->
-                    when {
-                        state.default -> NoDecorationBox(state.comment, innerTextField)
-                        else -> DecorationBox(state.comment, innerTextField)
-                    }
-                }
-            )
+    BasicTextField(
+        value = state.comment,
+        onValueChange = { onEvent(SetComment(it)) },
+        modifier = Modifier.fillMaxWidth(),
+        readOnly = state.default,
+        textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
+        decorationBox = {
+            when {
+                state.default -> NoDecorationBox(state.comment, it)
+                else -> DecorationBox(state.comment, it)
+            }
         }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DecorationBox(text: String, innerTextField: @Composable () -> Unit) {
-    OutlinedTextFieldDefaults.DecorationBox(
-        value = text,
-        innerTextField = innerTextField,
-        enabled = true,
-        singleLine = false,
-        visualTransformation = VisualTransformation.None,
-        interactionSource = remember(::MutableInteractionSource),
-        placeholder = { Text(stringResource(R.string.text_empty)) }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NoDecorationBox(text: String, innerTextField: @Composable () -> Unit) {
+private fun DecorationBox(text: String, field: @Composable () -> Unit) =
     OutlinedTextFieldDefaults.DecorationBox(
         value = text,
-        innerTextField = innerTextField,
+        innerTextField = field,
+        enabled = true,
+        singleLine = false,
+        visualTransformation = VisualTransformation.None,
+        interactionSource = remember(::MutableInteractionSource),
+        placeholder = { Text(stringResource(text_empty)) }
+    )
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NoDecorationBox(text: String, field: @Composable () -> Unit) =
+    OutlinedTextFieldDefaults.DecorationBox(
+        value = text,
+        innerTextField = field,
         enabled = true,
         singleLine = false,
         visualTransformation = VisualTransformation.None,
@@ -728,49 +775,44 @@ private fun NoDecorationBox(text: String, innerTextField: @Composable () -> Unit
         contentPadding = PaddingValues(0.dp),
         container = {}
     )
-}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun IconPicker(onEvent: (MedicineEvent) -> Unit, onCancel: () -> Unit) {
-    val names = stringArrayResource(R.array.medicine_types)
-
-    Dialog(onCancel) {
-        Surface(Modifier.padding(vertical = 64.dp), RoundedCornerShape(16.dp)) {
-            FlowRow(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.Center,
-                verticalArrangement = Arrangement.Center,
-                maxItemsInEachRow = 4
-            ) {
-                ICONS_MED.entries.forEachIndexed { index, (name, icon) ->
-                    ElevatedCard(
+private fun IconPicker(onEvent: (Event) -> Unit, onCancel: () -> Unit) = Dialog(onCancel) {
+    Surface(Modifier.padding(vertical = 64.dp), RoundedCornerShape(16.dp)) {
+        FlowRow(
+            modifier = Modifier
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Center,
+            maxItemsInEachRow = 4
+        ) {
+            ICONS_MED.entries.forEachIndexed { index, (name, icon) ->
+                ElevatedCard(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clickable { onEvent(SetImage(name)); onCancel() },
+                    colors = CardDefaults.cardColors().copy(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    )
+                ) {
+                    Image(
+                        painter = painterResource(icon),
+                        contentDescription = null,
                         modifier = Modifier
-                            .padding(8.dp)
-                            .clickable { onEvent(MedicineEvent.SetImage(name)); onCancel() },
-                        colors = CardDefaults.cardColors().copy(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer
-                        )
-                    ) {
-                        Image(
-                            painter = painterResource(icon),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(128.dp)
-                                .padding(16.dp)
-                        )
-                        Text(
-                            text = names[index],
-                            modifier = Modifier
-                                .padding(vertical = 4.dp)
-                                .align(Alignment.CenterHorizontally),
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            fontWeight = FontWeight.SemiBold,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
+                            .size(128.dp)
+                            .padding(16.dp)
+                    )
+                    Text(
+                        text = stringArrayResource(R.array.medicine_types)[index],
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .align(Alignment.CenterHorizontally),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        fontWeight = FontWeight.SemiBold,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }

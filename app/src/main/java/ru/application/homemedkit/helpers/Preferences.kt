@@ -15,9 +15,13 @@ import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import androidx.core.os.LocaleListCompat
 import ru.application.homemedkit.alarms.AlarmSetter
 
-class Preferences(private val context: Context) {
-    val preferences: SharedPreferences =
-        context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)
+object Preferences {
+
+    private lateinit var preferences: SharedPreferences
+
+    fun getInstance(context: Context) {
+        preferences = context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)
+    }
 
     fun getHomePage() = preferences.getString(KEY_FRAGMENT, MENUS[0]) ?: MENUS[0]
     fun getSortingOrder() = preferences.getString(KEY_ORDER, SORTING[0]) ?: SORTING[0]
@@ -29,10 +33,10 @@ class Preferences(private val context: Context) {
     fun getAppTheme() = preferences.getString(KEY_APP_THEME, THEMES[0]) ?: THEMES[0]
     fun getDynamicColors() = preferences.getBoolean(KEY_DYNAMIC_COLOR, false)
     fun setLastKit(kitId: Long?) = preferences.edit().putLong(KEY_LAST_KIT, kitId ?: 0L).apply()
-    fun setCheckExpDate(check: Boolean) = AlarmSetter(context).checkExpiration(check)
+    fun setCheckExpDate(context: Context, check: Boolean) = AlarmSetter(context).checkExpiration(check)
         .also { preferences.edit().putBoolean(CHECK_EXP_DATE, check).apply() }
 
-    fun setLanguage(language: String) = when {
+    fun setLanguage(context: Context, language: String) = when {
         SDK_INT >= TIRAMISU -> context.getSystemService(LocaleManager::class.java)
             .applicationLocales = LocaleList.forLanguageTags(language)
 
@@ -45,7 +49,7 @@ class Preferences(private val context: Context) {
         else -> setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
     }.also { preferences.edit().putString(KEY_APP_THEME, theme).apply() }
 
-    fun setDynamicColors(enabled: Boolean) =
+    fun setDynamicColors(context: Context, enabled: Boolean) =
         preferences.edit().putBoolean(KEY_DYNAMIC_COLOR, enabled).apply()
             .also { (context as Activity).recreate() }
 }

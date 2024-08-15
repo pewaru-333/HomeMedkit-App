@@ -1,0 +1,3 @@
+— Updated the card design and the view in the medicine information menu.
+— Added smooth animation when switching between screens.
+— Icons in many places of the application have been replaced with more "fresh" ones.

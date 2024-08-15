@@ -63,7 +63,12 @@
     <string name="text_medicine_comment">Comment</string>
     <string name="text_medicine_description">Description</string>
     <string name="text_medicine_dose">Dose</string>
+    <string name="text_medicine_form">Release form</string>
+    <string name="text_medicine_group">Group</string>
     <string name="text_medicine_product_name">Product name</string>
+    <string name="text_medicine_status_checked">Scanned, checked</string>
+    <string name="text_medicine_status_scanned">Scanned, unchecked</string>
+    <string name="text_medicine_status_self_added">Added manually</string>
 
     <!-- Intakes -->
     <string name="intakes_tab_current">Current</string>
@@ -124,8 +129,11 @@
     <string name="text_on">Turned on</string>
     <string name="text_save">Save</string>
     <string name="text_start_date">Start date</string>
+    <string name="text_status">Status</string>
     <string name="text_success">Successfully!</string>
     <string name="text_tap_to_view">Tap to view</string>
+    <string name="text_unspecified">Unspecified</string>
+    <string name="text_update">Update</string>
     <string name="text_yes">Yes</string>
 
     <!-- Plurals -->

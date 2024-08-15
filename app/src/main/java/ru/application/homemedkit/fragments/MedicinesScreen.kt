@@ -1,11 +1,11 @@
 package ru.application.homemedkit.fragments
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,9 +18,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,14 +36,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,50 +53,61 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import ru.application.homemedkit.R
+import ru.application.homemedkit.R.string.preference_kits_group
+import ru.application.homemedkit.R.string.text_all
+import ru.application.homemedkit.R.string.text_cancel
+import ru.application.homemedkit.R.string.text_enter_product_name
+import ru.application.homemedkit.R.string.text_no_data_found
+import ru.application.homemedkit.R.string.text_save
+import ru.application.homemedkit.activities.HomeMeds.Companion.database
 import ru.application.homemedkit.databaseController.Medicine
-import ru.application.homemedkit.databaseController.MedicineDatabase
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DateHelper
-import ru.application.homemedkit.helpers.FiltersHelper
 import ru.application.homemedkit.helpers.ICONS_MED
 import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.SortingHelper
 import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.shortName
+import ru.application.homemedkit.viewModels.MedicinesState
+import ru.application.homemedkit.viewModels.MedicinesViewModel
+import ru.application.homemedkit.viewModels.SortingItems
+import ru.application.homemedkit.viewModels.getSorting
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>
 @Composable
-fun MedicinesScreen(navigator: DestinationsNavigator, context: Context = LocalContext.current) {
-    var comparator by remember {
-        mutableStateOf(SortingHelper(Preferences(context).getSortingOrder()).getSorting())
+fun MedicinesScreen(navigator: DestinationsNavigator) {
+    val model = viewModel<MedicinesViewModel>()
+    val state by model.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        if (state.sorting != getSorting()) model.setSorting(getSorting())
+        if (state.kitId != Preferences.getLastKit()) model.saveFilter()
+        if (state.search.isEmpty() && state.kitId == 0L) model.getAll()
     }
-    var text by rememberSaveable { mutableStateOf(BLANK) }
-    var kitId by rememberSaveable { mutableLongStateOf(Preferences(context).getLastKit()) }
-    var showSort by rememberSaveable { mutableStateOf(false) }
-    var showFilter by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     TextField(
-                        value = text,
-                        onValueChange = { text = it },
+                        value = state.search,
+                        onValueChange = model::setSearch,
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text(stringResource(R.string.text_enter_product_name)) },
-                        leadingIcon = { Icon(Icons.Default.Search, null) },
+                        label = { Text(stringResource(text_enter_product_name)) },
+                        leadingIcon = { Icon(Icons.Outlined.Search, null) },
                         trailingIcon = {
-                            if (text.isNotEmpty())
-                                IconButton({ text = BLANK })
+                            if (state.search.isNotEmpty())
+                                IconButton(model::clearSearch)
                                 { Icon(Icons.Outlined.Clear, null) }
                         },
                         singleLine = true,
@@ -117,7 +124,7 @@ fun MedicinesScreen(navigator: DestinationsNavigator, context: Context = LocalCo
                     drawLine(Color.LightGray, Offset(0f, size.height), Offset(size.width, size.height), 4f)
                 },
                 actions = {
-                    IconButton({ showSort = true }) {
+                    IconButton(model::showSort) {
                         Icon(
                             painter = painterResource(R.drawable.vector_sort),
                             contentDescription = null,
@@ -125,66 +132,50 @@ fun MedicinesScreen(navigator: DestinationsNavigator, context: Context = LocalCo
                         )
                     }
 
-                    DropdownMenu(showSort, { showSort = false }) {
-                        DropdownMenuItem(
-                            { Text(stringResource(R.string.sorting_a_z)) },
-                            { comparator = SortingHelper.inName }
-                        )
-                        DropdownMenuItem(
-                            { Text(stringResource(R.string.sorting_z_a)) },
-                            { comparator = SortingHelper.reName }
-                        )
-                        DropdownMenuItem(
-                            { Text(stringResource(R.string.sorting_from_oldest)) },
-                            { comparator = SortingHelper.inDate }
-                        )
-                        DropdownMenuItem(
-                            { Text(stringResource(R.string.sorting_from_newest)) },
-                            { comparator = SortingHelper.reDate }
-                        )
+                    DropdownMenu(state.showSort, model::hideSort) {
+                        SortingItems.entries.forEach { entry ->
+                            DropdownMenuItem(
+                                { Text(stringResource(entry.text)) },
+                                { model.setSorting(entry.sorting) }
+                            )
+                        }
                     }
 
-                    IconButton({ showFilter = true }) {
+                    IconButton(model::showFilter) {
                         Icon(
                             painter = painterResource(R.drawable.vector_filter),
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
-
-                    if (showFilter) KitsDialog(
-                        onConfirm = { kitId = Preferences(context).getLastKit() },
-                        onDismiss = { showFilter = false }
-                    )
                 }
             )
         }
-    ) { paddingValues ->
-        val filtered = FiltersHelper(context).medicines(text, kitId).sortedWith(comparator)
-
-        if (filtered.isNotEmpty()) LazyColumn(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            contentPadding = paddingValues,
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        )
-        { items(filtered) { MedicineCard(it, navigator, context) } }
-        else Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 16.dp, top = paddingValues.calculateTopPadding(), end = 16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(R.string.text_no_data_found),
-                textAlign = TextAlign.Center
-            )
+    ) { values ->
+        state.medicines.let { list ->
+            if (list.isNotEmpty()) LazyColumn(
+                state = state.listState,
+                contentPadding = PaddingValues(16.dp, values.calculateTopPadding(), 16.dp, 0.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) { items(list) { MedicineCard(it, navigator) } }
+            else Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp, values.calculateTopPadding(), 16.dp, 0.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(text_no_data_found),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
+        if (state.showFilter) KitsDialog(model, state)
     }
 }
 
 @Composable
-private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator, context: Context) {
-    val database = MedicineDatabase.getInstance(context)
+private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator) {
     val shortName = shortName(medicine.productName)
     val formName = formName(medicine.prodFormNormName)
     val expDate = DateHelper.inCard(medicine.expDate)
@@ -193,7 +184,7 @@ private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator, c
     val icon = when {
         image.contains(TYPE) -> ICONS_MED[image]
         image.isEmpty() -> R.drawable.vector_type_unknown
-        else -> File(context.filesDir, image).run {
+        else -> File(LocalContext.current.filesDir, image).run {
             if (exists()) this else R.drawable.vector_type_unknown
         }
     }
@@ -234,60 +225,52 @@ private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator, c
 }
 
 @Composable
-private fun KitsDialog(onConfirm: (Long) -> Unit, onDismiss: () -> Unit, context: Context = LocalContext.current) {
-    val kits = MedicineDatabase.getInstance(context).kitDAO().getAll()
-    var kitId by remember { mutableLongStateOf(Preferences(context).getLastKit()) }
+private fun KitsDialog(model: MedicinesViewModel, state: MedicinesState) = AlertDialog(
+    onDismissRequest = model::hideFilter,
+    confirmButton = { TextButton(model::saveFilter) { Text(stringResource(text_save)) } },
+    dismissButton = { TextButton(model::hideFilter) { Text(stringResource(text_cancel)) } },
+    title = { Text(stringResource(preference_kits_group)) },
+    text = {
+        Column(Modifier.selectableGroup()) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .selectable(
+                        selected = state.kitId == 0L,
+                        onClick = { model.setFilter(0L) },
+                        role = Role.RadioButton
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(state.kitId == 0L, null)
+                Text(
+                    text = stringResource(text_all),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton({ Preferences(context).setLastKit(kitId);onConfirm(kitId); run(onDismiss) })
-            { Text(stringResource(R.string.text_save)) }
-        },
-        dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_cancel)) } },
-        title = { Text(stringResource(R.string.preference_kits_group)) },
-        text = {
-            Column(Modifier.selectableGroup()) {
+            database.kitDAO().getAll().forEach { kit ->
                 Row(
                     Modifier
                         .fillMaxWidth()
                         .height(56.dp)
                         .selectable(
-                            selected = kitId == 0L,
-                            onClick = { kitId = 0L },
+                            selected = state.kitId == kit.kitId,
+                            onClick = { model.setFilter(kit.kitId) },
                             role = Role.RadioButton
                         ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    RadioButton(kitId == 0L, null)
+                    RadioButton(state.kitId == kit.kitId, null)
                     Text(
-                        text = stringResource(R.string.text_all),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(start = 16.dp)
+                        text = kit.title,
+                        modifier = Modifier.padding(start = 16.dp),
+                        style = MaterialTheme.typography.bodyLarge
                     )
-                }
-
-                kits.forEach { kit ->
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .selectable(
-                                selected = kitId == kit.kitId,
-                                onClick = { kitId = kit.kitId },
-                                role = Role.RadioButton
-                            ),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(kitId == kit.kitId, null)
-                        Text(
-                            text = kit.title,
-                            modifier = Modifier.padding(start = 16.dp),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
                 }
             }
         }
-    )
-}
+    }
+)
