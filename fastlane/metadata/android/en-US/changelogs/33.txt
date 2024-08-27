@@ -1,0 +1,3 @@
+— Now you can change the status of intake yourself. When receiving the notification, select one of the "Taken" or "Not taken" options to confirm.
+— Added all intakes prior to this update. In the "Taken" menu, you can also change the intake status (long press).
+— Fixed minor bugs that occurred in very rare cases.

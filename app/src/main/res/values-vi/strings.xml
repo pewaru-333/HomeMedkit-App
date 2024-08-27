@@ -38,7 +38,7 @@
     <string name="text_do_intake">Uống thuốc đi</string>
     <string name="text_expire_soon">Ngày hết hạn của %1$s sắp hết</string>
     <string name="text_intake_time">Đã đến lúc uống thuốc %1$s\nSố lượng: %2$s %3$s</string>
-    <string name="text_medicine_amount_not_enough">Đã đến lúc uống thuốc %1$s nhưng số lượng ít hơn quy định! Tái tạo lượng tiêu thụ!</string>
+    <string name="text_intake_amount_not_enough">Đã đến lúc uống thuốc %1$s nhưng số lượng ít hơn quy định! Tái tạo lượng tiêu thụ!</string>
 
     <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.yyyy</string>

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
+
     <!-- Menu -->
     <string name="bottom_bar_main">Home</string>
     <string name="bottom_bar_medicines">Medicinali</string>
     <string name="bottom_bar_intakes">Assunzioni</string>
     <string name="bottom_bar_settings">Impostazioni</string>
+
     <!-- Preferences -->
     <string name="preference_app_view">Vista app</string>
     <string name="preference_kits_group">Gruppi di medicina</string>
@@ -19,100 +21,115 @@
     <string name="preference_app_theme">Tema app </string>
     <string name="preference_dynamic_color">Colore dinamico</string>
     <string name="preference_import_export">Importa / Esporta</string>
+
     <!-- Languages -->
     <string name="lang_system">System</string>
-    <string name="text_export_import_description">Questa è una caratteristica sperimentale.
-\nQuando si esporta, è possibile modificare il nome del file.
-\nQuando l\'importazione, i dati attuali verranno cancellati! Si prega di rilanciare app dopo di esso!</string>
-    <plurals name="intakes_a_day">
-        <item quantity="one">%d tempo al giorno</item>
-        <item quantity="many"></item>
-        <item quantity="other">%d volte al giorno</item>
-    </plurals>
-    <string name="sorting_from_oldest">Data di scadenza (dal più antico)</string>
-    <string name="sorting_from_newest">Data di scadenza (da più recente)</string>
-    <string name="text_medicine_amount_not_enough">E \'tempo di assunzione %1$s, ma la sua quantità è meno che prescritto! Ricreare l\'assunzione!</string>
-    <string name="text_medicine_form">Modulo di rilascio</string>
-    <string name="text_medicine_status_checked">Scansionato, controllato</string>
-    <string name="text_medicine_status_scanned">Scansione, incontrollata</string>
-    <string name="intake_text_time">Tempo</string>
-    <string name="manual_add">Vuoi aggiungere medicina manualmente?</string>
-    <string name="text_try_again">Prova di nuovo a scansionare l\'etichetta!</string>
-    <string name="text_status">Stato</string>
+
+    <!-- Sorting -->
     <string name="sorting_a_z">Alfabeticamente (da A a z)</string>
     <string name="sorting_z_a">Alfabeticamente (da A a z)</string>
+    <string name="sorting_from_oldest">Data di scadenza (dal più antico)</string>
+    <string name="sorting_from_newest">Data di scadenza (da più recente)</string>
+
+    <!-- Notifications -->
     <string name="notification_channel_description">Promemoria di farmaci</string>
     <string name="notification_channel_name">Notifiche audio</string>
     <string name="text_attention">Attenzione!</string>
+    <string name="text_do_intake">Do assunzione</string>
+    <string name="text_expire_soon">La data di scadenza di %1$s sta per scadere</string>
+    <string name="text_intake_time">È ora di assumere %1$s \nImporto: %2$s %3$s</string>
+    <string name="text_intake_amount_not_enough">E \'tempo di assunzione %1$s, ma la sua quantità è meno che prescritto! Ricreare l\'assunzione!</string>
+
+    <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.yyyyy</string>
+    <string name="placeholder_dose">0,5 mg + 84 mcg</string>
+    <string name="placeholder_exp_date">31 maggio 2029</string>
+    <string name="placeholder_kitchen">Cucina</string>
+    <string name="placeholder_time">Tempo #%1$d</string>
+
+    <!-- Medicines -->
+    <string name="text_exp_date">Data di scadenza</string>
+    <string name="text_indications_for_use">Indicazioni per uso</string>
+    <string name="text_medicine_comment">Commento</string>
+    <string name="text_medicine_description">Designazione</string>
+    <string name="text_medicine_dose">Dose</string>
+    <string name="text_medicine_form">Modulo di rilascio</string>
+    <string name="text_medicine_group">Gruppo</string>
+    <string name="text_medicine_product_name">Nome del prodotto</string>
+    <string name="text_medicine_status_checked">Scansionato, controllato</string>
+    <string name="text_medicine_status_scanned">Scansione, incontrollata</string>
+    <string name="text_medicine_status_self_added">Aggiunto manualmente</string>
+
+    <!-- Intakes -->
+    <string name="intakes_tab_current">Corrente</string>
+    <string name="intakes_tab_list">Elenco</string>
     <string name="intakes_tab_taken">Taken</string>
+
     <string name="intake_card_text_from">(da %1$s)</string>
     <string name="intake_text_amount">Quantità</string>
     <string name="intake_text_food">Cibo e Med</string>
     <string name="intake_text_food_after">Dopo pasto</string>
+    <string name="intake_text_food_before">Prima del pasto</string>
     <string name="intake_text_food_during">Durante il pasto</string>
     <string name="intake_text_interval">Intervallo</string>
     <string name="intake_text_left">Rimasto</string>
     <string name="intake_text_period">Periodo</string>
     <string name="intake_text_pick_period">Periodo di scelta</string>
-    <string name="text_connection_error">Errore di connessione!</string>
-    <string name="text_data_matrix_scanner">Etichetta DataMatrix (solo per RU)</string>
-    <string name="text_days_short">d.</string>
-    <string name="text_delete">Cancella</string>
-    <string name="text_edit">Modifica</string>
-    <string name="text_manual_add">Medicina manuale aggiunta</string>
-    <string name="text_no">No</string>
-    <string name="text_save">Salva</string>
-    <string name="text_start_date">Data di inizio</string>
-    <string name="text_success">Con successo!</string>
-    <string name="text_medicine_group">Gruppo</string>
-    <string name="text_medicine_status_self_added">Aggiunto manualmente</string>
-    <string name="text_duplicate">Questo farmaco è già stato aggiunto!</string>
-    <string name="text_unspecified">Non specificato</string>
-    <string name="text_update">Aggiornamento</string>
-    <string name="text_do_intake">Do assunzione</string>
-    <string name="text_expire_soon">La data di scadenza di %1$s sta per scadere</string>
-    <string name="text_intake_time">È ora di assumere %1$s
-\nImporto: %2$s %3$s</string>
-    <string name="placeholder_time">Tempo #%1$d</string>
-    <string name="text_exp_date">Data di scadenza</string>
-    <string name="text_indications_for_use">Indicazioni per uso</string>
-    <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_exp_date">31 maggio 2029</string>
-    <string name="placeholder_kitchen">Cucina</string>
     <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
     <string name="intake_text_select_interval">Selezionare l\'intervallo</string>
-    <string name="text_medicine_description">Designazione</string>
-    <string name="text_medicine_dose">Dose</string>
-    <string name="text_medicine_product_name">Nome del prodotto</string>
-    <string name="intakes_tab_current">Corrente</string>
-    <string name="intakes_tab_list">Elenco</string>
-    <string name="intake_text_food_before">Prima del pasto</string>
-    <string name="text_medicine_comment">Commento</string>
+    <string name="intake_text_time">Tempo</string>
+
+    <!-- Dialogs -->
+    <string name="manual_add">Vuoi aggiungere medicina manualmente?</string>
     <string name="text_confirm_exit">Confermare l\'uscita</string>
+    <string name="text_connection_error">Errore di connessione!</string>
+    <string name="text_duplicate">Questo farmaco è già stato aggiunto!</string>
+    <string name="text_export_import_description">Questa è una caratteristica sperimentale. \nQuando si esporta, è possibile modificare il nome del file. \nQuando l\'importazione, i dati attuali verranno cancellati! Si prega di rilanciare app dopo di esso!</string>
     <string name="text_grant_permission">Il permesso di concessione</string>
     <string name="text_new_group">Nuovo gruppo</string>
     <string name="text_request_camera">Per la scansione dell\'etichetta, l\'applicazione deve essere dato il permesso di utilizzare la fotocamera</string>
     <string name="text_request_post">Per ricevere le notifiche, la domanda deve essere concessa l\'autorizzazione appropriata</string>
     <string name="text_select_time">Selezionare il tempo</string>
     <string name="text_sure_to_exit">Sei sicuro di voler uscire dall\'app?</string>
-    <string name="text_clear">Libero</string>
-    <string name="text_daily_at">Quotidiano alle 12:00</string>
-    <string name="text_empty">Vuoto</string>
+    <string name="text_try_again">Prova di nuovo a scansionare l\'etichetta!</string>
+
+    <!-- Strings -->
     <string name="text_add">Aggiungi</string>
     <string name="text_all">Tutti</string>
     <string name="text_amount">Numero</string>
     <string name="text_cancel">Annulla</string>
-    <string name="text_import">Importazioni</string>
+    <string name="text_clear">Libero</string>
+    <string name="text_daily_at">Quotidiano alle 12:00</string>
+    <string name="text_data_matrix_scanner">Etichetta DataMatrix (solo per RU)</string>
+    <string name="text_days_short">d.</string>
+    <string name="text_delete">Cancella</string>
+    <string name="text_edit">Modifica</string>
+    <string name="text_empty">Vuoto</string>
     <string name="text_enter_product_name">Ricerca</string>
     <string name="text_error">Errore!</string>
     <string name="text_every">"Tutti "</string>
     <string name="text_export">Esportazione</string>
     <string name="text_finish_date">Data di arrivo</string>
+    <string name="text_import">Importazioni</string>
+    <string name="text_manual_add">Medicina manuale aggiunta</string>
+    <string name="text_no">No</string>
     <string name="text_no_data_found">Nessun farmaco trovato. Aggiungere o modificare il filtro.</string>
     <string name="text_no_intakes_found">Non sono state trovate prese. Aggiungili tramite carta di informazione medica o modifica il valore di ricerca.</string>
     <string name="text_off">Spegnimento</string>
     <string name="text_on">Acceso</string>
+    <string name="text_save">Salva</string>
+    <string name="text_start_date">Data di inizio</string>
+    <string name="text_status">Stato</string>
+    <string name="text_success">Con successo!</string>
     <string name="text_tap_to_view">Toccare per visualizzare</string>
+    <string name="text_unspecified">Non specificato</string>
+    <string name="text_update">Aggiornamento</string>
     <string name="text_yes">Sì</string>
+
+    <!-- Plurals -->
+    <plurals name="intakes_a_day">
+        <item quantity="one">%d tempo al giorno</item>
+        <item quantity="many">%d volte al giorno</item>
+        <item quantity="other">%d volte al giorno</item>
+    </plurals>
 </resources>

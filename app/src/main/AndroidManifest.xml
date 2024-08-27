@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <application
-        android:name=".activities.HomeMeds"
+        android:name=".HomeMeds"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
@@ -29,7 +29,7 @@
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
         tools:targetApi="34">
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true">
             <intent-filter>
@@ -40,11 +40,15 @@
         </activity>
 
         <receiver
-            android:name=".alarms.AlarmReceiver"
+            android:name=".receivers.AlarmReceiver"
             android:enabled="true" />
 
         <receiver
-            android:name=".alarms.BootReceiver"
+            android:name=".receivers.ActionReceiver"
+            android:enabled="true" />
+
+        <receiver
+            android:name=".receivers.BootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -53,11 +57,11 @@
         </receiver>
 
         <receiver
-            android:name=".alarms.ExpirationReceiver"
+            android:name=".receivers.ExpirationReceiver"
             android:enabled="true" />
 
         <receiver
-            android:name=".alarms.LocaleReceiver"
+            android:name=".receivers.LocaleReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.LOCALE_CHANGED" />

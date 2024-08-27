@@ -7,14 +7,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.application.homemedkit.activities.HomeMeds.Companion.database
-import ru.application.homemedkit.connectionController.NetworkAPI
-import ru.application.homemedkit.connectionController.models.MainModel
-import ru.application.homemedkit.databaseController.Medicine
-import ru.application.homemedkit.databaseController.Technical
+import ru.application.homemedkit.HomeMeds.Companion.database
+import ru.application.homemedkit.data.dto.Medicine
+import ru.application.homemedkit.data.dto.Technical
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CATEGORY
 import ru.application.homemedkit.helpers.Preferences
+import ru.application.homemedkit.network.NetworkAPI
+import ru.application.homemedkit.network.models.MainModel
 import ru.application.homemedkit.viewModels.ScannerViewModel.Response.AfterError
 import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Default
 import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Duplicate
@@ -36,13 +36,13 @@ class ScannerViewModel : ViewModel() {
             try {
                 NetworkAPI.client.requestData(code).apply {
                     if (category == CATEGORY && codeFounded && checkResult) _response.emit(
-                        if (code in dao.getAllCIS()) Duplicate(dao.getIDbyCis(code))
+                        if (code in dao.getAllCIS()) Duplicate(dao.getIdbyCis(code))
                         else Success(dao.add(mapMedicine(this, context)))
                     ) else throwError()
                 }
             } catch (e: Throwable) {
                 _response.emit(
-                    if (code in dao.getAllCIS()) Duplicate(dao.getIDbyCis(code))
+                    if (code in dao.getAllCIS()) Duplicate(dao.getIdbyCis(code))
                     else NoNetwork(code)
                 )
             }

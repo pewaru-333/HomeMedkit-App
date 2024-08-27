@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.app.AppCompatDelegate.setApplicationLocales
 import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import androidx.core.os.LocaleListCompat
-import ru.application.homemedkit.alarms.AlarmSetter
+import ru.application.homemedkit.receivers.AlarmSetter
 
 object Preferences {
 

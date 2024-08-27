@@ -1,71 +1,63 @@
-package ru.application.homemedkit.helpers;
+package ru.application.homemedkit.helpers
 
-import static ru.application.homemedkit.helpers.ConstantsKt.BLANK;
+import java.time.Duration
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.YearMonth
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.YearMonth;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
+val ZONE = ZoneId.systemDefault().rules.getOffset(Instant.now())
+val FORMAT_S = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+val FORMAT_D_H = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm")
+val FORMAT_D_M_Y = DateTimeFormatter.ofPattern("d MMMM yyyy")
+val FORMAT_D_MM_Y = DateTimeFormatter.ofPattern("d MMM yyyy")
+val FORMAT_D_M = DateTimeFormatter.ofPattern("d MMMM, E")
+val FORMAT_H = DateTimeFormatter.ofPattern("H:mm")
+private val FORMAT_L = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+private val FORMAT_M_Y = DateTimeFormatter.ofPattern("MM/yyyy")
 
-public class DateHelper {
-    public static final ZoneOffset ZONE = ZoneId.systemDefault().getRules().getOffset(Instant.now());
-    public static final DateTimeFormatter FORMAT_L = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG);
-    public static final DateTimeFormatter FORMAT_S = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    public static final DateTimeFormatter FORMAT_D_H = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm");
-    public static final DateTimeFormatter FORMAT_D_M_Y = DateTimeFormatter.ofPattern("d MMMM yyyy");
-    public static final DateTimeFormatter FORMAT_D_MM_Y = DateTimeFormatter.ofPattern("d MMM yyyy");
-    public static final DateTimeFormatter FORMAT_D_M = DateTimeFormatter.ofPattern("d MMMM, E");
-    public static final DateTimeFormatter FORMAT_H = DateTimeFormatter.ofPattern("H:mm");
-    private static final DateTimeFormatter FORMAT_M_Y = DateTimeFormatter.ofPattern("MM/yyyy");
+fun toExpDate(milli: Long) = if (milli > 0) getDateTime(milli).format(FORMAT_L) else BLANK
 
-    public static String toExpDate(long milli) {
-        return milli > 0 ? getDateTime(milli).format(FORMAT_L) : BLANK;
-    }
+fun toTimestamp(month: Int, year: Int) = LocalDateTime.of(
+    year, month, YearMonth.of(year, month).lengthOfMonth(),
+    LocalTime.MAX.hour, LocalTime.MAX.minute
+).toInstant(ZONE).toEpochMilli()
 
-    public static String toExpDate(int month, int year) {
-        return LocalDate.of(year, month, YearMonth.of(year, month).lengthOfMonth()).format(FORMAT_L);
-    }
+fun inCard(milli: Long) = if (milli == -1L) BLANK else getDateTime(milli).format(FORMAT_M_Y)
 
-    public static long toTimestamp(int month, int year) {
-        return LocalDateTime.of(year, month, YearMonth.of(year, month).lengthOfMonth(),
-                LocalTime.MAX.getHour(), LocalTime.MAX.getMinute()).toInstant(ZONE).toEpochMilli();
-    }
+fun getPeriod(dateS: String, dateF: String): String {
+    val startD = LocalDate.parse(dateS, FORMAT_S)
+    val finalD = LocalDate.parse(dateF, FORMAT_S)
 
-    public static String inCard(long milli) {
-        return milli == -1L ? BLANK : getDateTime(milli).format(FORMAT_M_Y);
-    }
+    return Duration.between(startD.atStartOfDay(), finalD.atStartOfDay()).toDays().toString()
+}
 
-    public static String getPeriod(String dateS, String dateF) {
-        LocalDate startD = LocalDate.parse(dateS, FORMAT_S);
-        LocalDate finalD = LocalDate.parse(dateF, FORMAT_S);
+fun lastAlarm(date: String, time: LocalTime) = LocalDateTime.of(
+    LocalDate.parse(date, FORMAT_S), time).toInstant(ZONE).toEpochMilli()
 
-        return String.valueOf(Duration.between(startD.atStartOfDay(), finalD.atStartOfDay()).toDays());
-    }
+fun expirationCheckTime(): Long {
+    var unix = LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 0))
 
-    public static long lastDay(String finish) {
-        LocalDate date = LocalDate.parse(finish, FORMAT_S);
+    if (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) unix = unix.plusDays(1)
 
-        return LocalDateTime.of(date, LocalTime.now()).toInstant(ZONE).toEpochMilli();
-    }
+    return unix.toInstant(ZONE).toEpochMilli()
+}
 
-    public static long expirationCheckTime() {
-        LocalDateTime unix = LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 0));
+fun getDateTime(milli: Long) = Instant.ofEpochMilli(milli).atZone(ZONE)
 
-        if (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) {
-            unix = unix.plusDays(1);
+fun longSeconds(start: String, time: List<LocalTime>) = ArrayList<Long>(time.size).apply {
+    time.sortedWith(compareBy { it }).forEach { localTime ->
+        val localDate = LocalDate.parse(start, FORMAT_S)
+        var unix = LocalDateTime.of(localDate, localTime)
+
+        while (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) {
+            unix = unix.plusDays(1)
         }
 
-        return unix.toInstant(ZONE).toEpochMilli();
-    }
-
-    public static ZonedDateTime getDateTime(long milli) {
-        return Instant.ofEpochMilli(milli).atZone(ZONE);
+        add(unix.toInstant(ZONE).toEpochMilli())
     }
 }

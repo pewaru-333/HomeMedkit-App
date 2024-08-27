@@ -9,14 +9,14 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.application.homemedkit.activities.HomeMeds.Companion.database
-import ru.application.homemedkit.connectionController.NetworkAPI
-import ru.application.homemedkit.connectionController.models.MainModel
-import ru.application.homemedkit.databaseController.Medicine
-import ru.application.homemedkit.databaseController.Technical
+import ru.application.homemedkit.HomeMeds.Companion.database
+import ru.application.homemedkit.data.dto.Medicine
+import ru.application.homemedkit.data.dto.Technical
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CATEGORY
 import ru.application.homemedkit.helpers.ICONS_MED
+import ru.application.homemedkit.network.NetworkAPI
+import ru.application.homemedkit.network.models.MainModel
 import ru.application.homemedkit.viewModels.MedicineViewModel.Event.Add
 import ru.application.homemedkit.viewModels.MedicineViewModel.Event.Delete
 import ru.application.homemedkit.viewModels.MedicineViewModel.Event.Fetch
@@ -56,7 +56,7 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
 
     init {
         viewModelScope.launch {
-            dao.getByPK(medicineId)?.let { medicine ->
+            dao.getById(medicineId)?.let { medicine ->
                 _state.update {
                     it.copy(
                         adding = false,
@@ -171,13 +171,9 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
                 }
             }
 
-            Delete -> {
-                val medicine = Medicine(id = _state.value.id)
-
-                viewModelScope.launch {
-                    dao.delete(medicine)
-                    _events.emit(ActivityEvents.Close)
-                }
+            Delete -> viewModelScope.launch {
+                dao.delete(Medicine(id = _state.value.id))
+                _events.emit(ActivityEvents.Close)
             }
 
             SetAdding -> _state.update { it.copy(adding = true, default = false) }
@@ -293,7 +289,7 @@ data class MedicineState(
     val kitTitle: String = BLANK,
     val cis: String = BLANK,
     val productName: String = BLANK,
-    val expDate: Long = 0L,
+    val expDate: Long = -1L,
     val prodFormNormName: String = BLANK,
     val prodDNormName: String = BLANK,
     val prodAmount: String = BLANK,

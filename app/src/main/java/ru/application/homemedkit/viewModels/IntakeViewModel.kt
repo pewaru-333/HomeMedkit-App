@@ -13,15 +13,15 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.application.homemedkit.activities.HomeMeds.Companion.database
-import ru.application.homemedkit.alarms.AlarmSetter
-import ru.application.homemedkit.databaseController.Intake
+import ru.application.homemedkit.HomeMeds.Companion.database
+import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.DateHelper.FORMAT_D_MM_Y
-import ru.application.homemedkit.helpers.DateHelper.FORMAT_H
-import ru.application.homemedkit.helpers.DateHelper.FORMAT_S
-import ru.application.homemedkit.helpers.DateHelper.getDateTime
+import ru.application.homemedkit.helpers.FORMAT_D_MM_Y
+import ru.application.homemedkit.helpers.FORMAT_H
+import ru.application.homemedkit.helpers.FORMAT_S
+import ru.application.homemedkit.helpers.getDateTime
 import ru.application.homemedkit.helpers.longSeconds
+import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.viewModels.IntakeViewModel.Event.Add
 import ru.application.homemedkit.viewModels.IntakeViewModel.Event.DecTime
 import ru.application.homemedkit.viewModels.IntakeViewModel.Event.Delete
@@ -55,7 +55,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
 
     init {
         viewModelScope.launch {
-            dao.getByPK(intakeId)?.let { intake ->
+            dao.getById(intakeId)?.let { intake ->
                 _state.update { state ->
                     state.copy(
                         adding = false,
@@ -69,6 +69,13 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
                         periodD = intake.period,
                         foodType = intake.foodType,
                         time = intake.time.mapTo(SnapshotStateList()) { it.format(FORMAT_H) },
+                        times = SnapshotStateList<TimePickerState>().apply {
+                            intake.time.mapTo(SnapshotStateList()) { it.format(FORMAT_H) }.forEach {
+                                val hour = LocalTime.parse(it, FORMAT_H).hour
+                                val min = LocalTime.parse(it, FORMAT_H).minute
+                                add(TimePickerState(hour, min, true))
+                            }
+                        },
                         startDate = intake.startDate,
                         finalDate = intake.finalDate
                     )

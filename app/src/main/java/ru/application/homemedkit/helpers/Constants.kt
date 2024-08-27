@@ -48,6 +48,7 @@ const val KEY_LAST_KIT = "last_kit"
 const val KEY_LIGHT_PERIOD = "light_period_picker"
 const val KEY_ORDER = "sorting_order"
 const val SOUND_GROUP = "Sound group"
+const val TAKEN_ID = "takenId"
 const val TYPE = "vector_type"
 
 // ============================== Collections ==============================

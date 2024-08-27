@@ -38,7 +38,7 @@
     <string name="text_do_intake">Alımı yap</string>
     <string name="text_expire_soon">%1$s\'nin son kullanma tarihi yaklaşıyor</string>
     <string name="text_intake_time">%1$s alım zamanı\nMiktar: %2$s %3$s</string>
-    <string name="text_medicine_amount_not_enough">%1$s alım zamanı, ancak miktarı reçetelenenden az! Alımı tekrar oluştur!</string>
+    <string name="text_intake_amount_not_enough">%1$s alım zamanı, ancak miktarı reçetelenenden az! Alımı tekrar oluştur!</string>
 
     <!-- Placeholders -->
     <string name="placeholder_date">gg.aa.yyyy</string>

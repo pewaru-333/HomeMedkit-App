@@ -1,16 +1,15 @@
 [versions]
-androidGradle = "8.5.1"
+androidGradle = "8.5.2"
 appcompat = "1.7.0"
 codeScanner = "2.3.2"
 coilCompose = "2.7.0"
-composeBom = "2024.06.00"
-composeDestinations = "2.1.0-beta09"
+composeBom = "2024.08.00"
+composeDestinations = "2.1.0-beta11"
 googleKsp = "2.0.0-1.0.23"
 jetbrainsKotlin = "2.0.0"
-kotlinBom = "2.0.0"
+kotlinBom = "2.0.10"
 librarySettingsM3 = "1.0.0"
-lifecycleViewmodelCompose = "2.8.3"
-material3 = "1.2.1"
+lifecycleViewmodelCompose = "2.8.4"
 moshiKotlin = "1.15.1"
 retrofit = "2.11.0"
 roomCompiler = "2.6.1"
@@ -20,7 +19,7 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "a
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
-androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+androidx-material3 = { module = "androidx.compose.material3:material3" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompiler" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCompiler" }
