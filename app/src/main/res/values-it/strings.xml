@@ -32,7 +32,8 @@
     <string name="text_attention">Attenzione!</string>
     <string name="text_do_intake">Do assunzione</string>
     <string name="text_expire_soon">La data di scadenza di %1$s sta per scadere</string>
-    <string name="text_intake_time">È ora di assumere %1$s \nImporto: %2$s %3$s</string>
+    <string name="text_intake_time">È ora di assumere %1$s
+\nImporto: %2$s %3$s</string>
     <string name="text_intake_amount_not_enough">E \'tempo di assunzione %1$s, ma la sua quantità è meno che prescritto! Ricreare l\'assunzione!</string>
     <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.yyyyy</string>
