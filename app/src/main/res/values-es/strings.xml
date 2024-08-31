@@ -32,8 +32,8 @@
     <string name="text_attention">¡Atención!</string>
     <string name="text_do_intake">Toma tus medicamentos</string>
     <string name="text_expire_soon">La fecha de caducidad de %1$s está a punto de expirar</string>
-    <string name="text_intake_time">Es la hora de tomar %1$s
-\nCantidad: %2$s %3$s</string>
+    <string name="text_intake_time">Medicamento: %1$s
+\nImporte: %2$s %3$s</string>
     <string name="text_intake_amount_not_enough">¡Es la hora de tomar %1$s, pero hay menos cantidad de la prescrita! ¡Vuelve a crear el recordatorio!</string>
     <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.aaaa</string>
@@ -182,4 +182,10 @@
         <item>ESPRAY</item>
         <item>GOTAS</item>
     </string-array>
+    <string name="text_medicine_amount_not_enough">Medicación insuficiente</string>
+    <string name="intake_text_not_taken">No tomado</string>
+    <string name="intake_text_taken">Tomado</string>
+    <string name="text_notification_pick_action_first">Para cambiar la acción de selección en la primera notificación</string>
+    <string name="intake_text_date">Fecha</string>
+    <string name="text_medicine_deleted">Se ha eliminado el medicamento, es imposible cambiar el estado de ingesta</string>
 </resources>
