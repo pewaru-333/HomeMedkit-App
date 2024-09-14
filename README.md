@@ -12,7 +12,7 @@
 
 [<img src="https://raw.githubusercontent.com/pewaru-333/HomeMedkit-App/master/RuStore.svg"
   alt="Скачайте в RuStore"
-  height=80/>](https://apps.rustore.ru/app/ru.application.homemedkit) 
+  height=80/>](https://www.rustore.ru/catalog/app/ru.application.homemedkit) 
 [<img src="https://raw.githubusercontent.com/pewaru-333/HomeMedkit-App/master/IzzyOnDroid.png"
   alt="Get it on IzzyOnDroid"
   height=80/>](https://apt.izzysoft.de/fdroid/index/apk/ru.application.homemedkit)
