@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
-
     <!-- Menu -->
     <string name="bottom_bar_main">Startseite</string>
     <string name="bottom_bar_medicines">Medizin</string>
     <string name="bottom_bar_intakes">Einnahmen</string>
     <string name="bottom_bar_settings">Einstellung</string>
-
     <!-- Preferences -->
     <string name="preference_app_view">App-Ansicht</string>
     <string name="preference_kits_group">Medizinische Gruppen</string>
@@ -21,34 +19,27 @@
     <string name="preference_app_theme">App-Thema</string>
     <string name="preference_dynamic_color">Dynamische Farbe</string>
     <string name="preference_import_export">Importieren / Exportieren</string>
-
     <!-- Languages -->
     <string name="lang_system">System</string>
-
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabetisch (A bis z)</string>
     <string name="sorting_z_a">Alphabetisch (z bis A)</string>
-
     <!-- Notifications -->
     <string name="notification_channel_name">Ton-Benachrichtigungen</string>
     <string name="text_attention">Achtung!</string>
     <string name="text_do_intake">Einnehmen</string>
-
     <!-- Placeholders -->
     <string name="placeholder_kitchen">Küche</string>
     <string name="placeholder_time">Zeit #%1$d</string>
-
     <!-- Medicines -->
     <string name="text_exp_date">Ablaufdatum</string>
     <string name="text_medicine_comment">Kommentar</string>
     <string name="text_medicine_description">Beschreibung</string>
     <string name="text_medicine_dose">Dosis</string>
     <string name="text_medicine_product_name">Produktname</string>
-
     <!-- Intakes -->
     <string name="intakes_tab_current">Aktuell</string>
     <string name="intakes_tab_list">Liste</string>
-
     <string name="intake_text_interval">Intervall</string>
     <string name="intake_text_left">Links</string>
     <string name="intake_text_period">Zeitraum</string>
@@ -60,7 +51,6 @@
     <string name="intake_text_food_after">Nach dem Essen</string>
     <string name="intake_text_food_before">Vor dem Essen</string>
     <string name="intake_text_food_during">Während dem Essen</string>
-
     <!-- Dialogs -->
     <string name="text_grant_permission">Berechtigung gewähren</string>
     <string name="text_new_group">Neue Gruppe</string>
@@ -68,7 +58,6 @@
     <string name="text_confirm_exit">Beenden bestätigen</string>
     <string name="text_connection_error">Verbindungsfehler!</string>
     <string name="text_error">Fehler!</string>
-
     <!-- Strings -->
     <string name="text_every">"Alle "</string>
     <string name="text_export">Exportieren</string>
@@ -89,4 +78,53 @@
     <string name="text_start_date">Startdatum</string>
     <string name="text_success">Erfolgreich!</string>
     <string name="text_yes">Ja</string>
+    <string name="sorting_from_oldest">Expiration date (from oldest)</string>
+    <string name="notification_channel_description">Medication reminders</string>
+    <string name="sorting_from_newest">Expiration date (from newest)</string>
+    <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
+    <string name="text_intake_time">Medicine: %1$s
+\nAmount: %2$s %3$s</string>
+    <string name="text_medicine_amount_not_enough">Not enough amount left</string>
+    <string name="placeholder_date">dd.mm.yyyy</string>
+    <string name="placeholder_dose">0,5 mg + 84 mcg</string>
+    <string name="placeholder_exp_date">31 May 2029</string>
+    <string name="text_indications_for_use">Indications for use</string>
+    <string name="manual_add">Do you want to add medicine manually?</string>
+    <string name="text_try_again">Try again to scan label!</string>
+    <string name="text_medicine_status_self_added">Added manually</string>
+    <string name="intake_text_amount">Quantity</string>
+    <string name="intakes_tab_taken">Taken</string>
+    <string name="intake_text_food">Food &amp; Med</string>
+    <string name="text_unspecified">Unspecified</string>
+    <string name="text_status">Status</string>
+    <string name="text_medicine_status_scanned">Scanned, unchecked</string>
+    <string name="text_days_short">d.</string>
+    <string name="text_update">Update</string>
+    <string name="text_data_matrix_scanner">Scanning DataMatrix label (only for RU)</string>
+    <string name="text_duplicate">This medicine has been already added!</string>
+    <string name="text_intake_amount_not_enough">It\'s time to intake %1$s, but its quantity is less than prescribed!</string>
+    <string name="text_medicine_form">Release form</string>
+    <string name="text_medicine_group">Group</string>
+    <string name="text_medicine_status_checked">Scanned, checked</string>
+    <string name="text_notification_pick_action_first">In order to change pick action in notification first</string>
+    <string name="text_export_import_description">This is an experimental feature.
+\nWhen exporting, you can change the file name.
+\nWhen importing, the current data will be deleted! Please, relaunch app after it!</string>
+    <string name="intake_text_date">Date</string>
+    <string name="text_medicine_deleted">Medicine has been deleted, impossible to change intake status</string>
+    <string name="intake_text_taken">Taken</string>
+    <string name="intake_text_not_taken">Not taken</string>
+    <string name="text_request_camera">To scan the label, the application must be given permission to use the camera</string>
+    <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
+    <string name="text_request_post">To receive notifications, the application must be granted the appropriate permission</string>
+    <string name="text_finish_date">Finish date</string>
+    <plurals name="intakes_a_day">
+        <item quantity="one">%d time a day</item>
+        <item quantity="other">%d times a day</item>
+    </plurals>
+    <string name="text_no">No</string>
+    <string name="text_no_data_found">No medicines found. Add them or change the filter.</string>
+    <string name="text_no_intakes_found">No intakes found. Add them via medicine information card or change the search value.</string>
+    <string name="text_manual_add">Manual medicine adding</string>
+    <string name="text_tap_to_view">Tap to view</string>
 </resources>
