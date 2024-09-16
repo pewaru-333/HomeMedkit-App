@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
-
     <!-- Menu -->
     <string name="bottom_bar_main">Home</string>
     <string name="bottom_bar_medicines">Medicinali</string>
     <string name="bottom_bar_intakes">Assunzioni</string>
     <string name="bottom_bar_settings">Impostazioni</string>
-
     <!-- Preferences -->
     <string name="preference_app_view">Vista app</string>
     <string name="preference_kits_group">Gruppi di medicina</string>
@@ -21,16 +19,13 @@
     <string name="preference_app_theme">Tema app </string>
     <string name="preference_dynamic_color">Colore dinamico</string>
     <string name="preference_import_export">Importa / Esporta</string>
-
     <!-- Languages -->
     <string name="lang_system">System</string>
-
     <!-- Sorting -->
     <string name="sorting_a_z">Alfabeticamente (da A a z)</string>
     <string name="sorting_z_a">Alfabeticamente (z da A)</string>
     <string name="sorting_from_oldest">Data di scadenza (dal più antico)</string>
     <string name="sorting_from_newest">Data di scadenza (da più recente)</string>
-
     <!-- Notifications -->
     <string name="notification_channel_description">Promemoria di farmaci</string>
     <string name="notification_channel_name">Notifiche audio</string>
@@ -40,14 +35,12 @@
     <string name="text_intake_amount_not_enough">E \'tempo di assunzione %1$s, ma la sua quantità è meno che prescritto! Ricreare l\'assunzione!</string>
     <string name="text_intake_time">Medicina: %1$s\nImporto: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Non abbastanza importo lasciato</string>
-
     <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.yyyyy</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 maggio 2029</string>
     <string name="placeholder_kitchen">Cucina</string>
     <string name="placeholder_time">Tempo #%1$d</string>
-
     <!-- Medicines -->
     <string name="text_exp_date">Data di scadenza</string>
     <string name="text_indications_for_use">Indicazioni per uso</string>
@@ -60,12 +53,10 @@
     <string name="text_medicine_status_checked">Scansionato, controllato</string>
     <string name="text_medicine_status_scanned">Scansione, incontrollata</string>
     <string name="text_medicine_status_self_added">Aggiunto manualmente</string>
-
     <!-- Intakes -->
     <string name="intakes_tab_current">Corrente</string>
     <string name="intakes_tab_list">Elenco</string>
     <string name="intakes_tab_taken">Taken</string>
-
     <string name="intake_card_text_from">(da %1$s)</string>
     <string name="intake_text_amount">Quantità</string>
     <string name="intake_text_date">Data</string>
@@ -82,7 +73,6 @@
     <string name="intake_text_select_interval">Selezionare l\'intervallo</string>
     <string name="intake_text_taken">Adottato</string>
     <string name="intake_text_time">Tempo</string>
-
     <!-- Dialogs -->
     <string name="manual_add">Vuoi aggiungere medicina manualmente?</string>
     <string name="text_confirm_exit">Confermare l\'uscita</string>
@@ -98,7 +88,6 @@
     <string name="text_select_time">Selezionare il tempo</string>
     <string name="text_sure_to_exit">Sei sicuro di voler uscire dall\'app?</string>
     <string name="text_try_again">Prova di nuovo a scansionare l\'etichetta!</string>
-
     <!-- Strings -->
     <string name="text_add">Aggiungi</string>
     <string name="text_all">Tutti</string>
@@ -131,11 +120,36 @@
     <string name="text_unspecified">Non specificato</string>
     <string name="text_update">Aggiornamento</string>
     <string name="text_yes">Sì</string>
-
     <!-- Plurals -->
     <plurals name="intakes_a_day">
         <item quantity="one">%d tempo al giorno</item>
         <item quantity="many">%d volte al giorno</item>
         <item quantity="other">%d volte al giorno</item>
     </plurals>
+    <string name="type_paste">PASTE</string>
+    <string name="type_emulsion">EMULSION</string>
+    <string name="type_aerosol">AEROSOL</string>
+    <string name="type_gel">GEL</string>
+    <string name="type_spray">SPRAY</string>
+    <string name="type_drops">DROPS</string>
+    <string name="type_suppository">SUPPOSITORY</string>
+    <string name="type_mix">MIX</string>
+    <string name="type_suspension">SUSPENSION</string>
+    <string name="type_ointment">OINTMENT</string>
+    <string name="theme_light">Light</string>
+    <string name="type_solution">SOLUTION</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System</string>
+    <string name="type_tablets">TABLETS</string>
+    <string name="type_powder">POWDER</string>
+    <string name="preference_med_compact_view">Compact view of medicines list</string>
+    <string name="type_granules">GRANULES</string>
+    <string name="type_dragee">DRAGEE</string>
+    <string name="type_extract">EXTRACT</string>
+    <string name="type_capsules">CAPSULES</string>
+    <string name="type_syrup">SYRUP</string>
+    <string name="type_decoction">DECOCTION</string>
+    <string name="type_mixture">MIXTURE</string>
+    <string name="type_pills">PILLS</string>
+    <string name="type_tincture">TINCTURE</string>
 </resources>
