@@ -172,4 +172,19 @@
         <item>SPREY</item>
         <item>DAMLA</item>
     </string-array>
+    <string name="text_medicine_status_scanned">Scanned, unchecked</string>
+    <string name="text_medicine_form">Release form</string>
+    <string name="text_medicine_group">Group</string>
+    <string name="text_medicine_status_checked">Scanned, checked</string>
+    <string name="text_update">Update</string>
+    <string name="text_unspecified">Unspecified</string>
+    <string name="intake_text_not_taken">Not taken</string>
+    <string name="intake_text_date">Date</string>
+    <string name="text_medicine_deleted">Medicine has been deleted, impossible to change intake status</string>
+    <string name="text_medicine_status_self_added">Added manually</string>
+    <string name="intake_text_taken">Taken</string>
+    <string name="text_notification_pick_action_first">In order to change pick action in notification first</string>
+    <string name="text_try_again">Try again to scan label!</string>
+    <string name="text_status">Status</string>
+    <string name="text_medicine_amount_not_enough">Not enough amount left</string>
 </resources>
