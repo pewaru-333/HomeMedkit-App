@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
-
     <!-- Menu -->
     <string name="bottom_bar_main">主頁</string>
     <string name="bottom_bar_medicines">藥物</string>
     <string name="bottom_bar_intakes">攝取量</string>
     <string name="bottom_bar_settings">設定</string>
-
     <!-- Preferences -->
     <string name="preference_app_view">應用程式檢視</string>
     <string name="preference_kits_group">藥物群組</string>
@@ -21,29 +19,24 @@
     <string name="preference_app_theme">應用程式主題</string>
     <string name="preference_dynamic_color">動態色彩</string>
     <string name="preference_import_export">匯入／匯出</string>
-
     <!-- Languages -->
     <string name="lang_system">系統</string>
-
     <!-- Sorting -->
     <string name="sorting_a_z">按字母順序（A 至 z）</string>
     <string name="sorting_z_a">按字母順序（z 至 A）</string>
     <string name="sorting_from_oldest">到期日（從最舊開始）</string>
     <string name="sorting_from_newest">到期日（從最新開始）</string>
-
     <!-- Notifications -->
     <string name="notification_channel_description">藥物提醒</string>
     <string name="notification_channel_name">聲音通知</string>
     <string name="text_attention">注意！</string>
     <string name="text_expire_soon">%1$s 的到期日即將到期</string>
-
     <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="placeholder_dose">0.5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 May 2029</string>
     <string name="placeholder_kitchen">廚房</string>
     <string name="placeholder_time">時間 #%1$d</string>
-
     <!-- Medicines -->
     <string name="text_exp_date">到期日</string>
     <string name="text_indications_for_use">使用說明</string>
@@ -51,12 +44,10 @@
     <string name="text_medicine_description">描述</string>
     <string name="text_medicine_dose">劑量</string>
     <string name="text_medicine_product_name">產品名稱</string>
-
     <!-- Intakes -->
     <string name="intakes_tab_list">清單</string>
     <string name="intakes_tab_current">目前</string>
     <string name="intakes_tab_taken">采取</string>
-
     <string name="intake_text_amount">數量</string>
     <string name="intake_text_food_after">用餐後</string>
     <string name="intake_text_food_before">用餐前</string>
@@ -66,7 +57,6 @@
     <string name="intake_text_quantity">%1$s：%2$s %3$s</string>
     <string name="intake_text_select_interval">選擇間隔</string>
     <string name="intake_text_time">時間</string>
-
     <!-- Dialogs -->
     <string name="text_confirm_exit">確認退出</string>
     <string name="text_connection_error">连接错误！</string>
@@ -76,7 +66,6 @@
     <string name="text_request_post">要接收通知，應用程式必須已授予適當的權限</string>
     <string name="text_select_time">選擇時間</string>
     <string name="text_sure_to_exit">你確定你要退出應用程式嗎？</string>
-
     <!-- Strings -->
     <string name="text_yes">是</string>
     <string name="text_tap_to_view">點擊以檢視</string>
@@ -104,9 +93,64 @@
     <string name="text_amount">數量</string>
     <string name="text_all">全部</string>
     <string name="text_add">增加</string>
-
     <!-- Plurals -->
     <plurals name="intakes_a_day">
         <item quantity="other">每天 %d 次</item>
     </plurals>
+    <string name="text_update">Update</string>
+    <string name="intake_text_taken">Taken</string>
+    <string name="text_intake_amount_not_enough">It\'s time to intake %1$s, but its quantity is less than prescribed!</string>
+    <string name="intake_text_not_taken">Not taken</string>
+    <string name="text_status">Status</string>
+    <string name="intake_text_date">Date</string>
+    <string name="text_notification_pick_action_first">In order to change pick action in notification first</string>
+    <string name="preference_med_compact_view">Compact view of medicines list</string>
+    <string name="type_paste">PASTE</string>
+    <string name="theme_light">Light</string>
+    <string name="type_emulsion">EMULSION</string>
+    <string name="type_solution">SOLUTION</string>
+    <string name="theme_dark">Dark</string>
+    <string name="type_aerosol">AEROSOL</string>
+    <string name="type_gel">GEL</string>
+    <string name="theme_system">System</string>
+    <string name="intake_text_food">Food &amp; Med</string>
+    <string name="intake_text_period">Period</string>
+    <string name="intake_text_pick_period">Pick period</string>
+    <string name="manual_add">Do you want to add medicine manually?</string>
+    <string name="text_unspecified">Unspecified</string>
+    <string name="text_no_intakes_found">No intakes found. Add them via medicine information card or change the search value.</string>
+    <string name="text_manual_add">Manual medicine adding</string>
+    <string name="text_medicine_status_scanned">Scanned, unchecked</string>
+    <string name="text_medicine_form">Release form</string>
+    <string name="type_tablets">TABLETS</string>
+    <string name="text_intake_time">Medicine: %1$s
+\nAmount: %2$s %3$s</string>
+    <string name="type_spray">SPRAY</string>
+    <string name="type_drops">DROPS</string>
+    <string name="type_suppository">SUPPOSITORY</string>
+    <string name="type_mix">MIX</string>
+    <string name="type_dragee">DRAGEE</string>
+    <string name="text_medicine_status_checked">Scanned, checked</string>
+    <string name="type_extract">EXTRACT</string>
+    <string name="type_suspension">SUSPENSION</string>
+    <string name="type_powder">POWDER</string>
+    <string name="text_medicine_amount_not_enough">Not enough amount left</string>
+    <string name="text_medicine_group">Group</string>
+    <string name="intake_card_text_from">(from %1$s)</string>
+    <string name="type_granules">GRANULES</string>
+    <string name="text_medicine_status_self_added">Added manually</string>
+    <string name="type_ointment">OINTMENT</string>
+    <string name="type_capsules">CAPSULES</string>
+    <string name="type_syrup">SYRUP</string>
+    <string name="text_duplicate">This medicine has been already added!</string>
+    <string name="text_export_import_description">This is an experimental feature.
+\nWhen exporting, you can change the file name.
+\nWhen importing, the current data will be deleted! Please, relaunch app after it!</string>
+    <string name="type_decoction">DECOCTION</string>
+    <string name="text_medicine_deleted">Medicine has been deleted, impossible to change intake status</string>
+    <string name="type_mixture">MIXTURE</string>
+    <string name="type_pills">PILLS</string>
+    <string name="text_try_again">Try again to scan label!</string>
+    <string name="text_do_intake">Do intake</string>
+    <string name="type_tincture">TINCTURE</string>
 </resources>
