@@ -1,4 +1,0 @@
-— Added a choice of the form of medicine release (pieces, grams, etc.).
-— Added more information about taking medicine in the notification text.
-— Fixed a bug that in some cases did not display the image of the medicine on the "Intakes" tab.
-— Added Turkish translations.

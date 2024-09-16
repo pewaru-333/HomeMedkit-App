@@ -1,4 +1,0 @@
-— Fixed a bug due to which when rotating the device while in one of the main menu items, the menu automatically changed to the "Settings".
-— Fixed a bug due to which when changing some application settings, the change to the "Home" menu was automatically made.
-— Fixed a bug due to which when entering a fractional number of the medicine being taken when creating an intake, the fractional part became an integer.
-— Fixed a bug due to which when using a dark theme in the application, some parts of the interface did not change their color.

@@ -1,7 +1,6 @@
 package ru.application.homemedkit.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +25,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -45,7 +45,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -55,11 +54,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.preference_kits_group
 import ru.application.homemedkit.R.string.text_all
@@ -67,18 +66,15 @@ import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_enter_product_name
 import ru.application.homemedkit.R.string.text_no_data_found
 import ru.application.homemedkit.R.string.text_save
-import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.ICONS_MED
-import ru.application.homemedkit.helpers.TYPE
+import ru.application.homemedkit.helpers.Preferences
+import ru.application.homemedkit.helpers.Sorting
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.inCard
 import ru.application.homemedkit.helpers.shortName
 import ru.application.homemedkit.viewModels.MedicinesState
 import ru.application.homemedkit.viewModels.MedicinesViewModel
-import ru.application.homemedkit.viewModels.SortingItems
-import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>
@@ -128,10 +124,10 @@ fun MedicinesScreen(navigator: DestinationsNavigator) {
                     }
 
                     DropdownMenu(state.showSort, model::hideSort) {
-                        SortingItems.entries.forEach { entry ->
+                        Sorting.entries.forEach { entry ->
                             DropdownMenuItem(
-                                { Text(stringResource(entry.text)) },
-                                { model.setSorting(entry.sorting) }
+                                { Text(stringResource(entry.title)) },
+                                { model.setSorting(entry.type) }
                             )
                         }
                     }
@@ -154,6 +150,11 @@ fun MedicinesScreen(navigator: DestinationsNavigator) {
                     .padding(horizontal = 16.dp),
                 contentAlignment = Alignment.Center
             ) { Text(stringResource(text_no_data_found), textAlign = TextAlign.Center) }
+            else if (Preferences.getMedCompactView())
+                LazyColumn(
+                    state = state.listState,
+                    contentPadding = PaddingValues(top = values.calculateTopPadding())
+                ) { items(list) { MedicineItem(it, navigator); HorizontalDivider() } }
             else LazyColumn(
                 state = state.listState,
                 contentPadding = PaddingValues(16.dp, values.calculateTopPadding(), 16.dp, 0.dp),
@@ -164,20 +165,32 @@ fun MedicinesScreen(navigator: DestinationsNavigator) {
 }
 
 @Composable
+private fun MedicineItem(medicine: Medicine, navigator: DestinationsNavigator) {
+    val shortName = shortName(medicine.productName)
+    val formName = formName(medicine.prodFormNormName)
+    val expDate = inCard(medicine.expDate)
+    val kitTitle = database.medicineDAO().getKitTitle(medicine.kitId) ?: BLANK
+
+    ListItem(
+        headlineContent = { Text(shortName) },
+        overlineContent = { Text(formName) },
+        supportingContent = { Text(expDate) },
+        trailingContent = { Text(kitTitle) },
+        leadingContent = { MedicineImage(medicine.image, Modifier.size(56.dp)) },
+        modifier = Modifier.clickable { navigator.navigate(MedicineScreenDestination(medicine.id)) },
+        colors = ListItemDefaults.colors(
+            containerColor = if (medicine.expDate >= System.currentTimeMillis()) ListItemDefaults.containerColor
+            else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
+        )
+    )
+}
+
+@Composable
 private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator) {
     val shortName = shortName(medicine.productName)
     val formName = formName(medicine.prodFormNormName)
     val expDate = inCard(medicine.expDate)
     val kitTitle = database.medicineDAO().getKitTitle(medicine.kitId) ?: BLANK
-    val icon = medicine.image.let {
-        when {
-            it.contains(TYPE) -> ICONS_MED[it]
-            it.isEmpty() -> R.drawable.vector_type_unknown
-            else -> File(LocalContext.current.filesDir, it).run {
-                if (exists()) this else R.drawable.vector_type_unknown
-            }
-        }
-    }
 
     ListItem(
         headlineContent = {
@@ -190,26 +203,22 @@ private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator) {
             )
         },
         modifier = Modifier
-            .clickable { navigator.navigate(MedicineScreenDestination(id = medicine.id)) }
+            .clickable { navigator.navigate(MedicineScreenDestination(medicine.id)) }
             .padding(vertical = 8.dp)
             .clip(MaterialTheme.shapes.medium),
         overlineContent = { Text(text = formName, style = MaterialTheme.typography.labelLarge) },
         supportingContent = { Text(text = expDate, fontWeight = FontWeight.SemiBold) },
         leadingContent = {
-            Image(
-                painter = rememberAsyncImagePainter(icon),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(64.dp)
-                    .offset(y = 12.dp)
+            MedicineImage(medicine.image, Modifier
+                .size(64.dp)
+                .offset(y = 12.dp)
             )
         },
         trailingContent = { Text(text = kitTitle, style = MaterialTheme.typography.labelLarge) },
         colors = ListItemDefaults.colors(
-            containerColor = when {
-                medicine.expDate < System.currentTimeMillis() -> MaterialTheme.colorScheme.errorContainer
-                else -> MaterialTheme.colorScheme.secondaryContainer
-            }
+            containerColor = if (medicine.expDate < System.currentTimeMillis())
+                MaterialTheme.colorScheme.errorContainer
+            else MaterialTheme.colorScheme.secondaryContainer
         )
     )
 }

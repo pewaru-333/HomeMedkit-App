@@ -1,3 +1,0 @@
-— Changed the appearance of the "Intakes" menu. Three tabs are now available: a general list of intakes, the current schedule, and information about medications already taken.
-— Removed the limit of the elements in the list of intakes.
-— Fixed a bug due to which a very long name of a medicine in its card in the “Medicines” menu went out of bounds.

@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
+
     <!-- Menú -->
     <string name="bottom_bar_main">Inicio</string>
     <string name="bottom_bar_medicines">Medicamentos</string>
     <string name="bottom_bar_intakes">Tomas</string>
     <string name="bottom_bar_settings">Ajustes</string>
+
     <!-- Preferencias -->
     <string name="preference_app_view">Aplicación</string>
     <string name="preference_kits_group">Grupos de medicamentos</string>
     <string name="preference_start_page">Página de inicio</string>
     <string name="preference_sorting_type">Clasificación de los medicamentos</string>
+    <string name="preference_med_compact_view">Vista compacta de la lista de medicamentos</string>
     <string name="preference_download_images">Descargar imágenes de medicamentos</string>
     <string name="preference_easy_period_picker">Selección más fácil del periodo de ingesta</string>
     <string name="preference_check_expiration_date">Comprobar la fecha de caducidad de los medicamentos</string>
@@ -19,28 +22,38 @@
     <string name="preference_app_theme">Tema de la aplicación</string>
     <string name="preference_dynamic_color">Dynamic color</string>
     <string name="preference_import_export">Importar/Exportar</string>
+
     <!-- Languages -->
     <string name="lang_system">Sistema</string>
+
     <!-- Ordenación -->
     <string name="sorting_a_z">Alfabéticamente (de A a z)</string>
     <string name="sorting_z_a">Alfabéticamente (de z a A)</string>
     <string name="sorting_from_oldest">Fecha de caducidad (reciente)</string>
     <string name="sorting_from_newest">Fecha de caducidad (antigua)</string>
+
+    <!-- Themes -->
+    <string name="theme_system">Seguir tema del sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+
     <!-- Notificaciones -->
     <string name="notification_channel_description">Recordatorios de medicación</string>
     <string name="notification_channel_name">Notificaciones</string>
     <string name="text_attention">¡Atención!</string>
     <string name="text_do_intake">Toma tus medicamentos</string>
     <string name="text_expire_soon">La fecha de caducidad de %1$s está a punto de expirar</string>
-    <string name="text_intake_time">Medicamento: %1$s
-\nImporte: %2$s %3$s</string>
     <string name="text_intake_amount_not_enough">¡Es la hora de tomar %1$s, pero hay menos cantidad de la prescrita! ¡Vuelve a crear el recordatorio!</string>
+    <string name="text_intake_time">Medicamento: %1$s\nImporte: %2$s %3$s</string>
+    <string name="text_medicine_amount_not_enough">Medicación insuficiente</string>
+
     <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.aaaa</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 mayo 2029</string>
     <string name="placeholder_kitchen">Cocina</string>
     <string name="placeholder_time">Hora #%1$d</string>
+
     <!-- Medicamentos -->
     <string name="text_exp_date">Fecha de caducidad</string>
     <string name="text_indications_for_use">Indicaciones para el uso</string>
@@ -53,23 +66,53 @@
     <string name="text_medicine_status_checked">Escaneado, verificado</string>
     <string name="text_medicine_status_scanned">Escaneado, sin verificar</string>
     <string name="text_medicine_status_self_added">Añadido manualmente</string>
+
+    <!-- Medicine types -->
+    <string name="type_tablets">COMPRIMIDOS</string>
+    <string name="type_capsules">CÁPSULAS</string>
+    <string name="type_pills">PASTILLAS</string>
+    <string name="type_dragee">GRAGEAS</string>
+    <string name="type_granules">GRÁNULOS</string>
+    <string name="type_powder">POLVOS</string>
+    <string name="type_solution">DISOLUCIÓN</string>
+    <string name="type_tincture">TINTURA</string>
+    <string name="type_decoction">DECOCCIÓN</string>
+    <string name="type_extract">EXTRACTO</string>
+    <string name="type_mixture">MIXTURA</string>
+    <string name="type_syrup">JARABE</string>
+    <string name="type_emulsion">EMULSIÓN</string>
+    <string name="type_suspension">SUSPENSIÓN</string>
+    <string name="type_mix">MEZCLA</string>
+    <string name="type_ointment">POMADA</string>
+    <string name="type_gel">GEL</string>
+    <string name="type_paste">PASTA</string>
+    <string name="type_suppository">SUPOSITORIO</string>
+    <string name="type_aerosol">AEROSOL</string>
+    <string name="type_spray">ESPRAY</string>
+    <string name="type_drops">GOTAS</string>
+
     <!-- Intakes -->
     <string name="intakes_tab_current">Actual</string>
     <string name="intakes_tab_list">Lista</string>
     <string name="intakes_tab_taken">Ya tomado</string>
+
     <string name="intake_card_text_from">(desde %1$s)</string>
     <string name="intake_text_amount">Cantidad</string>
+    <string name="intake_text_date">Fecha</string>
     <string name="intake_text_food">Comida y Medicina</string>
     <string name="intake_text_food_after">Después de la comida</string>
     <string name="intake_text_food_before">Antes de la comida</string>
     <string name="intake_text_food_during">Durante la comida</string>
     <string name="intake_text_interval">Intervalo</string>
     <string name="intake_text_left">Restante</string>
+    <string name="intake_text_not_taken">No tomado</string>
     <string name="intake_text_period">Periodo</string>
     <string name="intake_text_pick_period">Escoger periodo</string>
     <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
     <string name="intake_text_select_interval">Seleccionar intervalo</string>
+    <string name="intake_text_taken">Tomado</string>
     <string name="intake_text_time">Hora</string>
+
     <!-- Diálogos -->
     <string name="manual_add">¿Quieres añadir un medicamento manualmente?</string>
     <string name="text_confirm_exit">Confirmar salida</string>
@@ -77,12 +120,15 @@
     <string name="text_duplicate">¡Este medicamento ya ha sido agregado!</string>
     <string name="text_export_import_description">Esta es una característica experimental.\nAl exportar, puedes cambiar el nombre del archivo.\n¡Al importar, los datos actuales se eliminarán! ¡Por favor, reinicia la aplicación después!</string>
     <string name="text_grant_permission">Otorgar permiso</string>
+    <string name="text_medicine_deleted">Se ha eliminado el medicamento, es imposible cambiar el estado de ingesta</string>
     <string name="text_new_group">Nuevo grupo</string>
+    <string name="text_notification_pick_action_first">Para cambiar la acción de selección en la primera notificación</string>
     <string name="text_request_camera">Para escanear la etiqueta, la aplicación debe tener permiso para usar la cámara</string>
     <string name="text_request_post">Para recibir notificaciones, se debe otorgar a la aplicación el permiso apropiado</string>
     <string name="text_select_time">Seleccionar hora</string>
     <string name="text_sure_to_exit">¿Quieres cerrar la aplicación?</string>
     <string name="text_try_again">¡Vuelve a escanear la etiqueta!</string>
+
     <!-- Strings -->
     <string name="text_add">Añadir</string>
     <string name="text_all">Todo</string>
@@ -115,41 +161,28 @@
     <string name="text_unspecified">Sin especificar</string>
     <string name="text_update">Actualizar</string>
     <string name="text_yes">Sí</string>
+
     <!-- Plurals -->
     <plurals name="intakes_a_day">
         <item quantity="one">%d vez al día</item>
         <item quantity="many">%d veces al día</item>
         <item quantity="other">%d veces al día</item>
     </plurals>
+
     <!-- Arrays -->
-    <string-array name="sorting_types_name">
-        <item>@string/sorting_a_z</item>
-        <item>@string/sorting_z_a</item>
-        <item>@string/sorting_from_oldest</item>
-        <item>@string/sorting_from_newest</item>
-    </string-array>
-    <string-array name="fragment_pages_name">
-        <item>@string/bottom_bar_main</item>
-        <item>@string/bottom_bar_medicines</item>
-        <item>@string/bottom_bar_intakes</item>
-        <item>@string/bottom_bar_settings</item>
-    </string-array>
-    <string-array name="app_themes_name">
-        <item>Seguir tema del sistema</item>
-        <item>Claro</item>
-        <item>Oscuro</item>
-    </string-array>
     <string-array name="interval_types_name">
         <item>diariamente</item>
         <item>semanalmente</item>
         <item>personalizado</item>
     </string-array>
+
     <string-array name="period_types_name">
         <item>semana</item>
         <item>mes</item>
         <item>otro</item>
         <item>indefinido</item>
     </string-array>
+
     <string-array name="medicine_dose_types">
         <item>ED</item>
         <item>piezas</item>
@@ -158,34 +191,4 @@
         <item>l</item>
         <item>ml</item>
     </string-array>
-    <string-array name="medicine_types">
-        <item>COMPRIMIDOS</item>
-        <item>CÁPSULAS</item>
-        <item>PASTILLAS</item>
-        <item>GRAGEAS</item>
-        <item>GRÁNULOS</item>
-        <item>POLVOS</item>
-        <item>DISOLUCIÓN</item>
-        <item>TINTURA</item>
-        <item>DECOCCIÓN</item>
-        <item>EXTRACTO</item>
-        <item>MIXTURA</item>
-        <item>JARABE</item>
-        <item>EMULSIÓN</item>
-        <item>SUSPENSIÓN</item>
-        <item>MEZCLA</item>
-        <item>POMADA</item>
-        <item>GEL</item>
-        <item>PASTA</item>
-        <item>SUPOSITORIO</item>
-        <item>AEROSOL</item>
-        <item>ESPRAY</item>
-        <item>GOTAS</item>
-    </string-array>
-    <string name="text_medicine_amount_not_enough">Medicación insuficiente</string>
-    <string name="intake_text_not_taken">No tomado</string>
-    <string name="intake_text_taken">Tomado</string>
-    <string name="text_notification_pick_action_first">Para cambiar la acción de selección en la primera notificación</string>
-    <string name="intake_text_date">Fecha</string>
-    <string name="text_medicine_deleted">Se ha eliminado el medicamento, es imposible cambiar el estado de ingesta</string>
 </resources>

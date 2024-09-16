@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
+
     <!-- Menu -->
     <string name="bottom_bar_main">Home</string>
     <string name="bottom_bar_medicines">Medicines</string>
     <string name="bottom_bar_intakes">Intakes</string>
     <string name="bottom_bar_settings">Settings</string>
+
     <!-- Preferences -->
     <string name="preference_app_view">App view</string>
     <string name="preference_kits_group">Medicine groups</string>
     <string name="preference_start_page">Home page</string>
     <string name="preference_sorting_type">Medicine sorting</string>
+    <string name="preference_med_compact_view">Compact view of medicines list</string>
     <string name="preference_download_images">Download medicine images</string>
     <string name="preference_easy_period_picker">Easier intake period selection</string>
     <string name="preference_check_expiration_date">Checking the expiration date of medicines</string>
@@ -19,13 +22,21 @@
     <string name="preference_app_theme">App theme</string>
     <string name="preference_dynamic_color">Dynamic color</string>
     <string name="preference_import_export">Import/Export</string>
+
     <!-- Languages -->
     <string name="lang_system">System</string>
+
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabetically (A to z)</string>
     <string name="sorting_z_a">Alphabetically (z to A)</string>
     <string name="sorting_from_oldest">Expiration date (from oldest)</string>
     <string name="sorting_from_newest">Expiration date (from newest)</string>
+
+    <!-- Themes -->
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+
     <!-- Notifications -->
     <string name="notification_channel_description">Medication reminders</string>
     <string name="notification_channel_name">Sound notifications</string>
@@ -35,12 +46,14 @@
     <string name="text_intake_amount_not_enough">It\'s time to intake %1$s, but its quantity is less than prescribed!</string>
     <string name="text_intake_time">Medicine: %1$s\nAmount: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Not enough amount left</string>
+
     <!-- Placeholders -->
     <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 May 2029</string>
     <string name="placeholder_kitchen">Kitchen</string>
     <string name="placeholder_time">Time #%1$d</string>
+
     <!-- Medicines -->
     <string name="text_exp_date">Exp. date</string>
     <string name="text_indications_for_use">Indications for use</string>
@@ -53,10 +66,36 @@
     <string name="text_medicine_status_checked">Scanned, checked</string>
     <string name="text_medicine_status_scanned">Scanned, unchecked</string>
     <string name="text_medicine_status_self_added">Added manually</string>
+
+    <!-- Medicine types -->
+    <string name="type_tablets">TABLETS</string>
+    <string name="type_capsules">CAPSULES</string>
+    <string name="type_pills">PILLS</string>
+    <string name="type_dragee">DRAGEE</string>
+    <string name="type_granules">GRANULES</string>
+    <string name="type_powder">POWDER</string>
+    <string name="type_solution">SOLUTION</string>
+    <string name="type_tincture">TINCTURE</string>
+    <string name="type_decoction">DECOCTION</string>
+    <string name="type_extract">EXTRACT</string>
+    <string name="type_mixture">MIXTURE</string>
+    <string name="type_syrup">SYRUP</string>
+    <string name="type_emulsion">EMULSION</string>
+    <string name="type_suspension">SUSPENSION</string>
+    <string name="type_mix">MIX</string>
+    <string name="type_ointment">OINTMENT</string>
+    <string name="type_gel">GEL</string>
+    <string name="type_paste">PASTE</string>
+    <string name="type_suppository">SUPPOSITORY</string>
+    <string name="type_aerosol">AEROSOL</string>
+    <string name="type_spray">SPRAY</string>
+    <string name="type_drops">DROPS</string>
+
     <!-- Intakes -->
     <string name="intakes_tab_current">Current</string>
     <string name="intakes_tab_list">List</string>
     <string name="intakes_tab_taken">Taken</string>
+
     <string name="intake_card_text_from">(from %1$s)</string>
     <string name="intake_text_amount">Quantity</string>
     <string name="intake_text_date">Date</string>
@@ -73,6 +112,7 @@
     <string name="intake_text_select_interval">Select interval</string>
     <string name="intake_text_taken">Taken</string>
     <string name="intake_text_time">Time</string>
+
     <!-- Dialogs -->
     <string name="manual_add">Do you want to add medicine manually?</string>
     <string name="text_confirm_exit">Confirm exit</string>
@@ -87,6 +127,8 @@
     <string name="text_request_post">To receive notifications, the application must be granted the appropriate permission</string>
     <string name="text_select_time">Select time</string>
     <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
+    <string name="text_try_again">Try again to scan label!</string>
+
     <!-- Strings -->
     <string name="text_add">Add</string>
     <string name="text_all">All</string>
@@ -119,40 +161,27 @@
     <string name="text_unspecified">Unspecified</string>
     <string name="text_update">Update</string>
     <string name="text_yes">Yes</string>
+
     <!-- Plurals -->
     <plurals name="intakes_a_day">
         <item quantity="one">%d time a day</item>
         <item quantity="other">%d times a day</item>
     </plurals>
+
     <!-- Arrays -->
-    <string-array name="sorting_types_name">
-        <item>@string/sorting_a_z</item>
-        <item>@string/sorting_z_a</item>
-        <item>@string/sorting_from_oldest</item>
-        <item>@string/sorting_from_newest</item>
-    </string-array>
-    <string-array name="fragment_pages_name">
-        <item>@string/bottom_bar_main</item>
-        <item>@string/bottom_bar_medicines</item>
-        <item>@string/bottom_bar_intakes</item>
-        <item>@string/bottom_bar_settings</item>
-    </string-array>
-    <string-array name="app_themes_name">
-        <item>System</item>
-        <item>Light</item>
-        <item>Dark</item>
-    </string-array>
     <string-array name="interval_types_name">
         <item>daily</item>
         <item>weekly</item>
         <item>custom</item>
     </string-array>
+
     <string-array name="period_types_name">
         <item>week</item>
         <item>month</item>
         <item>other</item>
         <item>indefinite</item>
     </string-array>
+
     <string-array name="medicine_dose_types">
         <item>ED</item>
         <item>pcs</item>
@@ -161,29 +190,4 @@
         <item>l</item>
         <item>ml</item>
     </string-array>
-    <string-array name="medicine_types">
-        <item>TABLETS</item>
-        <item>CAPSULES</item>
-        <item>PILLS</item>
-        <item>DRAGEE</item>
-        <item>GRANULES</item>
-        <item>POWDER</item>
-        <item>SOLUTION</item>
-        <item>TINCTURE</item>
-        <item>DECOCTION</item>
-        <item>EXTRACT</item>
-        <item>MIXTURE</item>
-        <item>SYRUP</item>
-        <item>EMULSION</item>
-        <item>SUSPENSION</item>
-        <item>MIX</item>
-        <item>OINTMENT</item>
-        <item>GEL</item>
-        <item>PASTE</item>
-        <item>SUPPOSITORY</item>
-        <item>AEROSOL</item>
-        <item>SPRAY</item>
-        <item>DROPS</item>
-    </string-array>
-    <string name="text_try_again">Try again to scan label!</string>
 </resources>

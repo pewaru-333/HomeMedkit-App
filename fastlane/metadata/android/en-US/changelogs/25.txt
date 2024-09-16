@@ -1,2 +1,0 @@
-— Fixed the color of the icons on the navigation bar when using the dark theme.
-— Fixed the display of the dose of the medicine in the cards in the "Intakes" menu.

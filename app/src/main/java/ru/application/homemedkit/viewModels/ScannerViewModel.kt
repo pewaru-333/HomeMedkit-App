@@ -23,7 +23,7 @@ import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Loading
 import ru.application.homemedkit.viewModels.ScannerViewModel.Response.NoNetwork
 import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Success
 
-class ScannerViewModel : ViewModel() {
+object ScannerViewModel : ViewModel() {
     private val dao = database.medicineDAO()
 
     private val _response = MutableStateFlow<Response>(Default)

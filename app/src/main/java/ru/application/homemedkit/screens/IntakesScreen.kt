@@ -2,7 +2,6 @@ package ru.application.homemedkit.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,13 +21,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults.MinHeight
 import androidx.compose.material3.OutlinedTextFieldDefaults.MinWidth
@@ -53,25 +54,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.IntakeScreenDestination
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.array.interval_types_name
-import ru.application.homemedkit.R.drawable.vector_type_unknown
 import ru.application.homemedkit.R.string.intake_card_text_from
 import ru.application.homemedkit.R.string.intake_text_date
 import ru.application.homemedkit.R.string.intake_text_not_taken
@@ -96,14 +92,11 @@ import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.FORMAT_D_M
 import ru.application.homemedkit.helpers.FORMAT_D_M_Y
 import ru.application.homemedkit.helpers.FORMAT_H
-import ru.application.homemedkit.helpers.ICONS_MED
-import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.ZONE
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.shortName
 import ru.application.homemedkit.viewModels.IntakesViewModel
-import java.io.File
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -172,28 +165,27 @@ fun IntakesScreen(navigator: Navigator) {
                         contentAlignment = Alignment.Center
                     ) { Text(stringResource(text_no_intakes_found), textAlign = TextAlign.Center) }
                     else LazyColumn(
-                        state = state.stateOne,
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        state = state.stateA,
+                        contentPadding = PaddingValues(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) { items(list) { IntakeList(it, navigator) } }
                 }
 
                 1 -> schedule.let { list ->
                     LazyColumn(
-                        state = state.stateTwo,
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        state = state.stateB,
+                        contentPadding = PaddingValues(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) { items(list.size) { IntakeSchedule(list.entries.elementAt(it)) } }
                 }
 
                 2 -> taken.let { list ->
                     LazyColumn(
-                        state = state.stateThree,
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        state = state.stateC,
+                        contentPadding = PaddingValues(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                         reverseLayout = true
-                    ) { items(list.size) { IntakeTaken(model, list.entries.elementAt(it)) }
-                    }
+                    ) { items(list.size) { IntakeTaken(model, list.entries.elementAt(it)) } }
                 }
             }
         }
@@ -203,16 +195,6 @@ fun IntakesScreen(navigator: Navigator) {
 @Composable
 fun IntakeList(intake: Intake, navigator: Navigator) {
     val medicine = database.medicineDAO().getById(intake.medicineId)
-    val shortName = shortName(medicine?.productName)
-    val icon = medicine?.image?.let {
-        when {
-            it.contains(TYPE) -> ICONS_MED[it]
-            it.isEmpty() -> vector_type_unknown
-            else -> File(LocalContext.current.filesDir, it).run {
-                if (exists()) this else vector_type_unknown
-            }
-        }
-    }
     val startDate = stringResource(intake_card_text_from, intake.startDate)
     val count = intake.time.size
     val intervalName = if (count == 1) stringArrayResource(interval_types_name).let {
@@ -224,164 +206,54 @@ fun IntakeList(intake: Intake, navigator: Navigator) {
     } else pluralStringResource(R.plurals.intakes_a_day, count, count)
 
     ListItem(
+        colors = ListItemDefaults.colors(MaterialTheme.colorScheme.tertiaryContainer),
         headlineContent = { Text("$intervalName $startDate") },
+        supportingContent = { Text(intake.time.joinToString(", ")) },
+        leadingContent = { MedicineImage(medicine?.image ?: BLANK, Modifier.size(56.dp)) },
         modifier = Modifier
-            .clickable { navigator.navigate(IntakeScreenDestination(intakeId = intake.intakeId)) }
-            .padding(vertical = 8.dp)
-            .clip(MaterialTheme.shapes.medium),
+            .clip(MaterialTheme.shapes.medium)
+            .clickable { navigator.navigate(IntakeScreenDestination(intakeId = intake.intakeId)) },
         overlineContent = {
             Text(
-                text = shortName,
-                overflow = TextOverflow.Clip,
+                text = shortName(medicine?.productName),
                 softWrap = false,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-            )
-        },
-        supportingContent = { Text(intake.time.joinToString(", ")) },
-        leadingContent = {
-            Image(
-                painter = rememberAsyncImagePainter(icon),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(64.dp)
-                    .offset(y = 4.dp)
-            )
-        },
-        colors = ListItemDefaults.colors(MaterialTheme.colorScheme.tertiaryContainer)
-    )
-}
-
-@Composable
-fun IntakeSchedule(data: Map.Entry<Long, List<Alarm>>) =
-    Column(Modifier.padding(vertical = 8.dp), Arrangement.spacedBy(12.dp)) {
-        Text(
-            text = LocalDate.ofEpochDay(data.key).let {
-                it.format(if (it.year == LocalDate.now().year) FORMAT_D_M else FORMAT_D_M_Y)
-            },
-            style = MaterialTheme.typography.titleLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface,
-                fontWeight = SemiBold
-            )
-        )
-        data.value.forEach { (_, intakeId, trigger) ->
-            val intake = database.intakeDAO().getById(intakeId)
-            val medicine = database.medicineDAO().getById(intake?.medicineId ?: 0L)
-            val form = medicine?.prodFormNormName ?: BLANK
-            val icon = medicine?.image?.let {
-                when {
-                    it.contains(TYPE) -> ICONS_MED[it]
-                    it.isEmpty() -> vector_type_unknown
-                    else -> File(LocalContext.current.filesDir, it).run {
-                        if (exists()) this else vector_type_unknown
-                    }
-                }
-            }
-
-            ListItem(
-                headlineContent = {
-                    Text(
-                        text = shortName(medicine?.productName),
-                        overflow = TextOverflow.Clip,
-                        softWrap = false,
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = SemiBold)
-                    )
-                },
-                modifier = Modifier.clip(MaterialTheme.shapes.medium),
-                supportingContent = {
-                    Text(
-                        stringResource(
-                            intake_text_quantity,
-                            if (form.isEmpty()) stringResource(text_amount) else formName(form),
-                            decimalFormat(intake?.amount),
-                            medicine?.doseType ?: BLANK
-                        ),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                },
-                leadingContent = {
-                    Image(rememberAsyncImagePainter(icon), null, Modifier.size(56.dp))
-                },
-                trailingContent = {
-                    Text(
-                        LocalDateTime.ofInstant(Instant.ofEpochMilli(trigger), ZONE)
-                            .format(FORMAT_H), style = MaterialTheme.typography.titleLarge
-                    )
-                },
-                colors = ListItemDefaults.colors(MaterialTheme.colorScheme.tertiaryContainer)
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = SemiBold)
             )
         }
-    }
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun IntakeTaken(model: IntakesViewModel, data: Map.Entry<Long, List<IntakeTaken>>) = Column(
-    Modifier.padding(vertical = 8.dp), Arrangement.spacedBy(12.dp)
-) {
-    Text(
-        text = LocalDate.ofEpochDay(data.key).let {
-            it.format(if (it.year == LocalDate.now().year) FORMAT_D_M else FORMAT_D_M_Y)
-        },
-        style = MaterialTheme.typography.titleLarge.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = SemiBold
-        )
     )
-    data.value.sortedBy { it.trigger }.forEach { value ->
-        ListItem(
-            headlineContent = {
-                Text(
-                    text = shortName(value.productName),
-                    overflow = TextOverflow.Clip,
-                    softWrap = false,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = SemiBold)
-                )
-            },
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.medium)
-                .combinedClickable(onClick = {}, onLongClick = { model.showDialog(value) }),
-            supportingContent = {
-                Text(
-                    text = stringResource(
-                        intake_text_quantity,
-                        value.formName.let {
-                            if (it.isEmpty()) stringResource(text_amount) else formName(it)
-                        },
-                        decimalFormat(value.amount), value.doseType
-                    ),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            },
-            leadingContent = {
-                Image(
-                    rememberAsyncImagePainter(
-                        when {
-                            value.image.contains(TYPE) -> ICONS_MED[value.image]
-                            value.image.isEmpty() -> vector_type_unknown
-                            else -> File(LocalContext.current.filesDir, value.image).run {
-                                if (exists()) this else vector_type_unknown
-                            }
-                        }
-                    ),
-                    contentDescription = null,
-                    modifier = Modifier.size(56.dp)
-                )
-            },
-            trailingContent = {
-                Text(
-                    LocalDateTime.ofInstant(Instant.ofEpochMilli(value.trigger), ZONE)
-                        .format(FORMAT_H),
-                    style = MaterialTheme.typography.titleLarge
-                )
-            },
-            colors = ListItemDefaults.colors(
-                if (value.taken) MaterialTheme.colorScheme.tertiaryContainer
-                else MaterialTheme.colorScheme.errorContainer
-            )
+}
+
+@Composable
+fun IntakeSchedule(data: Map.Entry<Long, List<Alarm>>) = OutlinedCard(
+    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerLowest)
+) {
+    TextDate(data.key)
+    data.value.forEachIndexed { index, (_, intakeId, trigger) ->
+        val intake = database.intakeDAO().getById(intakeId)
+        val medicine = database.medicineDAO().getById(intake?.medicineId ?: 0L)
+
+        MedicineItem(
+            medicine?.productName, medicine?.prodFormNormName, medicine?.doseType, intake?.amount,
+            medicine?.image, trigger
         )
+        if (index < data.value.size - 1) HorizontalDivider()
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun IntakeTaken(model: IntakesViewModel, data: Map.Entry<Long, List<IntakeTaken>>) = OutlinedCard(
+    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerLowest)
+) {
+    TextDate(data.key)
+    data.value.sortedBy { it.trigger }.forEachIndexed { index, value ->
+        MedicineItem(
+            value.productName, value.formName, value.doseType, value.amount, value.image,
+            value.trigger, value.taken
+        ) { model.showDialog(value) }
+        if (index < data.value.size - 1) HorizontalDivider()
+    }
+}
+
 @Composable
 private fun DialogTaken(model: IntakesViewModel) {
     val intake by model.takenState.collectAsStateWithLifecycle()
@@ -464,5 +336,55 @@ private fun DialogTaken(model: IntakesViewModel) {
                 }
             }
         }
+    )
+}
+
+@Composable
+private fun TextDate(timestamp: Long) = Text(
+    text = LocalDate.ofEpochDay(timestamp).let {
+        it.format(if (it.year == LocalDate.now().year) FORMAT_D_M else FORMAT_D_M_Y)
+    },
+    modifier = Modifier.padding(12.dp),
+    style = MaterialTheme.typography.titleLarge.copy(fontWeight = SemiBold)
+)
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun MedicineItem(
+    title: String?,
+    formName: String?,
+    doseType: String?,
+    amount: Double?,
+    image: String?,
+    trigger: Long,
+    taken: Boolean = true,
+    showDialog: ( () -> Unit)? = null
+) {
+    ListItem(
+        headlineContent = { Text(text = shortName(title), softWrap = false) },
+        modifier = Modifier.combinedClickable(
+            onClick = {},
+            onLongClick = { if (showDialog != null) showDialog() }
+        ),
+        supportingContent = {
+            Text(
+                text = stringResource(
+                    intake_text_quantity,
+                    formName?.let { if (it.isEmpty()) stringResource(text_amount) else formName(it) } ?: BLANK,
+                    decimalFormat(amount), doseType ?: BLANK
+                )
+            )
+        },
+        leadingContent = { MedicineImage(image ?: BLANK, Modifier.size(40.dp)) },
+        trailingContent = {
+            Text(
+                text = LocalDateTime.ofInstant(Instant.ofEpochMilli(trigger), ZONE).format(FORMAT_H),
+                style = MaterialTheme.typography.labelLarge
+            )
+        },
+        colors = ListItemDefaults.colors(
+            if (taken) MaterialTheme.colorScheme.surfaceContainerLowest
+            else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
+        )
     )
 }

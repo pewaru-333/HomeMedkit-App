@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -87,7 +87,7 @@ fun MonthYear(
                                 interactionSource = source,
                                 onClick = { year++ }
                             ),
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                         contentDescription = null
                     )
                 }
@@ -120,7 +120,7 @@ fun MonthYear(
                                 )
 
                                 Text(
-                                    text = monthName(it),
+                                    text = it.uppercase().removeSuffix("."),
                                     color = when (month) {
                                         it -> MaterialTheme.colorScheme.onSecondary
                                         else -> MaterialTheme.colorScheme.onPrimaryContainer
@@ -155,7 +155,3 @@ fun MonthYear(
         }
     }
 }
-
-@Composable
-private fun monthName(it: String): String = it.uppercase().removeSuffix(".")
-

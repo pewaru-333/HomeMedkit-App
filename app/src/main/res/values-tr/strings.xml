@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
+
     <!-- Menu -->
     <string name="bottom_bar_main">Ana Sayfa</string>
     <string name="bottom_bar_medicines">İlaçlar</string>
     <string name="bottom_bar_intakes">Alımlar</string>
     <string name="bottom_bar_settings">Ayarlar</string>
+
     <!-- Preferences -->
     <string name="preference_app_view">Uygulama görünümü</string>
     <string name="preference_kits_group">İlaç grupları</string>
@@ -19,28 +21,32 @@
     <string name="preference_app_theme">Uygulama teması</string>
     <string name="preference_dynamic_color">Dinamik renk</string>
     <string name="preference_import_export">İçe/Dışa Aktarma</string>
+
     <!-- Languages -->
     <string name="lang_system">Sistem</string>
+
     <!-- Sorting -->
     <string name="sorting_a_z">Alfabetik (A\'dan Z\'ye)</string>
     <string name="sorting_z_a">Alfabetik (Z\'den A\'ya)</string>
     <string name="sorting_from_oldest">Son kullanma tarihi (en eskiden)</string>
     <string name="sorting_from_newest">Son kullanma tarihi (en yeniden)</string>
+
     <!-- Notifications -->
     <string name="notification_channel_description">İlaç hatırlatıcıları</string>
     <string name="notification_channel_name">Sesli bildirimler</string>
     <string name="text_attention">Dikkat!</string>
     <string name="text_do_intake">Alımı yap</string>
     <string name="text_expire_soon">%1$s\'nin son kullanma tarihi yaklaşıyor</string>
-    <string name="text_intake_time">%1$s alım zamanı
-\nMiktar: %2$s %3$s</string>
+    <string name="text_intake_time">%1$s alım zamanı\nMiktar: %2$s %3$s</string>
     <string name="text_intake_amount_not_enough">%1$s alım zamanı, ancak miktarı reçetelenenden az! Alımı tekrar oluştur!</string>
+
     <!-- Placeholders -->
     <string name="placeholder_date">gg.aa.yyyy</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 Mayıs 2029</string>
     <string name="placeholder_kitchen">Mutfak</string>
     <string name="placeholder_time">Zaman #%1$d</string>
+
     <!-- Medicines -->
     <string name="text_exp_date">Son k.t.</string>
     <string name="text_indications_for_use">Kullanım endikasyonları</string>
@@ -48,10 +54,12 @@
     <string name="text_medicine_description">Açıklama</string>
     <string name="text_medicine_dose">Doz</string>
     <string name="text_medicine_product_name">Ürün adı</string>
+
     <!-- Intakes -->
     <string name="intakes_tab_current">Güncel</string>
     <string name="intakes_tab_list">Liste</string>
     <string name="intakes_tab_taken">Alındı</string>
+
     <string name="intake_card_text_from">(den %1$s)</string>
     <string name="intake_text_amount">Miktar</string>
     <string name="intake_text_food">Yemek &amp; İlaç</string>
@@ -65,6 +73,7 @@
     <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
     <string name="intake_text_select_interval">Aralık seç</string>
     <string name="intake_text_time">Zaman</string>
+
     <!-- Dialogs -->
     <string name="manual_add">İlacı manuel olarak eklemek ister misiniz?</string>
     <string name="text_confirm_exit">Çıkışı onayla</string>
@@ -77,6 +86,7 @@
     <string name="text_request_post">Bildirim almak için, uygulamaya ilgili izinlerin verilmesi gerekir</string>
     <string name="text_select_time">Zamanı seç</string>
     <string name="text_sure_to_exit">Uygulamadan çıkmak istediğinizden emin misiniz?</string>
+
     <!-- Strings -->
     <string name="text_add">Ekle</string>
     <string name="text_all">Tümü</string>
@@ -106,40 +116,27 @@
     <string name="text_success">Başarılı!</string>
     <string name="text_tap_to_view">Görüntülemek için dokunun</string>
     <string name="text_yes">Evet</string>
+
     <!-- Plurals -->
     <plurals name="intakes_a_day">
         <item quantity="one">Günde %d kez</item>
         <item quantity="other">Günde %d kez</item>
     </plurals>
+
     <!-- Arrays -->
-    <string-array name="sorting_types_name">
-        <item>@string/sorting_a_z</item>
-        <item>@string/sorting_z_a</item>
-        <item>@string/sorting_from_oldest</item>
-        <item>@string/sorting_from_newest</item>
-    </string-array>
-    <string-array name="fragment_pages_name">
-        <item>@string/bottom_bar_main</item>
-        <item>@string/bottom_bar_medicines</item>
-        <item>@string/bottom_bar_intakes</item>
-        <item>@string/bottom_bar_settings</item>
-    </string-array>
-    <string-array name="app_themes_name">
-        <item>Sistem</item>
-        <item>Açık</item>
-        <item>Koyu</item>
-    </string-array>
     <string-array name="interval_types_name">
         <item>günlük</item>
         <item>haftalık</item>
         <item>özel</item>
     </string-array>
+
     <string-array name="period_types_name">
         <item>hafta</item>
         <item>ay</item>
         <item>diğer</item>
         <item>belirsiz</item>
     </string-array>
+
     <string-array name="medicine_dose_types">
         <item>ED</item>
         <item>adet</item>
@@ -147,29 +144,5 @@
         <item>mg</item>
         <item>l</item>
         <item>ml</item>
-    </string-array>
-    <string-array name="medicine_types">
-        <item>TABLETLER</item>
-        <item>KAPSÜLLER</item>
-        <item>HAPLAR</item>
-        <item>DRAJE</item>
-        <item>GRANÜLLER</item>
-        <item>TOZ</item>
-        <item>ÇÖZELTİ</item>
-        <item>TENTÜR</item>
-        <item>DEKOŞİYON</item>
-        <item>EKSTRAKT</item>
-        <item>ŞURUP</item>
-        <item>EMÜLSİYON</item>
-        <item>SÜSPANSİYON</item>
-        <item>KARIŞIM</item>
-        <item>MIX</item>
-        <item>MERHEM</item>
-        <item>JEL</item>
-        <item>PASTA</item>
-        <item>SÜPOZİTUAR</item>
-        <item>AEROSOL</item>
-        <item>SPREY</item>
-        <item>DAMLA</item>
     </string-array>
 </resources>

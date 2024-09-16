@@ -14,10 +14,10 @@ import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R.string.intakes_tab_current
 import ru.application.homemedkit.R.string.intakes_tab_list
 import ru.application.homemedkit.R.string.intakes_tab_taken
-import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.helpers.BLANK
@@ -29,7 +29,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Locale.ROOT
 
-class IntakesViewModel : ViewModel() {
+object IntakesViewModel : ViewModel() {
     private val _state = MutableStateFlow(IntakesState())
     val state = _state.asStateFlow()
 
@@ -99,38 +99,27 @@ class IntakesViewModel : ViewModel() {
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyMap())
 
-    fun setSearch(text: String) {
-        viewModelScope.launch { _state.update { it.copy(search = text) } }
-    }
-
-    fun clearSearch() {
-        viewModelScope.launch { _state.update { it.copy(search = BLANK) } }
-    }
+    fun setSearch(text: String) = _state.update { it.copy(search = text) }
+    fun clearSearch() = _state.update { it.copy(search = BLANK) }
 
     fun showDialog(taken: IntakeTaken) {
-        viewModelScope.launch {
-            _takenState.update {
-                it.copy(
-                    takenId = taken.takenId,
-                    medicineId = taken.medicineId,
-                    productName = taken.productName,
-                    amount = taken.amount,
-                    trigger = taken.trigger,
-                    taken = taken.taken,
-                    notified = taken.notified
-                )
-            }
-            _state.update { it.copy(showDialog = true) }
+        _takenState.update {
+            it.copy(
+                takenId = taken.takenId,
+                medicineId = taken.medicineId,
+                productName = taken.productName,
+                amount = taken.amount,
+                trigger = taken.trigger,
+                taken = taken.taken,
+                notified = taken.notified
+            )
         }
+        _state.update { it.copy(showDialog = true) }
     }
 
-    fun hideDialog() {
-        viewModelScope.launch { _state.update { it.copy(showDialog = false) } }
-    }
+    fun hideDialog() = _state.update { it.copy(showDialog = false) }
 
-    fun pickTab(tab: Int) {
-        viewModelScope.launch { _state.update { it.copy(tab = tab) } }
-    }
+    fun pickTab(tab: Int) = _state.update { it.copy(tab = tab) }
 
     fun setTaken(id: Long, taken: Boolean) {
         viewModelScope.launch {
@@ -147,9 +136,9 @@ class IntakesViewModel : ViewModel() {
 data class IntakesState(
     val search: String = BLANK,
     val tab: Int = 0,
-    val stateOne: LazyListState = LazyListState(),
-    val stateTwo: LazyListState = LazyListState(),
-    val stateThree: LazyListState = LazyListState(),
+    val stateA: LazyListState = LazyListState(),
+    val stateB: LazyListState = LazyListState(),
+    val stateC: LazyListState = LazyListState(),
     val showDialog: Boolean = false
 )
 

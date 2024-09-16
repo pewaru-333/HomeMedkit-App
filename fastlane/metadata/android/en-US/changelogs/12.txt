@@ -1,4 +1,0 @@
-— The display of the number of medicines taken in the card in the “List” tab in the “Intakes” menu has been changed from “several times a day” to “N times a day”.
-— Fixed a bug due to which past intakes were shown in the “Schedule” tab in the “Intakes” menu.
-— Fixed a bug due to which the name of the medicine in the card in the “Schedule” tab in the “Intakes” menu went beyond its boundaries.
-— Fixed an issue that caused the app to crash if the intakes list was empty.

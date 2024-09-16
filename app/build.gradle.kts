@@ -13,9 +13,9 @@ android {
     defaultConfig {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 33
-        versionName = "1.4.5"
+        targetSdk = 35
+        versionCode = 34
+        versionName = "1.4.6"
     }
 
     room {

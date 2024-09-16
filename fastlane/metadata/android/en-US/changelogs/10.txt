@@ -1,9 +1,0 @@
-Changelog
-
-==================
-
-1.0.9 — 07.01.2024
-
-— Corrected translations in several places.
-— Added new "Material You" app icon.
-— Added new icons for different medicines types.

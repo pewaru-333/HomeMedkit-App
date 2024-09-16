@@ -1,2 +1,0 @@
-— Updated the design of the cards in the menu "Medicines" and "Intakes".
-— The function of checking the expiration date of medicines now works more stably.

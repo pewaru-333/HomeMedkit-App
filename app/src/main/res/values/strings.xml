@@ -12,6 +12,7 @@
     <string name="preference_kits_group">Medicine groups</string>
     <string name="preference_start_page">Home page</string>
     <string name="preference_sorting_type">Medicine sorting</string>
+    <string name="preference_med_compact_view">Compact view of medicines list</string>
     <string name="preference_download_images">Download medicine images</string>
     <string name="preference_easy_period_picker">Easier intake period selection</string>
     <string name="preference_check_expiration_date">Checking the expiration date of medicines</string>
@@ -40,6 +41,11 @@
     <string name="sorting_z_a">Alphabetically (z to A)</string>
     <string name="sorting_from_oldest">Expiration date (from oldest)</string>
     <string name="sorting_from_newest">Expiration date (from newest)</string>
+
+    <!-- Themes -->
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
 
     <!-- Notifications -->
     <string name="notification_channel_description">Medication reminders</string>
@@ -70,6 +76,30 @@
     <string name="text_medicine_status_checked">Scanned, checked</string>
     <string name="text_medicine_status_scanned">Scanned, unchecked</string>
     <string name="text_medicine_status_self_added">Added manually</string>
+
+    <!-- Medicine types -->
+    <string name="type_tablets">TABLETS</string>
+    <string name="type_capsules">CAPSULES</string>
+    <string name="type_pills">PILLS</string>
+    <string name="type_dragee">DRAGEE</string>
+    <string name="type_granules">GRANULES</string>
+    <string name="type_powder">POWDER</string>
+    <string name="type_solution">SOLUTION</string>
+    <string name="type_tincture">TINCTURE</string>
+    <string name="type_decoction">DECOCTION</string>
+    <string name="type_extract">EXTRACT</string>
+    <string name="type_mixture">MIXTURE</string>
+    <string name="type_syrup">SYRUP</string>
+    <string name="type_emulsion">EMULSION</string>
+    <string name="type_suspension">SUSPENSION</string>
+    <string name="type_mix">MIX</string>
+    <string name="type_ointment">OINTMENT</string>
+    <string name="type_gel">GEL</string>
+    <string name="type_paste">PASTE</string>
+    <string name="type_suppository">SUPPOSITORY</string>
+    <string name="type_aerosol">AEROSOL</string>
+    <string name="type_spray">SPRAY</string>
+    <string name="type_drops">DROPS</string>
 
     <!-- Intakes -->
     <string name="intakes_tab_current">Current</string>
@@ -153,41 +183,6 @@
     </plurals>
 
     <!-- Arrays -->
-    <string-array name="languages_name" translatable="false">
-        <item>@string/lang_system</item>
-        <item>@string/lang_ru</item>
-        <item>@string/lang_en</item>
-        <item>@string/lang_de</item>
-        <item>@string/lang_it</item>
-        <item>@string/lang_es</item>
-        <item>@string/lang_pt_BR</item>
-        <item>@string/lang_pl</item>
-        <item>@string/lang_tr</item>
-        <item>@string/lang_vi</item>
-        <item>@string/lang_ko</item>
-        <item>@string/lang_zh_TW</item>
-    </string-array>
-
-    <string-array name="sorting_types_name">
-        <item>@string/sorting_a_z</item>
-        <item>@string/sorting_z_a</item>
-        <item>@string/sorting_from_oldest</item>
-        <item>@string/sorting_from_newest</item>
-    </string-array>
-
-    <string-array name="fragment_pages_name">
-        <item>@string/bottom_bar_main</item>
-        <item>@string/bottom_bar_medicines</item>
-        <item>@string/bottom_bar_intakes</item>
-        <item>@string/bottom_bar_settings</item>
-    </string-array>
-
-    <string-array name="app_themes_name">
-        <item>System</item>
-        <item>Light</item>
-        <item>Dark</item>
-    </string-array>
-
     <string-array name="interval_types_name">
         <item>daily</item>
         <item>weekly</item>
@@ -208,30 +203,5 @@
         <item>mg</item>
         <item>l</item>
         <item>ml</item>
-    </string-array>
-
-    <string-array name="medicine_types">
-        <item>TABLETS</item>
-        <item>CAPSULES</item>
-        <item>PILLS</item>
-        <item>DRAGEE</item>
-        <item>GRANULES</item>
-        <item>POWDER</item>
-        <item>SOLUTION</item>
-        <item>TINCTURE</item>
-        <item>DECOCTION</item>
-        <item>EXTRACT</item>
-        <item>MIXTURE</item>
-        <item>SYRUP</item>
-        <item>EMULSION</item>
-        <item>SUSPENSION</item>
-        <item>MIX</item>
-        <item>OINTMENT</item>
-        <item>GEL</item>
-        <item>PASTE</item>
-        <item>SUPPOSITORY</item>
-        <item>AEROSOL</item>
-        <item>SPRAY</item>
-        <item>DROPS</item>
     </string-array>
 </resources>

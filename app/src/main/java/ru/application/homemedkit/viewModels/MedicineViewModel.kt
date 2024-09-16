@@ -14,9 +14,8 @@ import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.Technical
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CATEGORY
-import ru.application.homemedkit.helpers.ICONS_MED
+import ru.application.homemedkit.helpers.Types
 import ru.application.homemedkit.network.NetworkAPI
-import ru.application.homemedkit.network.models.MainModel
 import ru.application.homemedkit.viewModels.MedicineViewModel.Event.Add
 import ru.application.homemedkit.viewModels.MedicineViewModel.Event.Delete
 import ru.application.homemedkit.viewModels.MedicineViewModel.Event.Fetch
@@ -55,69 +54,53 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
     val events = _events.asSharedFlow()
 
     init {
-        viewModelScope.launch {
-            dao.getById(medicineId)?.let { medicine ->
-                _state.update {
-                    it.copy(
-                        adding = false,
-                        editing = false,
-                        default = true,
-                        fetch = Default,
-                        id = medicine.id,
-                        kitId = medicine.kitId,
-                        kitTitle = dao.getKitTitle(medicine.kitId) ?: BLANK,
-                        cis = medicine.cis,
-                        productName = medicine.productName,
-                        expDate = medicine.expDate,
-                        prodFormNormName = medicine.prodFormNormName,
-                        prodDNormName = medicine.prodDNormName,
-                        prodAmount = medicine.prodAmount.toString(),
-                        doseType = medicine.doseType,
-                        phKinetics = medicine.phKinetics,
-                        comment = medicine.comment,
-                        image = medicine.image,
-                        technical = TechnicalState(
-                            scanned = medicine.technical.scanned,
-                            verified = medicine.technical.verified
-                        )
+        dao.getById(medicineId)?.let { medicine ->
+            _state.update {
+                it.copy(
+                    adding = false,
+                    editing = false,
+                    default = true,
+                    fetch = Default,
+                    id = medicine.id,
+                    kitId = medicine.kitId,
+                    kitTitle = dao.getKitTitle(medicine.kitId) ?: BLANK,
+                    cis = medicine.cis,
+                    productName = medicine.productName,
+                    expDate = medicine.expDate,
+                    prodFormNormName = medicine.prodFormNormName,
+                    prodDNormName = medicine.prodDNormName,
+                    prodAmount = medicine.prodAmount.toString(),
+                    doseType = medicine.doseType,
+                    phKinetics = medicine.phKinetics,
+                    comment = medicine.comment,
+                    image = medicine.image,
+                    technical = TechnicalState(
+                        scanned = medicine.technical.scanned,
+                        verified = medicine.technical.verified
                     )
-                }
-            } ?: MedicineState()
-        }
+                )
+            }
+        } ?: MedicineState()
     }
 
     fun onEvent(event: Event) {
         when (event) {
             Add -> {
-                val kitId = _state.value.kitId
-                val cis = _state.value.cis
-                val productName = _state.value.productName
-                val expDate = _state.value.expDate
-                val prodFormNormName = _state.value.prodFormNormName
-                val prodDNormName = _state.value.prodDNormName
-                val prodAmount = _state.value.prodAmount.ifEmpty { "0.0" }
-                val doseType = _state.value.doseType
-                val phKinetics = _state.value.phKinetics
-                val comment = _state.value.comment
-                val image = _state.value.image
-                val scanned = cis.isNotBlank()
-                val verified = _state.value.technical.verified
-
                 val medicine = Medicine(
-                    kitId = kitId,
-                    cis = cis,
-                    productName = productName,
-                    expDate = expDate,
-                    prodFormNormName = prodFormNormName,
-                    prodDNormName = prodDNormName,
-                    prodAmount = prodAmount.toDouble(),
-                    doseType = doseType,
-                    phKinetics = phKinetics,
-                    comment = comment,
-                    image = image,
+                    kitId = _state.value.kitId,
+                    cis = _state.value.cis,
+                    productName = _state.value.productName,
+                    expDate = _state.value.expDate,
+                    prodFormNormName = _state.value.prodFormNormName,
+                    prodDNormName = _state.value.prodDNormName,
+                    prodAmount = _state.value.prodAmount.ifEmpty { "0.0" }.toDouble(),
+                    doseType = _state.value.doseType,
+                    phKinetics = _state.value.phKinetics,
+                    comment = _state.value.comment,
+                    image = _state.value.image,
                     technical = Technical(
-                        scanned = scanned,
-                        verified = verified
+                        scanned = _state.value.cis.isNotBlank(),
+                        verified = _state.value.technical.verified
                     )
                 )
 
@@ -128,40 +111,62 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
                 }
             }
 
-            Fetch -> fetchData()
+            Fetch -> {
+                viewModelScope.launch {
+                    _response.emit(Loading)
+
+                    try {
+                        NetworkAPI.client.requestData(_state.value.cis).apply {
+                            if (category == CATEGORY && codeFounded && checkResult) {
+                                val medicine = Medicine(
+                                    id = _state.value.id,
+                                    kitId = _state.value.kitId,
+                                    cis = cis,
+                                    productName = drugsData.prodDescLabel,
+                                    expDate = drugsData.expireDate,
+                                    prodFormNormName = drugsData.foiv.prodFormNormName,
+                                    prodDNormName = drugsData.foiv.prodDNormName ?: BLANK,
+                                    prodAmount = drugsData.foiv.prodPack1Size?.toDoubleOrNull() ?: 0.0,
+                                    phKinetics = drugsData.vidalData.phKinetics ?: BLANK,
+                                    comment = _state.value.comment.ifEmpty { BLANK },
+                                    technical = Technical(scanned = true, verified = true)
+                                )
+
+                                dao.update(medicine)
+                                _response.emit(Success(medicineId))
+                                _events.emit(ActivityEvents.Start)
+                            }
+                            else {
+                                _response.emit(Error)
+                                delay(2000)
+                                _events.emit(ActivityEvents.Start)
+                            }
+                        }
+                    } catch (e: Throwable) {
+                        _response.emit(NoNetwork(_state.value.cis))
+                        delay(2000)
+                        _events.emit(ActivityEvents.Start)
+                    }
+                }
+            }
 
             Update -> {
-                val id = _state.value.id
-                val kitId = _state.value.kitId
-                val cis = _state.value.cis
-                val productName = _state.value.productName
-                val expDate = _state.value.expDate
-                val prodFormNormName = _state.value.prodFormNormName
-                val prodDNormName = _state.value.prodDNormName
-                val prodAmount = _state.value.prodAmount.ifEmpty { "0.0" }
-                val doseType = _state.value.doseType
-                val phKinetics = _state.value.phKinetics
-                val comment = _state.value.comment
-                val image = _state.value.image
-                val scanned = _state.value.technical.scanned
-                val verified = _state.value.technical.verified
-
                 val medicine = Medicine(
-                    id = id,
-                    kitId = kitId,
-                    cis = cis,
-                    productName = productName,
-                    expDate = expDate,
-                    prodFormNormName = prodFormNormName,
-                    prodDNormName = prodDNormName,
-                    prodAmount = prodAmount.toDouble(),
-                    doseType = doseType,
-                    phKinetics = phKinetics,
-                    comment = comment,
-                    image = image,
+                    id = _state.value.id,
+                    kitId = _state.value.kitId,
+                    cis = _state.value.cis,
+                    productName = _state.value.productName,
+                    expDate = _state.value.expDate,
+                    prodFormNormName = _state.value.prodFormNormName,
+                    prodDNormName = _state.value.prodDNormName,
+                    prodAmount = _state.value.prodAmount.ifEmpty { "0.0" }.toDouble(),
+                    doseType = _state.value.doseType,
+                    phKinetics = _state.value.phKinetics,
+                    comment = _state.value.comment,
+                    image = _state.value.image,
                     technical = Technical(
-                        scanned = scanned,
-                        verified = verified
+                        scanned = _state.value.technical.scanned,
+                        verified = _state.value.technical.verified
                     )
                 )
 
@@ -192,16 +197,10 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
             is SetProdFormNormName -> _state.update { it.copy(prodFormNormName = event.prodFormNormName) }
             is SetProdDNormName -> _state.update { it.copy(prodDNormName = event.prodDNormName) }
 
-            is SetProdAmount -> {
-                if (event.prodAmount.isNotEmpty()) {
-                    when (event.prodAmount.replace(',', '.').toDoubleOrNull()) {
-                        null -> {}
-                        else -> _state.update {
-                            it.copy(prodAmount = event.prodAmount.replace(',', '.'))
-                        }
-                    }
-                } else _state.update { it.copy(prodAmount = BLANK) }
-            }
+            is SetProdAmount -> if (event.prodAmount.isNotEmpty()) {
+                if (event.prodAmount.replace(',', '.').toDoubleOrNull() != null)
+                    _state.update { it.copy(prodAmount = event.prodAmount.replace(',', '.')) }
+            } else _state.update { it.copy(prodAmount = BLANK) }
 
             is SetDoseType -> _state.update { it.copy(doseType = event.doseType) }
             is SetPhKinetics -> _state.update { it.copy(phKinetics = event.phKinetics) }
@@ -209,48 +208,6 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
             is SetImage -> _state.update { it.copy(image = event.image) }
         }
     }
-
-    private fun fetchData() {
-        viewModelScope.launch {
-            _response.emit(Loading)
-
-            try {
-                NetworkAPI.client.requestData(_state.value.cis).apply {
-                    when(category == CATEGORY && codeFounded && checkResult) {
-                        true -> {
-                            dao.update(fetchMedicine())
-                            _response.emit(Success(medicineId))
-                            _events.emit(ActivityEvents.Start)
-                        }
-
-                        false -> {
-                            _response.emit(Error)
-                            delay(2000)
-                            _events.emit(ActivityEvents.Start)
-                        }
-                    }
-                }
-            } catch (e: Throwable) {
-                _response.emit(NoNetwork(_state.value.cis))
-                delay(2000)
-                _events.emit(ActivityEvents.Start)
-            }
-        }
-    }
-
-    private fun MainModel.fetchMedicine() = Medicine(
-        id = _state.value.id,
-        kitId = _state.value.kitId,
-        cis = cis,
-        productName = drugsData.prodDescLabel,
-        expDate = drugsData.expireDate,
-        prodFormNormName = drugsData.foiv.prodFormNormName,
-        prodDNormName = drugsData.foiv.prodDNormName ?: BLANK,
-        prodAmount = drugsData.foiv.prodPack1Size?.toDoubleOrNull() ?: 0.0,
-        phKinetics = drugsData.vidalData.phKinetics ?: BLANK,
-        comment = _state.value.comment.ifEmpty { BLANK },
-        technical = Technical(scanned = true, verified = true)
-    )
 
     sealed interface Event {
         data object Add : Event
@@ -296,6 +253,6 @@ data class MedicineState(
     val doseType: String = BLANK,
     val phKinetics: String = BLANK,
     val comment: String = BLANK,
-    val image: String = ICONS_MED.keys.elementAt(Random.nextInt(0, ICONS_MED.keys.size)),
+    val image: String = Types.entries[Random.nextInt(0, Types.entries.size)].value,
     val technical: TechnicalState = TechnicalState()
 )

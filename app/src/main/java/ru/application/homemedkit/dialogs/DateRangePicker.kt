@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material3.DateRangePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,8 +45,8 @@ fun DateRangePicker(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onDismiss) { Icon(Icons.Default.Clear, null) }
-                    IconButton(onConfirm) { Icon(Icons.Default.Check, null) }
+                    IconButton(onDismiss) { Icon(Icons.Outlined.Clear, null) }
+                    IconButton(onConfirm) { Icon(Icons.Outlined.Check, null) }
                 }
 
                 androidx.compose.material3.DateRangePicker(

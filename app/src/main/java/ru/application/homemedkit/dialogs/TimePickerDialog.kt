@@ -23,7 +23,7 @@ import androidx.compose.ui.window.DialogProperties
 import ru.application.homemedkit.R
 
 @Composable
-fun TimePickerDialog(onCancel: () -> Unit, onConfirm: () -> Unit, content: @Composable () -> Unit) {
+fun TimePickerDialog(onCancel: () -> Unit, onConfirm: () -> Unit, content: @Composable () -> Unit) =
     Dialog(onCancel, DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
@@ -56,4 +56,3 @@ fun TimePickerDialog(onCancel: () -> Unit, onConfirm: () -> Unit, content: @Comp
             }
         }
     }
-}

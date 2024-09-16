@@ -1,0 +1,2 @@
+— Added a compact view of the list of medicines. It can be changed using the settings in the corresponding menu.
+— The view of intakes schedule and list of medications already taken has been changed.

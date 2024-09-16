@@ -13,6 +13,7 @@
     <string name="preference_kits_group">Группы лекарств</string>
     <string name="preference_start_page">Стартовая страница</string>
     <string name="preference_sorting_type">Сортировка лекарств</string>
+    <string name="preference_med_compact_view">Компактный вид списка лекарств</string>
     <string name="preference_download_images">Загружать изображения лекарств</string>
     <string name="preference_easy_period_picker">Упрощённый выбор периода приёма лекарства</string>
     <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
@@ -30,6 +31,11 @@
     <string name="sorting_z_a">Названию (от Я до А)</string>
     <string name="sorting_from_oldest">Сроку годности (со старых)</string>
     <string name="sorting_from_newest">Сроку годности (с новых)</string>
+
+    <!-- Темы -->
+    <string name="theme_system">Системная</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
 
     <!-- Уведомления -->
     <string name="notification_channel_description">Напоминания о приёме лекарств</string>
@@ -60,6 +66,30 @@
     <string name="text_medicine_status_checked">Проверено</string>
     <string name="text_medicine_status_scanned">Не проверено</string>
     <string name="text_medicine_status_self_added">Добавлено вручную</string>
+
+    <!-- Формы лекарств -->
+    <string name="type_tablets">ТАБЛЕТКИ</string>
+    <string name="type_capsules">КАПСУЛЫ</string>
+    <string name="type_pills">ПИЛЮЛИ</string>
+    <string name="type_dragee">ДРАЖЕ</string>
+    <string name="type_granules">ГРАНУЛЫ</string>
+    <string name="type_powder">ПОРОШОК</string>
+    <string name="type_solution">РАСТВОР</string>
+    <string name="type_tincture">НАСТОЙКА</string>
+    <string name="type_decoction">ОТВАР</string>
+    <string name="type_extract">ЭКСТРАКТ</string>
+    <string name="type_mixture">МИКСТУРА</string>
+    <string name="type_syrup">СИРОП</string>
+    <string name="type_emulsion">ЭМУЛЬСИЯ</string>
+    <string name="type_suspension">СУСПЕНЗИЯ</string>
+    <string name="type_mix">СМЕСЬ</string>
+    <string name="type_ointment">МАЗЬ</string>
+    <string name="type_gel">ГЕЛЬ</string>
+    <string name="type_paste">ПАСТА</string>
+    <string name="type_suppository">СВЕЧИ</string>
+    <string name="type_aerosol">АЭРОЗОЛЬ</string>
+    <string name="type_spray">СПРЕЙ</string>
+    <string name="type_drops">КАПЛИ</string>
 
     <!-- Приём -->
     <string name="intakes_tab_current">Текущее</string>
@@ -92,12 +122,12 @@
     <string name="text_grant_permission">Выдать разрешение</string>
     <string name="text_medicine_deleted">Лекарство было удалено из списка, невозможно изменить статус приёма</string>
     <string name="text_new_group">Новая группа</string>
+    <string name="text_notification_pick_action_first">Для изменения сначала выберите пункт в уведомлении</string>
     <string name="text_request_camera">Для сканировании маркировки приложению необходимо выдать разрешение на использовании камеры</string>
     <string name="text_request_post">Для получения уведомлений приложению необходимо выдать соответствующее разрешение</string>
     <string name="text_select_time">Выберите время</string>
     <string name="text_sure_to_exit">Вы точно хотите выйти из приложения?</string>
     <string name="text_try_again">Попробуйте отсканировать код ещё раз!</string>
-    <string name="text_notification_pick_action_first">Для изменения сначала выберите пункт в уведомлении</string>
 
     <!-- Строки -->
     <string name="text_add">Добавить</string>
@@ -141,26 +171,6 @@
     </plurals>
 
     <!-- Массивы строк -->
-    <string-array name="sorting_types_name">
-        <item>@string/sorting_a_z</item>
-        <item>@string/sorting_z_a</item>
-        <item>@string/sorting_from_oldest</item>
-        <item>@string/sorting_from_newest</item>
-    </string-array>
-
-    <string-array name="fragment_pages_name">
-        <item>@string/bottom_bar_main</item>
-        <item>@string/bottom_bar_medicines</item>
-        <item>@string/bottom_bar_intakes</item>
-        <item>@string/bottom_bar_settings</item>
-    </string-array>
-
-    <string-array name="app_themes_name">
-        <item>Системная</item>
-        <item>Светлая</item>
-        <item>Тёмная</item>
-    </string-array>
-
     <string-array name="interval_types_name">
         <item>ежедневно</item>
         <item>еженедельно</item>
@@ -181,30 +191,5 @@
         <item>мг</item>
         <item>л</item>
         <item>мл</item>
-    </string-array>
-
-    <string-array name="medicine_types">
-        <item>ТАБЛЕТКИ</item>
-        <item>КАПСУЛЫ</item>
-        <item>ПИЛЮЛИ</item>
-        <item>ДРАЖЕ</item>
-        <item>ГРАНУЛЫ</item>
-        <item>ПОРОШОК</item>
-        <item>РАСТВОР</item>
-        <item>НАСТОЙКА</item>
-        <item>ОТВАР</item>
-        <item>ЭКСТРАКТ</item>
-        <item>МИКСТУРА</item>
-        <item>СИРОП</item>
-        <item>ЭМУЛЬСИЯ</item>
-        <item>СУСПЕНЗИЯ</item>
-        <item>СМЕСЬ</item>
-        <item>МАЗЬ</item>
-        <item>ГЕЛЬ</item>
-        <item>ПАСТА</item>
-        <item>СВЕЧИ</item>
-        <item>АЭРОЗОЛЬ</item>
-        <item>СПРЕЙ</item>
-        <item>КАПЛИ</item>
     </string-array>
 </resources>

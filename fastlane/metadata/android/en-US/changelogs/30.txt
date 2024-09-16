@@ -1,2 +1,0 @@
-— Improved the application interface when scanning medicines and errors occur.
-— Added new application languages.

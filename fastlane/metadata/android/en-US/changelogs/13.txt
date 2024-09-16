@@ -1,3 +1,0 @@
-- Fixed an issue that caused the app to crash when scanning certain types of medicines.
-- Removed unnecessary permissions for the application in the manifest file.
-- Removed unused application resources.

@@ -29,12 +29,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +43,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
@@ -92,6 +93,34 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
+import ru.application.homemedkit.R.drawable.vector_after_food
+import ru.application.homemedkit.R.drawable.vector_before_food
+import ru.application.homemedkit.R.drawable.vector_in_food
+import ru.application.homemedkit.R.drawable.vector_medicine
+import ru.application.homemedkit.R.drawable.vector_remove
+import ru.application.homemedkit.R.drawable.vector_time
+import ru.application.homemedkit.R.string.intake_text_amount
+import ru.application.homemedkit.R.string.intake_text_food
+import ru.application.homemedkit.R.string.intake_text_food_after
+import ru.application.homemedkit.R.string.intake_text_food_before
+import ru.application.homemedkit.R.string.intake_text_food_during
+import ru.application.homemedkit.R.string.intake_text_interval
+import ru.application.homemedkit.R.string.intake_text_left
+import ru.application.homemedkit.R.string.intake_text_period
+import ru.application.homemedkit.R.string.intake_text_pick_period
+import ru.application.homemedkit.R.string.intake_text_select_interval
+import ru.application.homemedkit.R.string.intake_text_time
+import ru.application.homemedkit.R.string.placeholder_date
+import ru.application.homemedkit.R.string.placeholder_time
+import ru.application.homemedkit.R.string.text_days_short
+import ru.application.homemedkit.R.string.text_delete
+import ru.application.homemedkit.R.string.text_edit
+import ru.application.homemedkit.R.string.text_empty
+import ru.application.homemedkit.R.string.text_every
+import ru.application.homemedkit.R.string.text_finish_date
+import ru.application.homemedkit.R.string.text_medicine_product_name
+import ru.application.homemedkit.R.string.text_request_post
+import ru.application.homemedkit.R.string.text_start_date
 import ru.application.homemedkit.dialogs.DateRangePicker
 import ru.application.homemedkit.dialogs.TimePickerDialog
 import ru.application.homemedkit.helpers.BLANK
@@ -106,6 +135,7 @@ import ru.application.homemedkit.helpers.viewModelFactory
 import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.viewModels.IntakeState
 import ru.application.homemedkit.viewModels.IntakeViewModel
+import ru.application.homemedkit.viewModels.IntakeViewModel.Event
 import ru.application.homemedkit.viewModels.IntakeViewModel.Event.Add
 import ru.application.homemedkit.viewModels.IntakeViewModel.Event.DecTime
 import ru.application.homemedkit.viewModels.IntakeViewModel.Event.Delete
@@ -161,7 +191,7 @@ fun IntakeScreen(
             if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                 launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
-        if (showRationale) PermissionDialog(R.string.text_request_post)
+        if (showRationale) PermissionDialog(text_request_post)
     }
 
     LaunchedEffect(Unit) {
@@ -186,7 +216,7 @@ fun IntakeScreen(
                 title = {},
                 navigationIcon = {
                     IconButton({ navigator.navigate(IntakesScreenDestination) })
-                    { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
+                    { Icon(Icons.AutoMirrored.Outlined.ArrowBack, null) }
                 },
                 actions = {
                     when {
@@ -195,7 +225,7 @@ fun IntakeScreen(
                                 onClick = { viewModel.onEvent(Add) },
                                 enabled = viewModel.validate()
                             )
-                            { Icon(Icons.Default.Check, null) }
+                            { Icon(Icons.Outlined.Check, null) }
                         }
 
                         state.editing -> {
@@ -203,7 +233,7 @@ fun IntakeScreen(
                                 onClick = { viewModel.onEvent(Update) },
                                 enabled = viewModel.validate()
                             )
-                            { Icon(Icons.Default.Check, null) }
+                            { Icon(Icons.Outlined.Check, null) }
                         }
 
                         else -> {
@@ -211,15 +241,15 @@ fun IntakeScreen(
                             var expanded by remember { mutableStateOf(false) }
 
                             IconButton({ expanded = true }) {
-                                Icon(Icons.Default.MoreVert, null)
+                                Icon(Icons.Outlined.MoreVert, null)
                             }
 
                             DropdownMenu(expanded, { expanded = false }) {
                                 DropdownMenuItem(
-                                    { Text(stringResource(R.string.text_edit)) },
+                                    { Text(stringResource(text_edit)) },
                                     { viewModel.onEvent(SetEditing) })
                                 DropdownMenuItem(
-                                    { Text(stringResource(R.string.text_delete)) },
+                                    { Text(stringResource(text_delete)) },
                                     { viewModel.onEvent(Delete) }
                                 )
                             }
@@ -237,7 +267,11 @@ fun IntakeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = paddingValues.calculateTopPadding().plus(16.dp))
+                .padding(
+                    top = paddingValues
+                        .calculateTopPadding()
+                        .plus(16.dp)
+                )
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
@@ -254,7 +288,7 @@ fun IntakeScreen(
 @Composable
 private fun Title(name: String) {
     Column(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(8.dp)) {
-        LabelText(R.string.text_medicine_product_name)
+        LabelText(text_medicine_product_name)
         OutlinedTextField(
             value = name,
             onValueChange = {},
@@ -266,7 +300,7 @@ private fun Title(name: String) {
 }
 
 @Composable
-private fun Amount(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState, prodAmount: Double, type: String) {
+private fun Amount(onEvent: (Event) -> Unit, state: IntakeState, prodAmount: Double, type: String) {
     var isError by rememberSaveable { mutableStateOf(false) }
 
     fun validate(text: String) {
@@ -275,14 +309,14 @@ private fun Amount(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState,
 
     Row(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(16.dp)) {
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
-            LabelText(R.string.intake_text_amount)
+            LabelText(intake_text_amount)
             OutlinedTextField(
                 value = state.amount,
-                onValueChange = {if (!state.default) onEvent(SetAmount(it)); validate(it)},
+                onValueChange = { if (!state.default) onEvent(SetAmount(it)); validate(it) },
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = state.default,
-                placeholder = { Text("0,25") },
-                leadingIcon = { Icon(painterResource(R.drawable.vector_medicine), null) },
+                placeholder = { Text(stringResource(text_empty)) },
+                leadingIcon = { Icon(painterResource(vector_medicine), null) },
                 suffix = { Text(type) },
                 isError = isError,
                 visualTransformation = {
@@ -298,13 +332,13 @@ private fun Amount(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState,
         }
 
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
-            LabelText(R.string.intake_text_left)
+            LabelText(intake_text_left)
             OutlinedTextField(
                 value = decimalFormat(prodAmount),
                 onValueChange = {},
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
-                leadingIcon = { Icon(Icons.Default.Home, null) },
+                leadingIcon = { Icon(Icons.Outlined.Home, null) },
                 suffix = { Text(type) },
                 maxLines = 1,
                 shape = RoundedCornerShape(14.dp)
@@ -316,7 +350,7 @@ private fun Amount(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState,
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Interval(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState) {
+private fun Interval(onEvent: (Event) -> Unit, state: IntakeState) {
     val intervals = stringArrayResource(R.array.interval_types_name)
     var interval by remember {
         mutableStateOf(
@@ -335,7 +369,7 @@ private fun Interval(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeStat
 
 
     Column(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(8.dp)) {
-        LabelText(R.string.intake_text_interval)
+        LabelText(intake_text_interval)
 
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             ExposedDropdownMenuBox(
@@ -348,9 +382,9 @@ private fun Interval(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeStat
                     onValueChange = {},
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor(),
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                     readOnly = true,
-                    placeholder = { Text(stringResource(R.string.intake_text_select_interval)) },
+                    placeholder = { Text(stringResource(intake_text_select_interval)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                     shape = RoundedCornerShape(14.dp)
                 )
@@ -381,8 +415,8 @@ private fun Interval(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeStat
                     modifier = Modifier.weight(0.5f),
                     readOnly = state.default,
                     placeholder = { Text("N") },
-                    prefix = { Text(stringResource(R.string.text_every)) },
-                    suffix = { Text(stringResource(R.string.text_days_short)) },
+                    prefix = { Text(stringResource(text_every)) },
+                    suffix = { Text(stringResource(text_days_short)) },
                     isError = isError,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
@@ -395,227 +429,223 @@ private fun Interval(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeStat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Period(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState) {
-    val dateST = stringResource(R.string.text_start_date)
-    val dateFT = stringResource(R.string.text_finish_date)
+private fun Period(onEvent: (Event) -> Unit, state: IntakeState) {
+    val dateST = stringResource(text_start_date)
+    val dateFT = stringResource(text_finish_date)
 
     Column(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(8.dp)) {
-        LabelText(R.string.intake_text_period)
+        LabelText(intake_text_period)
 
-        when {
-            Preferences.getLightPeriod() -> {
-                val periods = stringArrayResource(R.array.period_types_name)
-                var period by rememberSaveable {
-                    mutableStateOf(
-                        when (state.periodD) {
-                            7 -> periods[0]
-                            30 -> periods[1]
-                            38500 -> periods[3]
-                            else -> if (state.intakeId != 0L) periods[2] else BLANK
-                        }
+        if (Preferences.getLightPeriod()) {
+            val periods = stringArrayResource(R.array.period_types_name)
+            var period by rememberSaveable {
+                mutableStateOf(
+                    when (state.periodD) {
+                        7 -> periods[0]
+                        30 -> periods[1]
+                        38500 -> periods[3]
+                        else -> if (state.intakeId != 0L) periods[2] else BLANK
+                    }
+                )
+            }
+            var expanded by remember { mutableStateOf(false) }
+
+            if (state.period.isBlank() && period != periods[2] && state.editing)
+                onEvent(SetPeriod(getPeriod(state.startDate, state.finalDate)))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { if (state.adding || state.editing) expanded = it },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    OutlinedTextField(
+                        value = period,
+                        onValueChange = {},
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                        readOnly = true,
+                        placeholder = { Text(stringResource(intake_text_pick_period)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                        shape = RoundedCornerShape(14.dp)
                     )
-                }
-                var expanded by remember { mutableStateOf(false) }
-
-                if (state.period.isBlank() && period != periods[2] && state.editing)
-                    onEvent(SetPeriod(getPeriod(state.startDate, state.finalDate)))
-
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    ExposedDropdownMenuBox(
-                        expanded = expanded,
-                        onExpandedChange = { if (state.adding || state.editing) expanded = it },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        OutlinedTextField(
-                            value = period,
-                            onValueChange = {},
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor(),
-                            readOnly = true,
-                            placeholder = { Text(stringResource(R.string.intake_text_pick_period)) },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                            shape = RoundedCornerShape(14.dp)
-                        )
-                        ExposedDropdownMenu(expanded, { expanded = false }) {
-                            periods.forEachIndexed { index, selectionOption ->
-                                DropdownMenuItem(
-                                    text = { Text(selectionOption) },
-                                    onClick = {
-                                        period = selectionOption; expanded = false
-                                        onEvent(SetPeriod(index))
-                                    },
-                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
-                                )
-                            }
+                    ExposedDropdownMenu(expanded, { expanded = false }) {
+                        periods.forEachIndexed { index, selectionOption ->
+                            DropdownMenuItem(
+                                text = { Text(selectionOption) },
+                                onClick = {
+                                    period = selectionOption; expanded = false
+                                    onEvent(SetPeriod(index))
+                                },
+                                contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                            )
                         }
-                    }
-
-                    if (period == periods[2] && (state.adding || state.editing)) {
-                        if(state.editing) LaunchedEffect(Unit) {
-                            onEvent(SetPeriod(getPeriod(state.startDate, state.finalDate)))
-                        }
-                        var isError by rememberSaveable { mutableStateOf(false) }
-
-
-                        fun validate(text: String) {
-                            isError = text.isEmpty()
-                        }
-
-                        OutlinedTextField(
-                            value = state.period,
-                            onValueChange = { onEvent(SetPeriod(it)); validate(it) },
-                            modifier = Modifier.weight(1f),
-                            readOnly = state.default,
-                            textStyle = MaterialTheme.typography.titleMedium,
-                            placeholder = { Text("10") },
-                            leadingIcon = { Icon(Icons.Default.DateRange, null) },
-                            suffix = { Text(stringResource(R.string.text_days_short)) },
-                            isError = isError,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true,
-                            shape = RoundedCornerShape(14.dp)
-                        )
                     }
                 }
 
-                if (period.isNotEmpty() && period != periods[3]) {
-                    if ((state.adding || state.editing) && state.period.isNotEmpty()) {
-                        onEvent(SetStart())
-                        onEvent(SetFinal())
+                if (period == periods[2] && (state.adding || state.editing)) {
+                    if(state.editing) LaunchedEffect(Unit) {
+                        onEvent(SetPeriod(getPeriod(state.startDate, state.finalDate)))
+                    }
+                    var isError by rememberSaveable { mutableStateOf(false) }
+
+
+                    fun validate(text: String) {
+                        isError = text.isEmpty()
                     }
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        OutlinedTextField(
-                            value = state.startDate,
-                            onValueChange = {},
-                            modifier = Modifier.weight(0.5f),
-                            enabled = false,
-                            readOnly = true,
-                            leadingIcon = { Icon(Icons.Default.DateRange, null) },
-                            supportingText = { Text(dateST) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true,
-                            shape = RoundedCornerShape(14.dp),
-                            colors = fieldColorsInverted()
-                        )
-                        OutlinedTextField(
-                            value = state.finalDate,
-                            onValueChange = {},
-                            modifier = Modifier.weight(0.5f),
-                            enabled = false,
-                            readOnly = true,
-                            leadingIcon = { Icon(Icons.Default.DateRange, null) },
-                            supportingText = { Text(dateFT) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true,
-                            shape = RoundedCornerShape(14.dp),
-                            colors = fieldColorsInverted()
-                        )
-                    }
+                    OutlinedTextField(
+                        value = state.period,
+                        onValueChange = { onEvent(SetPeriod(it)); validate(it) },
+                        modifier = Modifier.weight(1f),
+                        readOnly = state.default,
+                        textStyle = MaterialTheme.typography.titleMedium,
+                        placeholder = { Text("10") },
+                        leadingIcon = { Icon(Icons.Outlined.DateRange, null) },
+                        suffix = { Text(stringResource(text_days_short)) },
+                        isError = isError,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        shape = RoundedCornerShape(14.dp)
+                    )
                 }
             }
 
-            else -> {
+            if (period.isNotEmpty() && period != periods[3]) {
+                if ((state.adding || state.editing) && state.period.isNotEmpty()) {
+                    onEvent(SetStart())
+                    onEvent(SetFinal())
+                }
+
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    val dateState =
-                        rememberDateRangePickerState(selectableDates = object : SelectableDates {
-                            override fun isSelectableDate(utcTimeMillis: Long) =
-                                LocalDate.now() <= Instant.ofEpochMilli(utcTimeMillis)
-                                    .atZone(ZONE)
-                                    .toLocalDate()
-
-                            override fun isSelectableYear(year: Int) = LocalDate.now().year <= year
-                        })
-
-                    var isError by rememberSaveable { mutableStateOf(false) }
-                    var showPicker by remember { mutableStateOf(false) }
-                    var selectS: String? by remember { mutableStateOf(null) }
-                    var selectF: String? by remember { mutableStateOf(null) }
-
                     OutlinedTextField(
                         value = state.startDate,
                         onValueChange = {},
-                        modifier = Modifier
-                            .weight(0.5f)
-                            .clickable { showPicker = true },
+                        modifier = Modifier.weight(0.5f),
                         enabled = false,
                         readOnly = true,
-                        placeholder = { Text(stringResource(R.string.placeholder_date)) },
-                        leadingIcon = { Icon(Icons.Default.DateRange, null) },
+                        leadingIcon = { Icon(Icons.Outlined.DateRange, null) },
                         supportingText = { Text(dateST) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
-                        colors = fieldColorsInverted(isError)
+                        colors = fieldColorsInverted()
                     )
                     OutlinedTextField(
                         value = state.finalDate,
                         onValueChange = {},
-                        modifier = Modifier
-                            .weight(0.5f)
-                            .clickable { showPicker = true },
+                        modifier = Modifier.weight(0.5f),
                         enabled = false,
                         readOnly = true,
-                        placeholder = { Text(stringResource(R.string.placeholder_date)) },
-                        leadingIcon = { Icon(Icons.Default.DateRange, null) },
+                        leadingIcon = { Icon(Icons.Outlined.DateRange, null) },
                         supportingText = { Text(dateFT) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
-                        colors = fieldColorsInverted(isError)
-                    )
-
-                    dateState.selectedStartDateMillis?.let { start ->
-                        selectS = getDateTime(start).format(FORMAT_D_MM_Y)
-                    }
-
-                    dateState.selectedEndDateMillis?.let { end ->
-                        selectF = getDateTime(end).format(FORMAT_D_MM_Y)
-                    }
-
-                    if (state.startDate.isNotEmpty() && state.finalDate.isNotEmpty()) {
-                        val milliS = LocalDate.parse(state.startDate, FORMAT_S)
-                        val milliF = LocalDate.parse(state.finalDate, FORMAT_S)
-
-                        isError = milliF < milliS
-                        if (!isError)
-                            onEvent(SetPeriod(Period.between(milliS, milliF).days))
-                    }
-
-                    if (showPicker) DateRangePicker(
-                        state = dateState,
-                        start = selectS,
-                        final = selectF,
-                        onDismiss = { showPicker = false },
-                        onConfirm = {
-                            selectS?.let { onEvent(SetStart(it)) }
-                            selectF?.let { onEvent(SetFinal(it)) }
-                            showPicker = false
-                        }
+                        colors = fieldColorsInverted()
                     )
                 }
+            }
+        }
+        else {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                val dateState =
+                    rememberDateRangePickerState(selectableDates = object : SelectableDates {
+                        override fun isSelectableDate(utcTimeMillis: Long) =
+                            LocalDate.now() <= Instant.ofEpochMilli(utcTimeMillis)
+                                .atZone(ZONE)
+                                .toLocalDate()
+
+                        override fun isSelectableYear(year: Int) = LocalDate.now().year <= year
+                    })
+
+                var isError by rememberSaveable { mutableStateOf(false) }
+                var showPicker by remember { mutableStateOf(false) }
+                var selectS: String? by remember { mutableStateOf(null) }
+                var selectF: String? by remember { mutableStateOf(null) }
+
+                OutlinedTextField(
+                    value = state.startDate,
+                    onValueChange = {},
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .clickable { showPicker = true },
+                    enabled = false,
+                    readOnly = true,
+                    placeholder = { Text(stringResource(placeholder_date)) },
+                    leadingIcon = { Icon(Icons.Outlined.DateRange, null) },
+                    supportingText = { Text(dateST) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    shape = RoundedCornerShape(14.dp),
+                    colors = fieldColorsInverted(isError)
+                )
+                OutlinedTextField(
+                    value = state.finalDate,
+                    onValueChange = {},
+                    modifier = Modifier
+                        .weight(0.5f)
+                        .clickable { showPicker = true },
+                    enabled = false,
+                    readOnly = true,
+                    placeholder = { Text(stringResource(placeholder_date)) },
+                    leadingIcon = { Icon(Icons.Outlined.DateRange, null) },
+                    supportingText = { Text(dateFT) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    shape = RoundedCornerShape(14.dp),
+                    colors = fieldColorsInverted(isError)
+                )
+
+                dateState.selectedStartDateMillis?.let { start ->
+                    selectS = getDateTime(start).format(FORMAT_D_MM_Y)
+                }
+
+                dateState.selectedEndDateMillis?.let { end ->
+                    selectF = getDateTime(end).format(FORMAT_D_MM_Y)
+                }
+
+                if (state.startDate.isNotEmpty() && state.finalDate.isNotEmpty()) {
+                    val milliS = LocalDate.parse(state.startDate, FORMAT_S)
+                    val milliF = LocalDate.parse(state.finalDate, FORMAT_S)
+
+                    isError = milliF < milliS
+                    if (!isError) onEvent(SetPeriod(Period.between(milliS, milliF).days))
+                }
+
+                if (showPicker) DateRangePicker(
+                    state = dateState,
+                    start = selectS,
+                    final = selectF,
+                    onDismiss = { showPicker = false },
+                    onConfirm = {
+                        selectS?.let { onEvent(SetStart(it)) }
+                        selectF?.let { onEvent(SetFinal(it)) }
+                        showPicker = false
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun Food(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState) {
+private fun Food(onEvent: (Event) -> Unit, state: IntakeState) {
     val icons = listOf(
-        R.drawable.vector_before_food,
-        R.drawable.vector_in_food,
-        R.drawable.vector_after_food
+        vector_before_food,
+        vector_in_food,
+        vector_after_food
     )
     val options = listOf(
-        stringResource(R.string.intake_text_food_before),
-        stringResource(R.string.intake_text_food_during),
-        stringResource(R.string.intake_text_food_after)
+        stringResource(intake_text_food_before),
+        stringResource(intake_text_food_during),
+        stringResource(intake_text_food_after)
     )
     var selected by remember { mutableIntStateOf(state.foodType) }
 
     Column(Modifier.padding(horizontal = 16.dp), Arrangement.spacedBy(8.dp)) {
-        LabelText(R.string.intake_text_food)
+        LabelText(intake_text_food)
         Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
             options.forEachIndexed { index, label ->
                 Column(
@@ -655,7 +685,7 @@ private fun Food(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-private fun Time(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState) {
+private fun Time(onEvent: (Event) -> Unit, state: IntakeState) {
     var picker by rememberSaveable { mutableStateOf(false) }
     var field by rememberSaveable { mutableIntStateOf(0) }
 
@@ -663,96 +693,91 @@ private fun Time(onEvent: (IntakeViewModel.Event) -> Unit, state: IntakeState) {
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        LabelText(R.string.intake_text_time)
+        LabelText(intake_text_time)
 
-        when {
-            state.adding || state.editing -> {
-                repeat(state.time.size) { index ->
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedTextField(
-                            value = state.time[index],
-                            onValueChange = {},
-                            modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                                .clickable { field = index; picker = true },
-                            enabled = false,
-                            placeholder = {
-                                Text(
-                                    String.format(stringResource(R.string.placeholder_time), index + 1)
-                                )
-                            },
-                            leadingIcon = { Icon(painterResource(R.drawable.vector_time), null) },
-                            shape = RoundedCornerShape(14.dp),
-                            colors = fieldColorsInverted()
-                        )
-
-                        val showBox: Boolean
-                        var color = Color(MaterialTheme.colorScheme.secondaryContainer.value)
-                        var icon = Icons.Default.Add
-                        var tint = MaterialTheme.colorScheme.onSecondaryContainer
-                        var onClick = {}
-
-                        when (index + 1) {
-                            1 -> {
-                                showBox = true
-                                color = Color(MaterialTheme.colorScheme.secondaryContainer.value)
-                                icon = Icons.Default.Add
-                                tint = MaterialTheme.colorScheme.onSecondaryContainer
-                                onClick = { onEvent(IncTime) }
-                            }
-
-                            state.time.size -> {
-                                showBox = true
-                                color = Color(MaterialTheme.colorScheme.errorContainer.value)
-                                icon = ImageVector.vectorResource(R.drawable.vector_remove)
-                                tint = MaterialTheme.colorScheme.onErrorContainer
-                                onClick = { onEvent(DecTime) }
-                            }
-
-                            else -> showBox = false
-                        }
-
-                        if (showBox) Box(
-                            Modifier
-                                .size(56.dp)
-                                .background(color, RoundedCornerShape(12.dp))
-                                .clickable { onClick() }, Alignment.Center
-                        ) {
-                            Image(
-                                painter = rememberVectorPainter(icon),
-                                contentDescription = null,
-                                colorFilter = ColorFilter.tint(tint)
+        if (state.adding || state.editing) {
+            repeat(state.time.size) { index ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = state.time[index],
+                        onValueChange = {},
+                        modifier = Modifier
+                            .fillMaxWidth(0.8f)
+                            .clickable { field = index; picker = true },
+                        enabled = false,
+                        placeholder = {
+                            Text(
+                                String.format(stringResource(placeholder_time), index + 1)
                             )
+                        },
+                        leadingIcon = { Icon(painterResource(vector_time), null) },
+                        shape = RoundedCornerShape(14.dp),
+                        colors = fieldColorsInverted()
+                    )
+
+                    val showBox: Boolean
+                    var color = Color(MaterialTheme.colorScheme.secondaryContainer.value)
+                    var icon = Icons.Outlined.Add
+                    var tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    var onClick = {}
+
+                    when (index + 1) {
+                        1 -> {
+                            showBox = true
+                            color = Color(MaterialTheme.colorScheme.secondaryContainer.value)
+                            icon = Icons.Outlined.Add
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            onClick = { onEvent(IncTime) }
                         }
+
+                        state.time.size -> {
+                            showBox = true
+                            color = Color(MaterialTheme.colorScheme.errorContainer.value)
+                            icon = ImageVector.vectorResource(vector_remove)
+                            tint = MaterialTheme.colorScheme.onErrorContainer
+                            onClick = { onEvent(DecTime) }
+                        }
+
+                        else -> showBox = false
+                    }
+
+                    if (showBox) Box(
+                        Modifier
+                            .size(56.dp)
+                            .background(color, RoundedCornerShape(12.dp))
+                            .clickable { onClick() }, Alignment.Center
+                    ) {
+                        Image(
+                            painter = rememberVectorPainter(icon),
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(tint)
+                        )
                     }
                 }
-
-                if (picker) TimePickerDialog(
-                    onCancel = { picker = false },
-                    onConfirm = { onEvent((SetTime(field))); picker = false },
-                ) { TimePicker(state.times[field]) }
             }
 
-            else -> {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    repeat(state.time.size) { index ->
-                        OutlinedTextField(
-                            value = state.time[index],
-                            onValueChange = {},
-                            modifier = Modifier.width(128.dp),
-                            enabled = false,
-                            leadingIcon = { Icon(painterResource(R.drawable.vector_time), null) },
-                            shape = RoundedCornerShape(14.dp),
-                            colors = fieldColorsInverted()
-                        )
-                    }
-                }
+            if (picker) TimePickerDialog(
+                onCancel = { picker = false },
+                onConfirm = { onEvent((SetTime(field))); picker = false },
+            ) { TimePicker(state.times[field]) }
+        }
+        else FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            repeat(state.time.size) { index ->
+                OutlinedTextField(
+                    value = state.time[index],
+                    onValueChange = {},
+                    modifier = Modifier.width(128.dp),
+                    enabled = false,
+                    leadingIcon = { Icon(painterResource(vector_time), null) },
+                    shape = RoundedCornerShape(14.dp),
+                    colors = fieldColorsInverted()
+                )
             }
         }
     }
