@@ -151,4 +151,10 @@
     <string name="text_try_again">Try again to scan label!</string>
     <string name="text_do_intake">Do intake</string>
     <string name="type_tincture">TINCTURE</string>
+    <string name="intake_period_indef">indefinite</string>
+    <string name="intake_interval_other">custom</string>
+    <string name="intake_interval_daily">daily</string>
+    <string name="intake_period_other">days input</string>
+    <string name="intake_interval_weekly">weekly</string>
+    <string name="intake_period_pick">dates choice</string>
 </resources>
