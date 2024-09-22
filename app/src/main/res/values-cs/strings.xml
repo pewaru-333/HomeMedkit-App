@@ -61,7 +61,6 @@
     <string name="type_drops">DROPS</string>
     <string name="placeholder_kitchen">Kitchen</string>
     <string name="type_suppository">SUPPOSITORY</string>
-    <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="type_powder">POWDER</string>
     <string name="text_medicine_amount_not_enough">Not enough amount left</string>
     <string name="text_medicine_group">Group</string>
@@ -73,7 +72,6 @@
     <string name="text_success">Successfully!</string>
     <string name="intake_text_food">Food &amp; Med</string>
     <string name="preference_med_compact_view">Compact view of medicines list</string>
-    <string name="preference_easy_period_picker">Easier intake period selection</string>
     <string name="preference_system">System</string>
     <string name="type_granules">GRANULES</string>
     <string name="text_medicine_product_name">Product name</string>
