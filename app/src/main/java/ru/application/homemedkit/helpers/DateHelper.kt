@@ -1,6 +1,9 @@
 package ru.application.homemedkit.helpers
 
-import java.time.Duration
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.core.os.ConfigurationCompat
+import androidx.core.os.LocaleListCompat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -10,15 +13,17 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
+val LOCALE
+    @Composable get() = ConfigurationCompat.getLocales(LocalConfiguration.current)[0]
+        ?: LocaleListCompat.getDefault()[0]!!
 val ZONE = ZoneId.systemDefault().rules.getOffset(Instant.now())
 val FORMAT_S = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-val FORMAT_D_H = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm")
-val FORMAT_D_M_Y = DateTimeFormatter.ofPattern("d MMMM yyyy")
-val FORMAT_D_MM_Y = DateTimeFormatter.ofPattern("d MMM yyyy")
-val FORMAT_D_M = DateTimeFormatter.ofPattern("d MMMM, E")
+val FORMAT_DH = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm")
+val FORMAT_DMMMMY @Composable get() = DateTimeFormatter.ofPattern("d MMMM yyyy", LOCALE)
+val FORMAT_DME @Composable get() = DateTimeFormatter.ofPattern("d MMMM, E", LOCALE)
 val FORMAT_H = DateTimeFormatter.ofPattern("H:mm")
-private val FORMAT_L = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
-private val FORMAT_M_Y = DateTimeFormatter.ofPattern("MM/yyyy")
+private var FORMAT_L = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+private val FORMAT_MY = DateTimeFormatter.ofPattern("MM/yyyy")
 
 fun toExpDate(milli: Long) = if (milli > 0) getDateTime(milli).format(FORMAT_L) else BLANK
 
@@ -27,14 +32,7 @@ fun toTimestamp(month: Int, year: Int) = LocalDateTime.of(
     LocalTime.MAX.hour, LocalTime.MAX.minute
 ).toInstant(ZONE).toEpochMilli()
 
-fun inCard(milli: Long) = if (milli == -1L) BLANK else getDateTime(milli).format(FORMAT_M_Y)
-
-fun getPeriod(dateS: String, dateF: String): String {
-    val startD = LocalDate.parse(dateS, FORMAT_S)
-    val finalD = LocalDate.parse(dateF, FORMAT_S)
-
-    return Duration.between(startD.atStartOfDay(), finalD.atStartOfDay()).toDays().toString()
-}
+fun inCard(milli: Long) = if (milli == -1L) BLANK else getDateTime(milli).format(FORMAT_MY)
 
 fun lastAlarm(date: String, time: LocalTime) = LocalDateTime.of(
     LocalDate.parse(date, FORMAT_S), time).toInstant(ZONE).toEpochMilli()

@@ -67,7 +67,6 @@ import ru.application.homemedkit.R.string.preference_app_view
 import ru.application.homemedkit.R.string.preference_check_expiration_date
 import ru.application.homemedkit.R.string.preference_download_images
 import ru.application.homemedkit.R.string.preference_dynamic_color
-import ru.application.homemedkit.R.string.preference_easy_period_picker
 import ru.application.homemedkit.R.string.preference_import_export
 import ru.application.homemedkit.R.string.preference_kits_group
 import ru.application.homemedkit.R.string.preference_language
@@ -93,12 +92,13 @@ import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.KEY_APP_SYSTEM
+import ru.application.homemedkit.helpers.KEY_APP_THEME
 import ru.application.homemedkit.helpers.KEY_APP_VIEW
 import ru.application.homemedkit.helpers.KEY_DOWNLOAD
+import ru.application.homemedkit.helpers.KEY_DYNAMIC_COLOR
 import ru.application.homemedkit.helpers.KEY_EXP_IMP
 import ru.application.homemedkit.helpers.KEY_FRAGMENT
 import ru.application.homemedkit.helpers.KEY_KITS
-import ru.application.homemedkit.helpers.KEY_LIGHT_PERIOD
 import ru.application.homemedkit.helpers.KEY_MED_COMPACT_VIEW
 import ru.application.homemedkit.helpers.KEY_ORDER
 import ru.application.homemedkit.helpers.LANGUAGES
@@ -171,13 +171,6 @@ fun SettingsScreen(context: Context = LocalContext.current) {
                 summary = { Text(stringResource(if (it) text_on else text_off)) }
             )
 
-            switchPreference(
-                key = KEY_LIGHT_PERIOD,
-                defaultValue = true,
-                title = { Text(stringResource(preference_easy_period_picker)) },
-                summary = { Text(stringResource(if (it) text_on else text_off)) }
-            )
-
             item {
                 var value by remember { mutableStateOf(Preferences.getCheckExpDate()) }
 
@@ -202,7 +195,7 @@ fun SettingsScreen(context: Context = LocalContext.current) {
 
                 ListPreference(
                     value = value,
-                    onValueChange = { value = it; Preferences.setLanguage(context, it) },
+                    onValueChange = { value = it; Preferences.setLanguage(it) },
                     values = LANGUAGES,
                     title = { Text(stringResource(preference_language)) },
                     summary = { Text(localize(value, LANGUAGES, languages)) },
@@ -210,29 +203,21 @@ fun SettingsScreen(context: Context = LocalContext.current) {
                 )
             }
 
-            item {
-                var value by remember { mutableStateOf(Preferences.getAppTheme()) }
+            listPreference(
+                key = KEY_APP_THEME,
+                defaultValue = THEMES[0],
+                values = THEMES,
+                title = { Text(stringResource(preference_app_theme)) },
+                summary = { Text(localize(it, THEMES, themes)) },
+                valueToText = { localize(it, THEMES, themes) }
+            )
 
-                ListPreference(
-                    value = value,
-                    onValueChange = { value = it; Preferences.setTheme(it) },
-                    values = THEMES,
-                    title = { Text(stringResource(preference_app_theme)) },
-                    summary = { Text(localize(value, THEMES, themes)) },
-                    valueToText = { localize(it, THEMES, themes) }
-                )
-            }
-
-            item {
-                var value by remember { mutableStateOf(Preferences.getDynamicColors()) }
-
-                SwitchPreference(
-                    value = value,
-                    onValueChange = { value = it; Preferences.setDynamicColors(context, it) },
-                    title = { Text(stringResource(preference_dynamic_color)) },
-                    enabled = isDynamicColorAvailable()
-                )
-            }
+            switchPreference(
+                key = KEY_DYNAMIC_COLOR,
+                defaultValue = false,
+                title = { Text(stringResource(preference_dynamic_color)) },
+                enabled = { isDynamicColorAvailable() }
+            )
 
             preference(
                 key = KEY_EXP_IMP,

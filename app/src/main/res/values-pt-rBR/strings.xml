@@ -18,7 +18,6 @@
     <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
     <string name="text_all">All</string>
     <string name="preference_med_compact_view">Compact view of medicines list</string>
-    <string name="preference_easy_period_picker">Easier intake period selection</string>
     <string name="preference_system">System</string>
     <string name="lang_system">System</string>
     <string name="preference_dynamic_color">Dynamic color</string>
@@ -39,7 +38,6 @@
 \nAmount: %2$s %3$s</string>
     <string name="text_attention">Attention!</string>
     <string name="placeholder_kitchen">Kitchen</string>
-    <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="text_medicine_amount_not_enough">Not enough amount left</string>
     <string name="text_medicine_group">Group</string>
     <string name="type_paste">PASTE</string>

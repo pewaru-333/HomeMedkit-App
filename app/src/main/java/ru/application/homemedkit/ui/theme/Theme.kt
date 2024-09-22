@@ -10,7 +10,6 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.THEMES
 
 private val lightScheme = lightColorScheme(
@@ -91,26 +90,26 @@ private val darkScheme = darkColorScheme(
 
 @Composable
 fun AppTheme(
-    darkTheme: Boolean = isDarkTheme(),
+    theme: String = THEMES[0],
+    dynamicColor: Boolean = false,
     context: Context = LocalContext.current,
     content: @Composable () -> Unit
 ) {
-    val dynamicColor = isDynamicColorAvailable() && Preferences.getDynamicColors()
+    val darkTheme = when (theme) {
+        THEMES[1] -> false
+        THEMES[2] -> true
+        else -> isSystemInDarkTheme()
+    }
+
     val colors = when {
-        dynamicColor && darkTheme -> dynamicDarkColorScheme(context)
-        dynamicColor && !darkTheme -> dynamicLightColorScheme(context)
+        isDynamicColorAvailable() && dynamicColor ->
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+
         darkTheme -> darkScheme
         else -> lightScheme
     }
 
     MaterialTheme(colorScheme = colors, content = content)
-}
-
-@Composable
-private fun isDarkTheme() = when (Preferences.getAppTheme()) {
-    THEMES[1] -> false
-    THEMES[2] -> true
-    else -> isSystemInDarkTheme()
 }
 
 fun isDynamicColorAvailable() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

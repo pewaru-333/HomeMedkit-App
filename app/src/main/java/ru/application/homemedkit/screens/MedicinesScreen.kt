@@ -48,7 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -70,6 +70,7 @@ import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.Sorting
+import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.inCard
 import ru.application.homemedkit.helpers.shortName
@@ -173,9 +174,16 @@ private fun MedicineItem(medicine: Medicine, navigator: DestinationsNavigator) {
 
     ListItem(
         headlineContent = { Text(shortName) },
-        overlineContent = { Text(formName) },
-        supportingContent = { Text(expDate) },
-        trailingContent = { Text(kitTitle) },
+        overlineContent = {
+            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                Text(formName); Text(kitTitle)
+            }
+        },
+        supportingContent = {
+            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                Text(expDate); Text("${decimalFormat(medicine.prodAmount)} ${medicine.doseType}")
+            }
+        },
         leadingContent = { MedicineImage(medicine.image, Modifier.size(56.dp)) },
         modifier = Modifier.clickable { navigator.navigate(MedicineScreenDestination(medicine.id)) },
         colors = ListItemDefaults.colors(
@@ -199,22 +207,34 @@ private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator) {
                 modifier = Modifier.padding(vertical = 8.dp),
                 overflow = TextOverflow.Clip,
                 softWrap = false,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = SemiBold)
             )
         },
         modifier = Modifier
             .clickable { navigator.navigate(MedicineScreenDestination(medicine.id)) }
             .padding(vertical = 8.dp)
             .clip(MaterialTheme.shapes.medium),
-        overlineContent = { Text(text = formName, style = MaterialTheme.typography.labelLarge) },
-        supportingContent = { Text(text = expDate, fontWeight = FontWeight.SemiBold) },
+        overlineContent = {
+            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                Text(text = formName, style = MaterialTheme.typography.labelLarge)
+                Text(text = kitTitle, style = MaterialTheme.typography.labelLarge)
+            }
+        },
+        supportingContent = {
+            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+                Text(text = expDate, fontWeight = SemiBold)
+                Text(
+                    text = "${decimalFormat(medicine.prodAmount)} ${medicine.doseType}",
+                    fontWeight = SemiBold
+                )
+            }
+        },
         leadingContent = {
             MedicineImage(medicine.image, Modifier
                 .size(64.dp)
                 .offset(y = 12.dp)
             )
         },
-        trailingContent = { Text(text = kitTitle, style = MaterialTheme.typography.labelLarge) },
         colors = ListItemDefaults.colors(
             containerColor = if (medicine.expDate < System.currentTimeMillis())
                 MaterialTheme.colorScheme.errorContainer

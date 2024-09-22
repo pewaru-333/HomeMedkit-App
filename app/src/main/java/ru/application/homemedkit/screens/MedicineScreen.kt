@@ -384,7 +384,7 @@ private fun ProductKit(state: MedicineState, onEvent: (Event) -> Unit) = Column 
             enabled = false,
             readOnly = true,
             placeholder = { Text(stringResource(placeholder_kitchen)) },
-            colors = fieldColorsInverted()
+            colors = fieldColorsInverted
         )
 
         if (show) AlertDialog(
@@ -460,7 +460,7 @@ private fun ProductExp(state: MedicineState, onEvent: (Event) -> Unit) = Column 
                 readOnly = true,
                 placeholder = { Text(stringResource(placeholder_exp_date)) },
                 leadingIcon = { Icon(Icons.Outlined.DateRange, null) },
-                colors = fieldColorsInverted()
+                colors = fieldColorsInverted
             )
 
             if (showPicker) MonthYear(

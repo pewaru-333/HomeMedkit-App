@@ -12,7 +12,6 @@
     <string name="preference_start_page">Ana sayfa</string>
     <string name="preference_sorting_type">İlaç sıralama</string>
     <string name="preference_download_images">İlaç görsellerini indir</string>
-    <string name="preference_easy_period_picker">Kolay alım dönemi seçimi</string>
     <string name="preference_check_expiration_date">İlaçların son kullanma tarihini kontrol etme</string>
     <string name="preference_system">Sistem</string>
     <string name="preference_language">Uygulama dili</string>
@@ -35,7 +34,6 @@
     <string name="text_intake_time">%1$s alım zamanı\nMiktar: %2$s %3$s</string>
     <string name="text_intake_amount_not_enough">%1$s alım zamanı, ancak miktarı reçetelenenden az! Alımı tekrar oluştur!</string>
     <!-- Placeholders -->
-    <string name="placeholder_date">gg.aa.yyyy</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 Mayıs 2029</string>
     <string name="placeholder_kitchen">Mutfak</string>
@@ -111,17 +109,6 @@
         <item quantity="other">Günde %d kez</item>
     </plurals>
     <!-- Arrays -->
-    <string-array name="interval_types_name">
-        <item>günlük</item>
-        <item>haftalık</item>
-        <item>özel</item>
-    </string-array>
-    <string-array name="period_types_name">
-        <item>hafta</item>
-        <item>ay</item>
-        <item>diğer</item>
-        <item>belirsiz</item>
-    </string-array>
     <string-array name="medicine_dose_types">
         <item>ED</item>
         <item>adet</item>

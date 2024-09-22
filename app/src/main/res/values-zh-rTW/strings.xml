@@ -12,7 +12,6 @@
     <string name="preference_start_page">主頁</string>
     <string name="preference_sorting_type">藥物排序</string>
     <string name="preference_download_images">下載藥物圖片</string>
-    <string name="preference_easy_period_picker">更容易選擇攝取期</string>
     <string name="preference_check_expiration_date">檢查藥物的到期日</string>
     <string name="preference_system">系統</string>
     <string name="preference_language">應用程式語言</string>
@@ -32,7 +31,6 @@
     <string name="text_attention">注意！</string>
     <string name="text_expire_soon">%1$s 的到期日即將到期</string>
     <!-- Placeholders -->
-    <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="placeholder_dose">0.5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 May 2029</string>
     <string name="placeholder_kitchen">廚房</string>

@@ -55,7 +55,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextAlign
@@ -67,7 +66,6 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.IntakeScreenDestination
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
-import ru.application.homemedkit.R.array.interval_types_name
 import ru.application.homemedkit.R.string.intake_card_text_from
 import ru.application.homemedkit.R.string.intake_text_date
 import ru.application.homemedkit.R.string.intake_text_not_taken
@@ -89,9 +87,10 @@ import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.FORMAT_D_M
-import ru.application.homemedkit.helpers.FORMAT_D_M_Y
+import ru.application.homemedkit.helpers.FORMAT_DME
+import ru.application.homemedkit.helpers.FORMAT_DMMMMY
 import ru.application.homemedkit.helpers.FORMAT_H
+import ru.application.homemedkit.helpers.Intervals
 import ru.application.homemedkit.helpers.ZONE
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
@@ -197,13 +196,8 @@ fun IntakeList(intake: Intake, navigator: Navigator) {
     val medicine = database.medicineDAO().getById(intake.medicineId)
     val startDate = stringResource(intake_card_text_from, intake.startDate)
     val count = intake.time.size
-    val intervalName = if (count == 1) stringArrayResource(interval_types_name).let {
-        when (intake.interval) {
-            1 -> it[0]
-            7 -> it[1]
-            else -> it[2]
-        }
-    } else pluralStringResource(R.plurals.intakes_a_day, count, count)
+    val intervalName = if (count == 1) stringResource(Intervals.getTitle(intake.interval.toString()))
+    else pluralStringResource(R.plurals.intakes_a_day, count, count)
 
     ListItem(
         colors = ListItemDefaults.colors(MaterialTheme.colorScheme.tertiaryContainer),
@@ -287,7 +281,7 @@ private fun DialogTaken(model: IntakesViewModel) {
                     label = { Text(stringResource(text_medicine_product_name)) }
                 )
                 OutlinedTextField(
-                    value = zoned.format(FORMAT_D_M_Y),
+                    value = zoned.format(FORMAT_DMMMMY),
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(intake_text_date)) }
@@ -342,7 +336,7 @@ private fun DialogTaken(model: IntakesViewModel) {
 @Composable
 private fun TextDate(timestamp: Long) = Text(
     text = LocalDate.ofEpochDay(timestamp).let {
-        it.format(if (it.year == LocalDate.now().year) FORMAT_D_M else FORMAT_D_M_Y)
+        it.format(if (it.year == LocalDate.now().year) FORMAT_DME else FORMAT_DMMMMY)
     },
     modifier = Modifier.padding(12.dp),
     style = MaterialTheme.typography.titleLarge.copy(fontWeight = SemiBold)

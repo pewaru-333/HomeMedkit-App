@@ -1,27 +1,33 @@
 package ru.application.homemedkit.helpers
 
-import android.app.Activity
-import android.app.LocaleManager
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import android.os.Build.VERSION.SDK_INT
-import android.os.Build.VERSION_CODES.TIRAMISU
-import android.os.LocaleList
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.app.AppCompatDelegate.setApplicationLocales
-import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import androidx.core.os.LocaleListCompat
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.stateIn
 import ru.application.homemedkit.receivers.AlarmSetter
 
-object Preferences {
+object Preferences : ViewModel() {
 
     private lateinit var preferences: SharedPreferences
+    lateinit var theme: StateFlow<String>
+    lateinit var dynamicColors: StateFlow<Boolean>
 
     fun getInstance(context: Context) {
-        preferences =
-            context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)
+        preferences = context.getSharedPreferences("${context.packageName}_preferences", MODE_PRIVATE)
+        theme = preferences.getThemeFlow()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), THEMES[0])
+        dynamicColors = preferences.getColorsFlow()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     }
 
     fun getHomePage() = preferences.getString(KEY_FRAGMENT, MENUS[0]) ?: MENUS[0]
@@ -30,31 +36,39 @@ object Preferences {
     fun getMedCompactView() = preferences.getBoolean(KEY_MED_COMPACT_VIEW, false)
     fun getDownloadNeeded() = preferences.getBoolean(KEY_DOWNLOAD, false)
     fun getCheckExpDate() = preferences.getBoolean(CHECK_EXP_DATE, false)
-    fun getLightPeriod() = preferences.getBoolean(KEY_LIGHT_PERIOD, true)
     fun getLanguage() = preferences.getString(KEY_LANGUAGE, LANGUAGES[0]) ?: LANGUAGES[0]
-    fun getAppTheme() = preferences.getString(KEY_APP_THEME, THEMES[0]) ?: THEMES[0]
     fun getDynamicColors() = preferences.getBoolean(KEY_DYNAMIC_COLOR, false)
     fun setLastKit(kitId: Long?) = preferences.edit().putLong(KEY_LAST_KIT, kitId ?: 0L).apply()
     fun setCheckExpDate(context: Context, check: Boolean) =
         AlarmSetter(context).checkExpiration(check)
             .also { preferences.edit().putBoolean(CHECK_EXP_DATE, check).apply() }
 
-    fun setLanguage(context: Context, language: String) = when {
-        SDK_INT >= TIRAMISU -> context.getSystemService(LocaleManager::class.java)
-            .applicationLocales = LocaleList.forLanguageTags(language)
-
-        else -> setApplicationLocales(LocaleListCompat.forLanguageTags(language))
-    }.also { preferences.edit().putString(KEY_LANGUAGE, language).apply() }
-
-    fun setTheme(theme: String) = preferences.edit().putString(KEY_APP_THEME, theme).apply().also {
-        when (theme) {
-            THEMES[1] -> setDefaultNightMode(MODE_NIGHT_NO)
-            THEMES[2] -> setDefaultNightMode(MODE_NIGHT_YES)
-            else -> setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+    fun setLanguage(language: String) =
+        preferences.edit().putString(KEY_LANGUAGE, language).apply().also {
+            setApplicationLocales(LocaleListCompat.forLanguageTags(language))
         }
+}
+
+fun SharedPreferences.getThemeFlow(changedKey: String = KEY_APP_THEME) = callbackFlow {
+    val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (changedKey == key) trySend(getString(key, THEMES[0]) ?: THEMES[0])
     }
 
-    fun setDynamicColors(context: Context, enabled: Boolean) =
-        preferences.edit().putBoolean(KEY_DYNAMIC_COLOR, enabled).apply()
-            .also { (context as Activity).recreate() }
-}
+    registerOnSharedPreferenceChangeListener(listener)
+
+    if (contains(changedKey)) send(getString(changedKey, THEMES[0]) ?: THEMES[0])
+
+    awaitClose { unregisterOnSharedPreferenceChangeListener(listener) }
+}.buffer(Channel.UNLIMITED)
+
+fun SharedPreferences.getColorsFlow(changedKey: String = KEY_DYNAMIC_COLOR) = callbackFlow {
+    val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+        if (changedKey == key) trySend(getBoolean(key, false))
+    }
+
+    registerOnSharedPreferenceChangeListener(listener)
+
+    if (contains(changedKey)) send(getBoolean(changedKey, false))
+
+    awaitClose { unregisterOnSharedPreferenceChangeListener(listener) }
+}.buffer(Channel.UNLIMITED)

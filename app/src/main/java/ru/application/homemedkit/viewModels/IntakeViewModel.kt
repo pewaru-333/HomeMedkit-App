@@ -16,32 +16,23 @@ import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.FORMAT_D_MM_Y
 import ru.application.homemedkit.helpers.FORMAT_H
 import ru.application.homemedkit.helpers.FORMAT_S
+import ru.application.homemedkit.helpers.Intervals
+import ru.application.homemedkit.helpers.Intervals.Custom
+import ru.application.homemedkit.helpers.Intervals.Daily
+import ru.application.homemedkit.helpers.Intervals.Weekly
+import ru.application.homemedkit.helpers.Periods
+import ru.application.homemedkit.helpers.Periods.Indefinite
+import ru.application.homemedkit.helpers.Periods.Other
+import ru.application.homemedkit.helpers.Periods.Pick
 import ru.application.homemedkit.helpers.getDateTime
 import ru.application.homemedkit.helpers.longSeconds
 import ru.application.homemedkit.receivers.AlarmSetter
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.Add
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.DecTime
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.Delete
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.IncTime
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetAdding
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetAmount
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetEditing
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetFinal
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetFoodType
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetInterval
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetMedicineId
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetPeriod
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetStart
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.SetTime
-import ru.application.homemedkit.viewModels.IntakeViewModel.Event.Update
 import ru.application.homemedkit.viewModels.MedicineViewModel.ActivityEvents.Close
 import ru.application.homemedkit.viewModels.MedicineViewModel.ActivityEvents.Start
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeParseException
 
 @OptIn(ExperimentalMaterial3Api::class)
 class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewModel() {
@@ -65,8 +56,9 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
                         medicineId = intake.medicineId,
                         amount = intake.amount.toString(),
                         interval = intake.interval.toString(),
+                        intervalE = Intervals.getValue(intake.interval),
                         period = intake.period.toString(),
-                        periodD = intake.period,
+                        periodE = Periods.getValue(intake.period),
                         foodType = intake.foodType,
                         time = intake.time.mapTo(SnapshotStateList()) { it.format(FORMAT_H) },
                         times = SnapshotStateList<TimePickerState>().apply {
@@ -84,261 +76,202 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
         }
     }
 
-    fun onEvent(event: Event) {
-        when (event) {
-            Add -> {
-                val medicineId = _state.value.medicineId
-                val amount = _state.value.amount.toDouble()
-                val interval = _state.value.interval.toInt()
-                val foodType = _state.value.foodType
-                val time = _state.value.time.map { LocalTime.parse(it, FORMAT_H) }
-                val period = _state.value.period.toInt()
-                val startDate = _state.value.startDate
-                val finalDate = _state.value.finalDate
+    fun getIntervalTitle() = if (_state.value.intervalE == Custom) Custom.title
+    else Intervals.getTitle(_state.value.interval)
 
-                val intake = Intake(
-                    medicineId = medicineId,
-                    amount = amount,
-                    interval = interval,
-                    foodType = foodType,
-                    time = time,
-                    period = period,
-                    startDate = startDate,
-                    finalDate = finalDate
-                )
+    fun add() {
+        val time = _state.value.time.map { LocalTime.parse(it, FORMAT_H) }
+        val startDate = _state.value.startDate
 
-                viewModelScope.launch {
-                    val id = dao.add(intake)
-                    val triggers = longSeconds(startDate, time)
+        val intake = Intake(
+            medicineId = _state.value.medicineId,
+            amount = _state.value.amount.toDouble(),
+            interval = _state.value.interval.toInt(),
+            foodType = _state.value.foodType,
+            time = time,
+            period = _state.value.period.toInt(),
+            startDate = startDate,
+            finalDate = _state.value.finalDate
+        )
 
-                    setter.setAlarm(intakeId = id, triggers = triggers)
-                    _state.update { it.copy(adding = false, default = true, intakeId = id) }
-                    _events.emit(Start)
-                }
-            }
+        viewModelScope.launch {
+            val id = dao.add(intake)
+            val triggers = longSeconds(startDate, time)
 
-            Update -> {
-                val intakeId = _state.value.intakeId
-                val medicineId = _state.value.medicineId
-                val amount = _state.value.amount.toDouble()
-                val interval = _state.value.interval.toInt()
-                val foodType = _state.value.foodType
-                val time = _state.value.time.map { LocalTime.parse(it, FORMAT_H) }
-                val period = _state.value.period.toInt()
-                val startDate = _state.value.startDate
-                val finalDate = _state.value.finalDate
+            setter.setAlarm(intakeId = id, triggers = triggers)
+            _state.update { it.copy(adding = false, default = true, intakeId = id) }
+            _events.emit(Start)
+        }
+    }
 
-                val intake = Intake(
-                    intakeId = intakeId,
-                    medicineId = medicineId,
-                    amount = amount,
-                    interval = interval,
-                    foodType = foodType,
-                    time = time,
-                    period = period,
-                    startDate = startDate,
-                    finalDate = finalDate
-                )
+    fun update() {
+        val time = _state.value.time.map { LocalTime.parse(it, FORMAT_H) }
+        val startDate = _state.value.startDate
 
-                viewModelScope.launch {
-                    val alarms = dao.getAlarms(intakeId = _state.value.intakeId)
-                    val triggers = longSeconds(startDate, time)
+        val intake = Intake(
+            intakeId = _state.value.intakeId,
+            medicineId = _state.value.medicineId,
+            amount = _state.value.amount.toDouble(),
+            interval = _state.value.interval.toInt(),
+            foodType = _state.value.foodType,
+            time = time,
+            period = _state.value.period.toInt(),
+            startDate = startDate,
+            finalDate = _state.value.finalDate
+        )
 
-                    alarms.forEach { setter.removeAlarm(it.alarmId) }
-                    setter.setAlarm(intakeId = _state.value.intakeId, triggers = triggers)
+        viewModelScope.launch {
+            val alarms = dao.getAlarms(intakeId = _state.value.intakeId)
+            val triggers = longSeconds(startDate, time)
 
-                    dao.update(intake)
-                    _state.update { it.copy(adding = false, editing = false, default = true) }
-                }
-            }
+            alarms.forEach { setter.removeAlarm(it.alarmId) }
+            setter.setAlarm(intakeId = _state.value.intakeId, triggers = triggers)
 
-            Delete -> {
-                val intake = Intake(intakeId = _state.value.intakeId)
-                val alarms = dao.getAlarms(intakeId = _state.value.intakeId)
-                alarms.forEach { setter.removeAlarm(it.alarmId) }
+            dao.update(intake)
+            _state.update { it.copy(adding = false, editing = false, default = true) }
+        }
+    }
 
-                viewModelScope.launch {
-                    dao.delete(intake)
-                    _events.emit(Close)
-                }
-            }
+    fun delete() {
+        val intake = Intake(intakeId = _state.value.intakeId)
+        val alarms = dao.getAlarms(intakeId = _state.value.intakeId)
+        alarms.forEach { setter.removeAlarm(it.alarmId) }
 
-            is SetMedicineId -> _state.update { it.copy(medicineId = event.medicineId) }
+        viewModelScope.launch {
+            dao.delete(intake)
+            _events.emit(Close)
+        }
+    }
 
-            is SetAmount -> {
-                if (event.amount.isNotEmpty()) {
-                    when (event.amount.replace(',', '.').toDoubleOrNull()) {
-                        null -> {}
-                        else -> _state.update {
-                            it.copy(amount = event.amount.replace(',', '.'))
-                        }
-                    }
-                } else _state.update { it.copy(amount = BLANK) }
-            }
+    fun setEditing() = _state.update { it.copy(adding = false, editing = true, default = false) }
+    fun setMedicineId(medicineId: Long) = _state.update { it.copy(medicineId = medicineId) }
 
-            is SetInterval -> {
-                when (event.interval) {
-                    is Int -> {
+    fun setAmount(amount: String) = if (amount.isNotEmpty())
+        when (amount.replace(',', '.').toDoubleOrNull()) {
+            null -> {}
+            else -> _state.update { it.copy(amount = amount.replace(',', '.')) }
+        } else _state.update { it.copy(amount = BLANK) }
 
-                        val days: Int = when (event.interval) {
-                            0 -> 1
-                            1 -> 7
-                            else -> 10
-                        }
-
-                        _state.update { it.copy(interval = days.toString()) }
-                    }
-
-                    is String -> {
-                        if (event.interval.isDigitsOnly() && event.interval.length <= 2)
-                            _state.update { it.copy(interval = event.interval) }
-                    }
-                }
-            }
-
-            is SetPeriod -> {
-                when (event.period) {
-                    is Int -> {
-                        val days = when (event.period) {
-                            0 -> 7
-                            1 -> 30
-                            2 -> 45
-                            3 -> 38500
-                            else -> -1
-                        }
-
-                        if (days == 38500) {
-                            val start = getDateTime(System.currentTimeMillis()).format(FORMAT_S)
-                            val final = getDateTime(System.currentTimeMillis())
-                                .plusDays(days.toLong())
-                                .format(FORMAT_S)
-
-                            _state.update { it.copy(startDate = start, finalDate = final) }
-                        }
-
-                        _state.update { it.copy(period = days.toString(), periodD = days) }
-                    }
-
-                    is String -> {
-                        if (event.period.isEmpty())
-                            _state.update { it.copy(period = BLANK, periodD = -1) }
-                        else {
-                            if (event.period.isDigitsOnly() && event.period.length <= 3)
-                                _state.update {
-                                    it.copy(period = event.period, periodD = event.period.toInt())
-                                }
-                        }
-                    }
-                }
-            }
-
-            is IncTime -> {
-                _state.update {
+    fun setInterval(interval: Any?) {
+        when (interval) {
+            is Intervals -> when (interval) {
+                Daily, Weekly -> _state.update {
                     it.copy(
-                        time = it.time.apply { add(BLANK) },
-                        times = it.times.apply { add(TimePickerState(12, 0, true)) })
+                        interval = interval.days.toString(),
+                        intervalE = interval,
+                        showIntervalM = false
+                    )
+                }
+
+                Custom -> _state.update {
+                    it.copy(
+                        interval = BLANK,
+                        intervalE = interval,
+                        showIntervalM = false
+                    )
                 }
             }
 
-            is DecTime -> {
-                if (_state.value.time.size > 1)
-                    _state.update {
-                        it.copy(
-                            time = it.time.apply { removeLast() },
-                            times = it.times.apply { removeLast() }
-                        )
-                    }
-            }
+            is String -> if (interval.isDigitsOnly() && interval.length <= 2)
+                _state.update { it.copy(interval = interval) }
+        }
+    }
 
-            is SetFoodType -> _state.update { it.copy(foodType = event.type) }
-
-            is SetTime -> {
-                val picker = _state.value.times[event.time]
-                val localTime = LocalTime.of(picker.hour, picker.minute)
-                val time = localTime.format(FORMAT_H)
-
-                _state.update { it.copy(time = it.time.apply { this[event.time] = time }) }
-            }
-
-            is SetStart -> {
-                when (event.start) {
-                    BLANK -> {
-                        val today = System.currentTimeMillis()
-                        val zoned = getDateTime(today).format(FORMAT_S)
-
-                        val date = try {
-                            LocalDate.parse(zoned, FORMAT_D_MM_Y).format(FORMAT_S)
-                        } catch (e: DateTimeParseException) {
-                            zoned
-                        }
-
-                        _state.update { it.copy(startDate = date) }
-                    }
-
-                    else -> {
-                        val date = LocalDate.parse(event.start, FORMAT_D_MM_Y).format(FORMAT_S)
-                        _state.update { it.copy(startDate = date) }
-                    }
+    fun setPeriod(period: Any?) {
+        when (period) {
+            is Periods -> when(period) {
+                Pick -> _state.update {
+                    it.copy(
+                        period = period.days.toString(),
+                        periodE = period,
+                        startDate = BLANK,
+                        finalDate = BLANK,
+                        showPeriodM = false
+                    )
+                }
+                Other -> _state.update {
+                    it.copy(
+                        period = BLANK,
+                        periodE = period,
+                        startDate = BLANK,
+                        finalDate = BLANK,
+                        showPeriodM = false
+                    )
+                }
+                Indefinite -> _state.update {
+                    it.copy(
+                        startDate = LocalDate.now().format(FORMAT_S),
+                        finalDate = LocalDate.now().plusDays(period.days.toLong()).format(FORMAT_S),
+                        period = period.days.toString(),
+                        periodE = period,
+                        showPeriodM = false
+                    )
                 }
             }
 
-            is SetFinal -> {
-                when (event.final) {
-                    BLANK -> {
-                        val today = System.currentTimeMillis()
-                        val zoned = getDateTime(today).toLocalDate()
-                            .plusDays(_state.value.periodD.toLong()).format(FORMAT_S)
-
-                        val date = try {
-                            LocalDate.parse(zoned, FORMAT_D_MM_Y).format(FORMAT_S)
-                        } catch (e: DateTimeParseException) {
-                            zoned
-                        }
-
-                        _state.update { it.copy(finalDate = date) }
-                    }
-
-                    else -> {
-                        val date = LocalDate.parse(event.final, FORMAT_D_MM_Y).format(FORMAT_S)
-                        _state.update { it.copy(finalDate = date) }
-                    }
-                }
+            is String -> if (period.isEmpty()) _state.update {
+                it.copy(startDate = BLANK, finalDate = BLANK, period = BLANK)
+            }
+            else if (period.isDigitsOnly() && period.length <= 3) _state.update {
+                it.copy(
+                    startDate = LocalDate.now().format(FORMAT_S),
+                    finalDate = LocalDate.now().plusDays(period.toLong()).format(FORMAT_S),
+                    period = period
+                )
             }
 
-            SetAdding -> {
-                _state.update { it.copy(adding = true, editing = false, default = false) }
-            }
-
-            SetEditing -> {
-                _state.update { it.copy(adding = false, editing = true, default = false) }
+            is Pair<*, *> -> if (period.first != null && period.second != null) _state.update {
+                it.copy(
+                    startDate = getDateTime(period.first as Long).format(FORMAT_S),
+                    finalDate = getDateTime(period.second as Long).format(FORMAT_S),
+                    period = Pick.days.toString(),
+                    showPeriodD = false
+                )
             }
         }
     }
 
-    fun validate(): Boolean {
-        return listOf(
-            _state.value.amount, _state.value.interval, _state.value.period,
-            _state.value.startDate, _state.value.finalDate
-        ).all(String::isNotBlank) && _state.value.time.all(String::isNotBlank)
+    fun setFoodType(type: Int) = _state.update {
+        it.copy(foodType = if (type == _state.value.foodType) -1 else type)
     }
 
-    sealed interface Event {
-        data object Add : Event
-        data object Update : Event
-        data object Delete : Event
-        data class SetMedicineId(val medicineId: Long) : Event
-        data class SetAmount(val amount: String) : Event
-        data class SetInterval(val interval: Any) : Event
-        data class SetPeriod(val period: Any) : Event
-        data object IncTime : Event
-        data object DecTime : Event
-        data class SetFoodType(val type: Int) : Event
-        data class SetTime(val time: Int) : Event
-        data class SetStart(val start: String = BLANK) : Event
-        data class SetFinal(val final: String = BLANK) : Event
-        data object SetAdding : Event
-        data object SetEditing : Event
+    fun incTime() = _state.update {
+        it.copy(
+            time = it.time.apply { add(BLANK) },
+            times = it.times.apply { add(TimePickerState(12, 0, true)) }
+        )
     }
+
+    fun decTime() = if (_state.value.time.size > 1) _state.update {
+        it.copy(time = it.time.apply { removeLast() }, times = it.times.apply { removeLast() })
+    } else {}
+
+    fun setTime() {
+        val picker = _state.value.times[_state.value.timeF]
+        val time = LocalTime.of(picker.hour, picker.minute).format(FORMAT_H)
+
+        _state.update {
+            it.copy(time = it.time.apply { this[_state.value.timeF] = time }, showTimeP = false)
+        }
+    }
+
+    fun showIntervalM(flag: Boolean) = if (_state.value.adding || state.value.editing)
+        _state.update { it.copy(showIntervalM = flag) } else {}
+
+    fun showPeriodD(flag: Boolean = false) =
+        if (_state.value.periodE == Pick && (_state.value.adding || _state.value.editing))
+            _state.update { it.copy(showPeriodD = flag) } else {}
+
+    fun showPeriodM(flag: Boolean) = if (_state.value.adding || state.value.editing)
+        _state.update { it.copy(showPeriodM = flag) } else {}
+
+    fun showTimePicker(flag: Boolean = false, index: Int = 0) =
+        _state.update { it.copy(showTimeP = flag, timeF = index) }
+
+    fun validate() = mutableListOf(
+        _state.value.amount, _state.value.interval, _state.value.period,
+        _state.value.startDate, _state.value.finalDate
+    ).apply { addAll(_state.value.time) }.all(String::isNotBlank)
 }
 
 data class IntakeState @OptIn(ExperimentalMaterial3Api::class) constructor(
@@ -349,11 +282,17 @@ data class IntakeState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val medicineId: Long = 0,
     val amount: String = BLANK,
     val interval: String = BLANK,
+    val intervalE: Intervals? = null,
     val period: String = BLANK,
-    val periodD: Int = 0,
+    val periodE: Periods = Pick,
     val foodType: Int = -1,
     val time: SnapshotStateList<String> = mutableStateListOf(BLANK),
     val times: SnapshotStateList<TimePickerState> = mutableStateListOf(TimePickerState(12, 0, true)),
+    val timeF: Int = 0,
     val startDate: String = BLANK,
-    val finalDate: String = BLANK
+    val finalDate: String = BLANK,
+    val showIntervalM: Boolean = false,
+    val showPeriodD: Boolean = false,
+    val showPeriodM: Boolean = false,
+    val showTimeP: Boolean = false
 )

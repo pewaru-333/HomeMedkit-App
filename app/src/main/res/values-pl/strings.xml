@@ -21,7 +21,6 @@
     <string name="preference_dynamic_color">Dynamic color</string>
     <string name="preference_kits_group">Medicine groups</string>
     <string name="preference_med_compact_view">Compact view of medicines list</string>
-    <string name="preference_easy_period_picker">Easier intake period selection</string>
     <string name="preference_system">System</string>
     <string name="preference_app_theme">App theme</string>
     <string name="preference_check_expiration_date">Checking the expiration date of medicines</string>
@@ -85,7 +84,6 @@
     <string name="text_medicine_group">Group</string>
     <string name="text_start_date">Start date</string>
     <string name="text_no_intakes_found">No intakes found. Add them via medicine information card or change the search value.</string>
-    <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="text_medicine_amount_not_enough">Not enough amount left</string>
     <string name="intake_card_text_from">(from %1$s)</string>
     <string name="intake_text_left">Left</string>

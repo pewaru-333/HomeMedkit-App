@@ -7,7 +7,10 @@ import com.ramcosta.composedestinations.generated.destinations.IntakesScreenDest
 import com.ramcosta.composedestinations.generated.destinations.MedicinesScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.SettingsScreenDestination
 import com.ramcosta.composedestinations.spec.Direction
+import ru.application.homemedkit.R.drawable.vector_after_food
+import ru.application.homemedkit.R.drawable.vector_before_food
 import ru.application.homemedkit.R.drawable.vector_home
+import ru.application.homemedkit.R.drawable.vector_in_food
 import ru.application.homemedkit.R.drawable.vector_medicine
 import ru.application.homemedkit.R.drawable.vector_settings
 import ru.application.homemedkit.R.drawable.vector_time
@@ -33,10 +36,20 @@ import ru.application.homemedkit.R.drawable.vector_type_suspension
 import ru.application.homemedkit.R.drawable.vector_type_syrup
 import ru.application.homemedkit.R.drawable.vector_type_tablets
 import ru.application.homemedkit.R.drawable.vector_type_tincture
+import ru.application.homemedkit.R.string.blank
 import ru.application.homemedkit.R.string.bottom_bar_intakes
 import ru.application.homemedkit.R.string.bottom_bar_main
 import ru.application.homemedkit.R.string.bottom_bar_medicines
 import ru.application.homemedkit.R.string.bottom_bar_settings
+import ru.application.homemedkit.R.string.intake_interval_daily
+import ru.application.homemedkit.R.string.intake_interval_other
+import ru.application.homemedkit.R.string.intake_interval_weekly
+import ru.application.homemedkit.R.string.intake_period_indef
+import ru.application.homemedkit.R.string.intake_period_other
+import ru.application.homemedkit.R.string.intake_period_pick
+import ru.application.homemedkit.R.string.intake_text_food_after
+import ru.application.homemedkit.R.string.intake_text_food_before
+import ru.application.homemedkit.R.string.intake_text_food_during
 import ru.application.homemedkit.R.string.lang_de
 import ru.application.homemedkit.R.string.lang_en
 import ru.application.homemedkit.R.string.lang_es
@@ -113,6 +126,31 @@ val SORTING = Sorting.entries.map(Sorting::value)
 val THEMES = Themes.entries.map(Themes::value)
 
 // ============================================= Enums =============================================
+enum class FoodTypes(val value: Int, @StringRes val title: Int, @DrawableRes val icon: Int) {
+    Before(0, intake_text_food_before, vector_before_food),
+    During(1, intake_text_food_during, vector_in_food),
+    After(2, intake_text_food_after, vector_after_food)
+}
+
+enum class Intervals(val days: Int, @StringRes val title: Int) {
+    Daily(1, intake_interval_daily),
+    Weekly(7, intake_interval_weekly),
+    Custom(10, intake_interval_other);
+
+    companion object {
+        fun getValue(days: Int) = Intervals.entries.find { it.days == days } ?: Custom
+        fun getTitle(days: String) = try {
+            when (days.toInt()) {
+                1 -> Daily.title
+                7 -> Weekly.title
+                else -> Custom.title
+            }
+        } catch (e: NumberFormatException) {
+            blank
+        }
+    }
+}
+
 enum class Languages(val value: String, @StringRes val title: Int) {
     System("System", lang_system),
     Russian("ru", lang_ru),
@@ -133,6 +171,16 @@ enum class Menu(val route: Direction, @StringRes val title: Int, @DrawableRes va
     Medicines(MedicinesScreenDestination, bottom_bar_medicines, vector_medicine),
     Intakes(IntakesScreenDestination, bottom_bar_intakes, vector_time),
     Settings(SettingsScreenDestination, bottom_bar_settings, vector_settings)
+}
+
+enum class Periods(val days: Int, @StringRes val title: Int) {
+    Pick(-1, intake_period_pick),
+    Other(21, intake_period_other),
+    Indefinite(38500, intake_period_indef);
+
+    companion object {
+        fun getValue(days: Int) = Periods.entries.find { it.days == days } ?: Other
+    }
 }
 
 enum class Sorting(val value: String, @StringRes val title: Int, val type: Comparator<Medicine>) {

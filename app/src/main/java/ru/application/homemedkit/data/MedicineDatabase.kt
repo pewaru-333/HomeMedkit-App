@@ -18,7 +18,7 @@ import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.Medicine
-import ru.application.homemedkit.helpers.FORMAT_D_H
+import ru.application.homemedkit.helpers.FORMAT_DH
 import ru.application.homemedkit.helpers.FORMAT_S
 import ru.application.homemedkit.helpers.ZONE
 import java.time.LocalDate
@@ -262,7 +262,7 @@ abstract class MedicineDatabase : RoomDatabase() {
                     val startDate = intakeC.getString(3)
 
                     if (time.size == 1) {
-                        var milliS = LocalDateTime.parse("$startDate ${time[0]}", FORMAT_D_H)
+                        var milliS = LocalDateTime.parse("$startDate ${time[0]}", FORMAT_DH)
                             .toInstant(ZONE).toEpochMilli()
                         val milliF = LocalDateTime.now().toInstant(ZONE).toEpochMilli()
 

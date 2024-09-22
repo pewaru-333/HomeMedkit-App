@@ -15,7 +15,6 @@
     <string name="preference_sorting_type">Сортировка лекарств</string>
     <string name="preference_med_compact_view">Компактный вид списка лекарств</string>
     <string name="preference_download_images">Загружать изображения лекарств</string>
-    <string name="preference_easy_period_picker">Упрощённый выбор периода приёма лекарства</string>
     <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
     <string name="preference_system">Системные</string>
     <string name="preference_language">Язык приложения</string>
@@ -48,7 +47,6 @@
     <string name="text_medicine_amount_not_enough">Осталось недостаточно лекарства</string>
 
     <!-- "Заполнители" -->
-    <string name="placeholder_date">дд.мм.гггг</string>
     <string name="placeholder_dose">0,5 мг + 84 мкг</string>
     <string name="placeholder_exp_date">31 мая 2029 г.</string>
     <string name="placeholder_kitchen">Кухня</string>
@@ -113,6 +111,14 @@
     <string name="intake_text_taken">Принято</string>
     <string name="intake_text_time">Время</string>
 
+    <string name="intake_interval_daily">ежедневно</string>
+    <string name="intake_interval_weekly">еженедельно</string>
+    <string name="intake_interval_other">другой</string>
+
+    <string name="intake_period_pick">выбор по датам</string>
+    <string name="intake_period_other">ввод дней</string>
+    <string name="intake_period_indef">бессрочно</string>
+
     <!-- Диалоговые окна -->
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
     <string name="text_confirm_exit">Подтвердите выход</string>
@@ -171,19 +177,6 @@
     </plurals>
 
     <!-- Массивы строк -->
-    <string-array name="interval_types_name">
-        <item>ежедневно</item>
-        <item>еженедельно</item>
-        <item>другой</item>
-    </string-array>
-
-    <string-array name="period_types_name">
-        <item>неделя</item>
-        <item>месяц</item>
-        <item>другой</item>
-        <item>бессрочно</item>
-    </string-array>
-
     <string-array name="medicine_dose_types">
         <item>ЕД</item>
         <item>шт</item>

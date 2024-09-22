@@ -12,7 +12,6 @@
     <string name="preference_start_page">Homepage</string>
     <string name="preference_sorting_type">Medizinsortierung</string>
     <string name="preference_download_images">Medizinbilder herunterladen</string>
-    <string name="preference_easy_period_picker">Einfachere Auswahl des Einnahmezeitraums</string>
     <string name="preference_check_expiration_date">Überprüfung des Verfallsdatums von Arzneimitteln</string>
     <string name="preference_system">System</string>
     <string name="preference_language">App-Sprache</string>
@@ -112,7 +111,6 @@
 \nAmount: %2$s %3$s</string>
     <string name="text_no_data_found">No medicines found. Add them or change the filter.</string>
     <string name="type_suppository">SUPPOSITORY</string>
-    <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="type_powder">POWDER</string>
     <string name="text_medicine_group">Group</string>
     <string name="text_no_intakes_found">No intakes found. Add them via medicine information card or change the search value.</string>

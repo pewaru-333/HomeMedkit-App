@@ -21,7 +21,7 @@ import ru.application.homemedkit.R.string.intakes_tab_taken
 import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.FORMAT_D_H
+import ru.application.homemedkit.helpers.FORMAT_DH
 import ru.application.homemedkit.helpers.FORMAT_S
 import ru.application.homemedkit.helpers.ZONE
 import java.time.Instant
@@ -56,9 +56,9 @@ object IntakesViewModel : ViewModel() {
             emit(mutableListOf<Alarm>().apply {
                 filtered.forEach { (intakeId, _, _, interval, _, time, _, startDate, finalDate) ->
                     if (time.size == 1) {
-                        var milliS = LocalDateTime.parse("$startDate ${time[0]}", FORMAT_D_H)
+                        var milliS = LocalDateTime.parse("$startDate ${time[0]}", FORMAT_DH)
                             .toInstant(ZONE).toEpochMilli()
-                        val milliF = LocalDateTime.parse("$finalDate ${time[0]}", FORMAT_D_H)
+                        val milliF = LocalDateTime.parse("$finalDate ${time[0]}", FORMAT_DH)
                             .toInstant(ZONE).toEpochMilli()
 
                         while (milliS <= milliF) {

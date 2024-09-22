@@ -12,7 +12,6 @@
     <string name="preference_start_page">Trang chủ</string>
     <string name="preference_sorting_type">Sắp xếp thuốc</string>
     <string name="preference_download_images">Tải hình ảnh thuốc</string>
-    <string name="preference_easy_period_picker">Lựa chọn thời gian uống thuốc dễ dàng hơn</string>
     <string name="preference_check_expiration_date">Kiểm tra hạn sử dụng của thuốc</string>
     <string name="preference_system">Hệ thống</string>
     <string name="preference_language">Ngôn ngữ ứng dụng</string>
@@ -35,7 +34,6 @@
     <string name="text_intake_time">Đã đến lúc uống thuốc %1$s\nSố lượng: %2$s %3$s</string>
     <string name="text_intake_amount_not_enough">Đã đến lúc uống thuốc %1$s nhưng số lượng ít hơn quy định! Tái tạo lượng tiêu thụ!</string>
     <!-- Placeholders -->
-    <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 tháng năm 2029</string>
     <string name="placeholder_kitchen">Nhà bếp</string>
@@ -111,17 +109,6 @@
         <item quantity="other">%d lần một ngày</item>
     </plurals>
     <!-- String arrays -->
-    <string-array name="interval_types_name">
-        <item>hàng ngày</item>
-        <item>hàng tuần</item>
-        <item>khác</item>
-    </string-array>
-    <string-array name="period_types_name">
-        <item>một tuần</item>
-        <item>tháng</item>
-        <item>khác</item>
-        <item>vô thời hạn</item>
-    </string-array>
     <string-array name="medicine_dose_types">
         <item>UN</item>
         <item>chiếc</item>

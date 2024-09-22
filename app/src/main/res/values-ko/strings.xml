@@ -19,7 +19,6 @@
 \nAmount: %2$s %3$s</string>
     <string name="text_attention">Attention!</string>
     <string name="placeholder_kitchen">Kitchen</string>
-    <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="text_medicine_amount_not_enough">Not enough amount left</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
@@ -84,7 +83,6 @@
     <string name="text_edit">Edit</string>
     <string name="intake_text_left">Left</string>
     <string name="intake_text_food">Food &amp; Med</string>
-    <string name="preference_easy_period_picker">Easier intake period selection</string>
     <string name="preference_system">System</string>
     <string name="type_granules">GRANULES</string>
     <string name="text_medicine_product_name">Product name</string>

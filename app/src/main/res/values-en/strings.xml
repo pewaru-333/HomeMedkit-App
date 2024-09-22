@@ -15,7 +15,6 @@
     <string name="preference_sorting_type">Medicine sorting</string>
     <string name="preference_med_compact_view">Compact view of medicines list</string>
     <string name="preference_download_images">Download medicine images</string>
-    <string name="preference_easy_period_picker">Easier intake period selection</string>
     <string name="preference_check_expiration_date">Checking the expiration date of medicines</string>
     <string name="preference_system">System</string>
     <string name="preference_language">App language</string>
@@ -48,7 +47,6 @@
     <string name="text_medicine_amount_not_enough">Not enough amount left</string>
 
     <!-- Placeholders -->
-    <string name="placeholder_date">dd.mm.yyyy</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_exp_date">31 May 2029</string>
     <string name="placeholder_kitchen">Kitchen</string>
@@ -113,6 +111,14 @@
     <string name="intake_text_taken">Taken</string>
     <string name="intake_text_time">Time</string>
 
+    <string name="intake_interval_daily">daily</string>
+    <string name="intake_interval_weekly">weekly</string>
+    <string name="intake_interval_other">custom</string>
+
+    <string name="intake_period_pick">dates choice</string>
+    <string name="intake_period_other">days input</string>
+    <string name="intake_period_indef">indefinite</string>
+
     <!-- Dialogs -->
     <string name="manual_add">Do you want to add medicine manually?</string>
     <string name="text_confirm_exit">Confirm exit</string>
@@ -169,19 +175,6 @@
     </plurals>
 
     <!-- Arrays -->
-    <string-array name="interval_types_name">
-        <item>daily</item>
-        <item>weekly</item>
-        <item>custom</item>
-    </string-array>
-
-    <string-array name="period_types_name">
-        <item>week</item>
-        <item>month</item>
-        <item>other</item>
-        <item>indefinite</item>
-    </string-array>
-
     <string-array name="medicine_dose_types">
         <item>ED</item>
         <item>pcs</item>

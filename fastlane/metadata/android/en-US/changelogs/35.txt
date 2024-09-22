@@ -1,0 +1,4 @@
+— The logic of prescribing medicines has been changed. More flexible period selection options are now immediately available to users. The setting responsible for this has been deleted accordingly.
+— Added the display of the remaining amount of medicine in its card.
+— Changing the theme of the application and switching the "System colors" now happens smoothly and without errors.
+— Fixed a bug that caused the date format to not change immediately when changing the application language.
