@@ -53,8 +53,8 @@
     <string name="text_medicine_form">Release form</string>
     <string name="text_medicine_group">Group</string>
     <string name="text_medicine_product_name">Product name</string>
-    <string name="text_medicine_status_checked">Scanned, checked</string>
-    <string name="text_medicine_status_scanned">Scanned, unchecked</string>
+    <string name="text_medicine_status_checked">Scanned, verified</string>
+    <string name="text_medicine_status_scanned">Scanned, unverified</string>
     <string name="text_medicine_status_self_added">Added manually</string>
     <!-- Medicine types -->
     <string name="type_tablets">TABLETS</string>
