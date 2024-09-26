@@ -144,4 +144,10 @@
     <string name="text_exp_date">Exp. date</string>
     <string name="type_tincture">TINCTURE</string>
     <string name="sorting_from_newest">Expiration date (from newest)</string>
+    <string name="intake_period_indef">indefinite</string>
+    <string name="intake_interval_other">custom</string>
+    <string name="intake_interval_daily">daily</string>
+    <string name="intake_period_other">days input</string>
+    <string name="intake_interval_weekly">weekly</string>
+    <string name="intake_period_pick">dates choice</string>
 </resources>

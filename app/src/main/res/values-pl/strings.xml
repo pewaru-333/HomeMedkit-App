@@ -17,15 +17,15 @@
     <string name="text_delete">Delete</string>
     <string name="text_add">Add</string>
     <string name="text_edit">Edit</string>
-    <string name="bottom_bar_intakes">Intakes</string>
+    <string name="bottom_bar_intakes">Przyjęcia</string>
     <string name="preference_dynamic_color">Dynamic color</string>
-    <string name="preference_kits_group">Medicine groups</string>
-    <string name="preference_med_compact_view">Compact view of medicines list</string>
+    <string name="preference_kits_group">Grupy leków</string>
+    <string name="preference_med_compact_view">Kompaktowy widok listy leków</string>
     <string name="preference_system">System</string>
     <string name="preference_app_theme">App theme</string>
-    <string name="preference_check_expiration_date">Checking the expiration date of medicines</string>
+    <string name="preference_check_expiration_date">Sprawdzanie daty przeterminowania leków</string>
     <string name="preference_language">App language</string>
-    <string name="preference_download_images">Download medicine images</string>
+    <string name="preference_download_images">Pobierz zdjęcia leku</string>
     <string name="theme_light">Light</string>
     <string name="lang_system">System</string>
     <string name="theme_dark">Dark</string>
@@ -145,4 +145,10 @@
     <string name="type_tincture">TINCTURE</string>
     <string name="sorting_from_newest">Expiration date (from newest)</string>
     <string name="text_cancel">Cancel</string>
+    <string name="intake_interval_other">custom</string>
+    <string name="intake_interval_daily">daily</string>
+    <string name="intake_period_indef">indefinite</string>
+    <string name="intake_period_other">days input</string>
+    <string name="intake_interval_weekly">weekly</string>
+    <string name="intake_period_pick">dates choice</string>
 </resources>
