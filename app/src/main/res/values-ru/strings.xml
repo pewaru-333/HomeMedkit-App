@@ -12,7 +12,7 @@
     <string name="preference_app_view">Вид приложения</string>
     <string name="preference_kits_group">Группы лекарств</string>
     <string name="preference_start_page">Стартовая страница</string>
-    <string name="preference_sorting_type">Сортировка лекарств</string>
+    <string name="preference_sorting_type">Сортировка лекарств по</string>
     <string name="preference_med_compact_view">Компактный вид списка лекарств</string>
     <string name="preference_download_images">Загружать изображения лекарств</string>
     <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
@@ -48,7 +48,6 @@
 
     <!-- "Заполнители" -->
     <string name="placeholder_dose">0,5 мг + 84 мкг</string>
-    <string name="placeholder_exp_date">31 мая 2029 г.</string>
     <string name="placeholder_kitchen">Кухня</string>
     <string name="placeholder_time">Время #%1$d</string>
 
@@ -88,6 +87,14 @@
     <string name="type_aerosol">АЭРОЗОЛЬ</string>
     <string name="type_spray">СПРЕЙ</string>
     <string name="type_drops">КАПЛИ</string>
+
+    <!-- Виды доз лекарств -->
+    <string name="dose_ed">ЕД</string>
+    <string name="dose_pcs">шт</string>
+    <string name="dose_g">г</string>
+    <string name="dose_mg">мг</string>
+    <string name="dose_l">л</string>
+    <string name="dose_ml">мл</string>
 
     <!-- Приём -->
     <string name="intakes_tab_current">Текущее</string>
@@ -175,14 +182,4 @@
         <item quantity="many">%d раз в день</item>
         <item quantity="other">%d раз в день</item>
     </plurals>
-
-    <!-- Массивы строк -->
-    <string-array name="medicine_dose_types">
-        <item>ЕД</item>
-        <item>шт</item>
-        <item>г</item>
-        <item>мг</item>
-        <item>л</item>
-        <item>мл</item>
-    </string-array>
 </resources>

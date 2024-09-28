@@ -25,7 +25,6 @@
     <string name="notification_channel_name">Sound notifications</string>
     <string name="notification_channel_description">Medication reminders</string>
     <string name="text_do_intake">Do intake</string>
-    <string name="placeholder_exp_date">31 May 2029</string>
     <string name="sorting_from_newest">Expiration date (from newest)</string>
     <string name="type_paste">PASTE</string>
     <string name="type_emulsion">EMULSION</string>

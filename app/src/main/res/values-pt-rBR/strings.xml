@@ -78,7 +78,7 @@
 \nWhen importing, the current data will be deleted! Please, relaunch app after it!</string>
     <string name="text_medicine_deleted">Medicine has been deleted, impossible to change intake status</string>
     <string name="text_grant_permission">Grant permission</string>
-    <string name="text_request_camera">To scan the label, the application must be given permission to use the camera</string>
+    <string name="text_request_camera">To scan the label, the application must be given permission to use the câmera</string>
     <string name="text_new_group">New group</string>
     <string name="text_select_time">Select time</string>
     <string name="text_amount">Amount</string>
@@ -140,7 +140,6 @@
     <string name="intake_text_food_during">During meal</string>
     <string name="text_medicine_dose">Dose</string>
     <string name="text_do_intake">Do intake</string>
-    <string name="placeholder_exp_date">31 May 2029</string>
     <string name="text_exp_date">Exp. date</string>
     <string name="type_tincture">TINCTURE</string>
     <string name="sorting_from_newest">Expiration date (from newest)</string>

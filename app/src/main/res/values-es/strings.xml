@@ -48,7 +48,6 @@
 
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_exp_date">31 mayo 2029</string>
     <string name="placeholder_kitchen">Cocina</string>
     <string name="placeholder_time">Hora #%1$d</string>
 
@@ -88,6 +87,14 @@
     <string name="type_aerosol">AEROSOL</string>
     <string name="type_spray">ESPRAY</string>
     <string name="type_drops">GOTAS</string>
+
+    <!-- Medicine dose types -->
+    <string name="dose_ed">ED</string>
+    <string name="dose_pcs">piezas</string>
+    <string name="dose_g">g</string>
+    <string name="dose_mg">mg</string>
+    <string name="dose_l">l</string>
+    <string name="dose_ml">ml</string>
 
     <!-- Intakes -->
     <string name="intakes_tab_current">Actual</string>
@@ -174,14 +181,4 @@
         <item quantity="many">%d veces al día</item>
         <item quantity="other">%d veces al día</item>
     </plurals>
-
-    <!-- Arrays -->
-    <string-array name="medicine_dose_types">
-        <item>ED</item>
-        <item>piezas</item>
-        <item>g</item>
-        <item>mg</item>
-        <item>l</item>
-        <item>ml</item>
-    </string-array>
 </resources>

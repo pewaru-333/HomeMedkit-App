@@ -35,7 +35,6 @@
     <string name="text_intake_amount_not_enough">%1$s alım zamanı, ancak miktarı reçetelenenden az! Alımı tekrar oluştur!</string>
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_exp_date">31 Mayıs 2029</string>
     <string name="placeholder_kitchen">Mutfak</string>
     <string name="placeholder_time">Zaman #%1$d</string>
     <!-- Medicines -->
@@ -109,14 +108,6 @@
         <item quantity="other">Günde %d kez</item>
     </plurals>
     <!-- Arrays -->
-    <string-array name="medicine_dose_types">
-        <item>ED</item>
-        <item>adet</item>
-        <item>g</item>
-        <item>mg</item>
-        <item>l</item>
-        <item>ml</item>
-    </string-array>
     <string name="preference_med_compact_view">Compact view of medicines list</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>

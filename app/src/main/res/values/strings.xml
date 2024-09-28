@@ -58,7 +58,6 @@
 
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_exp_date">31 May 2029</string>
     <string name="placeholder_kitchen">Kitchen</string>
     <string name="placeholder_time">Time #%1$d</string>
 
@@ -71,8 +70,8 @@
     <string name="text_medicine_form">Release form</string>
     <string name="text_medicine_group">Group</string>
     <string name="text_medicine_product_name">Product name</string>
-    <string name="text_medicine_status_checked">Scanned, checked</string>
-    <string name="text_medicine_status_scanned">Scanned, unchecked</string>
+    <string name="text_medicine_status_checked">Scanned, verified</string>
+    <string name="text_medicine_status_scanned">Scanned, unverified</string>
     <string name="text_medicine_status_self_added">Added manually</string>
 
     <!-- Medicine types -->
@@ -98,6 +97,15 @@
     <string name="type_aerosol">AEROSOL</string>
     <string name="type_spray">SPRAY</string>
     <string name="type_drops">DROPS</string>
+
+    <!-- Medicine dose types -->
+    <string name="dose_ed">ED</string>
+    <string name="dose_pcs">pcs</string>
+    <string name="dose_g">g</string>
+    <string name="dose_mg">mg</string>
+    <string name="dose_l">l</string>
+    <string name="dose_ml">ml</string>
+    <string name="dose_ratio" translatable="false">%</string>
 
     <!-- Intakes -->
     <string name="intakes_tab_current">Current</string>
@@ -188,14 +196,4 @@
         <item quantity="many">%d times a day</item>
         <item quantity="other">%d times a day</item>
     </plurals>
-
-    <!-- Arrays -->
-    <string-array name="medicine_dose_types">
-        <item>ED</item>
-        <item>pcs</item>
-        <item>g</item>
-        <item>mg</item>
-        <item>l</item>
-        <item>ml</item>
-    </string-array>
 </resources>

@@ -147,7 +147,6 @@
     <string name="type_pills">PILLEN</string>
     <string name="text_try_again">Bitte das Etikett erneut scannen!</string>
     <string name="notification_channel_description">Medikamenten-Erinnerung</string>
-    <string name="placeholder_exp_date">31. Mai 2029</string>
     <string name="type_tincture">TINKTUR</string>
     <string name="sorting_from_newest">Ablaufdatum (neu zu alt)</string>
     <string name="text_finish_date">Enddatum</string>

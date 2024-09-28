@@ -32,7 +32,6 @@
     <string name="text_expire_soon">%1$s 的到期日即將到期</string>
     <!-- Placeholders -->
     <string name="placeholder_dose">0.5 mg + 84 mcg</string>
-    <string name="placeholder_exp_date">31 May 2029</string>
     <string name="placeholder_kitchen">廚房</string>
     <string name="placeholder_time">時間 #%1$d</string>
     <!-- Medicines -->

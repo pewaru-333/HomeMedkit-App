@@ -36,7 +36,6 @@
     <string name="text_medicine_amount_not_enough">Non abbastanza importo lasciato</string>
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_exp_date">31 maggio 2029</string>
     <string name="placeholder_kitchen">Cucina</string>
     <string name="placeholder_time">Tempo #%1$d</string>
     <!-- Medicines -->

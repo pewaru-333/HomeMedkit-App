@@ -139,7 +139,6 @@
     <string name="intake_text_food_during">During meal</string>
     <string name="text_medicine_dose">Dose</string>
     <string name="text_do_intake">Do intake</string>
-    <string name="placeholder_exp_date">31 May 2029</string>
     <string name="text_exp_date">Exp. date</string>
     <string name="intake_text_food_before">Before meal</string>
     <string name="type_tincture">TINCTURE</string>
