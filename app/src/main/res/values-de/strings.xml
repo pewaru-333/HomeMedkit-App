@@ -156,4 +156,10 @@
     <string name="intake_period_other">Anzahl Tage</string>
     <string name="intake_interval_weekly">wöchentlich</string>
     <string name="intake_period_pick">von bis</string>
+    <string name="dose_ed">ED</string>
+    <string name="dose_g">g</string>
+    <string name="dose_pcs">pcs</string>
+    <string name="dose_l">l</string>
+    <string name="dose_ml">ml</string>
+    <string name="dose_mg">mg</string>
 </resources>
