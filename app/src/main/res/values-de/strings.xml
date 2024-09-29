@@ -90,7 +90,7 @@
     <string name="text_request_post">Um Benachrichtigungen anzuzeigen braucht die App die entsprechende Berechtigung</string>
     <string name="text_notification_pick_action_first">Zum Ändern bitte zunächst eine Aktion in der Benachrichtigung wählen</string>
     <string name="text_days_short">T.</string>
-    <string name="text_update"></string>
+    <string name="text_update">Aktualisieren</string>
     <string name="text_unspecified">Nicht angegeben</string>
     <string name="theme_light">Hell</string>
     <string name="text_medicine_status_scanned">Gescannt, nicht verifiziert</string>
@@ -156,9 +156,9 @@
     <string name="intake_period_other">Anzahl Tage</string>
     <string name="intake_interval_weekly">wöchentlich</string>
     <string name="intake_period_pick">von bis</string>
-    <string name="dose_ed"></string>
+    <string name="dose_ed">ED</string>
     <string name="dose_g">g</string>
-    <string name="dose_pcs"></string>
+    <string name="dose_pcs">st.</string>
     <string name="dose_l">l</string>
     <string name="dose_ml">ml</string>
     <string name="dose_mg">mg</string>
