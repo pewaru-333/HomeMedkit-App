@@ -29,6 +29,7 @@
     <string name="lang_it" translatable="false">Italiano</string>
     <string name="lang_es" translatable="false">Español</string>
     <string name="lang_pt_BR" translatable="false">Portugal (Brasil)</string>
+    <string name="lang_cs" translatable="false">Čeština</string>
     <string name="lang_pl" translatable="false">Polskie</string>
     <string name="lang_tr" translatable="false">Türkçe</string>
     <string name="lang_vi" translatable="false">Tiếng việt</string>

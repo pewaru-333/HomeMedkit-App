@@ -29,7 +29,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Locale.ROOT
 
-object IntakesViewModel : ViewModel() {
+class IntakesViewModel : ViewModel() {
     private val _state = MutableStateFlow(IntakesState())
     val state = _state.asStateFlow()
 

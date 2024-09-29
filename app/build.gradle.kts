@@ -14,8 +14,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 35
-        versionName = "1.4.7"
+        versionCode = 36
+        versionName = "1.4.8"
     }
 
     dependenciesInfo {
@@ -48,14 +48,12 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
 }
 
 dependencies {
-
     // ==================== Android ====================
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.material3)
@@ -85,5 +83,5 @@ dependencies {
     implementation(libs.coil.compose)
 
     // ==================== Settings ====================
-    implementation(libs.librarySettingsM3)
+    implementation(libs.material.preferences)
 }

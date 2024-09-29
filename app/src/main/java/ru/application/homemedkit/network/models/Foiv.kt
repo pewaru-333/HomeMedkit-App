@@ -8,5 +8,6 @@ import ru.application.homemedkit.helpers.BLANK
 data class Foiv(
     @Json val prodFormNormName: String = BLANK,
     @Json val prodDNormName: String? = BLANK,
+    @Json val prodPack12: String? = BLANK,
     @Json val prodPack1Size: String? = BLANK
 )

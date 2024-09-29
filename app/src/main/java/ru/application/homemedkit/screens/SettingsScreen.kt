@@ -195,7 +195,7 @@ fun SettingsScreen(context: Context = LocalContext.current) {
 
                 ListPreference(
                     value = value,
-                    onValueChange = { value = it; Preferences.setLanguage(it) },
+                    onValueChange = { value = it; Preferences.setLocale(context, it) },
                     values = LANGUAGES,
                     title = { Text(stringResource(preference_language)) },
                     summary = { Text(localize(value, LANGUAGES, languages)) },

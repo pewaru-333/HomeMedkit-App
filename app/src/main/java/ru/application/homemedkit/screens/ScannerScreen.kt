@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -52,6 +53,7 @@ import com.budiyev.android.codescanner.CodeScannerView
 import com.google.zxing.BarcodeFormat
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ScannerScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -75,8 +77,8 @@ import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Success
 @Destination<RootGraph>
 @Composable
 fun ScannerScreen(navigator: DestinationsNavigator, context: Context = LocalContext.current) {
-    val viewModel = viewModel<ScannerViewModel>()
-    val response by viewModel.response.collectAsStateWithLifecycle()
+    val model = viewModel<ScannerViewModel>()
+    val response by model.response.collectAsStateWithLifecycle()
 
     var permissionGranted by remember { mutableStateOf(checkCameraPermission(context)) }
     var showRationale by remember { mutableStateOf(false) }
@@ -97,36 +99,32 @@ fun ScannerScreen(navigator: DestinationsNavigator, context: Context = LocalCont
         onDispose { lifecycle.removeObserver(observer) }
     }
 
-    when (permissionGranted) {
-        false -> {
-            LaunchedEffect(Unit) { launcher.launch(Manifest.permission.CAMERA) }
-            if (showRationale) PermissionDialog(text_request_camera)
-        }
-
-        true -> {
-            AndroidView(
-                factory = {
-                    val scannerView = CodeScannerView(it).apply {
-                        frameCornersRadius = 48.dp.value.toInt()
-                        frameThickness = 16.dp.value.toInt()
-                        isMaskVisible = true
-                    }
-
-                    CodeScanner(it, scannerView).apply {
-                        setErrorCallback { viewModel.throwError() }
-                        setDecodeCallback { result ->
-                            if (result.barcodeFormat == BarcodeFormat.DATA_MATRIX)
-                                viewModel.fetchData(it, result.text.substring(1))
-                            else viewModel.throwError()
-                        }
-
-                        startPreview()
-                    }
-
-                    scannerView
+    BackHandler { navigator.navigate(HomeScreenDestination) }
+    if (permissionGranted) {
+        AndroidView(
+            factory = {
+                val scannerView = CodeScannerView(it).apply {
+                    frameCornersRadius = 48.dp.value.toInt()
+                    frameThickness = 16.dp.value.toInt()
+                    isMaskVisible = true
                 }
-            )
-        }
+
+                CodeScanner(it, scannerView).apply {
+                    setErrorCallback { model.throwError() }
+                    setDecodeCallback { result ->
+                        if (result.barcodeFormat != BarcodeFormat.DATA_MATRIX) model.throwError()
+                        else model.fetchData(it, result.text.substring(1))
+                    }
+
+                    startPreview()
+                }
+
+                scannerView
+            }
+        )
+    } else {
+        LaunchedEffect(Unit) { launcher.launch(Manifest.permission.CAMERA) }
+        if (showRationale) PermissionDialog(text_request_camera)
     }
 
     when (val data = response) {

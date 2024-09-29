@@ -87,6 +87,7 @@ import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.helpers.BLANK
+import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.FORMAT_DME
 import ru.application.homemedkit.helpers.FORMAT_DMMMMY
 import ru.application.homemedkit.helpers.FORMAT_H
@@ -358,14 +359,14 @@ private fun MedicineItem(
         headlineContent = { Text(text = shortName(title), softWrap = false) },
         modifier = Modifier.combinedClickable(
             onClick = {},
-            onLongClick = { if (showDialog != null) showDialog() }
+            onLongClick = { showDialog?.invoke() }
         ),
         supportingContent = {
             Text(
                 text = stringResource(
                     intake_text_quantity,
                     formName?.let { if (it.isEmpty()) stringResource(text_amount) else formName(it) } ?: BLANK,
-                    decimalFormat(amount), doseType ?: BLANK
+                    decimalFormat(amount), stringResource(DoseTypes.getTitle(doseType)),
                 )
             )
         },

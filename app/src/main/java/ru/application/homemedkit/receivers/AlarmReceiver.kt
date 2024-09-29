@@ -1,9 +1,9 @@
 package ru.application.homemedkit.receivers
 
 import android.annotation.SuppressLint
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.NotificationManager.IMPORTANCE_HIGH
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.PendingIntent.getBroadcast
@@ -18,6 +18,7 @@ import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationCompat.CATEGORY_ALARM
 import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
 import androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY
+import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
 import ru.application.homemedkit.R.drawable.vector_time
 import ru.application.homemedkit.R.string.intake_text_not_taken
@@ -32,6 +33,7 @@ import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.helpers.ALARM_ID
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CHANNEL_ID
+import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.SOUND_GROUP
 import ru.application.homemedkit.helpers.TAKEN_ID
@@ -95,7 +97,6 @@ class AlarmReceiver : BroadcastReceiver() {
                 .setAutoCancel(false)
                 .setCategory(CATEGORY_ALARM)
                 .setContentTitle(context.getString(text_do_intake))
-                .setDefaults(Notification.DEFAULT_ALL)
                 .setDeleteIntent(pendingA)
                 .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
                 .setGroup(SOUND_GROUP)
@@ -104,10 +105,13 @@ class AlarmReceiver : BroadcastReceiver() {
                 .setStyle(BigTextStyle().bigText(
                     String.format(
                         context.getString(if (flag) text_intake_time else text_intake_amount_not_enough),
-                        shortName(medicine.productName), intake.amount, medicine.doseType
+                        shortName(medicine.productName),
+                        intake.amount,
+                        context.getString(DoseTypes.getTitle(medicine.doseType))
                     )
                 ))
                 .setTimeoutAfter(600000L)
+                .setVisibility(VISIBILITY_PUBLIC)
                 .build()
         )
 
@@ -117,15 +121,13 @@ class AlarmReceiver : BroadcastReceiver() {
 }
 
 fun createNotificationChannel(context: Context) {
-    val name = context.getString(notification_channel_name)
-    val description = context.getString(notification_channel_description)
-
     val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     manager.deleteNotificationChannel(context.getString(notification_channel_name))
     manager.createNotificationChannel(
-        NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_HIGH).apply {
-            this.description = description
+        NotificationChannel(CHANNEL_ID, context.getString(notification_channel_name), IMPORTANCE_HIGH).apply {
+            description = context.getString(notification_channel_description)
+            lockscreenVisibility = VISIBILITY_PUBLIC
         }
     )
 }

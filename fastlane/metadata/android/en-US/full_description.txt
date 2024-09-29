@@ -15,4 +15,4 @@ The application allows you to easily and quickly register and store information 
 * Reminder of the expiration date of medicines.
 * Export and import the database to other devices.
 
-The application will remind you about taking medicines and provide a more accurate account of them.
+With the help of the application, you can track the expiration dates of medicines, create a schedule for their intake and receive notifications about it. It is a reliable and convenient assistant that will help you monitor your health.

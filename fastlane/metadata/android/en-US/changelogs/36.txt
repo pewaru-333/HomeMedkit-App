@@ -1,0 +1,3 @@
+— The logic of choosing the dose of the medicine has been changed. If you have lost the values, then just update it in the medicine card.
+— Now, when scanning the label, the exact amount of medicine in the package is loaded.
+— Fixed a bug that caused the app to crash unexpectedly on some devices.

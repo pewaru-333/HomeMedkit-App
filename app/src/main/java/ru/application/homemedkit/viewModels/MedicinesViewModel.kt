@@ -19,7 +19,7 @@ import ru.application.homemedkit.helpers.Sorting
 import ru.application.homemedkit.helpers.Sorting.InName
 import java.util.Locale.ROOT
 
-object MedicinesViewModel : ViewModel() {
+class MedicinesViewModel : ViewModel() {
     private val _state = MutableStateFlow(MedicinesState())
     val state = _state.asStateFlow()
 

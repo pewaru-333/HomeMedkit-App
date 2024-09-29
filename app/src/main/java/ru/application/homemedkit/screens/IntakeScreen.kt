@@ -110,6 +110,7 @@ import ru.application.homemedkit.R.string.text_request_post
 import ru.application.homemedkit.R.string.text_start_date
 import ru.application.homemedkit.dialogs.DateRangePicker
 import ru.application.homemedkit.dialogs.TimePickerDialog
+import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.FoodTypes
 import ru.application.homemedkit.helpers.Intervals
 import ru.application.homemedkit.helpers.Periods
@@ -260,7 +261,7 @@ private fun Amount(model: IntakeViewModel, state: IntakeState, prodAmount: Doubl
                 readOnly = state.default,
                 placeholder = { Text(stringResource(text_empty)) },
                 leadingIcon = { Icon(painterResource(vector_medicine), null) },
-                suffix = { Text(type) },
+                suffix = { Text(stringResource(DoseTypes.getTitle(type))) },
                 visualTransformation = {
                     TransformedText(
                         AnnotatedString(it.text.replace('.', ',')),
@@ -281,7 +282,7 @@ private fun Amount(model: IntakeViewModel, state: IntakeState, prodAmount: Doubl
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
                 leadingIcon = { Icon(Icons.Outlined.Home, null) },
-                suffix = { Text(type) },
+                suffix = { Text(stringResource(DoseTypes.getTitle(type))) },
                 maxLines = 1,
                 shape = RoundedCornerShape(14.dp)
             )

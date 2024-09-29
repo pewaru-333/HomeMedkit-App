@@ -41,6 +41,13 @@ import ru.application.homemedkit.R.string.bottom_bar_intakes
 import ru.application.homemedkit.R.string.bottom_bar_main
 import ru.application.homemedkit.R.string.bottom_bar_medicines
 import ru.application.homemedkit.R.string.bottom_bar_settings
+import ru.application.homemedkit.R.string.dose_ed
+import ru.application.homemedkit.R.string.dose_g
+import ru.application.homemedkit.R.string.dose_l
+import ru.application.homemedkit.R.string.dose_mg
+import ru.application.homemedkit.R.string.dose_ml
+import ru.application.homemedkit.R.string.dose_pcs
+import ru.application.homemedkit.R.string.dose_ratio
 import ru.application.homemedkit.R.string.intake_interval_daily
 import ru.application.homemedkit.R.string.intake_interval_other
 import ru.application.homemedkit.R.string.intake_interval_weekly
@@ -50,6 +57,7 @@ import ru.application.homemedkit.R.string.intake_period_pick
 import ru.application.homemedkit.R.string.intake_text_food_after
 import ru.application.homemedkit.R.string.intake_text_food_before
 import ru.application.homemedkit.R.string.intake_text_food_during
+import ru.application.homemedkit.R.string.lang_cs
 import ru.application.homemedkit.R.string.lang_de
 import ru.application.homemedkit.R.string.lang_en
 import ru.application.homemedkit.R.string.lang_es
@@ -126,6 +134,21 @@ val SORTING = Sorting.entries.map(Sorting::value)
 val THEMES = Themes.entries.map(Themes::value)
 
 // ============================================= Enums =============================================
+enum class DoseTypes(val value: String, @StringRes val title: Int) {
+    Units("ed", dose_ed),
+    Pieces("pcs", dose_pcs),
+    Grams("g", dose_g),
+    Milligrams("mg", dose_mg),
+    Liters("l", dose_l),
+    Milliliters("ml", dose_ml),
+    Ratio("ratio", dose_ratio);
+
+    companion object {
+        fun getValue(value: String) = DoseTypes.entries.find { it.value == value }
+        fun getTitle(value: String?) = DoseTypes.entries.find { it.value == value }?.title ?: blank
+    }
+}
+
 enum class FoodTypes(val value: Int, @StringRes val title: Int, @DrawableRes val icon: Int) {
     Before(0, intake_text_food_before, vector_before_food),
     During(1, intake_text_food_during, vector_in_food),
@@ -159,6 +182,7 @@ enum class Languages(val value: String, @StringRes val title: Int) {
     Italian("it", lang_it),
     Spanish("es", lang_es),
     PortugalB("pt-BR", lang_pt_BR),
+    Czech("cs", lang_cs),
     Polish("pl", lang_pl),
     Turkish("tr", lang_tr),
     Vietnamese("vi", lang_vi),

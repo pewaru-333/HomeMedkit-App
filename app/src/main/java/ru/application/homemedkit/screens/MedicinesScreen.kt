@@ -68,6 +68,7 @@ import ru.application.homemedkit.R.string.text_no_data_found
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.helpers.BLANK
+import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.Sorting
 import ru.application.homemedkit.helpers.decimalFormat
@@ -181,7 +182,8 @@ private fun MedicineItem(medicine: Medicine, navigator: DestinationsNavigator) {
         },
         supportingContent = {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                Text(expDate); Text("${decimalFormat(medicine.prodAmount)} ${medicine.doseType}")
+                Text(expDate); Text("${decimalFormat(medicine.prodAmount)} ${
+                stringResource(DoseTypes.getTitle(medicine.doseType))}")
             }
         },
         leadingContent = { MedicineImage(medicine.image, Modifier.size(56.dp)) },
@@ -224,7 +226,8 @@ private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator) {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
                 Text(text = expDate, fontWeight = SemiBold)
                 Text(
-                    text = "${decimalFormat(medicine.prodAmount)} ${medicine.doseType}",
+                    text = "${decimalFormat(medicine.prodAmount)} ${
+                        stringResource(DoseTypes.getTitle(medicine.doseType))}",
                     fontWeight = SemiBold
                 )
             }

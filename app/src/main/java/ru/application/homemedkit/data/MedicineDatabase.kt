@@ -29,7 +29,7 @@ private const val DATABASE_NAME = "medicines"
 
 @Database(
     entities = [Medicine::class, Intake::class, Alarm::class, Kit::class, IntakeTaken::class],
-    version = 10
+    version = 11
 )
 @TypeConverters(Converters::class)
 abstract class MedicineDatabase : RoomDatabase() {
@@ -56,7 +56,8 @@ abstract class MedicineDatabase : RoomDatabase() {
                     MIGRATION_6_7,
                     MIGRATION_7_8,
                     MIGRATION_8_9,
-                    MIGRATION_9_10
+                    MIGRATION_9_10,
+                    MIGRATION_10_11
                 )
                 .allowMainThreadQueries()
                 .build()
@@ -280,12 +281,15 @@ abstract class MedicineDatabase : RoomDatabase() {
 
                         var milliS = if (time.isNotEmpty()) LocalDateTime.of(localS, time.first())
                         else LocalDateTime.of(LocalDate.of(3000, 1, 1), LocalTime.of(12, 0))
-                        val milliF = if (time.isNotEmpty()) LocalDateTime.of(LocalDate.now(), time.last { it <= LocalTime.now() })
+                        val milliF = if (time.isNotEmpty()) LocalDateTime.of(
+                            LocalDate.now(),
+                            time.last { it <= LocalTime.now() })
                         else LocalDateTime.of(LocalDate.of(2000, 1, 1), LocalTime.of(12, 0))
 
                         while (milliS <= milliF) {
                             time.forEach {
-                                val millis = LocalDateTime.of(localS, it).toInstant(ZONE).toEpochMilli()
+                                val millis =
+                                    LocalDateTime.of(localS, it).toInstant(ZONE).toEpochMilli()
                                 if (millis <= LocalDateTime.now().toInstant(ZONE).toEpochMilli())
                                     db.execSQL(
                                         "INSERT INTO intakes_taken (medicineId, intakeId, alarmId, productName, " +
@@ -306,6 +310,24 @@ abstract class MedicineDatabase : RoomDatabase() {
 
         private val MIGRATION_9_10 = object : Migration(9, 10) {
             override fun migrate(db: SupportSQLiteDatabase) = Unit
+        }
+
+        private val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("UPDATE medicines SET doseType = 'ed' WHERE doseType = 'ЕД'")
+                db.execSQL("UPDATE medicines SET doseType = 'pcs' WHERE doseType = 'шт'")
+                db.execSQL("UPDATE medicines SET doseType = 'g' WHERE doseType = 'г'")
+                db.execSQL("UPDATE medicines SET doseType = 'mg' WHERE doseType = 'мг'")
+                db.execSQL("UPDATE medicines SET doseType = 'l' WHERE doseType = 'л'")
+                db.execSQL("UPDATE medicines SET doseType = 'ml' WHERE doseType = 'мл'")
+
+                db.execSQL("UPDATE intakes_taken SET doseType = 'ed' WHERE doseType = 'ЕД'")
+                db.execSQL("UPDATE intakes_taken SET doseType = 'pcs' WHERE doseType = 'шт'")
+                db.execSQL("UPDATE intakes_taken SET doseType = 'g' WHERE doseType = 'г'")
+                db.execSQL("UPDATE intakes_taken SET doseType = 'mg' WHERE doseType = 'мг'")
+                db.execSQL("UPDATE intakes_taken SET doseType = 'l' WHERE doseType = 'л'")
+                db.execSQL("UPDATE intakes_taken SET doseType = 'ml' WHERE doseType = 'мл'")
+            }
         }
     }
 }

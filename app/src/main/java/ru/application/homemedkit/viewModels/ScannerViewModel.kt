@@ -23,7 +23,7 @@ import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Loading
 import ru.application.homemedkit.viewModels.ScannerViewModel.Response.NoNetwork
 import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Success
 
-object ScannerViewModel : ViewModel() {
+class ScannerViewModel : ViewModel() {
     private val dao = database.medicineDAO()
 
     private val _response = MutableStateFlow<Response>(Default)
@@ -65,7 +65,9 @@ object ScannerViewModel : ViewModel() {
         expDate = model.drugsData.expireDate,
         prodFormNormName = model.drugsData.foiv.prodFormNormName,
         prodDNormName = model.drugsData.foiv.prodDNormName ?: BLANK,
-        prodAmount = model.drugsData.foiv.prodPack1Size?.toDoubleOrNull() ?: 0.0,
+        prodAmount = model.drugsData.foiv.prodPack1Size?.let {
+            it.toDouble() * (model.drugsData.foiv.prodPack12?.toDoubleOrNull() ?: 1.0)
+        } ?: 0.0,
         phKinetics = model.drugsData.vidalData.phKinetics ?: BLANK,
         image = getImage(context, model.drugsData.vidalData.images),
         technical = Technical(scanned = true, verified = true)

@@ -1,10 +1,12 @@
 package ru.application.homemedkit.helpers
 
+import android.app.Activity
+import android.app.LocaleManager
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatDelegate.setApplicationLocales
-import androidx.core.os.LocaleListCompat
+import android.os.Build
+import android.os.LocaleList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.stateIn
 import ru.application.homemedkit.receivers.AlarmSetter
+import java.util.Locale
 
 object Preferences : ViewModel() {
 
@@ -43,9 +46,24 @@ object Preferences : ViewModel() {
         AlarmSetter(context).checkExpiration(check)
             .also { preferences.edit().putBoolean(CHECK_EXP_DATE, check).apply() }
 
-    fun setLanguage(language: String) =
-        preferences.edit().putString(KEY_LANGUAGE, language).apply().also {
-            setApplicationLocales(LocaleListCompat.forLanguageTags(language))
+    fun setLocale(context: Context, locale: String) = preferences.edit()
+        .putString(KEY_LANGUAGE, locale).apply().also {
+            changeLanguage(context, locale); (context as Activity).recreate()
+        }
+
+    @Suppress("DEPRECATION")
+    fun changeLanguage(context: Context, locale: String) =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+            context.getSystemService(LocaleManager::class.java)
+                .applicationLocales = LocaleList.forLanguageTags(locale)
+        else {
+            val newLocale = Locale(locale)
+            Locale.setDefault(newLocale)
+
+            val resources = context.resources
+            val configuration = resources.configuration
+            configuration.setLocales(LocaleList(newLocale))
+            resources.updateConfiguration(configuration, resources.displayMetrics)
         }
 }
 

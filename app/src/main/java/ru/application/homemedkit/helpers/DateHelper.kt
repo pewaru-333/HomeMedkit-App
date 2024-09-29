@@ -11,7 +11,6 @@ import java.time.LocalTime
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 val LOCALE
     @Composable get() = ConfigurationCompat.getLocales(LocalConfiguration.current)[0]
@@ -22,10 +21,10 @@ val FORMAT_DH = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm")
 val FORMAT_DMMMMY @Composable get() = DateTimeFormatter.ofPattern("d MMMM yyyy", LOCALE)
 val FORMAT_DME @Composable get() = DateTimeFormatter.ofPattern("d MMMM, E", LOCALE)
 val FORMAT_H = DateTimeFormatter.ofPattern("H:mm")
-private var FORMAT_L = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
 private val FORMAT_MY = DateTimeFormatter.ofPattern("MM/yyyy")
 
-fun toExpDate(milli: Long) = if (milli > 0) getDateTime(milli).format(FORMAT_L) else BLANK
+@Composable
+fun toExpDate(milli: Long) = if (milli > 0) getDateTime(milli).format(FORMAT_DMMMMY) else BLANK
 
 fun toTimestamp(month: Int, year: Int) = LocalDateTime.of(
     year, month, YearMonth.of(year, month).lengthOfMonth(),
@@ -35,7 +34,8 @@ fun toTimestamp(month: Int, year: Int) = LocalDateTime.of(
 fun inCard(milli: Long) = if (milli == -1L) BLANK else getDateTime(milli).format(FORMAT_MY)
 
 fun lastAlarm(date: String, time: LocalTime) = LocalDateTime.of(
-    LocalDate.parse(date, FORMAT_S), time).toInstant(ZONE).toEpochMilli()
+    LocalDate.parse(date, FORMAT_S), time
+).toInstant(ZONE).toEpochMilli()
 
 fun expirationCheckTime(): Long {
     var unix = LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 0))
