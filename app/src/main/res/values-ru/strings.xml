@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Аптечка</string>
-
     <!-- Меню -->
     <string name="bottom_bar_main">Главная</string>
     <string name="bottom_bar_medicines">Лекарства</string>
     <string name="bottom_bar_intakes">Приём</string>
     <string name="bottom_bar_settings">Настройки</string>
-
     <!-- Настройки -->
     <string name="preference_app_view">Вид приложения</string>
     <string name="preference_kits_group">Группы лекарств</string>
@@ -21,21 +19,17 @@
     <string name="preference_app_theme">Тема приложения</string>
     <string name="preference_dynamic_color">Системные цвета</string>
     <string name="preference_import_export">Импорт/Экспорт</string>
-
     <!-- Языки -->
     <string name="lang_system">Системный</string>
-
     <!-- Сортировка -->
     <string name="sorting_a_z">Названию (от А до Я)</string>
     <string name="sorting_z_a">Названию (от Я до А)</string>
     <string name="sorting_from_oldest">Сроку годности (со старых)</string>
     <string name="sorting_from_newest">Сроку годности (с новых)</string>
-
     <!-- Темы -->
     <string name="theme_system">Системная</string>
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
-
     <!-- Уведомления -->
     <string name="notification_channel_description">Напоминания о приёме лекарств</string>
     <string name="notification_channel_name">Звуковые уведомления</string>
@@ -45,12 +39,10 @@
     <string name="text_intake_amount_not_enough">Время приёма лекарства %1$s, но его оставшегося количества меньше предписанного!</string>
     <string name="text_intake_time">Лекарство: %1$s\nКоличество: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Осталось недостаточно лекарства</string>
-
     <!-- "Заполнители" -->
     <string name="placeholder_dose">0,5 мг + 84 мкг</string>
     <string name="placeholder_kitchen">Кухня</string>
     <string name="placeholder_time">Время #%1$d</string>
-
     <!-- Лекарства -->
     <string name="text_exp_date">Годен до</string>
     <string name="text_indications_for_use">Показания к применению</string>
@@ -63,7 +55,6 @@
     <string name="text_medicine_status_checked">Проверено</string>
     <string name="text_medicine_status_scanned">Не проверено</string>
     <string name="text_medicine_status_self_added">Добавлено вручную</string>
-
     <!-- Формы лекарств -->
     <string name="type_tablets">ТАБЛЕТКИ</string>
     <string name="type_capsules">КАПСУЛЫ</string>
@@ -87,7 +78,6 @@
     <string name="type_aerosol">АЭРОЗОЛЬ</string>
     <string name="type_spray">СПРЕЙ</string>
     <string name="type_drops">КАПЛИ</string>
-
     <!-- Виды доз лекарств -->
     <string name="dose_ed">ЕД</string>
     <string name="dose_pcs">шт</string>
@@ -95,12 +85,10 @@
     <string name="dose_mg">мг</string>
     <string name="dose_l">л</string>
     <string name="dose_ml">мл</string>
-
     <!-- Приём -->
     <string name="intakes_tab_current">Текущее</string>
     <string name="intakes_tab_list">Список</string>
     <string name="intakes_tab_taken">Принятое</string>
-
     <string name="intake_card_text_from">(с %1$s)</string>
     <string name="intake_text_amount">Количество</string>
     <string name="intake_text_date">Дата</string>
@@ -117,15 +105,12 @@
     <string name="intake_text_select_interval">Выберите интервал</string>
     <string name="intake_text_taken">Принято</string>
     <string name="intake_text_time">Время</string>
-
     <string name="intake_interval_daily">ежедневно</string>
     <string name="intake_interval_weekly">еженедельно</string>
     <string name="intake_interval_other">другой</string>
-
     <string name="intake_period_pick">выбор по датам</string>
     <string name="intake_period_other">ввод дней</string>
     <string name="intake_period_indef">бессрочно</string>
-
     <!-- Диалоговые окна -->
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
     <string name="text_confirm_exit">Подтвердите выход</string>
@@ -141,7 +126,6 @@
     <string name="text_select_time">Выберите время</string>
     <string name="text_sure_to_exit">Вы точно хотите выйти из приложения?</string>
     <string name="text_try_again">Попробуйте отсканировать код ещё раз!</string>
-
     <!-- Строки -->
     <string name="text_add">Добавить</string>
     <string name="text_all">Все</string>
@@ -174,7 +158,6 @@
     <string name="text_unspecified">Не указано</string>
     <string name="text_update">Загрузить</string>
     <string name="text_yes">Да</string>
-
     <!-- Множественные числительные -->
     <plurals name="intakes_a_day">
         <item quantity="one">%d раз в день</item>

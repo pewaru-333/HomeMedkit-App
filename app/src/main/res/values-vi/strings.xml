@@ -155,4 +155,10 @@
     <string name="intake_period_other">days input</string>
     <string name="intake_interval_weekly">weekly</string>
     <string name="intake_period_pick">dates choice</string>
+    <string name="dose_l">l</string>
+    <string name="dose_ml">ml</string>
+    <string name="dose_ed">ED</string>
+    <string name="dose_g">g</string>
+    <string name="dose_mg">mg</string>
+    <string name="dose_pcs">pcs</string>
 </resources>
