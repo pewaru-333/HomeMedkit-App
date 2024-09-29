@@ -89,11 +89,11 @@
     <string name="text_request_camera">Um das Label zu scannen, braucht die App Kamerazugriffs-Rechte</string>
     <string name="text_request_post">Um Benachrichtigungen anzuzeigen braucht die App die entsprechende Berechtigung</string>
     <string name="text_notification_pick_action_first">Zum Ändern bitte zunächst eine Aktion in der Benachrichtigung wählen</string>
-    <string name="text_days_short">d.</string>
-    <string name="text_update">Update</string>
+    <string name="text_days_short">T.</string>
+    <string name="text_update"></string>
     <string name="text_unspecified">Nicht angegeben</string>
     <string name="theme_light">Hell</string>
-    <string name="text_medicine_status_scanned">Gescannt, ungeprüft</string>
+    <string name="text_medicine_status_scanned">Gescannt, nicht verifiziert</string>
     <string name="theme_dark">Dunkel</string>
     <string name="text_data_matrix_scanner">Eintrag per Datenmatrix-Scan (nur für RU)</string>
     <plurals name="intakes_a_day">
@@ -104,7 +104,7 @@
     <string name="text_sure_to_exit">Soll die App wirklich beendet werden?</string>
     <string name="text_no">Nein</string>
     <string name="text_intake_amount_not_enough">Zeit %1$s einzunehmen, aber Vorrat ist geringer als verordnet!</string>
-    <string name="text_medicine_form">Release form</string>
+    <string name="text_medicine_form">Darreichungsform</string>
     <string name="intake_text_taken">Eingenommen</string>
     <string name="type_tablets">TABLETTEN</string>
     <string name="text_intake_time">Medikament: %1$s
@@ -117,7 +117,7 @@
     <string name="intake_text_food">Mahlzeiten &amp; Medikament</string>
     <string name="preference_med_compact_view">Kompaktansicht der Medizinliste</string>
     <string name="type_granules">GRANULAT</string>
-    <string name="text_medicine_status_self_added">Selbst hinzugefügt</string>
+    <string name="text_medicine_status_self_added">Manuell hinzugefügt</string>
     <string name="intake_text_amount">Menge</string>
     <string name="type_decoction">AUFGUSS</string>
     <string name="intake_text_not_taken">Nicht eingenommem</string>
@@ -126,7 +126,7 @@
     <string name="placeholder_dose">0,5 mg + 84 µg</string>
     <string name="text_expire_soon">Das Ablaufdatum von %1$s ist nahe</string>
     <string name="type_dragee">DRAGEES</string>
-    <string name="text_medicine_status_checked">Gescannt, geprüft</string>
+    <string name="text_medicine_status_checked">Gescannt, verifiziert</string>
     <string name="manual_add">Soll das Medikament per Hand eingetragen werden?</string>
     <string name="type_extract">EXTRAKT</string>
     <string name="type_suspension">SUSPENSION</string>
@@ -156,9 +156,9 @@
     <string name="intake_period_other">Anzahl Tage</string>
     <string name="intake_interval_weekly">wöchentlich</string>
     <string name="intake_period_pick">von bis</string>
-    <string name="dose_ed">ED</string>
+    <string name="dose_ed"></string>
     <string name="dose_g">g</string>
-    <string name="dose_pcs">pcs</string>
+    <string name="dose_pcs"></string>
     <string name="dose_l">l</string>
     <string name="dose_ml">ml</string>
     <string name="dose_mg">mg</string>
