@@ -9,7 +9,7 @@
     <string name="preference_app_view">Aplicación</string>
     <string name="preference_kits_group">Grupos de medicamentos</string>
     <string name="preference_sorting_type">Clasificación de los medicamentos</string>
-    <string name="preference_med_compact_view">Vista compacta de la lista de medicamentos</string>
+    <string name="preference_med_compact_view">Vista compacta de la lista</string>
     <string name="preference_download_images">Descargar imágenes de medicamentos</string>
     <string name="preference_check_expiration_date">Comprobar la fecha de caducidad de los medicamentos</string>
     <string name="preference_system">Sistema</string>
@@ -158,13 +158,13 @@
         <item quantity="many">%d veces al día</item>
         <item quantity="other">%d veces al día</item>
     </plurals>
-    <string name="text_intake_prealarm_text">Medicine: %1$s\nAmount: %2$s %3$s\nTime: %4$s</string>
-    <string name="text_dismiss">Dismiss</string>
+    <string name="text_intake_prealarm_text">Medicamento: %1$s\nDosis: %2$s %3$s\nDuración: %4$s</string>
+    <string name="text_dismiss">Descartar</string>
     <string name="intake_text_in_fact">In fact</string>
-    <string name="intake_text_by_schedule">By schedule</string>
+    <string name="intake_text_by_schedule">Por horario</string>
     <string name="intake_text_extra">Extra</string>
-    <string name="intake_extra_prealarm">Upcoming notification</string>
-    <string name="intake_extra_prealarm_desc">Notification in status bar before 30 minutes of intake time.</string>
-    <string name="text_intake_prealarm_title">Upcoming intake</string>
-    <string name="intake_extra_no_sound">No sound</string>
+    <string name="intake_extra_prealarm">Próximas notificaciones</string>
+    <string name="intake_extra_prealarm_desc">Notificación en la barra de estado antes de los 30 minutos del tiempo de admisión.</string>
+    <string name="text_intake_prealarm_title">Próxima incorporación</string>
+    <string name="intake_extra_no_sound">Sin sonido</string>
 </resources>
