@@ -2,14 +2,12 @@
 <resources>
     <string name="app_name">Medkit</string>
     <!-- Menu -->
-    <string name="bottom_bar_main">Ana Sayfa</string>
     <string name="bottom_bar_medicines">İlaçlar</string>
     <string name="bottom_bar_intakes">Alımlar</string>
     <string name="bottom_bar_settings">Ayarlar</string>
     <!-- Preferences -->
     <string name="preference_app_view">Uygulama görünümü</string>
     <string name="preference_kits_group">İlaç grupları</string>
-    <string name="preference_start_page">Ana sayfa</string>
     <string name="preference_sorting_type">İlaç sıralama</string>
     <string name="preference_download_images">İlaç görsellerini indir</string>
     <string name="preference_check_expiration_date">İlaçların son kullanma tarihini kontrol etme</string>
@@ -63,7 +61,6 @@
     <string name="intake_text_time">Zaman</string>
     <!-- Dialogs -->
     <string name="manual_add">İlacı manuel olarak eklemek ister misiniz?</string>
-    <string name="text_confirm_exit">Çıkışı onayla</string>
     <string name="text_connection_error">Bağlantı hatası!</string>
     <string name="text_duplicate">Bu ilaç zaten eklenmiş!</string>
     <string name="text_export_import_description">Bu deneysel bir özelliktir.\nDışa aktarırken dosya adını değiştirebilirsiniz.\nİçe aktarırken, mevcut veriler silinecek! Lütfen, işlem sonrası uygulamayı yeniden başlatın!</string>
@@ -72,7 +69,6 @@
     <string name="text_request_camera">Etiketi taramak için, uygulamanın kamera kullanmasına izin verilmesi gerekir</string>
     <string name="text_request_post">Bildirim almak için, uygulamaya ilgili izinlerin verilmesi gerekir</string>
     <string name="text_select_time">Zamanı seç</string>
-    <string name="text_sure_to_exit">Uygulamadan çıkmak istediğinizden emin misiniz?</string>
     <!-- Strings -->
     <string name="text_add">Ekle</string>
     <string name="text_all">Tümü</string>
@@ -80,7 +76,6 @@
     <string name="text_cancel">İptal</string>
     <string name="text_clear">Temizle</string>
     <string name="text_daily_at">Günlük saat 12:00</string>
-    <string name="text_data_matrix_scanner">DataMatrix etiketi tarama (sadece RU için)</string>
     <string name="text_days_short">g.</string>
     <string name="text_delete">Sil</string>
     <string name="text_edit">Düzenle</string>
@@ -91,7 +86,6 @@
     <string name="text_export">Dışa Aktar</string>
     <string name="text_finish_date">Bitiş tarihi</string>
     <string name="text_import">İçe Aktar</string>
-    <string name="text_manual_add">Manuel ilaç ekleme</string>
     <string name="text_no_data_found">İlaç bulunamadı. Ekleyin veya filtreyi değiştirin.</string>
     <string name="text_no_intakes_found">Alım bulunamadı. İlaç bilgi kartından ekleyin veya arama değerini değiştirin.</string>
     <string name="text_no">Hayır</string>

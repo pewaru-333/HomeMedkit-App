@@ -29,7 +29,7 @@ private const val DATABASE_NAME = "medicines"
 
 @Database(
     entities = [Medicine::class, Intake::class, Alarm::class, Kit::class, IntakeTaken::class],
-    version = 11
+    version = 14
 )
 @TypeConverters(Converters::class)
 abstract class MedicineDatabase : RoomDatabase() {
@@ -57,7 +57,10 @@ abstract class MedicineDatabase : RoomDatabase() {
                     MIGRATION_7_8,
                     MIGRATION_8_9,
                     MIGRATION_9_10,
-                    MIGRATION_10_11
+                    MIGRATION_10_11,
+                    MIGRATION_11_12,
+                    MIGRATION_12_13,
+                    MIGRATION_13_14
                 )
                 .allowMainThreadQueries()
                 .build()
@@ -328,6 +331,36 @@ abstract class MedicineDatabase : RoomDatabase() {
                 db.execSQL("UPDATE intakes_taken SET doseType = 'l' WHERE doseType = 'л'")
                 db.execSQL("UPDATE intakes_taken SET doseType = 'ml' WHERE doseType = 'мл'")
             }
+        }
+
+        private val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE intakes_taken ADD COLUMN inFact INTEGER NOT NULL DEFAULT 0")
+
+                val cursor = db.query("SELECT takenId, trigger FROM intakes_taken")
+                cursor.moveToFirst()
+
+                while (!cursor.isAfterLast) {
+                    val id = cursor.getInt(0)
+                    val trigger = cursor.getLong(1)
+
+                    db.execSQL("UPDATE intakes_taken SET inFact = $trigger WHERE takenId = $id")
+
+                    cursor.moveToNext()
+                }
+            }
+        }
+
+        private val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE intakes ADD COLUMN noSound INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE intakes ADD COLUMN preAlarm INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        private val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) =
+                db.execSQL("ALTER TABLE alarms ADD COLUMN preAlarm INTEGER NOT NULL DEFAULT 0")
         }
     }
 }

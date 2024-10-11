@@ -2,14 +2,12 @@
 <resources>
     <string name="app_name">Medkit</string>
     <!-- Menu -->
-    <string name="bottom_bar_main">主頁</string>
     <string name="bottom_bar_medicines">藥物</string>
     <string name="bottom_bar_intakes">攝取量</string>
     <string name="bottom_bar_settings">設定</string>
     <!-- Preferences -->
     <string name="preference_app_view">應用程式檢視</string>
     <string name="preference_kits_group">藥物群組</string>
-    <string name="preference_start_page">主頁</string>
     <string name="preference_sorting_type">藥物排序</string>
     <string name="preference_download_images">下載藥物圖片</string>
     <string name="preference_check_expiration_date">檢查藥物的到期日</string>
@@ -55,14 +53,12 @@
     <string name="intake_text_select_interval">選擇間隔</string>
     <string name="intake_text_time">時間</string>
     <!-- Dialogs -->
-    <string name="text_confirm_exit">確認退出</string>
     <string name="text_connection_error">连接错误！</string>
     <string name="text_grant_permission">授予權限</string>
     <string name="text_new_group">新群組</string>
     <string name="text_request_camera">要掃描標籤，應用程式必須獲得使用相機的權限</string>
     <string name="text_request_post">要接收通知，應用程式必須已授予適當的權限</string>
     <string name="text_select_time">選擇時間</string>
-    <string name="text_sure_to_exit">你確定你要退出應用程式嗎？</string>
     <!-- Strings -->
     <string name="text_yes">是</string>
     <string name="text_tap_to_view">點擊以檢視</string>
@@ -83,7 +79,6 @@
     <string name="text_edit">編輯</string>
     <string name="text_delete">刪除</string>
     <string name="text_days_short">天</string>
-    <string name="text_data_matrix_scanner">正在掃描 DataMatrix 標籤（僅適用於 RU）</string>
     <string name="text_daily_at">每天 12:00</string>
     <string name="text_clear">清除</string>
     <string name="text_cancel">取消</string>
@@ -116,7 +111,6 @@
     <string name="manual_add">Do you want to add medicine manually?</string>
     <string name="text_unspecified">Unspecified</string>
     <string name="text_no_intakes_found">No intakes found. Add them via medicine information card or change the search value.</string>
-    <string name="text_manual_add">Manual medicine adding</string>
     <string name="text_medicine_status_scanned">Scanned, unchecked</string>
     <string name="text_medicine_form">Release form</string>
     <string name="type_tablets">TABLETS</string>

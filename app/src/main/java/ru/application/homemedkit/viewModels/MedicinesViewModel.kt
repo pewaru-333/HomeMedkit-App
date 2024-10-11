@@ -16,7 +16,7 @@ import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.Sorting
-import ru.application.homemedkit.helpers.Sorting.InName
+import ru.application.homemedkit.helpers.Sorting.IN_NAME
 import java.util.Locale.ROOT
 
 class MedicinesViewModel : ViewModel() {
@@ -45,6 +45,8 @@ class MedicinesViewModel : ViewModel() {
     fun showFilter() = _state.update { it.copy(showFilter = true) }
     fun hideFilter() = _state.update { it.copy(showFilter = false) }
 
+    fun showAdding() = _state.update { it.copy(showAdding = !_state.value.showAdding) }
+
     fun setFilter(kitId: Long) = _state.update { it.copy(kitId = kitId) }
     fun saveFilter() {
         Preferences.setLastKit(_state.value.kitId)
@@ -55,9 +57,10 @@ class MedicinesViewModel : ViewModel() {
 data class MedicinesState(
     val search: String = BLANK,
     val sorting: Comparator<Medicine> =
-        Sorting.entries.find { it.value == Preferences.getSortingOrder() }?.type ?: InName.type,
+        Sorting.entries.find { it.value == Preferences.getSortingOrder() }?.type ?: IN_NAME.type,
     val kitId: Long = Preferences.getLastKit(),
     val showSort: Boolean = false,
     val showFilter: Boolean = false,
+    val showAdding: Boolean = false,
     val listState: LazyListState = LazyListState()
 )

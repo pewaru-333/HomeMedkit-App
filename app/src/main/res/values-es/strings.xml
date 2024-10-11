@@ -3,7 +3,6 @@
     <string name="app_name">Medkit</string>
 
     <!-- Menú -->
-    <string name="bottom_bar_main">Inicio</string>
     <string name="bottom_bar_medicines">Medicamentos</string>
     <string name="bottom_bar_intakes">Tomas</string>
     <string name="bottom_bar_settings">Ajustes</string>
@@ -11,7 +10,6 @@
     <!-- Preferencias -->
     <string name="preference_app_view">Aplicación</string>
     <string name="preference_kits_group">Grupos de medicamentos</string>
-    <string name="preference_start_page">Página de inicio</string>
     <string name="preference_sorting_type">Clasificación de los medicamentos</string>
     <string name="preference_med_compact_view">Vista compacta de la lista de medicamentos</string>
     <string name="preference_download_images">Descargar imágenes de medicamentos</string>
@@ -128,7 +126,6 @@
 
     <!-- Diálogos -->
     <string name="manual_add">¿Quieres añadir un medicamento manualmente?</string>
-    <string name="text_confirm_exit">Confirmar salida</string>
     <string name="text_connection_error">Error de conexión!</string>
     <string name="text_duplicate">¡Este medicamento ya ha sido agregado!</string>
     <string name="text_export_import_description">Esta es una característica experimental.\nAl exportar, puedes cambiar el nombre del archivo.\n¡Al importar, los datos actuales se eliminarán! ¡Por favor, reinicia la aplicación después!</string>
@@ -139,7 +136,6 @@
     <string name="text_request_camera">Para escanear la etiqueta, la aplicación debe tener permiso para usar la cámara</string>
     <string name="text_request_post">Para recibir notificaciones, se debe otorgar a la aplicación el permiso apropiado</string>
     <string name="text_select_time">Seleccionar hora</string>
-    <string name="text_sure_to_exit">¿Quieres cerrar la aplicación?</string>
     <string name="text_try_again">¡Vuelve a escanear la etiqueta!</string>
 
     <!-- Strings -->
@@ -149,7 +145,6 @@
     <string name="text_cancel">Cancelar</string>
     <string name="text_clear">Limpiar</string>
     <string name="text_daily_at">Diariamente a las 12:00</string>
-    <string name="text_data_matrix_scanner">Escanear etiqueta DataMatrix (solo para RU)</string>
     <string name="text_days_short">d.</string>
     <string name="text_delete">Borrar</string>
     <string name="text_edit">Editar</string>
@@ -160,7 +155,6 @@
     <string name="text_export">Exportar</string>
     <string name="text_finish_date">Fecha de finalización</string>
     <string name="text_import">Importar</string>
-    <string name="text_manual_add">Añadir medicamento manualmente</string>
     <string name="text_no">No</string>
     <string name="text_no_data_found">No se han encontrado medicamentos. Añádalos o cambie el filtro.</string>
     <string name="text_no_intakes_found">No se han encontrado tomas. Añádalas a través de la tarjeta de información sobre medicamentos o cambie el valor de búsqueda.</string>

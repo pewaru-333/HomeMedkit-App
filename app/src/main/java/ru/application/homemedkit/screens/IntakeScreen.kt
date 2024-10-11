@@ -13,28 +13,33 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,6 +52,7 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
@@ -68,6 +74,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -90,7 +97,9 @@ import ru.application.homemedkit.R.drawable.vector_medicine
 import ru.application.homemedkit.R.drawable.vector_period
 import ru.application.homemedkit.R.drawable.vector_remove
 import ru.application.homemedkit.R.drawable.vector_time
+import ru.application.homemedkit.R.string.intake_extra_prealarm_desc
 import ru.application.homemedkit.R.string.intake_text_amount
+import ru.application.homemedkit.R.string.intake_text_extra
 import ru.application.homemedkit.R.string.intake_text_food
 import ru.application.homemedkit.R.string.intake_text_interval
 import ru.application.homemedkit.R.string.intake_text_left
@@ -101,10 +110,12 @@ import ru.application.homemedkit.R.string.intake_text_time
 import ru.application.homemedkit.R.string.placeholder_time
 import ru.application.homemedkit.R.string.text_days_short
 import ru.application.homemedkit.R.string.text_delete
+import ru.application.homemedkit.R.string.text_dismiss
 import ru.application.homemedkit.R.string.text_edit
 import ru.application.homemedkit.R.string.text_empty
 import ru.application.homemedkit.R.string.text_every
 import ru.application.homemedkit.R.string.text_finish_date
+import ru.application.homemedkit.R.string.text_medicine_description
 import ru.application.homemedkit.R.string.text_medicine_product_name
 import ru.application.homemedkit.R.string.text_request_post
 import ru.application.homemedkit.R.string.text_start_date
@@ -112,6 +123,7 @@ import ru.application.homemedkit.dialogs.DateRangePicker
 import ru.application.homemedkit.dialogs.TimePickerDialog
 import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.FoodTypes
+import ru.application.homemedkit.helpers.IntakeExtras
 import ru.application.homemedkit.helpers.Intervals
 import ru.application.homemedkit.helpers.Periods
 import ru.application.homemedkit.helpers.decimalFormat
@@ -208,19 +220,18 @@ fun IntakeScreen(
             )
         }
     ) { values ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = values.calculateTopPadding().plus(16.dp))
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = spacedBy(32.dp)
+        LazyColumn(
+            verticalArrangement = spacedBy(24.dp),
+            modifier = Modifier.padding(top = 16.dp),
+            contentPadding = PaddingValues(16.dp, values.calculateTopPadding(), 16.dp, 0.dp)
         ) {
-            Title(medicine.productName)
-            Amount(model, state, medicine.prodAmount, medicine.doseType)
-            Interval(model, state)
-            Period(model, state)
-            Food(model::setFoodType, state)
-            Time(model, state)
+            item { Title(medicine.productName) }
+            item { Amount(model, state, medicine.prodAmount, medicine.doseType) }
+            item { Interval(model, state) }
+            item { Period(model, state) }
+            item { Food(model::setFoodType, state) }
+            item { Time(model, state) }
+            item { Extra(model, state) }
         }
     }
 
@@ -232,13 +243,15 @@ fun IntakeScreen(
             onRangeSelected = model::setPeriod
         )
 
+        state.showDialog -> DialogDescription(model)
+
         state.showTimeP -> TimePickerDialog(model::showTimePicker, model::setTime)
         { TimePicker(state.times[state.timeF]) }
     }
 }
 
 @Composable
-private fun Title(name: String) = Column(Modifier.padding(horizontal = 16.dp), spacedBy(8.dp)) {
+private fun Title(name: String) = Column(verticalArrangement =  spacedBy(8.dp)) {
     LabelText(text_medicine_product_name)
     OutlinedTextField(
         value = name,
@@ -251,7 +264,7 @@ private fun Title(name: String) = Column(Modifier.padding(horizontal = 16.dp), s
 
 @Composable
 private fun Amount(model: IntakeViewModel, state: IntakeState, prodAmount: Double, type: String) =
-    Row(Modifier.padding(horizontal = 16.dp), spacedBy(16.dp)) {
+    Row(horizontalArrangement = spacedBy(16.dp)) {
         Column(Modifier.weight(0.5f), spacedBy(8.dp)) {
             LabelText(intake_text_amount)
             OutlinedTextField(
@@ -293,7 +306,7 @@ private fun Amount(model: IntakeViewModel, state: IntakeState, prodAmount: Doubl
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Interval(model: IntakeViewModel, state: IntakeState) =
-    Column(Modifier.padding(horizontal = 16.dp), spacedBy(8.dp)) {
+    Column(verticalArrangement =  spacedBy(8.dp)) {
         LabelText(intake_text_interval)
         Row(horizontalArrangement = spacedBy(16.dp)) {
             ExposedDropdownMenuBox(
@@ -323,7 +336,7 @@ private fun Interval(model: IntakeViewModel, state: IntakeState) =
                 }
             }
 
-            if (state.intervalE == Intervals.Custom) OutlinedTextField(
+            if (state.intervalE == Intervals.CUSTOM) OutlinedTextField(
                 value = state.interval,
                 onValueChange = model::setInterval,
                 modifier = Modifier.weight(0.5f),
@@ -342,7 +355,7 @@ private fun Interval(model: IntakeViewModel, state: IntakeState) =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Period(model: IntakeViewModel, state: IntakeState) =
-    Column(Modifier.padding(horizontal = 16.dp), spacedBy(8.dp)) {
+    Column(verticalArrangement =  spacedBy(8.dp)) {
         LabelText(intake_text_period)
         Row(horizontalArrangement = spacedBy(16.dp)) {
             ExposedDropdownMenuBox(
@@ -372,7 +385,7 @@ private fun Period(model: IntakeViewModel, state: IntakeState) =
                 }
             }
 
-            if (state.periodE == Periods.Other) OutlinedTextField(
+            if (state.periodE == Periods.OTHER) OutlinedTextField(
                 value = state.period,
                 onValueChange = model::setPeriod,
                 modifier = Modifier.weight(1f),
@@ -388,7 +401,7 @@ private fun Period(model: IntakeViewModel, state: IntakeState) =
             )
         }
 
-        if (state.periodE != Periods.Indefinite) Row(horizontalArrangement = spacedBy(16.dp)) {
+        if (state.periodE != Periods.INDEFINITE) Row(horizontalArrangement = spacedBy(16.dp)) {
             OutlinedTextField(
                 value = state.startDate,
                 onValueChange = {},
@@ -423,11 +436,9 @@ private fun Period(model: IntakeViewModel, state: IntakeState) =
     }
 
 @Composable
-private fun Food(event: (Int) -> Unit, state: IntakeState) = Column(
-    modifier = Modifier.padding(horizontal = 16.dp), verticalArrangement = spacedBy(8.dp)
-) {
+private fun Food(event: (Int) -> Unit, state: IntakeState) = Column(verticalArrangement = spacedBy(8.dp)) {
     LabelText(intake_text_food)
-    Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
+    Row(Modifier.fillMaxWidth(), SpaceBetween) {
         FoodTypes.entries.forEach {
             Column(
                 verticalArrangement = Arrangement.SpaceEvenly,
@@ -456,12 +467,8 @@ private fun Food(event: (Int) -> Unit, state: IntakeState) = Column(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun Time(model: IntakeViewModel, state: IntakeState) = Column(
-    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-    verticalArrangement = spacedBy(8.dp)
-) {
+private fun Time(model: IntakeViewModel, state: IntakeState) = Column(verticalArrangement = spacedBy(8.dp)) {
     LabelText(intake_text_time)
-
     if (state.adding || state.editing) {
         repeat(state.time.size) { index ->
             Row(horizontalArrangement = spacedBy(16.dp), verticalAlignment = CenterVertically) {
@@ -525,11 +532,65 @@ private fun Time(model: IntakeViewModel, state: IntakeState) = Column(
 }
 
 @Composable
-private fun LabelText(id: Int) = Text(
+private fun Extra(model: IntakeViewModel, state: IntakeState) = Column {
+    LabelText(intake_text_extra, Modifier.padding(bottom = 8.dp))
+    IntakeExtras.entries.forEach { entry ->
+        Row(
+            horizontalArrangement = SpaceBetween,
+            verticalAlignment = CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+                .toggleable(
+                    enabled = !state.default,
+                    role = Role.Checkbox,
+                    value = when (entry) {
+                        IntakeExtras.NO_SOUND -> state.noSound
+                        IntakeExtras.PREALARM -> state.preAlarm
+                    },
+                    onValueChange = when (entry) {
+                        IntakeExtras.NO_SOUND -> model::setNoSound
+                        IntakeExtras.PREALARM -> model::setPreAlarm
+                    },
+                )
+        ) {
+            Row {
+                Checkbox(
+                    onCheckedChange = null,
+                    checked = when (entry) {
+                        IntakeExtras.NO_SOUND -> state.noSound
+                        IntakeExtras.PREALARM -> state.preAlarm
+                    }
+                )
+                Text(
+                    text = stringResource(entry.title),
+                    modifier = Modifier.padding(start = 16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+            entry.description?.let {
+                IconButton(model::showDialog) { Icon(Icons.Outlined.Info, null) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LabelText(id: Int, modifier: Modifier = Modifier) = Text(
     text = stringResource(id),
+    modifier = modifier,
     color = MaterialTheme.colorScheme.onSurface,
     fontWeight = FontWeight.SemiBold,
     style = MaterialTheme.typography.titleLarge
+)
+
+@Composable
+private fun DialogDescription(model: IntakeViewModel) = AlertDialog(
+    onDismissRequest = model::hideDialog,
+    dismissButton = { TextButton(model::hideDialog) { Text(stringResource(text_dismiss)) } },
+    confirmButton = {},
+    title = { Text(stringResource(text_medicine_description)) },
+    text = { Text(stringResource(intake_extra_prealarm_desc)) }
 )
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)

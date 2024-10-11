@@ -72,7 +72,6 @@ import ru.application.homemedkit.R.string.preference_kits_group
 import ru.application.homemedkit.R.string.preference_language
 import ru.application.homemedkit.R.string.preference_med_compact_view
 import ru.application.homemedkit.R.string.preference_sorting_type
-import ru.application.homemedkit.R.string.preference_start_page
 import ru.application.homemedkit.R.string.preference_system
 import ru.application.homemedkit.R.string.text_add
 import ru.application.homemedkit.R.string.text_attention
@@ -97,14 +96,11 @@ import ru.application.homemedkit.helpers.KEY_APP_VIEW
 import ru.application.homemedkit.helpers.KEY_DOWNLOAD
 import ru.application.homemedkit.helpers.KEY_DYNAMIC_COLOR
 import ru.application.homemedkit.helpers.KEY_EXP_IMP
-import ru.application.homemedkit.helpers.KEY_FRAGMENT
 import ru.application.homemedkit.helpers.KEY_KITS
 import ru.application.homemedkit.helpers.KEY_MED_COMPACT_VIEW
 import ru.application.homemedkit.helpers.KEY_ORDER
 import ru.application.homemedkit.helpers.LANGUAGES
 import ru.application.homemedkit.helpers.Languages
-import ru.application.homemedkit.helpers.MENUS
-import ru.application.homemedkit.helpers.Menu
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.SORTING
 import ru.application.homemedkit.helpers.Sorting
@@ -117,7 +113,6 @@ import java.io.File
 @Destination<RootGraph>
 @Composable
 fun SettingsScreen(context: Context = LocalContext.current) {
-    val menus = Menu.entries.map { stringResource(it.title) }
     val sorting = Sorting.entries.map { stringResource(it.title) }
     val languages = Languages.entries.map { stringResource(it.title) }
     val themes = Themes.entries.map { stringResource(it.title) }
@@ -137,15 +132,6 @@ fun SettingsScreen(context: Context = LocalContext.current) {
                 title = { Text(stringResource(preference_kits_group)) },
                 onClick = { showDialog = true },
                 summary = { Text(stringResource(text_tap_to_view)) }
-            )
-
-            listPreference(
-                key = KEY_FRAGMENT,
-                defaultValue = MENUS[0],
-                values = MENUS,
-                title = { Text(stringResource(preference_start_page)) },
-                summary = { Text(localize(it, MENUS, menus)) },
-                valueToText = { localize(it, MENUS, menus) }
             )
 
             listPreference(

@@ -22,7 +22,7 @@ class ActionReceiver : BroadcastReceiver() {
         NotificationManagerCompat.from(context).cancel(takenId.toInt())
         database.takenDAO().setNotified(takenId)
         if (intent.action == TYPE) {
-            database.takenDAO().setTaken(takenId, true)
+            database.takenDAO().setTaken(takenId, true, System.currentTimeMillis())
             database.medicineDAO().intakeMedicine(medicineId, amount)
         }
     }

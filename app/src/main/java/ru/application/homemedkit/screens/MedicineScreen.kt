@@ -86,6 +86,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.annotation.parameters.DeepLink
 import com.ramcosta.composedestinations.generated.destinations.IntakeScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.MedicinesScreenDestination
@@ -142,7 +143,7 @@ import java.time.LocalDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<RootGraph>
+@Destination<RootGraph>(deepLinks = [DeepLink(uriPattern = "app://medicines/{id}")])
 @Composable
 fun MedicineScreen(
     id: Long = 0L,
@@ -186,12 +187,7 @@ fun MedicineScreen(
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton({
-                        navigator.apply {
-                            if (getBackStackEntry(MedicinesScreenDestination) != null) popBackStack()
-                            else navigate(MedicinesScreenDestination)
-                        }
-                    }) {
+                    IconButton({ navigator.navigate(MedicinesScreenDestination) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                             contentDescription = null,
@@ -277,12 +273,7 @@ fun MedicineScreen(
         else -> Snackbar(text_try_again)
     }
 
-    BackHandler {
-        navigator.apply {
-            if (getBackStackEntry(MedicinesScreenDestination) != null) popBackStack()
-            else navigate(MedicinesScreenDestination)
-        }
-    }
+    BackHandler { navigator.navigate(MedicinesScreenDestination) }
 }
 
 @Composable
@@ -313,6 +304,7 @@ private fun ProductName(model: MedicineViewModel, state: MedicineState) = Column
         onValueChange = model::setProductName,
         modifier = Modifier.fillMaxWidth(),
         readOnly = state.default || state.technical.verified,
+        singleLine = true,
         textStyle = MaterialTheme.typography.titleMedium.copy(
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold
@@ -519,7 +511,7 @@ private fun ProductNormName(model: MedicineViewModel, state: MedicineState) =
                 onValueChange = model::setProdAmount,
                 readOnly = state.default,
                 singleLine = true,
-                textStyle = MaterialTheme.typography.bodyLarge,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 interactionSource = remember(::MutableInteractionSource),
                 visualTransformation = {

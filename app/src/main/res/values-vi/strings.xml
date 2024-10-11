@@ -2,14 +2,12 @@
 <resources>
     <string name="app_name">Tủ thuốc</string>
     <!-- Menu -->
-    <string name="bottom_bar_main">Trang chủ</string>
     <string name="bottom_bar_medicines">Các loại thuốc</string>
     <string name="bottom_bar_intakes">Uống thuốc</string>
     <string name="bottom_bar_settings">Thiết đặt</string>
     <!-- Preferences -->
     <string name="preference_app_view">Chế độ xem ứng dụng</string>
     <string name="preference_kits_group">Các nhóm thuốc</string>
-    <string name="preference_start_page">Trang chủ</string>
     <string name="preference_sorting_type">Sắp xếp thuốc</string>
     <string name="preference_download_images">Tải hình ảnh thuốc</string>
     <string name="preference_check_expiration_date">Kiểm tra hạn sử dụng của thuốc</string>
@@ -63,7 +61,6 @@
     <string name="intake_text_time">Thời gian</string>
     <!-- Dialogs -->
     <string name="manual_add">Bạn có muốn thêm thuốc thủ công?</string>
-    <string name="text_confirm_exit">Xác nhận thoát</string>
     <string name="text_connection_error">Lỗi kết nối!</string>
     <string name="text_duplicate">Thuốc này đã được thêm vào!</string>
     <string name="text_export_import_description">Đây là một tính năng thử nghiệm.\nKhi xuất, bạn có thể thay đổi tên tệp.\nKhi nhập, dữ liệu hiện tại sẽ bị xóa! Xin vui lòng khởi chạy lại ứng dụng sau đó!</string>
@@ -72,7 +69,6 @@
     <string name="text_request_camera">Để quét nhãn, ứng dụng phải được cấp quyền sử dụng máy ảnh</string>
     <string name="text_request_post">Để nhận được thông báo, ứng dụng phải được cấp quyền thích hợp</string>
     <string name="text_select_time">Chọn thời gian</string>
-    <string name="text_sure_to_exit">Bạn có chắc chắn muốn thoát khỏi ứng dụng không?</string>
     <!-- Strings -->
     <string name="text_add">Thêm</string>
     <string name="text_all">Tất cả</string>
@@ -80,13 +76,11 @@
     <string name="text_cancel">Hủy</string>
     <string name="text_clear">Dọn</string>
     <string name="text_daily_at">Hằng ngày lúc 12 giờ</string>
-    <string name="text_data_matrix_scanner">Quét nhãn DataMatrix (chỉ dành cho Nga)</string>
     <string name="text_days_short">Ng.</string>
     <string name="text_empty">Trống</string>
     <string name="text_error">Lỗi!</string>
     <string name="text_every">"Mỗi "</string>
     <string name="text_import">Nhập</string>
-    <string name="text_manual_add">Thêm thuốc thủ công</string>
     <string name="text_no_data_found">Không tìm thấy thuốc. Thêm chúng hoặc thay đổi bộ lọc.</string>
     <string name="text_no">Không</string>
     <string name="text_off">Đã tắt</string>

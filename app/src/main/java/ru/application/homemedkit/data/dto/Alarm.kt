@@ -19,5 +19,6 @@ data class Alarm(
     @PrimaryKey(autoGenerate = true)
     val alarmId: Long = 0L,
     val intakeId: Long = 0L,
-    val trigger: Long = 0L
+    val trigger: Long = 0L,
+    val preAlarm: Boolean = false
 )

@@ -16,7 +16,6 @@ import android.media.RingtoneManager.getRingtone
 import androidx.core.app.NotificationCompat.BigTextStyle
 import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationCompat.CATEGORY_ALARM
-import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE
 import androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
@@ -70,9 +69,7 @@ class AlarmReceiver : BroadcastReceiver() {
             amount = intake.amount,
             doseType = medicine.doseType,
             image = medicine.image,
-            trigger = trigger,
-            taken = false,
-            notified = false
+            trigger = trigger
         )
         val takenId = database.takenDAO().add(intakeTaken)
 
@@ -85,7 +82,6 @@ class AlarmReceiver : BroadcastReceiver() {
         val pendingB = getBroadcast(context, takenId.toInt(), action.setAction(TYPE), FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
 
         createNotificationChannel(context)
-        getRingtone(context, getDefaultUri(TYPE_NOTIFICATION)).play()
         NotificationManagerCompat.from(context).notify(
             takenId.toInt(),
             Builder(context, CHANNEL_ID).apply {
@@ -98,7 +94,6 @@ class AlarmReceiver : BroadcastReceiver() {
                 .setCategory(CATEGORY_ALARM)
                 .setContentTitle(context.getString(text_do_intake))
                 .setDeleteIntent(pendingA)
-                .setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)
                 .setGroup(SOUND_GROUP)
                 .setGroupAlertBehavior(GROUP_ALERT_SUMMARY)
                 .setSmallIcon(vector_time)
@@ -115,7 +110,8 @@ class AlarmReceiver : BroadcastReceiver() {
                 .build()
         )
 
-        if (trigger == lastAlarm(intake.finalDate, intake.time.last())) setter.removeAlarm(alarmId)
+        if (!intake.noSound) getRingtone(context, getDefaultUri(TYPE_NOTIFICATION)).play()
+        if (trigger >= lastAlarm(intake.finalDate, intake.time.last())) setter.removeAlarm(alarmId)
         else setter.resetAlarm(alarmId)
     }
 }

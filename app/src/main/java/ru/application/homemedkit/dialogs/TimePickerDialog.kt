@@ -31,15 +31,9 @@ fun TimePickerDialog(onCancel: () -> Unit, onConfirm: () -> Unit, content: @Comp
             modifier = Modifier
                 .width(IntrinsicSize.Min)
                 .height(IntrinsicSize.Min)
-                .background(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surface
-                ),
+                .background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.extraLarge)
         ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()

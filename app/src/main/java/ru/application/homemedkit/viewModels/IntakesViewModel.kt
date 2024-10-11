@@ -1,7 +1,11 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package ru.application.homemedkit.viewModels
 
 import android.app.AlarmManager
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TimePickerState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,9 +28,11 @@ import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.FORMAT_DH
 import ru.application.homemedkit.helpers.FORMAT_S
 import ru.application.homemedkit.helpers.ZONE
+import ru.application.homemedkit.helpers.getDateTime
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.Locale.ROOT
 
 class IntakesViewModel : ViewModel() {
@@ -103,6 +109,8 @@ class IntakesViewModel : ViewModel() {
     fun clearSearch() = _state.update { it.copy(search = BLANK) }
 
     fun showDialog(taken: IntakeTaken) {
+        val time = getDateTime(taken.inFact)
+
         _takenState.update {
             it.copy(
                 takenId = taken.takenId,
@@ -110,20 +118,35 @@ class IntakesViewModel : ViewModel() {
                 productName = taken.productName,
                 amount = taken.amount,
                 trigger = taken.trigger,
+                inFact = taken.inFact,
+                pickerState = TimePickerState(time.hour, time.minute, true),
                 taken = taken.taken,
+                selection = if (taken.taken) 1 else 0,
                 notified = taken.notified
             )
         }
         _state.update { it.copy(showDialog = true) }
     }
 
-    fun hideDialog() = _state.update { it.copy(showDialog = false) }
-
     fun pickTab(tab: Int) = _state.update { it.copy(tab = tab) }
+    fun hideDialog() = _state.update { it.copy(showDialog = false) }
+    fun showPicker(flag: Boolean = false) = _takenState.update { it.copy(showPicker = flag) }
 
-    fun setTaken(id: Long, taken: Boolean) {
+    fun setFactTime() {
+        val picker = _takenState.value.pickerState
+        val trigger = LocalDateTime.of(LocalDate.now(), LocalTime.of(picker.hour, picker.minute))
+            .toInstant(ZONE).toEpochMilli()
+
+        _takenState.update { it.copy(inFact = trigger, showPicker = false) }
+    }
+
+    fun setSelection(index: Int) = _takenState.update {
+        it.copy(selection = index, inFact = if (index == 0) 0L else System.currentTimeMillis())
+    }
+
+    fun saveTaken(id: Long, taken: Boolean) {
         viewModelScope.launch {
-            database.takenDAO().setTaken(id, taken)
+            database.takenDAO().setTaken(id, taken, if (taken) _takenState.value.inFact else 0L)
             database.medicineDAO().getById(_takenState.value.medicineId)?.let {
                 if (taken) database.medicineDAO().intakeMedicine(it.id, _takenState.value.amount)
                 else database.medicineDAO().untakeMedicine(it.id, _takenState.value.amount)
@@ -148,6 +171,10 @@ data class TakenState(
     val productName: String = BLANK,
     val amount: Double = 0.0,
     val trigger: Long = 0L,
+    val inFact: Long = 0L,
+    val pickerState: TimePickerState = TimePickerState(12, 0, true),
     val taken: Boolean = false,
-    val notified: Boolean = false
+    val selection: Int = 0,
+    val notified: Boolean = false,
+    val showPicker: Boolean = false
 )

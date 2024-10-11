@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name">Medkit</string>
     <!-- Menu -->
-    <string name="bottom_bar_main">Início</string>
     <string name="bottom_bar_medicines">Medicamentos</string>
     <string name="bottom_bar_intakes">Consumo</string>
     <string name="bottom_bar_settings">Configurações</string>
@@ -63,7 +62,6 @@
     <string name="text_connection_error">Connection error!</string>
     <string name="intake_text_pick_period">Pick period</string>
     <string name="intake_text_time">Time</string>
-    <string name="text_confirm_exit">Confirm exit</string>
     <string name="intake_text_taken">Taken</string>
     <string name="intake_text_left">Left</string>
     <string name="intake_text_food">Food &amp; Med</string>
@@ -82,7 +80,6 @@
     <string name="text_new_group">New group</string>
     <string name="text_select_time">Select time</string>
     <string name="text_amount">Amount</string>
-    <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
     <string name="text_add">Add</string>
     <string name="text_request_post">To receive notifications, the application must be granted the appropriate permission</string>
     <string name="text_notification_pick_action_first">In order to change pick action in notification first</string>
@@ -92,7 +89,6 @@
     <string name="text_clear">Clear</string>
     <string name="text_days_short">d.</string>
     <string name="text_delete">Delete</string>
-    <string name="text_data_matrix_scanner">Scanning DataMatrix label (only for RU)</string>
     <string name="text_empty">Empty</string>
     <string name="text_edit">Edit</string>
     <string name="text_daily_at">Daily at 12:00</string>
@@ -110,14 +106,12 @@
     <string name="text_start_date">Start date</string>
     <string name="preference_check_expiration_date">Checking the expiration date of medicines</string>
     <string name="preference_sorting_type">Medicine sorting</string>
-    <string name="text_manual_add">Manual medicine adding</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="text_no_intakes_found">No intakes found. Add them via medicine information card or change the search value.</string>
     <string name="text_success">Successfully!</string>
     <string name="text_medicine_product_name">Product name</string>
     <string name="preference_app_theme">App theme</string>
     <string name="text_medicine_status_self_added">Added manually</string>
-    <string name="preference_start_page">Home page</string>
     <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
     <string name="text_medicine_status_checked">Scanned, checked</string>
     <string name="text_medicine_description">Description</string>

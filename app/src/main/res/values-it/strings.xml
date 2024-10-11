@@ -2,14 +2,12 @@
 <resources>
     <string name="app_name">Medkit</string>
     <!-- Menu -->
-    <string name="bottom_bar_main">Home</string>
     <string name="bottom_bar_medicines">Medicinali</string>
     <string name="bottom_bar_intakes">Assunzioni</string>
     <string name="bottom_bar_settings">Impostazioni</string>
     <!-- Preferences -->
     <string name="preference_app_view">Vista app</string>
     <string name="preference_kits_group">Gruppi di medicina</string>
-    <string name="preference_start_page">Pagina iniziale</string>
     <string name="preference_sorting_type">Ordinamento della medicina</string>
     <string name="preference_download_images">Scarica le immagini della medicina</string>
     <string name="preference_check_expiration_date">Controllo della data di scadenza dei medicinali</string>
@@ -72,7 +70,6 @@
     <string name="intake_text_time">Tempo</string>
     <!-- Dialogs -->
     <string name="manual_add">Vuoi aggiungere medicina manualmente?</string>
-    <string name="text_confirm_exit">Confermare l\'uscita</string>
     <string name="text_connection_error">Errore di connessione!</string>
     <string name="text_duplicate">Questo farmaco è già stato aggiunto!</string>
     <string name="text_export_import_description">Questa è una caratteristica sperimentale. \nQuando si esporta, è possibile modificare il nome del file. \nQuando l\'importazione, i dati attuali verranno cancellati! Si prega di rilanciare app dopo di esso!</string>
@@ -83,7 +80,6 @@
     <string name="text_request_camera">Per la scansione dell\'etichetta, l\'applicazione deve essere dato il permesso di utilizzare la fotocamera</string>
     <string name="text_request_post">Per ricevere le notifiche, la domanda deve essere concessa l\'autorizzazione appropriata</string>
     <string name="text_select_time">Selezionare il tempo</string>
-    <string name="text_sure_to_exit">Sei sicuro di voler uscire dall\'app?</string>
     <string name="text_try_again">Prova di nuovo a scansionare l\'etichetta!</string>
     <!-- Strings -->
     <string name="text_add">Aggiungi</string>
@@ -92,7 +88,6 @@
     <string name="text_cancel">Annulla</string>
     <string name="text_clear">Libero</string>
     <string name="text_daily_at">Quotidiano alle 12:00</string>
-    <string name="text_data_matrix_scanner">Etichetta DataMatrix (solo per RU)</string>
     <string name="text_days_short">d.</string>
     <string name="text_delete">Cancella</string>
     <string name="text_edit">Modifica</string>
@@ -103,7 +98,6 @@
     <string name="text_export">Esportazione</string>
     <string name="text_finish_date">Data di arrivo</string>
     <string name="text_import">Importazioni</string>
-    <string name="text_manual_add">Medicina manuale aggiunta</string>
     <string name="text_no">No</string>
     <string name="text_no_data_found">Nessun farmaco trovato. Aggiungere o modificare il filtro.</string>
     <string name="text_no_intakes_found">Non sono state trovate prese. Aggiungili tramite carta di informazione medica o modifica il valore di ricerca.</string>

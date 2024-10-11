@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package ru.application.homemedkit.viewModels
 
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,13 +21,13 @@ import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.FORMAT_H
 import ru.application.homemedkit.helpers.FORMAT_S
 import ru.application.homemedkit.helpers.Intervals
-import ru.application.homemedkit.helpers.Intervals.Custom
-import ru.application.homemedkit.helpers.Intervals.Daily
-import ru.application.homemedkit.helpers.Intervals.Weekly
+import ru.application.homemedkit.helpers.Intervals.CUSTOM
+import ru.application.homemedkit.helpers.Intervals.DAILY
+import ru.application.homemedkit.helpers.Intervals.WEEKLY
 import ru.application.homemedkit.helpers.Periods
-import ru.application.homemedkit.helpers.Periods.Indefinite
-import ru.application.homemedkit.helpers.Periods.Other
-import ru.application.homemedkit.helpers.Periods.Pick
+import ru.application.homemedkit.helpers.Periods.INDEFINITE
+import ru.application.homemedkit.helpers.Periods.OTHER
+import ru.application.homemedkit.helpers.Periods.PICK
 import ru.application.homemedkit.helpers.getDateTime
 import ru.application.homemedkit.helpers.longSeconds
 import ru.application.homemedkit.receivers.AlarmSetter
@@ -34,7 +36,6 @@ import ru.application.homemedkit.viewModels.MedicineViewModel.ActivityEvents.Sta
 import java.time.LocalDate
 import java.time.LocalTime
 
-@OptIn(ExperimentalMaterial3Api::class)
 class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewModel() {
     private val dao = database.intakeDAO()
 
@@ -69,14 +70,16 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
                             }
                         },
                         startDate = intake.startDate,
-                        finalDate = intake.finalDate
+                        finalDate = intake.finalDate,
+                        noSound = intake.noSound,
+                        preAlarm = intake.preAlarm
                     )
                 }
             } ?: IntakeState()
         }
     }
 
-    fun getIntervalTitle() = if (_state.value.intervalE == Custom) Custom.title
+    fun getIntervalTitle() = if (_state.value.intervalE == CUSTOM) CUSTOM.title
     else Intervals.getTitle(_state.value.interval)
 
     fun add() {
@@ -91,12 +94,19 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
             time = time,
             period = _state.value.period.toInt(),
             startDate = startDate,
-            finalDate = _state.value.finalDate
+            finalDate = _state.value.finalDate,
+            noSound = _state.value.noSound,
+            preAlarm = _state.value.preAlarm
         )
 
         viewModelScope.launch {
             val id = dao.add(intake)
             val triggers = longSeconds(startDate, time)
+
+            if (_state.value.preAlarm) {
+                val preTriggers = longSeconds(startDate, time.map { it.minusMinutes(30) })
+                setter.setAlarm(intakeId = id, triggers = preTriggers, preAlarm = true)
+            }
 
             setter.setAlarm(intakeId = id, triggers = triggers)
             _state.update { it.copy(adding = false, default = true, intakeId = id) }
@@ -117,7 +127,9 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
             time = time,
             period = _state.value.period.toInt(),
             startDate = startDate,
-            finalDate = _state.value.finalDate
+            finalDate = _state.value.finalDate,
+            noSound = _state.value.noSound,
+            preAlarm = _state.value.preAlarm
         )
 
         viewModelScope.launch {
@@ -126,6 +138,11 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
 
             alarms.forEach { setter.removeAlarm(it.alarmId) }
             setter.setAlarm(intakeId = _state.value.intakeId, triggers = triggers)
+
+            if (_state.value.preAlarm) {
+                val preTriggers = longSeconds(startDate, time.map { it.minusMinutes(30) })
+                setter.setAlarm(intakeId = _state.value.intakeId, triggers = preTriggers, preAlarm = true)
+            }
 
             dao.update(intake)
             _state.update { it.copy(adding = false, editing = false, default = true) }
@@ -155,7 +172,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
     fun setInterval(interval: Any?) {
         when (interval) {
             is Intervals -> when (interval) {
-                Daily, Weekly -> _state.update {
+                DAILY, WEEKLY -> _state.update {
                     it.copy(
                         interval = interval.days.toString(),
                         intervalE = interval,
@@ -163,7 +180,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
                     )
                 }
 
-                Custom -> _state.update {
+                CUSTOM -> _state.update {
                     it.copy(
                         interval = BLANK,
                         intervalE = interval,
@@ -180,7 +197,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
     fun setPeriod(period: Any?) {
         when (period) {
             is Periods -> when(period) {
-                Pick -> _state.update {
+                PICK -> _state.update {
                     it.copy(
                         period = period.days.toString(),
                         periodE = period,
@@ -189,7 +206,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
                         showPeriodM = false
                     )
                 }
-                Other -> _state.update {
+                OTHER -> _state.update {
                     it.copy(
                         period = BLANK,
                         periodE = period,
@@ -198,7 +215,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
                         showPeriodM = false
                     )
                 }
-                Indefinite -> _state.update {
+                INDEFINITE -> _state.update {
                     it.copy(
                         startDate = LocalDate.now().format(FORMAT_S),
                         finalDate = LocalDate.now().plusDays(period.days.toLong()).format(FORMAT_S),
@@ -224,7 +241,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
                 it.copy(
                     startDate = getDateTime(period.first as Long).format(FORMAT_S),
                     finalDate = getDateTime(period.second as Long).format(FORMAT_S),
-                    period = Pick.days.toString(),
+                    period = PICK.days.toString(),
                     showPeriodD = false
                 )
             }
@@ -243,7 +260,10 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
     }
 
     fun decTime() = if (_state.value.time.size > 1) _state.update {
-        it.copy(time = it.time.apply { removeLast() }, times = it.times.apply { removeLast() })
+        it.copy(
+            time = it.time.apply { removeAt(size - 1) },
+            times = it.times.apply { removeAt(size - 1) }
+        )
     } else {}
 
     fun setTime() {
@@ -259,7 +279,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
         _state.update { it.copy(showIntervalM = flag) } else {}
 
     fun showPeriodD(flag: Boolean = false) =
-        if (_state.value.periodE == Pick && (_state.value.adding || _state.value.editing))
+        if (_state.value.periodE == PICK && (_state.value.adding || _state.value.editing))
             _state.update { it.copy(showPeriodD = flag) } else {}
 
     fun showPeriodM(flag: Boolean) = if (_state.value.adding || state.value.editing)
@@ -268,13 +288,19 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
     fun showTimePicker(flag: Boolean = false, index: Int = 0) =
         _state.update { it.copy(showTimeP = flag, timeF = index) }
 
+    fun setNoSound(flag: Boolean) = _state.update { it.copy(noSound = flag) }
+    fun setPreAlarm(flag: Boolean) = _state.update { it.copy(preAlarm = flag) }
+
+    fun showDialog() = _state.update { it.copy(showDialog = true) }
+    fun hideDialog() = _state.update { it.copy(showDialog = false) }
+
     fun validate() = mutableListOf(
         _state.value.amount, _state.value.interval, _state.value.period,
         _state.value.startDate, _state.value.finalDate
     ).apply { addAll(_state.value.time) }.all(String::isNotBlank)
 }
 
-data class IntakeState @OptIn(ExperimentalMaterial3Api::class) constructor(
+data class IntakeState(
     val adding: Boolean = true,
     val editing: Boolean = false,
     val default: Boolean = false,
@@ -284,7 +310,7 @@ data class IntakeState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val interval: String = BLANK,
     val intervalE: Intervals? = null,
     val period: String = BLANK,
-    val periodE: Periods = Pick,
+    val periodE: Periods = PICK,
     val foodType: Int = -1,
     val time: SnapshotStateList<String> = mutableStateListOf(BLANK),
     val times: SnapshotStateList<TimePickerState> = mutableStateListOf(TimePickerState(12, 0, true)),
@@ -294,5 +320,8 @@ data class IntakeState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val showIntervalM: Boolean = false,
     val showPeriodD: Boolean = false,
     val showPeriodM: Boolean = false,
-    val showTimeP: Boolean = false
+    val showTimeP: Boolean = false,
+    val noSound: Boolean = false,
+    val preAlarm: Boolean = false,
+    val showDialog: Boolean = false
 )

@@ -1,6 +1,9 @@
 package ru.application.homemedkit.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,13 +21,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,7 +46,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,9 +67,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.ScannerScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import ru.application.homemedkit.HomeMeds.Companion.database
-import ru.application.homemedkit.R
+import ru.application.homemedkit.R.drawable.vector_filter
+import ru.application.homemedkit.R.drawable.vector_scanner
+import ru.application.homemedkit.R.drawable.vector_sort
 import ru.application.homemedkit.R.string.preference_kits_group
 import ru.application.homemedkit.R.string.text_all
 import ru.application.homemedkit.R.string.text_cancel
@@ -79,12 +92,13 @@ import ru.application.homemedkit.viewModels.MedicinesState
 import ru.application.homemedkit.viewModels.MedicinesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<RootGraph>
+@Destination<RootGraph>(start = true)
 @Composable
 fun MedicinesScreen(navigator: DestinationsNavigator) {
     val model = viewModel<MedicinesViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
     val medicines by model.medicines.collectAsStateWithLifecycle()
+    val offset by remember { derivedStateOf { state.listState.firstVisibleItemScrollOffset } }
 
     if (state.showFilter) KitsDialog(model, state)
     BackHandler{}
@@ -117,14 +131,7 @@ fun MedicinesScreen(navigator: DestinationsNavigator) {
                     drawLine(Color.LightGray, Offset(0f, size.height), Offset(size.width, size.height), 4f)
                 },
                 actions = {
-                    IconButton(model::showSort) {
-                        Icon(
-                            painter = painterResource(R.drawable.vector_sort),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
+                    IconButton(model::showSort) { Icon(painterResource(vector_sort), null) }
                     DropdownMenu(state.showSort, model::hideSort) {
                         Sorting.entries.forEach { entry ->
                             DropdownMenuItem(
@@ -134,15 +141,49 @@ fun MedicinesScreen(navigator: DestinationsNavigator) {
                         }
                     }
 
-                    IconButton(model::showFilter) {
-                        Icon(
-                            painter = painterResource(R.drawable.vector_filter),
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                    IconButton(model::showFilter) { Icon(painterResource(vector_filter), null) }
                 }
             )
+        },
+        floatingActionButton = {
+            AnimatedVisibility(
+                visible = !state.listState.isScrollInProgress && offset.dp <= 100.dp,
+                enter = slideInVertically(initialOffsetY = { it * 2 }),
+                exit = slideOutVertically(targetOffsetY = { it * 2 })
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    AnimatedVisibility(state.showAdding) {
+                        Column {
+                            ElevatedCard(
+                                onClick = { navigator.navigate(ScannerScreenDestination) },
+                                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                Icon(
+                                    painter = painterResource(vector_scanner),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .padding(4.dp)
+                                )
+                            }
+
+                            ElevatedCard(
+                                onClick = { navigator.navigate(MedicineScreenDestination()) },
+                                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Edit,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .padding(4.dp)
+                                )
+                            }
+                        }
+                    }
+                    FloatingActionButton(model::showAdding) { Icon(Icons.Outlined.Add, null) }
+                }
+            }
         }
     ) { values ->
         medicines.let { list ->
@@ -189,7 +230,7 @@ private fun MedicineItem(medicine: Medicine, navigator: DestinationsNavigator) {
         leadingContent = { MedicineImage(medicine.image, Modifier.size(56.dp)) },
         modifier = Modifier.clickable { navigator.navigate(MedicineScreenDestination(medicine.id)) },
         colors = ListItemDefaults.colors(
-            containerColor = if (medicine.expDate >= System.currentTimeMillis()) ListItemDefaults.containerColor
+            if (medicine.expDate >= System.currentTimeMillis()) ListItemDefaults.containerColor
             else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
         )
     )
@@ -239,8 +280,7 @@ private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator) {
             )
         },
         colors = ListItemDefaults.colors(
-            containerColor = if (medicine.expDate < System.currentTimeMillis())
-                MaterialTheme.colorScheme.errorContainer
+            if (medicine.expDate < System.currentTimeMillis()) MaterialTheme.colorScheme.errorContainer
             else MaterialTheme.colorScheme.secondaryContainer
         )
     )
@@ -255,7 +295,7 @@ private fun KitsDialog(model: MedicinesViewModel, state: MedicinesState) = Alert
     text = {
         Column(Modifier.selectableGroup()) {
             Row(
-                Modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
                     .selectable(
@@ -275,7 +315,7 @@ private fun KitsDialog(model: MedicinesViewModel, state: MedicinesState) = Alert
 
             database.kitDAO().getAll().forEach { kit ->
                 Row(
-                    Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
                         .selectable(

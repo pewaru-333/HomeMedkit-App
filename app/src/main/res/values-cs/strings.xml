@@ -3,7 +3,6 @@
     <string name="text_connection_error">Connection error!</string>
     <string name="text_enter_product_name">Search</string>
     <string name="type_paste">PASTE</string>
-    <string name="bottom_bar_main">Home</string>
     <string name="text_no">No</string>
     <string name="theme_light">Light</string>
     <string name="type_emulsion">EMULSION</string>
@@ -22,7 +21,6 @@
     <string name="intakes_tab_list">List</string>
     <string name="theme_dark">Dark</string>
     <string name="text_days_short">d.</string>
-    <string name="text_confirm_exit">Confirm exit</string>
     <string name="text_new_group">New group</string>
     <string name="text_select_time">Select time</string>
     <string name="text_delete">Delete</string>
@@ -30,7 +28,6 @@
     <string name="text_yes">Yes</string>
     <string name="type_aerosol">AEROSOL</string>
     <string name="text_update">Update</string>
-    <string name="text_data_matrix_scanner">Scanning DataMatrix label (only for RU)</string>
     <string name="preference_kits_group">Medicine groups</string>
     <string name="text_amount">Amount</string>
     <string name="type_gel">GEL</string>
@@ -42,7 +39,6 @@
     </plurals>
     <string name="theme_system">System</string>
     <string name="intake_text_taken">Taken</string>
-    <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
     <string name="text_medicine_comment">Comment</string>
     <string name="text_import">Import</string>
     <string name="text_intake_amount_not_enough">It\'s time to intake %1$s, but its quantity is less than prescribed!</string>
@@ -87,9 +83,7 @@
     <string name="type_mix">MIX</string>
     <string name="preference_sorting_type">Medicine sorting</string>
     <string name="intakes_tab_current">Current</string>
-    <string name="text_manual_add">Manual medicine adding</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="preference_start_page">Home page</string>
     <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
     <string name="type_dragee">DRAGEE</string>
     <string name="text_medicine_status_checked">Scanned, checked</string>

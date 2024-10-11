@@ -16,8 +16,8 @@ interface TakenDAO {
     @Query("SELECT * FROM intakes_taken")
     fun getFlow(): Flow<List<IntakeTaken>>
 
-    @Query("UPDATE intakes_taken SET taken = :taken WHERE takenId = :id")
-    fun setTaken(id: Long, taken: Boolean)
+    @Query("UPDATE intakes_taken SET taken = :taken, inFact = :inFact WHERE takenId = :id")
+    fun setTaken(id: Long, taken: Boolean, inFact: Long)
 
     @Query("UPDATE intakes_taken SET notified = 1 WHERE takenId = :id")
     fun setNotified(id: Long)

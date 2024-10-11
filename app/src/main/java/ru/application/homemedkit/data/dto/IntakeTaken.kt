@@ -17,6 +17,7 @@ data class IntakeTaken(
     val doseType: String = BLANK,
     val image: String = BLANK,
     val trigger: Long = 0L,
+    val inFact: Long = 0L,
     val taken: Boolean = false,
     val notified: Boolean = false
 )

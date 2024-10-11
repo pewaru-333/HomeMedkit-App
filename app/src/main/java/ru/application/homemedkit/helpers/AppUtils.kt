@@ -1,5 +1,7 @@
 package ru.application.homemedkit.helpers
 
+import android.icu.math.BigDecimal
+import android.icu.text.DecimalFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.os.ConfigurationCompat
@@ -11,6 +13,7 @@ import java.time.LocalTime
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 val LOCALE
     @Composable get() = ConfigurationCompat.getLocales(LocalConfiguration.current)[0]
@@ -18,7 +21,7 @@ val LOCALE
 val ZONE = ZoneId.systemDefault().rules.getOffset(Instant.now())
 val FORMAT_S = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 val FORMAT_DH = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm")
-val FORMAT_DMMMMY @Composable get() = DateTimeFormatter.ofPattern("d MMMM yyyy", LOCALE)
+val FORMAT_DMMMMY @Composable get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(LOCALE)
 val FORMAT_DME @Composable get() = DateTimeFormatter.ofPattern("d MMMM, E", LOCALE)
 val FORMAT_H = DateTimeFormatter.ofPattern("H:mm")
 private val FORMAT_MY = DateTimeFormatter.ofPattern("MM/yyyy")
@@ -58,4 +61,20 @@ fun longSeconds(start: String, time: List<LocalTime>) = ArrayList<Long>(time.siz
 
         add(unix.toInstant(ZONE).toEpochMilli())
     }
+}
+
+fun formName(name: String) = name.substringBefore(" ")
+fun shortName(name: String?) = name?.substringBefore(",") ?: BLANK
+fun decimalFormat(text: Any?): String {
+    val amount = try {
+        text.toString().toDouble()
+    } catch (e: NumberFormatException) {
+        0.0
+    }
+
+    val formatter = DecimalFormat.getInstance()
+    formatter.maximumFractionDigits = 4
+    formatter.roundingMode = BigDecimal.ROUND_HALF_EVEN
+
+    return formatter.format(amount)
 }

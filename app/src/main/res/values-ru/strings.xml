@@ -3,7 +3,6 @@
     <string name="app_name">Аптечка</string>
 
     <!-- Меню -->
-    <string name="bottom_bar_main">Главная</string>
     <string name="bottom_bar_medicines">Лекарства</string>
     <string name="bottom_bar_intakes">Приём</string>
     <string name="bottom_bar_settings">Настройки</string>
@@ -11,9 +10,8 @@
     <!-- Настройки -->
     <string name="preference_app_view">Вид приложения</string>
     <string name="preference_kits_group">Группы лекарств</string>
-    <string name="preference_start_page">Стартовая страница</string>
     <string name="preference_sorting_type">Сортировка лекарств по</string>
-    <string name="preference_med_compact_view">Компактный вид списка лекарств</string>
+    <string name="preference_med_compact_view">Компактный вид списков</string>
     <string name="preference_download_images">Загружать изображения лекарств</string>
     <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
     <string name="preference_system">Системные</string>
@@ -41,8 +39,10 @@
     <string name="notification_channel_name">Звуковые уведомления</string>
     <string name="text_attention">Обратите внимание!</string>
     <string name="text_do_intake">Примите лекарство</string>
-    <string name="text_expire_soon">"Истекает срок годности лекарства %1$s"</string>
+    <string name="text_expire_soon">Истекает срок годности лекарства %1$s</string>
     <string name="text_intake_amount_not_enough">Время приёма лекарства %1$s, но его оставшегося количества меньше предписанного!</string>
+    <string name="text_intake_prealarm_text">Лекарство: %1$s\nКоличество: %2$s %3$s\nВремя: %4$s</string>
+    <string name="text_intake_prealarm_title">Предстоящий приём</string>
     <string name="text_intake_time">Лекарство: %1$s\nКоличество: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Осталось недостаточно лекарства</string>
 
@@ -103,11 +103,14 @@
 
     <string name="intake_card_text_from">(с %1$s)</string>
     <string name="intake_text_amount">Количество</string>
+    <string name="intake_text_by_schedule">По расписанию</string>
     <string name="intake_text_date">Дата</string>
+    <string name="intake_text_extra">Дополнительно</string>
     <string name="intake_text_food">Сочетание с пищей</string>
     <string name="intake_text_food_after">После еды</string>
     <string name="intake_text_food_before">Перед едой</string>
     <string name="intake_text_food_during">Во время еды</string>
+    <string name="intake_text_in_fact">По факту</string>
     <string name="intake_text_interval">Интервал</string>
     <string name="intake_text_left">Осталось</string>
     <string name="intake_text_not_taken">Не принято</string>
@@ -117,6 +120,10 @@
     <string name="intake_text_select_interval">Выберите интервал</string>
     <string name="intake_text_taken">Принято</string>
     <string name="intake_text_time">Время</string>
+
+    <string name="intake_extra_no_sound">Без звука</string>
+    <string name="intake_extra_prealarm">Уведомлять заранее</string>
+    <string name="intake_extra_prealarm_desc">Уведомление в строке состояния за 30 минут до времени приёма.</string>
 
     <string name="intake_interval_daily">ежедневно</string>
     <string name="intake_interval_weekly">еженедельно</string>
@@ -128,7 +135,6 @@
 
     <!-- Диалоговые окна -->
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
-    <string name="text_confirm_exit">Подтвердите выход</string>
     <string name="text_connection_error">Ошибка при подключении!</string>
     <string name="text_duplicate">Лекарство уже было добавлено!</string>
     <string name="text_export_import_description">Это экспериментальная функция.\nПри экспорте вы можете изменить название файла.\nПри импорте текущие данные будут удалены! Перезапустите приложение после него!</string>
@@ -139,7 +145,6 @@
     <string name="text_request_camera">Для сканировании маркировки приложению необходимо выдать разрешение на использовании камеры</string>
     <string name="text_request_post">Для получения уведомлений приложению необходимо выдать соответствующее разрешение</string>
     <string name="text_select_time">Выберите время</string>
-    <string name="text_sure_to_exit">Вы точно хотите выйти из приложения?</string>
     <string name="text_try_again">Попробуйте отсканировать код ещё раз!</string>
 
     <!-- Строки -->
@@ -149,9 +154,9 @@
     <string name="text_cancel">Отменить</string>
     <string name="text_clear">Очистить</string>
     <string name="text_daily_at">Ежедневно в 12:00</string>
-    <string name="text_data_matrix_scanner">Сканирование маркировки лекарства</string>
     <string name="text_days_short">дн.</string>
     <string name="text_delete">Удалить</string>
+    <string name="text_dismiss">Закрыть</string>
     <string name="text_edit">Изменить</string>
     <string name="text_empty">Пусто</string>
     <string name="text_enter_product_name">Поиск</string>
@@ -160,7 +165,6 @@
     <string name="text_export">Экспорт</string>
     <string name="text_finish_date">Конечная дата</string>
     <string name="text_import">Импорт</string>
-    <string name="text_manual_add">Добавление лекарства вручную</string>
     <string name="text_no_data_found">Лекарства отсутствуют. Добавьте их или измените фильтр.</string>
     <string name="text_no_intakes_found">Назначенные приёмы лекарств отсутствуют. Добавьте их через карточку информации о лекарстве или измените условие поиска.</string>
     <string name="text_no">Нет</string>

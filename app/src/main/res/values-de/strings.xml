@@ -2,14 +2,12 @@
 <resources>
     <string name="app_name">Medkit</string>
     <!-- Menu -->
-    <string name="bottom_bar_main">Startseite</string>
     <string name="bottom_bar_medicines">Medizin</string>
     <string name="bottom_bar_intakes">Einnahmen</string>
     <string name="bottom_bar_settings">Einstellung</string>
     <!-- Preferences -->
     <string name="preference_app_view">App-Ansicht</string>
     <string name="preference_kits_group">Medizin-Gruppen</string>
-    <string name="preference_start_page">Homepage</string>
     <string name="preference_sorting_type">Medizinsortierung</string>
     <string name="preference_download_images">Medizinbilder herunterladen</string>
     <string name="preference_check_expiration_date">Überprüfung des Verfallsdatums von Arzneimitteln</string>
@@ -54,7 +52,6 @@
     <string name="text_grant_permission">Berechtigung gewähren</string>
     <string name="text_new_group">Neue Gruppe</string>
     <string name="text_select_time">Zeit auswählen</string>
-    <string name="text_confirm_exit">Beenden bestätigen</string>
     <string name="text_connection_error">Verbindungsfehler!</string>
     <string name="text_error">Fehler!</string>
     <!-- Strings -->
@@ -95,13 +92,11 @@
     <string name="theme_light">Hell</string>
     <string name="text_medicine_status_scanned">Gescannt, nicht verifiziert</string>
     <string name="theme_dark">Dunkel</string>
-    <string name="text_data_matrix_scanner">Eintrag per Datenmatrix-Scan (nur für RU)</string>
     <plurals name="intakes_a_day">
         <item quantity="one">%d-mal am Tag</item>
         <item quantity="other">%d-mal am Tag</item>
     </plurals>
     <string name="theme_system">System</string>
-    <string name="text_sure_to_exit">Soll die App wirklich beendet werden?</string>
     <string name="text_no">Nein</string>
     <string name="text_intake_amount_not_enough">Zeit %1$s einzunehmen, aber Vorrat ist geringer als verordnet!</string>
     <string name="text_medicine_form">Darreichungsform</string>
@@ -122,7 +117,6 @@
     <string name="type_decoction">AUFGUSS</string>
     <string name="intake_text_not_taken">Nicht eingenommem</string>
     <string name="type_mix">MISCHUNG</string>
-    <string name="text_manual_add">Eintrag manuell vornehmen</string>
     <string name="placeholder_dose">0,5 mg + 84 µg</string>
     <string name="text_expire_soon">Das Ablaufdatum von %1$s ist nahe</string>
     <string name="type_dragee">DRAGEES</string>

@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name">Medkit</string>
     <!-- Menu -->
-    <string name="bottom_bar_main">홈</string>
     <string name="bottom_bar_medicines">의약품</string>
     <string name="bottom_bar_intakes">섭취</string>
     <string name="bottom_bar_settings">설정</string>
@@ -44,7 +43,6 @@
     <string name="text_finish_date">Finish date</string>
     <string name="intake_text_time">Time</string>
     <string name="text_days_short">d.</string>
-    <string name="text_confirm_exit">Confirm exit</string>
     <string name="text_new_group">New group</string>
     <string name="text_select_time">Select time</string>
     <string name="text_delete">Delete</string>
@@ -62,10 +60,8 @@
     </plurals>
     <string name="text_clear">Clear</string>
     <string name="preference_dynamic_color">Dynamic color</string>
-    <string name="text_data_matrix_scanner">Scanning DataMatrix label (only for RU)</string>
     <string name="preference_kits_group">Medicine groups</string>
     <string name="text_amount">Amount</string>
-    <string name="text_sure_to_exit">Are you sure you want to exit the app?</string>
     <string name="sorting_z_a">Alphabetically (z to A)</string>
     <string name="text_medicine_form">Release form</string>
     <string name="text_unspecified">Unspecified</string>
@@ -96,8 +92,6 @@
     <string name="type_mix">MIX</string>
     <string name="preference_sorting_type">Medicine sorting</string>
     <string name="intakes_tab_current">Current</string>
-    <string name="text_manual_add">Manual medicine adding</string>
-    <string name="preference_start_page">Home page</string>
     <string name="type_dragee">DRAGEE</string>
     <string name="text_medicine_status_checked">Scanned, checked</string>
     <string name="text_medicine_description">Description</string>

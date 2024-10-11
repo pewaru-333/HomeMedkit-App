@@ -12,7 +12,9 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission
+        android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <application
@@ -36,6 +38,16 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="medicines"
+                    android:scheme="app" />
+            </intent-filter>
         </activity>
 
         <receiver
@@ -44,6 +56,10 @@
 
         <receiver
             android:name=".receivers.ActionReceiver"
+            android:enabled="true" />
+
+        <receiver
+            android:name=".receivers.PreAlarmReceiver"
             android:enabled="true" />
 
         <receiver
@@ -58,6 +74,15 @@
         <receiver
             android:name=".receivers.ExpirationReceiver"
             android:enabled="true" />
+
+        <receiver
+            android:name=".receivers.UpdateReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
 
         <receiver
             android:name=".receivers.LocaleReceiver"

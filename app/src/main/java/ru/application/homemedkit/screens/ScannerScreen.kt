@@ -53,8 +53,8 @@ import com.budiyev.android.codescanner.CodeScannerView
 import com.google.zxing.BarcodeFormat
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.HomeScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.MedicinesScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.ScannerScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import ru.application.homemedkit.MainActivity
@@ -99,7 +99,7 @@ fun ScannerScreen(navigator: DestinationsNavigator, context: Context = LocalCont
         onDispose { lifecycle.removeObserver(observer) }
     }
 
-    BackHandler { navigator.navigate(HomeScreenDestination) }
+    BackHandler { navigator.navigate(MedicinesScreenDestination) }
     if (permissionGranted) {
         AndroidView(
             factory = {

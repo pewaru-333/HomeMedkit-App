@@ -18,28 +18,27 @@ class AlarmSetter(private val context: Context) {
     private val manager = context.getSystemService(AlarmManager::class.java)
     private val database = MedicineDatabase.getInstance(context)
 
-    fun setAlarm(intakeId: Long, triggers: List<Long>) {
-        triggers.forEach { trigger ->
-            val alarmId = database.alarmDAO().add(Alarm(intakeId = intakeId, trigger = trigger))
-            val intent = Intent(context, AlarmReceiver::class.java).putExtra(ALARM_ID, alarmId)
-            val pending = getBroadcast(
-                context,
-                alarmId.toInt(),
-                intent,
-                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-            )
+    private val alarmIntent = Intent(context, AlarmReceiver::class.java)
+    private val preAlarmIntent = Intent(context, PreAlarmReceiver::class.java)
 
-            manager.setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pending)
-        }
+    fun setAlarm(intakeId: Long, triggers: List<Long>, preAlarm: Boolean = false) = triggers.forEach {
+        val alarmId = database.alarmDAO().add(Alarm(intakeId = intakeId, trigger = it, preAlarm = preAlarm))
+        val pending = getBroadcast(
+            context,
+            alarmId.toInt(),
+            (if (preAlarm) preAlarmIntent else alarmIntent).putExtra(ALARM_ID, alarmId),
+            FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
+        )
+
+        manager.setExactAndAllowWhileIdle(RTC_WAKEUP, it, pending)
     }
 
     fun setAlarm(alarmId: Long) {
         val alarm = database.alarmDAO().getByPK(alarmId)
-        val intent = Intent(context, AlarmReceiver::class.java).putExtra(ALARM_ID, alarmId)
         val pending = getBroadcast(
             context,
             alarmId.toInt(),
-            intent,
+            (if (alarm.preAlarm) preAlarmIntent else alarmIntent).putExtra(ALARM_ID, alarmId),
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
 
@@ -50,12 +49,11 @@ class AlarmSetter(private val context: Context) {
         val alarm = database.alarmDAO().getByPK(alarmId)
         val intake = database.intakeDAO().getById(alarm.intakeId)!!
         val trigger = alarm.trigger + AlarmManager.INTERVAL_DAY * intake.interval
-        val intent = Intent(context, AlarmReceiver::class.java).putExtra(ALARM_ID, alarmId)
 
         val pending = getBroadcast(
             context,
             alarmId.toInt(),
-            intent,
+            (if (alarm.preAlarm) preAlarmIntent else alarmIntent).putExtra(ALARM_ID, alarmId),
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
 
@@ -65,11 +63,10 @@ class AlarmSetter(private val context: Context) {
 
     fun removeAlarm(alarmId: Long) {
         val alarm = database.alarmDAO().getByPK(alarmId)
-        val intent = Intent(context, AlarmReceiver::class.java).putExtra(ALARM_ID, alarmId)
         val pending = getBroadcast(
             context,
             alarmId.toInt(),
-            intent,
+            (if (alarm.preAlarm) preAlarmIntent else alarmIntent).putExtra(ALARM_ID, alarmId),
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
 
@@ -77,23 +74,23 @@ class AlarmSetter(private val context: Context) {
         database.alarmDAO().delete(alarm)
     }
 
-    fun resetAll() = database.alarmDAO().getAll().forEach { (alarmId, _, trigger) ->
+    fun resetAll() = database.alarmDAO().getAll().forEach { (alarmId, _, trigger, preAlarm) ->
         manager.setExactAndAllowWhileIdle(
             RTC_WAKEUP, trigger, getBroadcast(
                 context,
                 alarmId.toInt(),
-                Intent(context, AlarmReceiver::class.java).putExtra(ALARM_ID, alarmId),
+                (if (preAlarm) preAlarmIntent else alarmIntent).putExtra(ALARM_ID, alarmId),
                 FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
             )
         )
     }
 
-    fun cancelAll() = database.alarmDAO().getAll().forEach { (alarmId) ->
+    fun cancelAll() = database.alarmDAO().getAll().forEach { (alarmId, _, _, preAlarm) ->
         manager.cancel(
             getBroadcast(
                 context,
                 alarmId.toInt(),
-                Intent(context, AlarmReceiver::class.java).putExtra(ALARM_ID, alarmId),
+                (if (preAlarm) preAlarmIntent else alarmIntent).putExtra(ALARM_ID, alarmId),
                 FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
             )
         )
