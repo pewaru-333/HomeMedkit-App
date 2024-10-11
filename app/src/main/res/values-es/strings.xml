@@ -78,7 +78,7 @@
     <string name="type_drops">GOTAS</string>
     <!-- Medicine dose types -->
     <string name="dose_ed">ED</string>
-    <string name="dose_pcs">piezas</string>
+    <string name="dose_pcs">unidades</string>
     <string name="dose_g">g</string>
     <string name="dose_mg">mg</string>
     <string name="dose_l">l</string>
@@ -160,7 +160,7 @@
     </plurals>
     <string name="text_intake_prealarm_text">Medicamento: %1$s\nDosis: %2$s %3$s\nDuración: %4$s</string>
     <string name="text_dismiss">Descartar</string>
-    <string name="intake_text_in_fact">In fact</string>
+    <string name="intake_text_in_fact">hora de la toma</string>
     <string name="intake_text_by_schedule">Por horario</string>
     <string name="intake_text_extra">Extra</string>
     <string name="intake_extra_prealarm">Próximas notificaciones</string>
