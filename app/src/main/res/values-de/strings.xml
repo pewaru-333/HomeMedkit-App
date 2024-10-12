@@ -110,7 +110,7 @@
     <string name="text_medicine_group">Gruppe</string>
     <string name="text_no_intakes_found">Keine Einnahmen gefunden. Erst welche über den Medikamenten-Tab hinzufügen oder Suchbegriff ändern.</string>
     <string name="intake_text_food">Mahlzeiten &amp; Medikament</string>
-    <string name="preference_med_compact_view">Kompaktansicht der Medizinliste</string>
+    <string name="preference_med_compact_view">Kompaktansicht der Listen</string>
     <string name="type_granules">GRANULAT</string>
     <string name="text_medicine_status_self_added">Manuell hinzugefügt</string>
     <string name="intake_text_amount">Menge</string>
@@ -156,4 +156,13 @@
     <string name="dose_l">l</string>
     <string name="dose_ml">ml</string>
     <string name="dose_mg">mg</string>
+    <string name="text_intake_prealarm_text">Medikament: %1$s\nMenge: %2$s %3$s\nZeit: %4$s</string>
+    <string name="text_dismiss">Ablehnen</string>
+    <string name="intake_text_in_fact">Tatsächlich</string>
+    <string name="intake_text_by_schedule">Nach Zeitplan</string>
+    <string name="intake_text_extra">Zusätzlich</string>
+    <string name="intake_extra_prealarm">Bevorstehende Benachrichtigung</string>
+    <string name="intake_extra_prealarm_desc">Benachrichtigung in der Statusleiste 30 Minuten vor der Einnahmezeit.</string>
+    <string name="text_intake_prealarm_title">Bevorstehende Einnahme</string>
+    <string name="intake_extra_no_sound">Kein Klang</string>
 </resources>
