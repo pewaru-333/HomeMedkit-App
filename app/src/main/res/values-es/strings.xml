@@ -121,7 +121,7 @@
     <string name="manual_add">¿Quieres añadir un medicamento manualmente?</string>
     <string name="text_connection_error">Error de conexión!</string>
     <string name="text_duplicate">¡Este medicamento ya ha sido agregado!</string>
-    <string name="text_export_import_description">Esta es una característica experimental.\nAl exportar, puedes cambiar el nombre del archivo.\n¡Al importar, los datos actuales se eliminarán! ¡Por favor, reinicia la aplicación después!</string>
+    <string name="text_export_import_description">Esta es una característica experimental.\n¡Al importar, los datos actuales se eliminarán!</string>
     <string name="text_grant_permission">Otorgar permiso</string>
     <string name="text_medicine_deleted">Se ha eliminado el medicamento, es imposible cambiar el estado de ingesta</string>
     <string name="text_new_group">Nuevo grupo</string>

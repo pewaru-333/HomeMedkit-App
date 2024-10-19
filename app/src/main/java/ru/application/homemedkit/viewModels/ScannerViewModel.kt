@@ -36,13 +36,13 @@ class ScannerViewModel : ViewModel() {
             try {
                 NetworkAPI.client.requestData(code).apply {
                     if (category == CATEGORY && codeFounded && checkResult) _response.emit(
-                        if (code in dao.getAllCIS()) Duplicate(dao.getIdbyCis(code))
+                        if (code in dao.getAllCIS()) Duplicate(dao.getIdByCis(code))
                         else Success(dao.add(mapMedicine(this, context)))
                     ) else throwError()
                 }
             } catch (e: Throwable) {
                 _response.emit(
-                    if (code in dao.getAllCIS()) Duplicate(dao.getIdbyCis(code))
+                    if (code in dao.getAllCIS()) Duplicate(dao.getIdByCis(code))
                     else NoNetwork(code)
                 )
             }

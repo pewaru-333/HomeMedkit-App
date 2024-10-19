@@ -137,7 +137,7 @@
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
     <string name="text_connection_error">Ошибка при подключении!</string>
     <string name="text_duplicate">Лекарство уже было добавлено!</string>
-    <string name="text_export_import_description">Это экспериментальная функция.\nПри экспорте вы можете изменить название файла.\nПри импорте текущие данные будут удалены! Перезапустите приложение после него!</string>
+    <string name="text_export_import_description">Это экспериментальная функция.\nПри импорте текущие данные будут удалены!</string>
     <string name="text_grant_permission">Выдать разрешение</string>
     <string name="text_medicine_deleted">Лекарство было удалено из списка, невозможно изменить статус приёма</string>
     <string name="text_new_group">Новая группа</string>

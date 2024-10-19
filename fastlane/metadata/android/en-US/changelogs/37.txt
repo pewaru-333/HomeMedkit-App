@@ -1,4 +1,0 @@
-— The interface has been changed. Now there are only three tabs available.
-— Now the compact list view is also used for the list of intakes.
-— In the "Taken" tab in the "Intakes" menu, the element is changed with a simple, not a long press on it.
-— Added additional features when making intake. They can be selected at the very end of a intake screen.

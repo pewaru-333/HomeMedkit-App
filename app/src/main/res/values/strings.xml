@@ -122,7 +122,7 @@
     <string name="intake_text_food_after">After meal</string>
     <string name="intake_text_food_before">Before meal</string>
     <string name="intake_text_food_during">During meal</string>
-    <string name="intake_text_in_fact">In fact</string>
+    <string name="intake_text_in_fact">Actual</string>
     <string name="intake_text_interval">Interval</string>
     <string name="intake_text_left">Left</string>
     <string name="intake_text_not_taken">Not taken</string>
@@ -149,7 +149,7 @@
     <string name="manual_add">Do you want to add medicine manually?</string>
     <string name="text_connection_error">Connection error!</string>
     <string name="text_duplicate">This medicine has been already added!</string>
-    <string name="text_export_import_description">This is an experimental feature.\nWhen exporting, you can change the file name.\nWhen importing, the current data will be deleted! Please, relaunch app after it!</string>
+    <string name="text_export_import_description">This is an experimental feature.\nWhen importing, the current data will be deleted!</string>
     <string name="text_grant_permission">Grant permission</string>
     <string name="text_medicine_deleted">Medicine has been deleted, impossible to change intake status</string>
     <string name="text_new_group">New group</string>

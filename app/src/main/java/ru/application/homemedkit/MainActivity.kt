@@ -7,7 +7,10 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import ru.application.homemedkit.helpers.KEY_EXP_IMP
 import ru.application.homemedkit.helpers.Preferences
+import ru.application.homemedkit.helpers.showToast
+import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.screens.RootScreen
 import ru.application.homemedkit.ui.theme.AppTheme
 
@@ -16,6 +19,11 @@ class MainActivity : ComponentActivity() {
         Preferences.changeLanguage(this, Preferences.getLanguage())
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         super.onCreate(savedInstanceState)
+
+        if (intent.getBooleanExtra(KEY_EXP_IMP, false)) {
+            showToast(true, this)
+            AlarmSetter(this).resetAll()
+        }
 
         setContent {
             val navController = rememberNavController()

@@ -1,11 +1,15 @@
 package ru.application.homemedkit.helpers
 
+import android.content.Context
 import android.icu.math.BigDecimal
 import android.icu.text.DecimalFormat
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
+import ru.application.homemedkit.R.string.text_error
+import ru.application.homemedkit.R.string.text_success
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -62,6 +66,10 @@ fun longSeconds(start: String, time: List<LocalTime>) = ArrayList<Long>(time.siz
         add(unix.toInstant(ZONE).toEpochMilli())
     }
 }
+
+fun showToast(success: Boolean, context: Context) = Toast.makeText(
+    context, context.getString(if (success) text_success else text_error),
+    Toast.LENGTH_LONG).show()
 
 fun formName(name: String) = name.substringBefore(" ")
 fun shortName(name: String?) = name?.substringBefore(",") ?: BLANK

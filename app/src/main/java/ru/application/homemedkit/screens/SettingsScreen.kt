@@ -1,14 +1,10 @@
 package ru.application.homemedkit.screens
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
-import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
 import android.database.sqlite.SQLiteDatabase.openDatabase
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
@@ -21,14 +17,12 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -60,7 +54,7 @@ import me.zhanghai.compose.preference.listPreference
 import me.zhanghai.compose.preference.preference
 import me.zhanghai.compose.preference.preferenceCategory
 import me.zhanghai.compose.preference.switchPreference
-import ru.application.homemedkit.MainActivity
+import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R.string.placeholder_kitchen
 import ru.application.homemedkit.R.string.preference_app_theme
 import ru.application.homemedkit.R.string.preference_app_view
@@ -77,7 +71,6 @@ import ru.application.homemedkit.R.string.text_add
 import ru.application.homemedkit.R.string.text_attention
 import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_daily_at
-import ru.application.homemedkit.R.string.text_error
 import ru.application.homemedkit.R.string.text_export
 import ru.application.homemedkit.R.string.text_export_import_description
 import ru.application.homemedkit.R.string.text_import
@@ -85,9 +78,7 @@ import ru.application.homemedkit.R.string.text_new_group
 import ru.application.homemedkit.R.string.text_off
 import ru.application.homemedkit.R.string.text_on
 import ru.application.homemedkit.R.string.text_save
-import ru.application.homemedkit.R.string.text_success
 import ru.application.homemedkit.R.string.text_tap_to_view
-import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.KEY_APP_SYSTEM
@@ -106,6 +97,7 @@ import ru.application.homemedkit.helpers.SORTING
 import ru.application.homemedkit.helpers.Sorting
 import ru.application.homemedkit.helpers.THEMES
 import ru.application.homemedkit.helpers.Themes
+import ru.application.homemedkit.helpers.showToast
 import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.ui.theme.isDynamicColorAvailable
 import java.io.File
@@ -213,14 +205,14 @@ fun SettingsScreen(context: Context = LocalContext.current) {
         }
     }
 
-    if (showDialog) KitsManager({ showDialog = false })
+    if (showDialog) KitsManager { showDialog = false }
     if (showExport) ExportImport({ showExport = false })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun KitsManager(onDismiss: () -> Unit, context: Context = LocalContext.current) {
-    val dao = MedicineDatabase.getInstance(context).kitDAO()
+private fun KitsManager(onDismiss: () -> Unit) {
+    val dao = database.kitDAO()
     val kits by dao.getFlow().collectAsStateWithLifecycle(emptyList())
     var show by rememberSaveable { mutableStateOf(false) }
     var text by rememberSaveable { mutableStateOf(BLANK) }
@@ -300,34 +292,32 @@ private fun ExportImport(onDismiss: () -> Unit, context: Context = LocalContext.
     fun getHash(db: SQLiteDatabase): String = db.rawQuery(queryG, null)
         .use { return if (it.moveToNext()) it.getString(1) else BLANK }
 
-    fun showToast(success: Boolean) = Toast.makeText(
-        context, context.getString(if (success) text_success else text_error),
-        Toast.LENGTH_LONG).show()
-
     val exporter = rememberLauncherForActivityResult(CreateDocument(mimes[0])) { uri ->
-        val current = MedicineDatabase.getInstance(context)
-        val path = context.getDatabasePath(current.openHelper.databaseName).also { current.close() }
+        val path = context.getDatabasePath(database.openHelper.databaseName)
+        database.close()
 
         uri?.let { uriN ->
             context.contentResolver.openOutputStream(uriN).use { output ->
                 output?.let { path.inputStream().copyTo(it) }
-            }.also {
-                onDismiss()
-                MedicineDatabase.setNull()
-                showToast(true)
             }
+            context.startActivity(
+                Intent.makeRestartActivityTask(
+                    context.packageManager.getLaunchIntentForPackage(context.packageName)!!.component
+                ).putExtra(KEY_EXP_IMP, true)
+            )
+            Runtime.getRuntime().exit(0)
         }
     }
 
     val importer = rememberLauncherForActivityResult(OpenDocument()) { uri ->
-        val current = MedicineDatabase.getInstance(context)
-        val path = context.getDatabasePath(current.openHelper.databaseName).also { current.close() }
+        val path = context.getDatabasePath(database.openHelper.databaseName)
 
         uri?.let { uriN ->
-            val cursor = current.openHelper.readableDatabase.query(queryG)
+            val cursor = database.openHelper.readableDatabase.query(queryG)
             val currentHash = if (cursor.moveToNext()) cursor.getString(1) else BLANK
             val tempFile = File.createTempFile("temp", ".sqlite", context.cacheDir)
 
+            database.close()
             context.contentResolver.openInputStream(uriN).use { input ->
                 tempFile.outputStream().use { output -> input?.copyTo(output) }
             }
@@ -335,25 +325,24 @@ private fun ExportImport(onDismiss: () -> Unit, context: Context = LocalContext.
             try {
                 val newDB = openDatabase(tempFile.path, null, OPEN_READONLY)
                 val newHash = if (hasTable(newDB)) getHash(newDB) else BLANK
+                newDB.close()
 
                 if (currentHash == newHash) {
-                    MedicineDatabase.setNull().also { AlarmSetter(context).cancelAll() }
+                    AlarmSetter(context).cancelAll()
 
                     context.contentResolver.openInputStream(uriN).use { input ->
                         path.outputStream().use { output -> input?.copyTo(output) }
-                    }.also {
-                        (context as Activity).finishAndRemoveTask()
-                        context.startActivity(
-                            Intent(context, MainActivity::class.java)
-                                .setFlags(FLAG_ACTIVITY_CLEAR_TASK or FLAG_ACTIVITY_NEW_TASK)
-                        )
-
-                        MedicineDatabase.setNull().also { AlarmSetter(context).resetAll() }
-                        showToast(true)
                     }
-                } else showToast(false)
-            } catch (e: Exception) {
-                showToast(false)
+
+                    context.startActivity(
+                        Intent.makeRestartActivityTask(
+                            context.packageManager.getLaunchIntentForPackage(context.packageName)!!.component
+                        ).putExtra(KEY_EXP_IMP, true)
+                    )
+                    Runtime.getRuntime().exit(0)
+                } else showToast(false, context)
+            } catch (e: Throwable) {
+                showToast(false, context)
             } finally {
                 tempFile.delete()
             }
@@ -362,15 +351,10 @@ private fun ExportImport(onDismiss: () -> Unit, context: Context = LocalContext.
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { Button({ importer.launch(mimes) }) { Text(stringResource(text_import)) }},
-        dismissButton = { Button({ exporter.launch(name) }) { Text(stringResource(text_export)) }},
+        confirmButton = { TextButton({ importer.launch(mimes) }) { Text(stringResource(text_import)) } },
+        dismissButton = { TextButton({ exporter.launch(name) }) { Text(stringResource(text_export)) } },
         title = { Text(stringResource(text_attention)) },
-        text = {
-            Text(
-                text = stringResource(text_export_import_description),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
+        text = { Text(stringResource(text_export_import_description)) }
     )
 }
 
