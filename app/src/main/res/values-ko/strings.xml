@@ -155,4 +155,7 @@
     <string name="intake_text_in_fact">In fact</string>
     <string name="intake_text_by_schedule">By schedule</string>
     <string name="intake_text_extra">Extra</string>
+    <string name="channel_exp_desc">Expiration date</string>
+    <string name="intake_extra_fullscreen">Fullscreen notification</string>
+    <string name="channel_pre_desc">Upcoming intake</string>
 </resources>
