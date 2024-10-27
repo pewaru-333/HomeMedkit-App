@@ -165,4 +165,7 @@
     <string name="intake_extra_prealarm_desc">Benachrichtigung in der Statusleiste 30 Minuten vor der Einnahmezeit.</string>
     <string name="text_intake_prealarm_title">Bevorstehende Einnahme</string>
     <string name="intake_extra_no_sound">Kein Klang</string>
+    <string name="channel_exp_desc">Expiration date</string>
+    <string name="intake_extra_fullscreen">Fullscreen notification</string>
+    <string name="channel_pre_desc">Upcoming intake</string>
 </resources>
