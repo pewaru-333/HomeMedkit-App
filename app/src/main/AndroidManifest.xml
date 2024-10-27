@@ -8,6 +8,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -19,7 +20,6 @@
 
     <application
         android:name=".HomeMeds"
-        android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
@@ -27,7 +27,6 @@
         android:label="@string/app_name"
         android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="false"
         tools:targetApi="35">
         <activity
             android:name=".MainActivity"
@@ -49,6 +48,12 @@
                     android:scheme="app" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".IntakeDialogActivity"
+            android:showForAllUsers="true"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true" />
 
         <receiver
             android:name=".receivers.AlarmReceiver"

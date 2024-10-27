@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R.string.intakes_tab_current
 import ru.application.homemedkit.R.string.intakes_tab_list
@@ -54,7 +53,7 @@ class IntakesViewModel : ViewModel() {
                 }
             )
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), database.intakeDAO().getAll())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val schedule = intakes.flatMapLatest { filtered ->
@@ -145,14 +144,13 @@ class IntakesViewModel : ViewModel() {
     }
 
     fun saveTaken(id: Long, taken: Boolean) {
-        viewModelScope.launch {
-            database.takenDAO().setTaken(id, taken, if (taken) _takenState.value.inFact else 0L)
-            database.medicineDAO().getById(_takenState.value.medicineId)?.let {
-                if (taken) database.medicineDAO().intakeMedicine(it.id, _takenState.value.amount)
-                else database.medicineDAO().untakeMedicine(it.id, _takenState.value.amount)
-            }
-            _state.update { it.copy(showDialog = false) }
+        database.takenDAO().setTaken(id, taken, if (taken) _takenState.value.inFact else 0L)
+        database.medicineDAO().getById(_takenState.value.medicineId)?.let {
+            if (taken) database.medicineDAO().intakeMedicine(it.id, _takenState.value.amount)
+            else database.medicineDAO().untakeMedicine(it.id, _takenState.value.amount)
         }
+
+        _state.update { it.copy(showDialog = false) }
     }
 }
 

@@ -31,6 +31,7 @@ data class Intake(
     val period: Int = 0,
     val startDate: String = BLANK,
     val finalDate: String = BLANK,
+    val fullScreen: Boolean = false,
     val noSound: Boolean = false,
     val preAlarm: Boolean = false
 )

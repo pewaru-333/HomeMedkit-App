@@ -33,7 +33,7 @@ class MedicinesViewModel : ViewModel() {
                 }.sortedWith(sorting)
             )
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), database.medicineDAO().getAll())
 
     fun setSearch(text: String) = _state.update { it.copy(search = text) }
     fun clearSearch() = _state.update { it.copy(search = BLANK) }

@@ -1,2 +1,0 @@
-— Fixed a bug where database import sometimes caused the application сrash with the loss of all data.
-— Now, when exporting or importing the database, the application will restart on its own.

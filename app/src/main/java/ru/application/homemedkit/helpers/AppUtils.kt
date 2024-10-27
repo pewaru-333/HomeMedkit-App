@@ -3,11 +3,16 @@ package ru.application.homemedkit.helpers
 import android.content.Context
 import android.icu.math.BigDecimal
 import android.icu.text.DecimalFormat
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
+import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.text_error
 import ru.application.homemedkit.R.string.text_success
 import java.time.Instant
@@ -85,4 +90,26 @@ fun decimalFormat(text: Any?): String {
     formatter.roundingMode = BigDecimal.ROUND_HALF_EVEN
 
     return formatter.format(amount)
+}
+
+fun createNotificationChannel(
+    context: Context,
+    channelId: String,
+    channelName: Int,
+    channelDescription: Int = R.string.channel_name
+) = NotificationManagerCompat.from(context).apply {
+    deleteNotificationChannel(CHANNEL_ID_LEGACY)
+    createNotificationChannel(
+        NotificationChannelCompat.Builder(channelId, NotificationManagerCompat.IMPORTANCE_MAX)
+            .setName(context.getString(channelName))
+            .setDescription(context.getString(channelDescription))
+            .setSound(
+                RingtoneManager.getActualDefaultRingtoneUri(context, RingtoneManager.TYPE_NOTIFICATION),
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .build()
+            )
+            .build()
+    )
 }

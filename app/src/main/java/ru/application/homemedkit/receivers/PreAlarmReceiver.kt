@@ -6,8 +6,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat.BigTextStyle
 import androidx.core.app.NotificationCompat.Builder
-import androidx.core.app.NotificationCompat.CATEGORY_ALARM
-import androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY
+import androidx.core.app.NotificationCompat.CATEGORY_REMINDER
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
 import ru.application.homemedkit.R.drawable.vector_time
@@ -16,9 +15,8 @@ import ru.application.homemedkit.R.string.text_intake_prealarm_title
 import ru.application.homemedkit.data.MedicineDatabase.Companion.getInstance
 import ru.application.homemedkit.helpers.ALARM_ID
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.CHANNEL_ID
+import ru.application.homemedkit.helpers.CHANNEL_ID_PRE
 import ru.application.homemedkit.helpers.FORMAT_H
-import ru.application.homemedkit.helpers.SOUND_GROUP
 import ru.application.homemedkit.helpers.getDateTime
 import ru.application.homemedkit.helpers.lastAlarm
 
@@ -35,14 +33,12 @@ class PreAlarmReceiver : BroadcastReceiver() {
         val trigger = database.alarmDAO().getByPK(alarmId).trigger
         val medicine = database.medicineDAO().getById(intake.medicineId)
 
-        createNotificationChannel(context)
         NotificationManagerCompat.from(context).notify(
             alarmId.toInt(),
-            Builder(context, CHANNEL_ID)
-                .setCategory(CATEGORY_ALARM)
+            Builder(context, CHANNEL_ID_PRE)
+                .setCategory(CATEGORY_REMINDER)
                 .setContentTitle(context.getString(text_intake_prealarm_title))
-                .setGroup(SOUND_GROUP)
-                .setGroupAlertBehavior(GROUP_ALERT_SUMMARY)
+                .setSilent(true)
                 .setSmallIcon(vector_time)
                 .setStyle(
                     BigTextStyle().bigText(

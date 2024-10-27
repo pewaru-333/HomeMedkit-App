@@ -545,10 +545,12 @@ private fun Extra(model: IntakeViewModel, state: IntakeState) = Column {
                     enabled = !state.default,
                     role = Role.Checkbox,
                     value = when (entry) {
+                        IntakeExtras.FULLSCREEN -> state.fullScreen
                         IntakeExtras.NO_SOUND -> state.noSound
                         IntakeExtras.PREALARM -> state.preAlarm
                     },
                     onValueChange = when (entry) {
+                        IntakeExtras.FULLSCREEN -> model::setFullScreen
                         IntakeExtras.NO_SOUND -> model::setNoSound
                         IntakeExtras.PREALARM -> model::setPreAlarm
                     },
@@ -558,6 +560,7 @@ private fun Extra(model: IntakeViewModel, state: IntakeState) = Column {
                 Checkbox(
                     onCheckedChange = null,
                     checked = when (entry) {
+                        IntakeExtras.FULLSCREEN -> state.fullScreen
                         IntakeExtras.NO_SOUND -> state.noSound
                         IntakeExtras.PREALARM -> state.preAlarm
                     }

@@ -35,8 +35,10 @@
     <string name="theme_dark">Dark</string>
 
     <!-- Notifications -->
-    <string name="notification_channel_description">Medication reminders</string>
-    <string name="notification_channel_name">Sound notifications</string>
+    <string name="channel_name">Sound notifications</string>
+    <string name="channel_exp_desc">Expiration date</string>
+    <string name="channel_intakes_desc">Medicine intakes</string>
+    <string name="channel_pre_desc">Upcoming intake</string>
     <string name="text_attention">Attention!</string>
     <string name="text_do_intake">Do intake</string>
     <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
@@ -121,6 +123,7 @@
     <string name="intake_text_taken">Taken</string>
     <string name="intake_text_time">Time</string>
 
+    <string name="intake_extra_fullscreen">Fullscreen notification</string>
     <string name="intake_extra_no_sound">No sound</string>
     <string name="intake_extra_prealarm">Upcoming notification</string>
     <string name="intake_extra_prealarm_desc">Notification in status bar before 30 minutes of intake time.</string>

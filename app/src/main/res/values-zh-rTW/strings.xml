@@ -24,8 +24,8 @@
     <string name="sorting_from_oldest">到期日（從最舊開始）</string>
     <string name="sorting_from_newest">到期日（從最新開始）</string>
     <!-- Notifications -->
-    <string name="notification_channel_description">藥物提醒</string>
-    <string name="notification_channel_name">聲音通知</string>
+    <string name="channel_name">藥物提醒</string>
+    <string name="channel_intakes_desc">聲音通知</string>
     <string name="text_attention">注意！</string>
     <string name="text_expire_soon">%1$s 的到期日即將到期</string>
     <!-- Placeholders -->

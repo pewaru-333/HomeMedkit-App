@@ -24,8 +24,8 @@
     <string name="sorting_from_oldest">Son kullanma tarihi (en eskiden)</string>
     <string name="sorting_from_newest">Son kullanma tarihi (en yeniden)</string>
     <!-- Notifications -->
-    <string name="notification_channel_description">İlaç hatırlatıcıları</string>
-    <string name="notification_channel_name">Sesli bildirimler</string>
+    <string name="channel_name">İlaç hatırlatıcıları</string>
+    <string name="channel_intakes_desc">Sesli bildirimler</string>
     <string name="text_attention">Dikkat!</string>
     <string name="text_do_intake">Alımı yap</string>
     <string name="text_expire_soon">%1$s\'nin son kullanma tarihi yaklaşıyor</string>

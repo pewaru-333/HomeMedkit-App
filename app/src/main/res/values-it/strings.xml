@@ -24,8 +24,8 @@
     <string name="sorting_from_oldest">Data di scadenza (dal più antico)</string>
     <string name="sorting_from_newest">Data di scadenza (da più recente)</string>
     <!-- Notifications -->
-    <string name="notification_channel_description">Promemoria di farmaci</string>
-    <string name="notification_channel_name">Notifiche audio</string>
+    <string name="channel_name">Promemoria di farmaci</string>
+    <string name="channel_intakes_desc">Notifiche audio</string>
     <string name="text_attention">Attenzione!</string>
     <string name="text_do_intake">Do assunzione</string>
     <string name="text_expire_soon">La data di scadenza di %1$s sta per scadere</string>

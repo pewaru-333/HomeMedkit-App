@@ -71,6 +71,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
                         },
                         startDate = intake.startDate,
                         finalDate = intake.finalDate,
+                        fullScreen = intake.fullScreen,
                         noSound = intake.noSound,
                         preAlarm = intake.preAlarm
                     )
@@ -95,6 +96,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
             period = _state.value.period.toInt(),
             startDate = startDate,
             finalDate = _state.value.finalDate,
+            fullScreen = _state.value.fullScreen,
             noSound = _state.value.noSound,
             preAlarm = _state.value.preAlarm
         )
@@ -128,6 +130,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
             period = _state.value.period.toInt(),
             startDate = startDate,
             finalDate = _state.value.finalDate,
+            fullScreen = _state.value.fullScreen,
             noSound = _state.value.noSound,
             preAlarm = _state.value.preAlarm
         )
@@ -288,6 +291,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
     fun showTimePicker(flag: Boolean = false, index: Int = 0) =
         _state.update { it.copy(showTimeP = flag, timeF = index) }
 
+    fun setFullScreen(flag: Boolean) = _state.update { it.copy(fullScreen = flag) }
     fun setNoSound(flag: Boolean) = _state.update { it.copy(noSound = flag) }
     fun setPreAlarm(flag: Boolean) = _state.update { it.copy(preAlarm = flag) }
 
@@ -321,6 +325,7 @@ data class IntakeState(
     val showPeriodD: Boolean = false,
     val showPeriodM: Boolean = false,
     val showTimeP: Boolean = false,
+    val fullScreen: Boolean = false,
     val noSound: Boolean = false,
     val preAlarm: Boolean = false,
     val showDialog: Boolean = false

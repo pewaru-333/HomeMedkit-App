@@ -24,8 +24,8 @@
     <string name="sorting_from_oldest">Ngày hết hạn (từ cũ nhất)</string>
     <string name="sorting_from_newest">Ngày hết hạn (từ mới nhất)</string>
     <!-- Notifications -->
-    <string name="notification_channel_description">Nhắc nhở uống thuốc</string>
-    <string name="notification_channel_name">Âm thanh thông báo</string>
+    <string name="channel_name">Nhắc nhở uống thuốc</string>
+    <string name="channel_intakes_desc">Âm thanh thông báo</string>
     <string name="text_attention">Lưu ý!</string>
     <string name="text_do_intake">Uống thuốc đi</string>
     <string name="text_expire_soon">Ngày hết hạn của %1$s sắp hết</string>

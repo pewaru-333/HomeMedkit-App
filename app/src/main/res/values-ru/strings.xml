@@ -35,8 +35,10 @@
     <string name="theme_dark">Тёмная</string>
 
     <!-- Уведомления -->
-    <string name="notification_channel_description">Напоминания о приёме лекарств</string>
-    <string name="notification_channel_name">Звуковые уведомления</string>
+    <string name="channel_name">Звуковые уведомления</string>
+    <string name="channel_exp_desc">Окончание срока годности</string>
+    <string name="channel_intakes_desc">Приём лекарств</string>
+    <string name="channel_pre_desc">Предстоящий приём</string>
     <string name="text_attention">Обратите внимание!</string>
     <string name="text_do_intake">Примите лекарство</string>
     <string name="text_expire_soon">Истекает срок годности лекарства %1$s</string>
@@ -121,6 +123,7 @@
     <string name="intake_text_taken">Принято</string>
     <string name="intake_text_time">Время</string>
 
+    <string name="intake_extra_fullscreen">Полноэкранное уведомление</string>
     <string name="intake_extra_no_sound">Без звука</string>
     <string name="intake_extra_prealarm">Уведомлять заранее</string>
     <string name="intake_extra_prealarm_desc">Уведомление в строке состояния за 30 минут до времени приёма.</string>

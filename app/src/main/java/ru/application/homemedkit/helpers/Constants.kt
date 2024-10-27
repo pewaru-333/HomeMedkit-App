@@ -45,6 +45,7 @@ import ru.application.homemedkit.R.string.dose_mg
 import ru.application.homemedkit.R.string.dose_ml
 import ru.application.homemedkit.R.string.dose_pcs
 import ru.application.homemedkit.R.string.dose_ratio
+import ru.application.homemedkit.R.string.intake_extra_fullscreen
 import ru.application.homemedkit.R.string.intake_extra_no_sound
 import ru.application.homemedkit.R.string.intake_extra_prealarm
 import ru.application.homemedkit.R.string.intake_extra_prealarm_desc
@@ -106,7 +107,10 @@ import java.util.Comparator.comparing
 const val ALARM_ID = "alarmId"
 const val BLANK = ""
 const val CATEGORY = "drugs"
-const val CHANNEL_ID = "intake_notifications"
+const val CHANNEL_ID_INTAKES = "channel_intakes"
+const val CHANNEL_ID_EXP = "channel_expiration"
+const val CHANNEL_ID_PRE = "channel_prealarm"
+const val CHANNEL_ID_LEGACY = "intake_notifications"
 const val CIS = "cis"
 const val ID = "id"
 const val KEY_APP_SYSTEM = "app_system"
@@ -121,7 +125,6 @@ const val KEY_LANGUAGE = "language"
 const val KEY_LAST_KIT = "last_kit"
 const val KEY_MED_COMPACT_VIEW = "med_comp_view"
 const val KEY_ORDER = "sorting_order"
-const val SOUND_GROUP = "Sound group"
 const val TAKEN_ID = "takenId"
 const val TYPE = "vector_type"
 
@@ -153,6 +156,7 @@ enum class FoodTypes(val value: Int, @StringRes val title: Int, @DrawableRes val
 }
 
 enum class IntakeExtras(@StringRes val title: Int, @StringRes val description: Int?) {
+    FULLSCREEN(intake_extra_fullscreen, null),
     NO_SOUND(intake_extra_no_sound, null),
     PREALARM(intake_extra_prealarm, intake_extra_prealarm_desc)
 }

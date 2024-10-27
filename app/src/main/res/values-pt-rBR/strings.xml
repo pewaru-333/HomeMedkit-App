@@ -26,7 +26,7 @@
     <string name="theme_system">System</string>
     <string name="sorting_z_a">Alphabetically (z to A)</string>
     <string name="sorting_a_z">Alphabetically (A to z)</string>
-    <string name="notification_channel_name">Sound notifications</string>
+    <string name="channel_intakes_desc">Sound notifications</string>
     <string name="sorting_from_oldest">Expiration date (from oldest)</string>
     <string name="placeholder_time">Time #%1$d</string>
     <string name="text_medicine_comment">Comment</string>
@@ -130,7 +130,7 @@
     <string name="text_tap_to_view">Tap to view</string>
     <string name="intake_text_interval">Interval</string>
     <string name="type_pills">PILLS</string>
-    <string name="notification_channel_description">Medication reminders</string>
+    <string name="channel_name">Medication reminders</string>
     <string name="intake_text_food_during">During meal</string>
     <string name="text_medicine_dose">Dose</string>
     <string name="text_do_intake">Do intake</string>

@@ -96,7 +96,7 @@
     <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
     <string name="text_medicine_status_checked">Scanned, checked</string>
     <string name="text_medicine_description">Description</string>
-    <string name="notification_channel_name">Sound notifications</string>
+    <string name="channel_intakes_desc">Sound notifications</string>
     <string name="manual_add">Do you want to add medicine manually?</string>
     <string name="type_extract">EXTRACT</string>
     <string name="text_export">Export</string>
@@ -129,7 +129,7 @@
     <string name="type_pills">PILLS</string>
     <string name="text_try_again">Try again to scan label!</string>
     <string name="text_daily_at">Daily at 12:00</string>
-    <string name="notification_channel_description">Medication reminders</string>
+    <string name="channel_name">Medication reminders</string>
     <string name="intake_text_food_during">During meal</string>
     <string name="text_medicine_dose">Dose</string>
     <string name="text_do_intake">Do intake</string>
