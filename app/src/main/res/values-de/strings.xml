@@ -9,7 +9,7 @@
     <string name="preference_app_view">App-Ansicht</string>
     <string name="preference_kits_group">Medizin-Gruppen</string>
     <string name="preference_sorting_type">Medizinsortierung</string>
-    <string name="preference_download_images">Medizinbilder herunterladen</string>
+    <string name="preference_download_images">Bilder der Medikamente herunterladen</string>
     <string name="preference_check_expiration_date">Überprüfung des Verfallsdatums von Arzneimitteln</string>
     <string name="preference_system">System</string>
     <string name="preference_language">App-Sprache</string>
@@ -22,7 +22,7 @@
     <string name="sorting_a_z">Alphabetisch (A bis z)</string>
     <string name="sorting_z_a">Alphabetisch (z bis A)</string>
     <!-- Notifications -->
-    <string name="channel_intakes_desc">Ton-Benachrichtigungen</string>
+    <string name="channel_intakes_desc">Medikamenten-Einnahme</string>
     <string name="text_attention">Achtung!</string>
     <string name="text_do_intake">Einnehmen</string>
     <!-- Placeholders -->
@@ -38,7 +38,7 @@
     <string name="intakes_tab_current">Aktuell</string>
     <string name="intakes_tab_list">Liste</string>
     <string name="intake_text_interval">Intervall</string>
-    <string name="intake_text_left">Links</string>
+    <string name="intake_text_left">Übrig</string>
     <string name="intake_text_period">Zeitraum</string>
     <string name="intake_text_pick_period">Zeitraum auswählen</string>
     <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
@@ -129,9 +129,7 @@
     <string name="type_capsules">KAPSELN</string>
     <string name="type_syrup">SIRUP</string>
     <string name="text_duplicate">Dieses Medikament wurde bereits eingetragen!</string>
-    <string name="text_export_import_description">Deises Feature ist experimentell.
-\nDer Dateiname kann beim Export bestimmt werden.
-\nBeim Import werden bestehende Daten gelöscht! Anschließend bitte App neu starten!</string>
+    <string name="text_export_import_description">Dieses Feature ist experimentell. \nBeim Import werden bestehende Daten gelöscht!</string>
     <string name="intake_text_date">Datum</string>
     <string name="text_medicine_deleted">Medikament wurde gelöscht, Einnahmestatus nicht änderbar</string>
     <string name="type_mixture">MIXTUR</string>
@@ -140,7 +138,7 @@
     <string name="text_tap_to_view">Zum Ansehen antippen</string>
     <string name="type_pills">PILLEN</string>
     <string name="text_try_again">Bitte das Etikett erneut scannen!</string>
-    <string name="channel_name">Medikamenten-Erinnerung</string>
+    <string name="channel_name">Benachrichtigung mit Ton</string>
     <string name="type_tincture">TINKTUR</string>
     <string name="sorting_from_newest">Ablaufdatum (neu zu alt)</string>
     <string name="text_finish_date">Enddatum</string>
@@ -164,8 +162,8 @@
     <string name="intake_extra_prealarm">Bevorstehende Benachrichtigung</string>
     <string name="intake_extra_prealarm_desc">Benachrichtigung in der Statusleiste 30 Minuten vor der Einnahmezeit.</string>
     <string name="text_intake_prealarm_title">Bevorstehende Einnahme</string>
-    <string name="intake_extra_no_sound">Kein Klang</string>
-    <string name="channel_exp_desc">Expiration date</string>
-    <string name="intake_extra_fullscreen">Fullscreen notification</string>
-    <string name="channel_pre_desc">Upcoming intake</string>
+    <string name="intake_extra_no_sound">Ohne Ton</string>
+    <string name="channel_exp_desc">Ablaufdatum</string>
+    <string name="intake_extra_fullscreen">Benachrichtigung im Vollbild-Modus</string>
+    <string name="channel_pre_desc">Anstehende Einnahme</string>
 </resources>
