@@ -165,4 +165,7 @@
     <string name="intake_extra_prealarm_desc">Notification in status bar before 30 minutes of intake time.</string>
     <string name="text_intake_prealarm_title">Upcoming intake</string>
     <string name="intake_extra_no_sound">No sound</string>
+    <string name="channel_exp_desc">Expiration date</string>
+    <string name="intake_extra_fullscreen">Fullscreen notification</string>
+    <string name="channel_pre_desc">Upcoming intake</string>
 </resources>

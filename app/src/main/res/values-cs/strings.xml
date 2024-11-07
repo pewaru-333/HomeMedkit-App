@@ -157,4 +157,7 @@
     <string name="intake_extra_prealarm">Upcoming notification</string>
     <string name="text_intake_prealarm_title">Upcoming intake</string>
     <string name="intake_extra_no_sound">No sound</string>
+    <string name="channel_pre_desc">Upcoming intake</string>
+    <string name="channel_exp_desc">Expiration date</string>
+    <string name="intake_extra_fullscreen">Fullscreen notification</string>
 </resources>
