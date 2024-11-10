@@ -11,8 +11,8 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Streaming
 import retrofit2.http.Url
-import ru.application.homemedkit.network.models.MainModel
 import ru.application.homemedkit.helpers.CIS
+import ru.application.homemedkit.network.models.MainModel
 
 private const val BASE_URL = "https://mobile.api.crpt.ru/"
 private const val API_URL = "mobile/check"
@@ -33,6 +33,6 @@ interface NetworkCall {
     suspend fun getImage(@Url url: String): Response<ResponseBody>
 }
 
-object NetworkAPI {
+object Network {
     val client: NetworkCall by lazy { retrofit.create(NetworkCall::class.java) }
 }

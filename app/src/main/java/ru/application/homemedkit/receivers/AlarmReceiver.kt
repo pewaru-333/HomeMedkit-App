@@ -8,6 +8,7 @@ import android.app.PendingIntent.getBroadcast
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BigTextStyle
 import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationCompat.CATEGORY_REMINDER
@@ -73,12 +74,20 @@ class AlarmReceiver : BroadcastReceiver() {
         val pendingA = getBroadcast(context, takenId.toInt(), action, FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
         val pendingB = getBroadcast(context, takenId.toInt(), action.setAction(TYPE), FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
 
+        val confirmAction = NotificationCompat.Action.Builder(
+            vector_time, context.getString(intake_text_taken), pendingB
+        ).build()
+
+        val declineAction = NotificationCompat.Action.Builder(
+            vector_time, context.getString(intake_text_not_taken), pendingA
+        ).build()
+
         NotificationManagerCompat.from(context).notify(
             takenId.toInt(),
             Builder(context, CHANNEL_ID_INTAKES).apply {
                 if (flag) {
-                    addAction(vector_time, context.getString(intake_text_taken), pendingB)
-                    addAction(vector_time, context.getString(intake_text_not_taken), pendingA)
+                    addAction(confirmAction)
+                    addAction(declineAction)
 
                     if (intake.fullScreen) setFullScreenIntent(
                         getActivity(
@@ -113,6 +122,12 @@ class AlarmReceiver : BroadcastReceiver() {
                 )
                 .setTimeoutAfter(600000L)
                 .setVisibility(VISIBILITY_PUBLIC)
+                .extend(
+                    NotificationCompat.WearableExtender().apply {
+                        if (flag) { addAction(confirmAction); addAction(declineAction) }
+                        setContentIntentAvailableOffline(false)
+                    }
+                )
                 .build()
         )
 

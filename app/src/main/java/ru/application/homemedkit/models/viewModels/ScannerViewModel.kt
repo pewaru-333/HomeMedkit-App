@@ -1,8 +1,9 @@
-package ru.application.homemedkit.viewModels
+package ru.application.homemedkit.models.viewModels
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,15 +14,15 @@ import ru.application.homemedkit.data.dto.Technical
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CATEGORY
 import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.network.NetworkAPI
+import ru.application.homemedkit.models.events.Response
+import ru.application.homemedkit.models.events.Response.Default
+import ru.application.homemedkit.models.events.Response.Duplicate
+import ru.application.homemedkit.models.events.Response.Error
+import ru.application.homemedkit.models.events.Response.Loading
+import ru.application.homemedkit.models.events.Response.NoNetwork
+import ru.application.homemedkit.models.events.Response.Success
+import ru.application.homemedkit.network.Network
 import ru.application.homemedkit.network.models.MainModel
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.AfterError
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Default
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Duplicate
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Error
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Loading
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.NoNetwork
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Success
 
 class ScannerViewModel : ViewModel() {
     private val dao = database.medicineDAO()
@@ -30,34 +31,34 @@ class ScannerViewModel : ViewModel() {
     val response = _response.asStateFlow()
 
     fun fetchData(context: Context, code: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _response.emit(Loading)
 
             try {
-                NetworkAPI.client.requestData(code).apply {
+                Network.client.requestData(code).apply {
                     if (category == CATEGORY && codeFounded && checkResult) _response.emit(
-                        if (code in dao.getAllCIS()) Duplicate(dao.getIdByCis(code))
+                        if (code in dao.getAllCis()) Duplicate(dao.getIdByCis(code))
                         else Success(dao.add(mapMedicine(this, context)))
                     ) else throwError()
                 }
             } catch (e: Throwable) {
                 _response.emit(
-                    if (code in dao.getAllCIS()) Duplicate(dao.getIdByCis(code))
+                    if (code in dao.getAllCis()) Duplicate(dao.getIdByCis(code))
                     else NoNetwork(code)
                 )
             }
         }
     }
 
-    fun throwError() {
-        viewModelScope.launch {
-            _response.apply {
-                emit(Error)
-                delay(2000)
-                emit(AfterError)
-            }
+    private fun throwError() = viewModelScope.launch {
+        _response.apply {
+            emit(Error)
+            delay(2500)
+            emit(Default)
         }
     }
+
+    fun setDefault() = viewModelScope.launch { _response.emit(Default) }
 
     private suspend fun mapMedicine(model: MainModel, context: Context) = Medicine(
         cis = model.cis,
@@ -76,7 +77,7 @@ class ScannerViewModel : ViewModel() {
     private suspend fun getImage(context: Context, url: List<String>?): String {
         if (url.isNullOrEmpty() || !Preferences.getDownloadNeeded()) return BLANK
         else try {
-            NetworkAPI.client.getImage(url.first()).apply {
+            Network.client.getImage(url.first()).apply {
                 if (isSuccessful) body()?.let { body ->
                     val name = url.first().substringAfterLast("/").substringBefore(".")
                     context.openFileOutput(name, Context.MODE_PRIVATE)
@@ -89,19 +90,4 @@ class ScannerViewModel : ViewModel() {
         }
         return BLANK
     }
-
-    sealed interface Response {
-        data object Default : Response
-        data object Loading : Response
-        data class Duplicate(val id: Long) : Response
-        data class Success(val id: Long) : Response
-        data class NoNetwork(val cis: String) : Response
-        data object Error : Response
-        data object AfterError : Response
-    }
 }
-
-data class TechnicalState(
-    val scanned: Boolean = false,
-    val verified: Boolean = false
-)

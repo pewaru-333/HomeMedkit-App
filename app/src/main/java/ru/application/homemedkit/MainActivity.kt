@@ -11,7 +11,7 @@ import ru.application.homemedkit.helpers.KEY_EXP_IMP
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.showToast
 import ru.application.homemedkit.receivers.AlarmSetter
-import ru.application.homemedkit.screens.RootScreen
+import ru.application.homemedkit.ui.screens.RootScreen
 import ru.application.homemedkit.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {

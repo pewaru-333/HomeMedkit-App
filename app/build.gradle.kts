@@ -14,8 +14,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 39
-        versionName = "1.5.4"
+        versionCode = 40
+        versionName = "1.5.5"
     }
 
     dependenciesInfo {
@@ -45,7 +45,6 @@ android {
     }
     buildFeatures {
         compose = true
-        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.15"
@@ -77,7 +76,10 @@ dependencies {
     implementation(libs.compose.destinations)
 
     // ==================== Scanner ====================
-    implementation(libs.code.scanner)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.zxing)
 
     // ==================== Coil ====================
     implementation(libs.coil.compose)

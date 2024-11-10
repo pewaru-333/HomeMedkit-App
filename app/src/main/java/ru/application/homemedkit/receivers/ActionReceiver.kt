@@ -11,7 +11,6 @@ import ru.application.homemedkit.helpers.TAKEN_ID
 import ru.application.homemedkit.helpers.TYPE
 
 class ActionReceiver : BroadcastReceiver() {
-
     override fun onReceive(context: Context, intent: Intent) {
         val database = MedicineDatabase.getInstance(context)
 

@@ -32,7 +32,7 @@ interface MedicineDAO {
     fun getByKitId(kitId: Long?): List<Medicine>
 
     @Query("SELECT cis from medicines")
-    fun getAllCIS(): List<String>
+    fun getAllCis(): List<String>
 
     @Query("UPDATE medicines SET prodAmount = prodAmount - :amount WHERE id = :id")
     fun intakeMedicine(id: Long, amount: Double)

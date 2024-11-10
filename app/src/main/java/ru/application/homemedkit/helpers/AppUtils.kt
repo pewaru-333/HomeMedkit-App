@@ -15,6 +15,11 @@ import androidx.core.os.LocaleListCompat
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.text_error
 import ru.application.homemedkit.R.string.text_success
+import ru.application.homemedkit.data.dto.Intake
+import ru.application.homemedkit.data.dto.Medicine
+import ru.application.homemedkit.data.dto.Technical
+import ru.application.homemedkit.models.states.IntakeState
+import ru.application.homemedkit.models.states.MedicineState
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -113,3 +118,37 @@ fun createNotificationChannel(
             .build()
     )
 }
+
+fun MedicineState.toMedicine() = Medicine(
+    id = id,
+    kitId = kitId,
+    cis = cis,
+    productName = productName,
+    expDate = expDate,
+    prodFormNormName = prodFormNormName,
+    prodDNormName = prodDNormName,
+    prodAmount = prodAmount.ifEmpty { "0.0" }.toDouble(),
+    doseType = doseType,
+    phKinetics = phKinetics,
+    comment = comment,
+    image = image,
+    technical = Technical(
+        scanned = cis.isNotBlank(),
+        verified = technical.verified
+    )
+)
+
+fun IntakeState.toIntake(time: List<LocalTime>) = Intake(
+    intakeId = intakeId,
+    medicineId = medicineId,
+    amount = amount.toDouble(),
+    interval = interval.toInt(),
+    foodType = foodType,
+    time = time,
+    period = period.toInt(),
+    startDate = startDate,
+    finalDate = finalDate,
+    fullScreen = fullScreen,
+    noSound = noSound,
+    preAlarm = preAlarm
+)

@@ -1,4 +1,4 @@
-package ru.application.homemedkit.screens
+package ru.application.homemedkit.ui.screens
 
 import android.Manifest
 import android.content.Context
@@ -91,7 +91,6 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.IntakesScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R.drawable.vector_medicine
 import ru.application.homemedkit.R.drawable.vector_period
@@ -128,9 +127,9 @@ import ru.application.homemedkit.helpers.Intervals
 import ru.application.homemedkit.helpers.Periods
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.viewModelFactory
+import ru.application.homemedkit.models.states.IntakeState
+import ru.application.homemedkit.models.viewModels.IntakeViewModel
 import ru.application.homemedkit.receivers.AlarmSetter
-import ru.application.homemedkit.viewModels.IntakeState
-import ru.application.homemedkit.viewModels.IntakeViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -172,10 +171,6 @@ fun IntakeScreen(
         if (showRationale) PermissionDialog(text_request_post)
     }
 
-    LaunchedEffect(Unit) {
-        model.events.collectLatest { navigator.navigate(IntakesScreenDestination) }
-    }
-
     DisposableEffect(LocalLifecycleOwner.current) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME && VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -193,7 +188,7 @@ fun IntakeScreen(
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton({ navigator.navigate(IntakesScreenDestination) })
+                    IconButton({ navigator.navigate(IntakesScreenDestination)})
                     { Icon(Icons.AutoMirrored.Outlined.ArrowBack, null) }
                 },
                 actions = {
@@ -208,7 +203,14 @@ fun IntakeScreen(
                         IconButton({ expanded = true }) { Icon(Icons.Outlined.MoreVert, null) }
                         DropdownMenu(expanded, { expanded = false }) {
                             DropdownMenuItem({ Text(stringResource(text_edit)) }, model::setEditing)
-                            DropdownMenuItem({ Text(stringResource(text_delete)) }, model::delete)
+                            DropdownMenuItem(
+                                text = { Text(stringResource(text_delete)) },
+                                onClick = {
+                                    expanded = false
+                                    model.delete()
+                                    navigator.navigate(IntakesScreenDestination)
+                                }
+                            )
                         }
                     }
                 },

@@ -1,9 +1,8 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package ru.application.homemedkit.viewModels
+package ru.application.homemedkit.models.viewModels
 
 import android.app.AlarmManager
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
 import androidx.lifecycle.ViewModel
@@ -28,6 +27,8 @@ import ru.application.homemedkit.helpers.FORMAT_DH
 import ru.application.homemedkit.helpers.FORMAT_S
 import ru.application.homemedkit.helpers.ZONE
 import ru.application.homemedkit.helpers.getDateTime
+import ru.application.homemedkit.models.states.IntakesState
+import ru.application.homemedkit.models.states.TakenState
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -153,26 +154,3 @@ class IntakesViewModel : ViewModel() {
         _state.update { it.copy(showDialog = false) }
     }
 }
-
-data class IntakesState(
-    val search: String = BLANK,
-    val tab: Int = 0,
-    val stateA: LazyListState = LazyListState(),
-    val stateB: LazyListState = LazyListState(),
-    val stateC: LazyListState = LazyListState(),
-    val showDialog: Boolean = false
-)
-
-data class TakenState(
-    val takenId: Long = 0L,
-    val medicineId: Long = 0L,
-    val productName: String = BLANK,
-    val amount: Double = 0.0,
-    val trigger: Long = 0L,
-    val inFact: Long = 0L,
-    val pickerState: TimePickerState = TimePickerState(12, 0, true),
-    val taken: Boolean = false,
-    val selection: Int = 0,
-    val notified: Boolean = false,
-    val showPicker: Boolean = false
-)

@@ -182,7 +182,7 @@
     <string name="text_update">Загрузить</string>
     <string name="text_yes">Да</string>
 
-    <!-- Множественные числительные -->
+    <!-- Числительные -->
     <plurals name="intakes_a_day">
         <item quantity="one">%d раз в день</item>
         <item quantity="few">%d раза в день</item>

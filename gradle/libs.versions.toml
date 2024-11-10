@@ -1,19 +1,22 @@
 [versions]
-androidGradle = "8.7.1"
-codeScanner = "2.3.2"
+androidGradle = "8.7.2"
+cameraCamera2 = "1.5.0-alpha03"
 coil = "2.7.0"
-composeBom = "2024.10.00"
-composeDestinations = "2.1.0-beta12"
-composeViewModel = "2.8.6"
+composeBom = "2024.10.01"
+composeDestinations = "2.1.0-beta14"
+composeViewModel = "2.8.7"
 googleKsp = "2.0.20-1.0.25"
-kotlinBom = "2.0.20"
-kotlinJetbrains = "2.0.20"
+kotlinBom = "2.0.21"
 materialPreferences = "1.1.1"
 moshiKotlin = "1.15.1"
 retrofit = "2.11.0"
 roomCompiler = "2.6.1"
+zxing = "3.5.3"
 
 [libraries]
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraCamera2" }
+androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCamera2" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "composeViewModel" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "composeViewModel" }
@@ -21,7 +24,6 @@ androidx-material3 = { module = "androidx.compose.material3:material3" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompiler" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCompiler" }
-code-scanner = { module = "com.github.yuriy-budiyev:code-scanner", version.ref = "codeScanner" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 compose-destinations = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "composeDestinations" }
 compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "composeDestinations" }
@@ -30,10 +32,11 @@ kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin
 material-preferences = { module = "me.zhanghai.compose.preference:library", version.ref = "materialPreferences" }
 moshi-kotlin-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshiKotlin" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+zxing = { module = "com.google.zxing:core", version.ref = "zxing" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "androidGradle" }
 googleKsp = { id = "com.google.devtools.ksp", version.ref = "googleKsp" }
-jetbrainsKotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinJetbrains" }
-composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinJetbrains" }
+jetbrainsKotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinBom" }
+composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinBom" }
 roomPlugin = { id = "androidx.room", version.ref = "roomCompiler" }

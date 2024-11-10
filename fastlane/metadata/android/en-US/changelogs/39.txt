@@ -1,2 +1,0 @@
-— Added the feature to display fullscreen intake notifications. It is expected that if your screen is turned off, the application will show an alert window with information about the intake. This feature is not supported by all devices!
-— Now you can select the notification sound and the types of its appearance. To do this, you need to change the necessary settings in the system settings of the application notifications. Please note that the upcoming intake notification is always displayed without sound.

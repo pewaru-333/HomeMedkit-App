@@ -1,4 +1,4 @@
-package ru.application.homemedkit.screens
+package ru.application.homemedkit.ui.screens
 
 import android.content.Context
 import android.content.Intent

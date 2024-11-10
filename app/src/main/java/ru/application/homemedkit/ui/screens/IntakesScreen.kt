@@ -1,4 +1,4 @@
-package ru.application.homemedkit.screens
+package ru.application.homemedkit.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -97,7 +97,7 @@ import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.getDateTime
 import ru.application.homemedkit.helpers.shortName
-import ru.application.homemedkit.viewModels.IntakesViewModel
+import ru.application.homemedkit.models.viewModels.IntakesViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime

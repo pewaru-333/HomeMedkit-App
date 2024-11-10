@@ -1,4 +1,4 @@
-package ru.application.homemedkit.screens
+package ru.application.homemedkit.ui.screens
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
@@ -92,7 +92,6 @@ import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDes
 import com.ramcosta.composedestinations.generated.destinations.MedicinesScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R.drawable.vector_type_unknown
 import ru.application.homemedkit.R.string.placeholder_dose
@@ -130,14 +129,12 @@ import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.toExpDate
 import ru.application.homemedkit.helpers.viewModelFactory
-import ru.application.homemedkit.viewModels.MedicineState
-import ru.application.homemedkit.viewModels.MedicineViewModel
-import ru.application.homemedkit.viewModels.MedicineViewModel.ActivityEvents.Close
-import ru.application.homemedkit.viewModels.MedicineViewModel.ActivityEvents.Start
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Default
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Loading
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.NoNetwork
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Success
+import ru.application.homemedkit.models.events.Response.Default
+import ru.application.homemedkit.models.events.Response.Loading
+import ru.application.homemedkit.models.events.Response.NoNetwork
+import ru.application.homemedkit.models.events.Response.Success
+import ru.application.homemedkit.models.states.MedicineState
+import ru.application.homemedkit.models.viewModels.MedicineViewModel
 import java.io.File
 import java.time.LocalDate
 
@@ -156,9 +153,11 @@ fun MedicineScreen(
     val state by model.state.collectAsStateWithLifecycle()
     val response by model.response.collectAsStateWithLifecycle()
 
-    if (id == 0L) {
-        model.setAdding()
-        model.setCis(cis)
+    LaunchedEffect(Unit) {
+        if (id == 0L) {
+            model.setAdding()
+            model.setCis(cis)
+        }
     }
 
     if (duplicate) {
@@ -168,26 +167,12 @@ fun MedicineScreen(
         LaunchedEffect(Unit) { delay(2000); show = false }
     }
 
-    LaunchedEffect(Unit) {
-        model.events.collectLatest {
-            when (it) {
-                Start -> navigator.navigate(MedicineScreenDestination(state.id))
-                Close -> {
-                    File(context.filesDir, state.image).delete()
-                    navigator.navigate(MedicinesScreenDestination) {
-                        popUpTo(MedicinesScreenDestination) { inclusive = true }
-                    }
-                }
-            }
-        }
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton({ navigator.navigate(MedicinesScreenDestination) }) {
+                    IconButton({ navigator.popBackStack(MedicinesScreenDestination, false) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                             contentDescription = null,
@@ -215,7 +200,11 @@ fun MedicineScreen(
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(text_delete)) },
-                                onClick = model::delete
+                                onClick = {
+                                    expanded = false
+                                    model.delete(context.filesDir)
+                                    navigator.popBackStack(MedicinesScreenDestination, false)
+                                }
                             )
                         }
                     } else IconButton(
@@ -273,7 +262,7 @@ fun MedicineScreen(
         else -> Snackbar(text_try_again)
     }
 
-    BackHandler { navigator.navigate(MedicinesScreenDestination) }
+    BackHandler { navigator.popBackStack(MedicinesScreenDestination, false) }
 }
 
 @Composable

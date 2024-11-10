@@ -1,4 +1,4 @@
-package ru.application.homemedkit.screens
+package ru.application.homemedkit.ui.screens
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon

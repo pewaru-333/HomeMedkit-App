@@ -1,4 +1,4 @@
-package ru.application.homemedkit.screens
+package ru.application.homemedkit.ui.screens
 
 import android.Manifest
 import android.content.Context
@@ -9,18 +9,29 @@ import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
+import androidx.camera.core.TorchState
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
+import androidx.camera.view.CameraController
+import androidx.camera.view.LifecycleCameraController
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,13 +44,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat.checkSelfPermission
@@ -48,16 +65,15 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.budiyev.android.codescanner.CodeScanner
-import com.budiyev.android.codescanner.CodeScannerView
-import com.google.zxing.BarcodeFormat
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
 import com.ramcosta.composedestinations.generated.destinations.MedicinesScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.ScannerScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import ru.application.homemedkit.MainActivity
+import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.manual_add
 import ru.application.homemedkit.R.string.text_connection_error
 import ru.application.homemedkit.R.string.text_grant_permission
@@ -65,14 +81,14 @@ import ru.application.homemedkit.R.string.text_no
 import ru.application.homemedkit.R.string.text_request_camera
 import ru.application.homemedkit.R.string.text_try_again
 import ru.application.homemedkit.R.string.text_yes
-import ru.application.homemedkit.viewModels.ScannerViewModel
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.AfterError
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Default
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Duplicate
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Error
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Loading
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.NoNetwork
-import ru.application.homemedkit.viewModels.ScannerViewModel.Response.Success
+import ru.application.homemedkit.helpers.DataMatrixAnalyzer
+import ru.application.homemedkit.models.events.Response.Default
+import ru.application.homemedkit.models.events.Response.Duplicate
+import ru.application.homemedkit.models.events.Response.Error
+import ru.application.homemedkit.models.events.Response.Loading
+import ru.application.homemedkit.models.events.Response.NoNetwork
+import ru.application.homemedkit.models.events.Response.Success
+import ru.application.homemedkit.models.viewModels.ScannerViewModel
 
 @Destination<RootGraph>
 @Composable
@@ -83,12 +99,13 @@ fun ScannerScreen(navigator: DestinationsNavigator, context: Context = LocalCont
     var permissionGranted by remember { mutableStateOf(checkCameraPermission(context)) }
     var showRationale by remember { mutableStateOf(false) }
 
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val lifecycle = lifecycleOwner.lifecycle
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         if (it) permissionGranted = true else showRationale = true
     }
 
-    DisposableEffect(LocalLifecycleOwner.current) {
+    DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 permissionGranted = checkCameraPermission(context)
@@ -99,97 +116,115 @@ fun ScannerScreen(navigator: DestinationsNavigator, context: Context = LocalCont
         onDispose { lifecycle.removeObserver(observer) }
     }
 
+    val controller = remember {
+        LifecycleCameraController(context).apply {
+            setEnabledUseCases(CameraController.IMAGE_ANALYSIS)
+            imageAnalysisResolutionSelector = ResolutionSelector.Builder()
+                .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY).build()
+        }
+    }
+
+    LaunchedEffect(lifecycleOwner, controller) {
+        controller.unbind()
+        controller.bindToLifecycle(lifecycleOwner)
+    }
+
     BackHandler { navigator.navigate(MedicinesScreenDestination) }
-    if (permissionGranted) {
-        AndroidView(
-            factory = {
-                val scannerView = CodeScannerView(it).apply {
-                    frameCornersRadius = 48.dp.value.toInt()
-                    frameThickness = 16.dp.value.toInt()
-                    isMaskVisible = true
-                }
-
-                CodeScanner(it, scannerView).apply {
-                    setErrorCallback { model.throwError() }
-                    setDecodeCallback { result ->
-                        if (result.barcodeFormat != BarcodeFormat.DATA_MATRIX) model.throwError()
-                        else model.fetchData(it, result.text.substring(1))
-                    }
-
-                    startPreview()
-                }
-
-                scannerView
+    if (permissionGranted) Box {
+        CameraPreview(controller, Modifier.fillMaxSize())
+        Canvas(Modifier.fillMaxSize()) {
+            val frame = Path().apply {
+                addRoundRect(
+                    RoundRect(
+                        cornerRadius = CornerRadius(16.dp.toPx()),
+                        rect = Rect(
+                            topLeft = center - Offset(size.width * 0.35f, size.height * 0.25f),
+                            bottomRight = center + Offset(size.width * 0.35f, size.height * 0.25f)
+                        )
+                    )
+                )
             }
-        )
+            clipPath(frame, ClipOp.Difference) { drawRect(Color.Black.copy(0.55f)) }
+            drawPath(frame, Color.White, style = Stroke(5f))
+        }
+        Row(Modifier.fillMaxWidth(), Arrangement.End, Alignment.CenterVertically) {
+            IconButton(
+                onClick = {
+                    controller.cameraControl?.enableTorch(controller.cameraInfo?.torchState?.value != TorchState.ON)
+                }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.vector_flash),
+                    contentDescription = null,
+                    tint = Color.White
+                )
+            }
+        }
     } else {
         LaunchedEffect(Unit) { launcher.launch(Manifest.permission.CAMERA) }
         if (showRationale) PermissionDialog(text_request_camera)
     }
 
     when (val data = response) {
-        Default -> {}
+        Default -> controller.setImageAnalysisAnalyzer(
+            Dispatchers.Default.asExecutor(),
+            DataMatrixAnalyzer { model.fetchData(context, it.substring(1)) }
+        )
         Loading -> LoadingDialog()
         is Duplicate -> navigator.navigate(MedicineScreenDestination(id = data.id, duplicate = true))
         is Success -> navigator.navigate(MedicineScreenDestination(data.id))
-        is NoNetwork -> AddMedicineDialog(navigator, data.cis)
-        Error -> Snackbar(text_try_again)
-        AfterError -> LaunchedEffect(Unit) { navigator.navigate(ScannerScreenDestination) }
+        is NoNetwork -> {
+            controller.clearImageAnalysisAnalyzer()
+            AddMedicineDialog(model,navigator, data.cis)
+        }
+        Error -> {
+            controller.clearImageAnalysisAnalyzer()
+            Snackbar(text_try_again)
+        }
     }
 }
 
 @Composable
 fun Snackbar(id: Int) = Dialog({}, DialogProperties(usePlatformDefaultWidth = false)) {
     Box(
+        contentAlignment = Alignment.BottomCenter,
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
             .background(Color.Transparent),
-        contentAlignment = Alignment.BottomCenter
-    ){
+    ) {
         Column(
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
-                .background(MaterialTheme.colorScheme.errorContainer, RoundedCornerShape(4.dp)),
-            verticalArrangement = Arrangement.Center
+                .background(
+                    MaterialTheme.colorScheme.errorContainer,
+                    MaterialTheme.shapes.extraSmall
+                ),
         ) {
             Text(
                 text = stringResource(id),
                 modifier = Modifier.padding(start = 16.dp),
                 color = MaterialTheme.colorScheme.onErrorContainer,
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }
 }
 
 @Composable
-private fun AddMedicineDialog(navigator: DestinationsNavigator, cis: String) = AlertDialog(
-    onDismissRequest = { navigator.navigate(ScannerScreenDestination) },
+private fun AddMedicineDialog(model: ScannerViewModel, navigator: DestinationsNavigator, cis: String) = AlertDialog(
+    onDismissRequest = model::setDefault,
     confirmButton = {
         TextButton({ navigator.navigate(MedicineScreenDestination(cis = cis)) }) {
-            Text(stringResource(text_yes), color = MaterialTheme.colorScheme.onSecondaryContainer)
+            Text(stringResource(text_yes))
         }
     },
-    dismissButton = {
-        TextButton({ navigator.navigate(ScannerScreenDestination) }) {
-            Text(stringResource(text_no), color = MaterialTheme.colorScheme.onSecondaryContainer)
-        }
-    },
-    title = {
-        Text(
-            text = stringResource(text_connection_error),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-        )
-    },
-    text = { Text(stringResource(manual_add), style = MaterialTheme.typography.bodyLarge) },
-    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-    titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-    textContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+    dismissButton = { TextButton(model::setDefault) { Text(stringResource(text_no)) } },
+    title = { Text(stringResource(text_connection_error)) },
+    text = { Text(stringResource(manual_add)) },
+    icon = { Icon(Icons.Outlined.Info, null) }
 )
 
 @Composable
@@ -199,7 +234,7 @@ fun LoadingDialog() = Dialog({}) {
 }
 
 @Composable
-fun PermissionDialog(id: Int, context: Context = LocalContext.current) {
+fun PermissionDialog(@StringRes id: Int, context: Context = LocalContext.current) {
     Dialog({ Intent(context, MainActivity::class.java).also(context::startActivity) }) {
         ElevatedCard {
             Text(

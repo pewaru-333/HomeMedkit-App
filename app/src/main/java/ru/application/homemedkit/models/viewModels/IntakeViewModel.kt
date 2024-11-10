@@ -1,22 +1,22 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package ru.application.homemedkit.viewModels
+package ru.application.homemedkit.models.viewModels
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
-import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.FORMAT_H
 import ru.application.homemedkit.helpers.FORMAT_S
@@ -30,9 +30,9 @@ import ru.application.homemedkit.helpers.Periods.OTHER
 import ru.application.homemedkit.helpers.Periods.PICK
 import ru.application.homemedkit.helpers.getDateTime
 import ru.application.homemedkit.helpers.longSeconds
+import ru.application.homemedkit.helpers.toIntake
+import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.receivers.AlarmSetter
-import ru.application.homemedkit.viewModels.MedicineViewModel.ActivityEvents.Close
-import ru.application.homemedkit.viewModels.MedicineViewModel.ActivityEvents.Start
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -41,12 +41,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
 
     private val _state = MutableStateFlow(IntakeState())
     val state = _state.asStateFlow()
-
-    private val _events = MutableSharedFlow<MedicineViewModel.ActivityEvents>()
-    val events = _events.asSharedFlow()
-
-    init {
-        viewModelScope.launch {
+        .onStart {
             dao.getById(intakeId)?.let { intake ->
                 _state.update { state ->
                     state.copy(
@@ -76,9 +71,8 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
                         preAlarm = intake.preAlarm
                     )
                 }
-            } ?: IntakeState()
-        }
-    }
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), IntakeState())
 
     fun getIntervalTitle() = if (_state.value.intervalE == CUSTOM) CUSTOM.title
     else Intervals.getTitle(_state.value.interval)
@@ -87,32 +81,16 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
         val time = _state.value.time.map { LocalTime.parse(it, FORMAT_H) }
         val startDate = _state.value.startDate
 
-        val intake = Intake(
-            medicineId = _state.value.medicineId,
-            amount = _state.value.amount.toDouble(),
-            interval = _state.value.interval.toInt(),
-            foodType = _state.value.foodType,
-            time = time,
-            period = _state.value.period.toInt(),
-            startDate = startDate,
-            finalDate = _state.value.finalDate,
-            fullScreen = _state.value.fullScreen,
-            noSound = _state.value.noSound,
-            preAlarm = _state.value.preAlarm
-        )
-
-        viewModelScope.launch {
-            val id = dao.add(intake)
-            val triggers = longSeconds(startDate, time)
+        viewModelScope.launch(Dispatchers.IO) {
+            val id = dao.add(_state.value.toIntake(time))
 
             if (_state.value.preAlarm) {
                 val preTriggers = longSeconds(startDate, time.map { it.minusMinutes(30) })
                 setter.setAlarm(intakeId = id, triggers = preTriggers, preAlarm = true)
             }
 
-            setter.setAlarm(intakeId = id, triggers = triggers)
+            setter.setAlarm(intakeId = id, triggers = longSeconds(startDate, time))
             _state.update { it.copy(adding = false, default = true, intakeId = id) }
-            _events.emit(Start)
         }
     }
 
@@ -120,47 +98,24 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
         val time = _state.value.time.map { LocalTime.parse(it, FORMAT_H) }
         val startDate = _state.value.startDate
 
-        val intake = Intake(
-            intakeId = _state.value.intakeId,
-            medicineId = _state.value.medicineId,
-            amount = _state.value.amount.toDouble(),
-            interval = _state.value.interval.toInt(),
-            foodType = _state.value.foodType,
-            time = time,
-            period = _state.value.period.toInt(),
-            startDate = startDate,
-            finalDate = _state.value.finalDate,
-            fullScreen = _state.value.fullScreen,
-            noSound = _state.value.noSound,
-            preAlarm = _state.value.preAlarm
-        )
-
-        viewModelScope.launch {
-            val alarms = dao.getAlarms(intakeId = _state.value.intakeId)
-            val triggers = longSeconds(startDate, time)
-
-            alarms.forEach { setter.removeAlarm(it.alarmId) }
-            setter.setAlarm(intakeId = _state.value.intakeId, triggers = triggers)
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.getAlarms(intakeId = _state.value.intakeId).forEach { setter.removeAlarm(it.alarmId) }
+            setter.setAlarm(intakeId = _state.value.intakeId, triggers = longSeconds(startDate, time))
 
             if (_state.value.preAlarm) {
                 val preTriggers = longSeconds(startDate, time.map { it.minusMinutes(30) })
                 setter.setAlarm(intakeId = _state.value.intakeId, triggers = preTriggers, preAlarm = true)
             }
 
-            dao.update(intake)
+            dao.update(_state.value.toIntake(time))
             _state.update { it.copy(adding = false, editing = false, default = true) }
         }
     }
 
     fun delete() {
-        val intake = Intake(intakeId = _state.value.intakeId)
-        val alarms = dao.getAlarms(intakeId = _state.value.intakeId)
-        alarms.forEach { setter.removeAlarm(it.alarmId) }
+        dao.getAlarms(intakeId = _state.value.intakeId).forEach { setter.removeAlarm(it.alarmId) }
 
-        viewModelScope.launch {
-            dao.delete(intake)
-            _events.emit(Close)
-        }
+        viewModelScope.launch(Dispatchers.IO) { dao.delete(_state.value.toIntake(emptyList())) }
     }
 
     fun setEditing() = _state.update { it.copy(adding = false, editing = true, default = false) }
@@ -303,30 +258,3 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
         _state.value.startDate, _state.value.finalDate
     ).apply { addAll(_state.value.time) }.all(String::isNotBlank)
 }
-
-data class IntakeState(
-    val adding: Boolean = true,
-    val editing: Boolean = false,
-    val default: Boolean = false,
-    val intakeId: Long = 0,
-    val medicineId: Long = 0,
-    val amount: String = BLANK,
-    val interval: String = BLANK,
-    val intervalE: Intervals? = null,
-    val period: String = BLANK,
-    val periodE: Periods = PICK,
-    val foodType: Int = -1,
-    val time: SnapshotStateList<String> = mutableStateListOf(BLANK),
-    val times: SnapshotStateList<TimePickerState> = mutableStateListOf(TimePickerState(12, 0, true)),
-    val timeF: Int = 0,
-    val startDate: String = BLANK,
-    val finalDate: String = BLANK,
-    val showIntervalM: Boolean = false,
-    val showPeriodD: Boolean = false,
-    val showPeriodM: Boolean = false,
-    val showTimeP: Boolean = false,
-    val fullScreen: Boolean = false,
-    val noSound: Boolean = false,
-    val preAlarm: Boolean = false,
-    val showDialog: Boolean = false
-)

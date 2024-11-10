@@ -1,4 +1,4 @@
-package ru.application.homemedkit.screens
+package ru.application.homemedkit.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
@@ -88,8 +88,8 @@ import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.inCard
 import ru.application.homemedkit.helpers.shortName
-import ru.application.homemedkit.viewModels.MedicinesState
-import ru.application.homemedkit.viewModels.MedicinesViewModel
+import ru.application.homemedkit.models.states.MedicinesState
+import ru.application.homemedkit.models.viewModels.MedicinesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>(start = true)
