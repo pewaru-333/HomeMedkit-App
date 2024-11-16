@@ -58,9 +58,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.IntakeScreenDestination
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.intake_card_text_from
@@ -101,12 +98,10 @@ import ru.application.homemedkit.models.viewModels.IntakesViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator as Navigator
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<RootGraph>
 @Composable
-fun IntakesScreen(navigator: Navigator) {
+fun IntakesScreen(navigateToIntake: (Long) -> Unit) {
     val model = viewModel<IntakesViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
     val intakes by model.intakes.collectAsStateWithLifecycle()
@@ -166,12 +161,12 @@ fun IntakesScreen(navigator: Navigator) {
                         contentAlignment = Alignment.Center
                     ) { Text(stringResource(text_no_intakes_found), textAlign = TextAlign.Center) }
                     else if (Preferences.getMedCompactView()) LazyColumn(state = state.stateA)
-                    { items(list) { IntakeItem(it, navigator); HorizontalDivider() } }
+                    { items(list) { IntakeItem(it, navigateToIntake); HorizontalDivider() } }
                     else LazyColumn(
                         state = state.stateA,
                         contentPadding = PaddingValues(4.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) { items(list) { IntakeCard(it, navigator) } }
+                    ) { items(list) { IntakeCard(it, navigateToIntake) } }
                 }
 
                 1 -> schedule.let { list ->
@@ -196,7 +191,7 @@ fun IntakesScreen(navigator: Navigator) {
 }
 
 @Composable
-fun IntakeCard(intake: Intake, navigator: Navigator) {
+fun IntakeCard(intake: Intake, navigateToIntake:(Long) -> Unit) {
     val medicine = database.medicineDAO().getById(intake.medicineId)
     val startDate = stringResource(intake_card_text_from, intake.startDate)
     val count = intake.time.size
@@ -210,7 +205,7 @@ fun IntakeCard(intake: Intake, navigator: Navigator) {
         leadingContent = { MedicineImage(medicine?.image ?: BLANK, Modifier.size(56.dp)) },
         modifier = Modifier
             .clip(MaterialTheme.shapes.medium)
-            .clickable { navigator.navigate(IntakeScreenDestination(intakeId = intake.intakeId)) },
+            .clickable { navigateToIntake(intake.intakeId) },
         overlineContent = {
             Text(
                 text = shortName(medicine?.productName),
@@ -222,7 +217,7 @@ fun IntakeCard(intake: Intake, navigator: Navigator) {
 }
 
 @Composable
-fun IntakeItem(intake: Intake, navigator: Navigator) {
+fun IntakeItem(intake: Intake, navigateToIntake:(Long) -> Unit) {
     val medicine = database.medicineDAO().getById(intake.medicineId)
     val count = intake.time.size
     val intervalName = if (count == 1) stringResource(Intervals.getTitle(intake.interval.toString()))
@@ -232,7 +227,7 @@ fun IntakeItem(intake: Intake, navigator: Navigator) {
         trailingContent = { Text(intervalName) },
         supportingContent = { Text(intake.time.joinToString(", "), maxLines = 1) },
         leadingContent = { MedicineImage(medicine?.image ?: BLANK, Modifier.size(40.dp)) },
-        modifier = Modifier.clickable { navigator.navigate(IntakeScreenDestination(intake.intakeId)) },
+        modifier = Modifier.clickable { navigateToIntake(intake.intakeId) },
         headlineContent = { Text(shortName(medicine?.productName), softWrap = false) }
     )
 }

@@ -1,9 +1,10 @@
 plugins {
-    alias(libs.plugins.androidApplication)
-    alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.jetbrainsKotlin)
-    alias(libs.plugins.googleKsp)
-    alias(libs.plugins.roomPlugin)
+    alias(libs.plugins.android)
+    alias(libs.plugins.compose)
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 android {
@@ -14,8 +15,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 40
-        versionName = "1.5.5"
+        versionCode = 41
+        versionName = "1.5.6"
     }
 
     dependenciesInfo {
@@ -72,8 +73,8 @@ dependencies {
     implementation(libs.converter.moshi)
 
     // ==================== Navigation ====================
-    ksp(libs.compose.destinations.ksp)
-    implementation(libs.compose.destinations)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
 
     // ==================== Scanner ====================
     implementation(libs.androidx.camera.camera2)

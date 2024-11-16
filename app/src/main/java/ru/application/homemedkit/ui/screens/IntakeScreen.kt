@@ -87,10 +87,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.IntakesScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R.drawable.vector_medicine
 import ru.application.homemedkit.R.drawable.vector_period
@@ -133,18 +129,14 @@ import ru.application.homemedkit.receivers.AlarmSetter
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<RootGraph>
 @Composable
-fun IntakeScreen(
-    intakeId: Long = 0L,
-    medicineId: Long = 0L,
-    navigator: DestinationsNavigator,
-    context: Context = LocalContext.current,
-    lifecycle: Lifecycle = LocalLifecycleOwner.current.lifecycle
-) {
+fun IntakeScreen(intakeId: Long = 0L, medicineId: Long = 0L, navigateUp: () -> Unit) {
     val medId = if (intakeId == 0L) medicineId else
         database.intakeDAO().getById(intakeId)?.medicineId ?: 0L
     val medicine = database.medicineDAO().getById(medId)!!
+
+    val context = LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
 
     val model = viewModel<IntakeViewModel>(factory = viewModelFactory {
         IntakeViewModel(intakeId, AlarmSetter(context))
@@ -182,14 +174,15 @@ fun IntakeScreen(
         onDispose { lifecycle.removeObserver(observer) }
     }
 
-    BackHandler { navigator.navigate(IntakesScreenDestination) }
+    BackHandler(onBack = navigateUp)
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton({ navigator.navigate(IntakesScreenDestination)})
-                    { Icon(Icons.AutoMirrored.Outlined.ArrowBack, null) }
+                    IconButton(navigateUp) {
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, null)
+                    }
                 },
                 actions = {
                     if (state.adding || state.editing) IconButton(
@@ -200,7 +193,9 @@ fun IntakeScreen(
                         LocalFocusManager.current.clearFocus(true)
                         var expanded by remember { mutableStateOf(false) }
 
-                        IconButton({ expanded = true }) { Icon(Icons.Outlined.MoreVert, null) }
+                        IconButton({ expanded = true }) {
+                            Icon(Icons.Outlined.MoreVert, null)
+                        }
                         DropdownMenu(expanded, { expanded = false }) {
                             DropdownMenuItem({ Text(stringResource(text_edit)) }, model::setEditing)
                             DropdownMenuItem(
@@ -208,7 +203,7 @@ fun IntakeScreen(
                                 onClick = {
                                     expanded = false
                                     model.delete()
-                                    navigator.navigate(IntakesScreenDestination)
+                                    navigateUp()
                                 }
                             )
                         }

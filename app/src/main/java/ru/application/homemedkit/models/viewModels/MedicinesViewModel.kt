@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import ru.application.homemedkit.HomeMeds.Companion.database
@@ -23,15 +23,18 @@ class MedicinesViewModel : ViewModel() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val medicines = _state.flatMapLatest { (search, sorting, kitId) ->
-        flow {
-            emit(
-                database.medicineDAO().getAll().filter { (_, dKitId, _, productName) ->
-                    productName.lowercase(ROOT).contains(search.lowercase(ROOT)) &&
-                            if (kitId != 0L) dKitId == kitId else true
-                }.sortedWith(sorting)
-            )
+        database.medicineDAO().getFlow().mapLatest { list ->
+            list.filter { (_, dKitId, _, productName) ->
+                productName.lowercase(ROOT).contains(search.lowercase(ROOT)) &&
+                        if (kitId != 0L) dKitId == kitId else true
+            }.sortedWith(sorting)
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), database.medicineDAO().getAll())
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = database.medicineDAO().getAll()
+    )
+
 
     fun setSearch(text: String) = _state.update { it.copy(search = text) }
     fun clearSearch() = _state.update { it.copy(search = BLANK) }

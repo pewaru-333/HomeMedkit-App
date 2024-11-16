@@ -12,14 +12,20 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.os.ConfigurationCompat
 import androidx.core.os.LocaleListCompat
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.text_error
 import ru.application.homemedkit.R.string.text_success
 import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.Technical
+import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.states.MedicineState
+import ru.application.homemedkit.models.states.TechnicalState
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -28,6 +34,7 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlin.reflect.KClass
 
 val LOCALE
     @Composable get() = ConfigurationCompat.getLocales(LocalConfiguration.current)[0]
@@ -118,6 +125,33 @@ fun createNotificationChannel(
             .build()
     )
 }
+
+fun <T: Any> NavBackStackEntry?.isCurrentRoute(route: KClass<T>) =
+    this?.destination?.hierarchy?.any { it.hasRoute(route) } == true
+
+fun Medicine.toState() = MedicineState(
+    adding = false,
+    editing = false,
+    default = true,
+    fetch = Response.Default,
+    id = id,
+    kitId = kitId,
+    kitTitle = database.medicineDAO().getKitTitle(kitId) ?: BLANK,
+    cis = cis,
+    productName = productName,
+    expDate = expDate,
+    prodFormNormName = prodFormNormName,
+    prodDNormName = prodDNormName,
+    prodAmount = prodAmount.toString(),
+    doseType = doseType,
+    phKinetics = phKinetics,
+    comment = comment,
+    image = image,
+    technical = TechnicalState(
+        scanned = technical.scanned,
+        verified = technical.verified
+    )
+)
 
 fun MedicineState.toMedicine() = Medicine(
     id = id,

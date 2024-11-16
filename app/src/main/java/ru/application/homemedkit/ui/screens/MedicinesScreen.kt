@@ -64,11 +64,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.ScannerScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R.drawable.vector_filter
 import ru.application.homemedkit.R.drawable.vector_scanner
@@ -92,9 +87,8 @@ import ru.application.homemedkit.models.states.MedicinesState
 import ru.application.homemedkit.models.viewModels.MedicinesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<RootGraph>(start = true)
 @Composable
-fun MedicinesScreen(navigator: DestinationsNavigator) {
+fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) -> Unit) {
     val model = viewModel<MedicinesViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
     val medicines by model.medicines.collectAsStateWithLifecycle()
@@ -155,7 +149,7 @@ fun MedicinesScreen(navigator: DestinationsNavigator) {
                     AnimatedVisibility(state.showAdding) {
                         Column {
                             ElevatedCard(
-                                onClick = { navigator.navigate(ScannerScreenDestination) },
+                                onClick = navigateToScanner,
                                 colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 Icon(
@@ -168,7 +162,7 @@ fun MedicinesScreen(navigator: DestinationsNavigator) {
                             }
 
                             ElevatedCard(
-                                onClick = { navigator.navigate(MedicineScreenDestination()) },
+                                onClick = { navigateToMedicine(0L) },
                                 colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
                             ) {
                                 Icon(
@@ -197,18 +191,18 @@ fun MedicinesScreen(navigator: DestinationsNavigator) {
                 LazyColumn(
                     state = state.listState,
                     contentPadding = PaddingValues(top = values.calculateTopPadding())
-                ) { items(list) { MedicineItem(it, navigator); HorizontalDivider() } }
+                ) { items(list) { MedicineItem(it, navigateToMedicine); HorizontalDivider() } }
             else LazyColumn(
                 state = state.listState,
                 contentPadding = PaddingValues(16.dp, values.calculateTopPadding(), 16.dp, 0.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) { items(list) { MedicineCard(it, navigator) } }
+            ) { items(list) { MedicineCard(it, navigateToMedicine) } }
         }
     }
 }
 
 @Composable
-private fun MedicineItem(medicine: Medicine, navigator: DestinationsNavigator) {
+private fun MedicineItem(medicine: Medicine, navigateToMedicine: (Long) -> Unit) {
     val shortName = shortName(medicine.productName)
     val formName = formName(medicine.prodFormNormName)
     val expDate = inCard(medicine.expDate)
@@ -228,7 +222,7 @@ private fun MedicineItem(medicine: Medicine, navigator: DestinationsNavigator) {
             }
         },
         leadingContent = { MedicineImage(medicine.image, Modifier.size(56.dp)) },
-        modifier = Modifier.clickable { navigator.navigate(MedicineScreenDestination(medicine.id)) },
+        modifier = Modifier.clickable { navigateToMedicine(medicine.id) },
         colors = ListItemDefaults.colors(
             if (medicine.expDate >= System.currentTimeMillis()) ListItemDefaults.containerColor
             else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
@@ -237,7 +231,7 @@ private fun MedicineItem(medicine: Medicine, navigator: DestinationsNavigator) {
 }
 
 @Composable
-private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator) {
+private fun MedicineCard(medicine: Medicine, navigateToMedicine: (Long) -> Unit) {
     val shortName = shortName(medicine.productName)
     val formName = formName(medicine.prodFormNormName)
     val expDate = inCard(medicine.expDate)
@@ -254,7 +248,7 @@ private fun MedicineCard(medicine: Medicine, navigator: DestinationsNavigator) {
             )
         },
         modifier = Modifier
-            .clickable { navigator.navigate(MedicineScreenDestination(medicine.id)) }
+            .clickable { navigateToMedicine(medicine.id) }
             .padding(vertical = 8.dp)
             .clip(MaterialTheme.shapes.medium),
         overlineContent = {

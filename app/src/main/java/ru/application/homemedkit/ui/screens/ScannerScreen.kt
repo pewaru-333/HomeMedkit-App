@@ -9,12 +9,14 @@ import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.OptIn
 import androidx.annotation.StringRes
 import androidx.camera.core.TorchState
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
+import androidx.camera.view.TransformExperimental
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +50,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -65,11 +68,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.MedicinesScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import ru.application.homemedkit.MainActivity
@@ -81,6 +79,7 @@ import ru.application.homemedkit.R.string.text_no
 import ru.application.homemedkit.R.string.text_request_camera
 import ru.application.homemedkit.R.string.text_try_again
 import ru.application.homemedkit.R.string.text_yes
+import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DataMatrixAnalyzer
 import ru.application.homemedkit.models.events.Response.Default
 import ru.application.homemedkit.models.events.Response.Duplicate
@@ -90,11 +89,13 @@ import ru.application.homemedkit.models.events.Response.NoNetwork
 import ru.application.homemedkit.models.events.Response.Success
 import ru.application.homemedkit.models.viewModels.ScannerViewModel
 
-@Destination<RootGraph>
+@OptIn(TransformExperimental::class)
 @Composable
-fun ScannerScreen(navigator: DestinationsNavigator, context: Context = LocalContext.current) {
+fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boolean) -> Unit) {
     val model = viewModel<ScannerViewModel>()
     val response by model.response.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
 
     var permissionGranted by remember { mutableStateOf(checkCameraPermission(context)) }
     var showRationale by remember { mutableStateOf(false) }
@@ -119,8 +120,12 @@ fun ScannerScreen(navigator: DestinationsNavigator, context: Context = LocalCont
     val controller = remember {
         LifecycleCameraController(context).apply {
             setEnabledUseCases(CameraController.IMAGE_ANALYSIS)
-            imageAnalysisResolutionSelector = ResolutionSelector.Builder()
-                .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY).build()
+            imageAnalysisResolutionSelector = ResolutionSelector.Builder().setResolutionStrategy(
+                ResolutionStrategy(
+                    android.util.Size(960,960),
+                    ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+                )
+            ).build()
         }
     }
 
@@ -129,17 +134,19 @@ fun ScannerScreen(navigator: DestinationsNavigator, context: Context = LocalCont
         controller.bindToLifecycle(lifecycleOwner)
     }
 
-    BackHandler { navigator.navigate(MedicinesScreenDestination) }
+    BackHandler(onBack = navigateUp)
     if (permissionGranted) Box {
         CameraPreview(controller, Modifier.fillMaxSize())
         Canvas(Modifier.fillMaxSize()) {
+            val length = if (size.width > size.height) size.height * 0.5f else size.width * 0.7f
+
             val frame = Path().apply {
                 addRoundRect(
                     RoundRect(
                         cornerRadius = CornerRadius(16.dp.toPx()),
                         rect = Rect(
-                            topLeft = center - Offset(size.width * 0.35f, size.height * 0.25f),
-                            bottomRight = center + Offset(size.width * 0.35f, size.height * 0.25f)
+                            offset = Offset(center.x - length / 2, center.y - length / 2),
+                            size = Size(length, length)
                         )
                     )
                 )
@@ -167,16 +174,18 @@ fun ScannerScreen(navigator: DestinationsNavigator, context: Context = LocalCont
 
     when (val data = response) {
         Default -> controller.setImageAnalysisAnalyzer(
-            Dispatchers.Default.asExecutor(),
+            Dispatchers.Main.immediate.asExecutor(),
             DataMatrixAnalyzer { model.fetchData(context, it.substring(1)) }
         )
+
         Loading -> LoadingDialog()
-        is Duplicate -> navigator.navigate(MedicineScreenDestination(id = data.id, duplicate = true))
-        is Success -> navigator.navigate(MedicineScreenDestination(data.id))
+        is Duplicate -> navigateToMedicine(data.id, BLANK, true)
+        is Success -> navigateToMedicine(data.id, BLANK, false)
         is NoNetwork -> {
             controller.clearImageAnalysisAnalyzer()
-            AddMedicineDialog(model,navigator, data.cis)
+            AddMedicineDialog(model::setDefault) { navigateToMedicine(0L, data.cis, false) }
         }
+
         Error -> {
             controller.clearImageAnalysisAnalyzer()
             Snackbar(text_try_again)
@@ -214,14 +223,10 @@ fun Snackbar(id: Int) = Dialog({}, DialogProperties(usePlatformDefaultWidth = fa
 }
 
 @Composable
-private fun AddMedicineDialog(model: ScannerViewModel, navigator: DestinationsNavigator, cis: String) = AlertDialog(
-    onDismissRequest = model::setDefault,
-    confirmButton = {
-        TextButton({ navigator.navigate(MedicineScreenDestination(cis = cis)) }) {
-            Text(stringResource(text_yes))
-        }
-    },
-    dismissButton = { TextButton(model::setDefault) { Text(stringResource(text_no)) } },
+private fun AddMedicineDialog(setDefault: () -> Unit, navigateWithCis: () -> Unit) = AlertDialog(
+    onDismissRequest = setDefault,
+    confirmButton = { TextButton(navigateWithCis) { Text(stringResource(text_yes)) } },
+    dismissButton = { TextButton(setDefault) { Text(stringResource(text_no)) } },
     title = { Text(stringResource(text_connection_error)) },
     text = { Text(stringResource(manual_add)) },
     icon = { Icon(Icons.Outlined.Info, null) }

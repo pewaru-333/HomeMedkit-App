@@ -2,6 +2,8 @@ package ru.application.homemedkit
 
 import android.os.Bundle
 import android.view.Window
+import android.view.WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.AlertDialog
@@ -26,7 +28,10 @@ import ru.application.homemedkit.ui.theme.AppTheme
 class IntakeDialogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
+        theme.applyStyle(android.R.style.Theme_Wallpaper, true)
         super.onCreate(savedInstanceState)
+
+        window.addFlags(FLAG_KEEP_SCREEN_ON or FLAG_ALLOW_LOCK_WHILE_SCREEN_ON)
 
         val database = MedicineDatabase.getInstance(this)
         val takenDAO = database.takenDAO()

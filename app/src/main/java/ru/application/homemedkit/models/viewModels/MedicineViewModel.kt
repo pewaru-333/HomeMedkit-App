@@ -18,15 +18,14 @@ import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CATEGORY
 import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.toMedicine
+import ru.application.homemedkit.helpers.toState
 import ru.application.homemedkit.helpers.toTimestamp
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.events.Response.Default
 import ru.application.homemedkit.models.events.Response.Error
 import ru.application.homemedkit.models.events.Response.Loading
 import ru.application.homemedkit.models.events.Response.NoNetwork
-import ru.application.homemedkit.models.events.Response.Success
 import ru.application.homemedkit.models.states.MedicineState
-import ru.application.homemedkit.models.states.TechnicalState
 import ru.application.homemedkit.network.Network
 import java.io.File
 
@@ -38,35 +37,7 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
 
     private val _state = MutableStateFlow(MedicineState())
     val state = _state.asStateFlow()
-        .onStart {
-            dao.getById(medicineId)?.let { medicine ->
-                _state.update {
-                    it.copy(
-                        adding = false,
-                        editing = false,
-                        default = true,
-                        fetch = Default,
-                        id = medicine.id,
-                        kitId = medicine.kitId,
-                        kitTitle = dao.getKitTitle(medicine.kitId) ?: BLANK,
-                        cis = medicine.cis,
-                        productName = medicine.productName,
-                        expDate = medicine.expDate,
-                        prodFormNormName = medicine.prodFormNormName,
-                        prodDNormName = medicine.prodDNormName,
-                        prodAmount = medicine.prodAmount.toString(),
-                        doseType = medicine.doseType,
-                        phKinetics = medicine.phKinetics,
-                        comment = medicine.comment,
-                        image = medicine.image,
-                        technical = TechnicalState(
-                            scanned = medicine.technical.scanned,
-                            verified = medicine.technical.verified
-                        )
-                    )
-                }
-            }
-        }
+        .onStart { dao.getById(medicineId)?.let { _state.value = it.toState() } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MedicineState())
 
     fun add() = viewModelScope.launch(Dispatchers.IO) {
@@ -98,7 +69,8 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
                         )
 
                         dao.update(medicine)
-                        _response.emit(Success(medicineId))
+                        _state.value = medicine.toState()
+                        _response.emit(Default)
                     } else {
                         _response.emit(Error)
                         delay(2000)
@@ -113,7 +85,7 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
         }
     }
 
-    fun update() = viewModelScope.launch {
+    fun update() = viewModelScope.launch(Dispatchers.IO) {
         dao.update(_state.value.toMedicine())
         _state.update { it.copy(adding = false, editing = false, default = true) }
     }

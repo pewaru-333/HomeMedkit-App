@@ -1,42 +1,44 @@
 [versions]
-androidGradle = "8.7.2"
-cameraCamera2 = "1.5.0-alpha03"
+camera2 = "1.4.0"
 coil = "2.7.0"
-composeBom = "2024.10.01"
-composeDestinations = "2.1.0-beta14"
+composeBom = "2024.11.00"
 composeViewModel = "2.8.7"
 googleKsp = "2.0.20-1.0.25"
-kotlinBom = "2.0.21"
+gradle = "8.7.2"
+kotlin = "2.0.21"
+kotlinxSerializationJson = "1.7.3"
 materialPreferences = "1.1.1"
 moshiKotlin = "1.15.1"
+navigationCompose = "2.8.4"
 retrofit = "2.11.0"
 roomCompiler = "2.6.1"
 zxing = "3.5.3"
 
 [libraries]
-androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
-androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraCamera2" }
-androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCamera2" }
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camera2" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camera2" }
+androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "camera2" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "composeViewModel" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "composeViewModel" }
 androidx-material3 = { module = "androidx.compose.material3:material3" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomCompiler" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomCompiler" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-compose-destinations = { module = "io.github.raamcosta.compose-destinations:core", version.ref = "composeDestinations" }
-compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "composeDestinations" }
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlinBom" }
+kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "kotlin" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 material-preferences = { module = "me.zhanghai.compose.preference:library", version.ref = "materialPreferences" }
 moshi-kotlin-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshiKotlin" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 zxing = { module = "com.google.zxing:core", version.ref = "zxing" }
 
 [plugins]
-androidApplication = { id = "com.android.application", version.ref = "androidGradle" }
-googleKsp = { id = "com.google.devtools.ksp", version.ref = "googleKsp" }
-jetbrainsKotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinBom" }
-composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlinBom" }
-roomPlugin = { id = "androidx.room", version.ref = "roomCompiler" }
+android = { id = "com.android.application", version.ref = "gradle" }
+compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "googleKsp" }
+room = { id = "androidx.room", version.ref = "roomCompiler" }

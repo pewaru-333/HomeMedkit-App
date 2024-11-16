@@ -1,2 +1,0 @@
-— Now the mark label recognition process is faster.
-— Turning on the flash on the marking scan screen is supported on almost all devices.

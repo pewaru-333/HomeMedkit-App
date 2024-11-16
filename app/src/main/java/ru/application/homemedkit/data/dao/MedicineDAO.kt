@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.Medicine
 
 @Dao
@@ -12,6 +13,9 @@ interface MedicineDAO {
     // ============================== Queries ==============================
     @Query("SELECT * FROM medicines")
     fun getAll(): List<Medicine>
+
+    @Query("SELECT * FROM medicines")
+    fun getFlow(): Flow<List<Medicine>>
 
     @Query("SELECT productName FROM medicines WHERE id = :medicineId")
     fun getProductName(medicineId: Long): String

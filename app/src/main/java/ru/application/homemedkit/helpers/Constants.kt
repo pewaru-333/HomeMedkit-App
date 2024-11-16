@@ -2,10 +2,7 @@ package ru.application.homemedkit.helpers
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.ramcosta.composedestinations.generated.destinations.IntakesScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.MedicinesScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.SettingsScreenDestination
-import com.ramcosta.composedestinations.spec.Direction
+import kotlinx.serialization.Serializable
 import ru.application.homemedkit.R.drawable.vector_after_food
 import ru.application.homemedkit.R.drawable.vector_before_food
 import ru.application.homemedkit.R.drawable.vector_in_food
@@ -196,10 +193,10 @@ enum class Languages(val value: String, @StringRes val title: Int) {
     CHINESE_TW("zh-TW", lang_zh_TW),
 }
 
-enum class Menu(val route: Direction, @StringRes val title: Int, @DrawableRes val icon: Int) {
-    MEDICINES(MedicinesScreenDestination, bottom_bar_medicines, vector_medicine),
-    INTAKES(IntakesScreenDestination, bottom_bar_intakes, vector_time),
-    SETTINGS(SettingsScreenDestination, bottom_bar_settings, vector_settings)
+enum class Menu(val route: Any, @StringRes val title: Int, @DrawableRes val icon: Int) {
+    MEDICINES(Medicines, bottom_bar_medicines, vector_medicine),
+    INTAKES(Intakes, bottom_bar_intakes, vector_time),
+    SETTINGS(Settings, bottom_bar_settings, vector_settings)
 }
 
 enum class Periods(val days: Int, @StringRes val title: Int) {
@@ -249,3 +246,30 @@ enum class Types(val value: String, @StringRes val title: Int, @DrawableRes val 
     SPRAY("vector_type_nasal_spray", type_spray, vector_type_nasal_spray),
     DROPS("vector_type_drops", type_drops, vector_type_drops)
 }
+
+// ============================================ Screens ============================================
+
+@Serializable
+object Medicines
+
+@Serializable
+object Intakes
+
+@Serializable
+object Settings
+
+@Serializable
+object Scanner
+
+@Serializable
+data class Medicine(
+    val id: Long = 0L,
+    val cis: String = BLANK,
+    val duplicate: Boolean = false
+)
+
+@Serializable
+data class Intake(
+    val intakeId: Long = 0L,
+    val medicineId: Long = 0L
+)

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
 import android.database.sqlite.SQLiteDatabase.openDatabase
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
@@ -45,8 +46,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
 import me.zhanghai.compose.preference.ListPreference
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import me.zhanghai.compose.preference.SwitchPreference
@@ -102,7 +101,6 @@ import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.ui.theme.isDynamicColorAvailable
 import java.io.File
 
-@Destination<RootGraph>
 @Composable
 fun SettingsScreen(context: Context = LocalContext.current) {
     val sorting = Sorting.entries.map { stringResource(it.title) }
@@ -111,7 +109,8 @@ fun SettingsScreen(context: Context = LocalContext.current) {
 
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var showExport by rememberSaveable { mutableStateOf(false) }
-    
+
+    BackHandler{}
     ProvidePreferenceLocals {
         LazyColumn {
             preferenceCategory(

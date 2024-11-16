@@ -84,13 +84,6 @@ import androidx.core.text.HtmlCompat.fromHtml
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.annotation.parameters.DeepLink
-import com.ramcosta.composedestinations.generated.destinations.IntakeScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.MedicineScreenDestination
-import com.ramcosta.composedestinations.generated.destinations.MedicinesScreenDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R.drawable.vector_type_unknown
@@ -132,7 +125,6 @@ import ru.application.homemedkit.helpers.viewModelFactory
 import ru.application.homemedkit.models.events.Response.Default
 import ru.application.homemedkit.models.events.Response.Loading
 import ru.application.homemedkit.models.events.Response.NoNetwork
-import ru.application.homemedkit.models.events.Response.Success
 import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.viewModels.MedicineViewModel
 import java.io.File
@@ -140,13 +132,13 @@ import java.time.LocalDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<RootGraph>(deepLinks = [DeepLink(uriPattern = "app://medicines/{id}")])
 @Composable
 fun MedicineScreen(
     id: Long = 0L,
     cis: String = BLANK,
     duplicate: Boolean = false,
-    navigator: DestinationsNavigator,
+    navigateBack: () -> Unit,
+    navigateToIntake: (Long) -> Unit,
     context: Context = LocalContext.current
 ) {
     val model = viewModel<MedicineViewModel>(factory = viewModelFactory { MedicineViewModel(id) })
@@ -167,17 +159,14 @@ fun MedicineScreen(
         LaunchedEffect(Unit) { delay(2000); show = false }
     }
 
+    BackHandler(onBack = navigateBack)
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton({ navigator.popBackStack(MedicinesScreenDestination, false) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                    IconButton(navigateBack) {
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, null)
                     }
                 },
                 actions = {
@@ -185,9 +174,9 @@ fun MedicineScreen(
                         LocalFocusManager.current.clearFocus(true)
                         var expanded by remember { mutableStateOf(false) }
 
-                        IconButton({
-                            navigator.navigate(IntakeScreenDestination(medicineId = state.id))
-                        }) { Icon(Icons.Outlined.Notifications, null) }
+                        IconButton({ navigateToIntake(state.id) }) {
+                            Icon(Icons.Outlined.Notifications, null)
+                        }
 
                         IconButton({ expanded = true }) {
                             Icon(Icons.Outlined.MoreVert, null)
@@ -203,7 +192,7 @@ fun MedicineScreen(
                                 onClick = {
                                     expanded = false
                                     model.delete(context.filesDir)
-                                    navigator.popBackStack(MedicinesScreenDestination, false)
+                                    navigateBack()
                                 }
                             )
                         }
@@ -253,24 +242,21 @@ fun MedicineScreen(
         state.showDialogIcons -> IconPicker(model)
     }
 
-    when (val data = response) {
+    when (response) {
         Default -> {}
         Loading -> LoadingDialog()
-        is Success -> navigator.navigate(MedicineScreenDestination(data.id))
         is NoNetwork -> Snackbar(text_connection_error)
 
         else -> Snackbar(text_try_again)
     }
-
-    BackHandler { navigator.popBackStack(MedicinesScreenDestination, false) }
 }
 
 @Composable
 private fun ProductBrief(model: MedicineViewModel, state: MedicineState) = Column(
+    verticalArrangement = Arrangement.SpaceBetween,
     modifier = Modifier
         .fillMaxHeight()
-        .verticalScroll(rememberScrollState()),
-    verticalArrangement = Arrangement.SpaceBetween
+        .verticalScroll(rememberScrollState())
 ) {
     ProductName(model, state)
     if (state.default || state.technical.verified) ProductForm(state)
