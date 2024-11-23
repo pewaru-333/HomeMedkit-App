@@ -57,14 +57,17 @@
     <string name="text_exp_date">Годен до</string>
     <string name="text_indications_for_use">Показания к применению</string>
     <string name="text_medicine_comment">Комментарий</string>
+    <string name="text_medicine_composition">Состав</string>
     <string name="text_medicine_description">Описание</string>
     <string name="text_medicine_dose">Дозировка</string>
     <string name="text_medicine_form">Форма выпуска</string>
     <string name="text_medicine_group">Группа</string>
     <string name="text_medicine_product_name">Название</string>
+    <string name="text_medicine_recommendations">Рекомендация к приёму</string>
     <string name="text_medicine_status_checked">Проверено</string>
     <string name="text_medicine_status_scanned">Не проверено</string>
     <string name="text_medicine_status_self_added">Добавлено вручную</string>
+    <string name="text_medicine_storage_conditions">Условия хранения</string>
 
     <!-- Формы лекарств -->
     <string name="type_tablets">ТАБЛЕТКИ</string>
@@ -140,6 +143,7 @@
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
     <string name="text_connection_error">Ошибка при подключении!</string>
     <string name="text_duplicate">Лекарство уже было добавлено!</string>
+    <string name="text_error_not_medicine">Это не код лекарства!</string>
     <string name="text_export_import_description">Это экспериментальная функция.\nПри импорте текущие данные будут удалены!</string>
     <string name="text_grant_permission">Выдать разрешение</string>
     <string name="text_medicine_deleted">Лекарство было удалено из списка, невозможно изменить статус приёма</string>

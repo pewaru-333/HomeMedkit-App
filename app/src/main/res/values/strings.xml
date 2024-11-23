@@ -68,14 +68,17 @@
     <string name="text_exp_date">Exp. date</string>
     <string name="text_indications_for_use">Indications for use</string>
     <string name="text_medicine_comment">Comment</string>
+    <string name="text_medicine_composition">Composition</string>
     <string name="text_medicine_description">Description</string>
     <string name="text_medicine_dose">Dose</string>
     <string name="text_medicine_form">Release form</string>
     <string name="text_medicine_group">Group</string>
     <string name="text_medicine_product_name">Product name</string>
+    <string name="text_medicine_recommendations">Recommendations for usage</string>
     <string name="text_medicine_status_checked">Scanned, verified</string>
     <string name="text_medicine_status_scanned">Scanned, unverified</string>
     <string name="text_medicine_status_self_added">Added manually</string>
+    <string name="text_medicine_storage_conditions">Storage conditions</string>
 
     <!-- Medicine types -->
     <string name="type_tablets">TABLETS</string>
@@ -152,6 +155,7 @@
     <string name="manual_add">Do you want to add medicine manually?</string>
     <string name="text_connection_error">Connection error!</string>
     <string name="text_duplicate">This medicine has been already added!</string>
+    <string name="text_error_not_medicine">This label code is not medicine\'s!</string>
     <string name="text_export_import_description">This is an experimental feature.\nWhen importing, the current data will be deleted!</string>
     <string name="text_grant_permission">Grant permission</string>
     <string name="text_medicine_deleted">Medicine has been deleted, impossible to change intake status</string>

@@ -57,14 +57,17 @@
     <string name="text_exp_date">Fecha de caducidad</string>
     <string name="text_indications_for_use">Indicaciones para el uso</string>
     <string name="text_medicine_comment">Comentarios</string>
+    <string name="text_medicine_composition">Composition</string>
     <string name="text_medicine_description">Descripción</string>
     <string name="text_medicine_dose">Dosis</string>
     <string name="text_medicine_form">Formas farmaceuticas</string>
     <string name="text_medicine_group">Grupo</string>
     <string name="text_medicine_product_name">Nombre del producto</string>
+    <string name="text_medicine_recommendations">Recommendations for usage</string>
     <string name="text_medicine_status_checked">Escaneado, verificado</string>
     <string name="text_medicine_status_scanned">Escaneado, sin verificar</string>
     <string name="text_medicine_status_self_added">Añadido manualmente</string>
+    <string name="text_medicine_storage_conditions">Storage conditions</string>
 
     <!-- Medicine types -->
     <string name="type_tablets">COMPRIMIDOS</string>
@@ -140,6 +143,7 @@
     <string name="manual_add">¿Quieres añadir un medicamento manualmente?</string>
     <string name="text_connection_error">Error de conexión!</string>
     <string name="text_duplicate">¡Este medicamento ya ha sido agregado!</string>
+    <string name="text_error_not_medicine">This label code is not medicine\'s</string>
     <string name="text_export_import_description">Esta es una característica experimental.\n¡Al importar, los datos actuales se eliminarán!</string>
     <string name="text_grant_permission">Otorgar permiso</string>
     <string name="text_medicine_deleted">Se ha eliminado el medicamento, es imposible cambiar el estado de ingesta</string>
