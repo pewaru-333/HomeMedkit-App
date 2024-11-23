@@ -160,4 +160,8 @@
     <string name="channel_pre_desc">Upcoming intake</string>
     <string name="channel_exp_desc">Expiration date</string>
     <string name="intake_extra_fullscreen">Fullscreen notification</string>
+    <string name="text_medicine_recommendations">Recommendations for usage</string>
+    <string name="text_medicine_storage_conditions">Storage conditions</string>
+    <string name="text_error_not_medicine">This label code is not medicine\'s!</string>
+    <string name="text_medicine_composition">Composition</string>
 </resources>
