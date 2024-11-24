@@ -15,8 +15,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 41
-        versionName = "1.5.6"
+        versionCode = 42
+        versionName = "1.5.7"
     }
 
     dependenciesInfo {
@@ -67,10 +67,11 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
 
-    // ==================== Retrofit ====================
-    ksp(libs.moshi.kotlin.codegen)
-    implementation(libs.retrofit)
-    implementation(libs.converter.moshi)
+    // ==================== Network ====================
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
     // ==================== Navigation ====================
     implementation(libs.androidx.navigation.compose)

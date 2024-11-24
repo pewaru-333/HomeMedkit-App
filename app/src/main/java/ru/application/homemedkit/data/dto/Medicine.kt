@@ -26,10 +26,13 @@ data class Medicine(
     val productName: String = BLANK,
     val expDate: Long = -1L,
     val prodFormNormName: String = BLANK,
+    val structure: String = BLANK,
     val prodDNormName: String = BLANK,
     val prodAmount: Double = -1.0,
     val doseType: String = BLANK,
     val phKinetics: String = BLANK,
+    val recommendations: String = BLANK,
+    val storageConditions: String = BLANK,
     val comment: String = BLANK,
     val image: String = BLANK,
     @Embedded

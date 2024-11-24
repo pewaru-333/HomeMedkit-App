@@ -12,17 +12,17 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
-import ru.application.homemedkit.data.dto.Medicine
-import ru.application.homemedkit.data.dto.Technical
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.CATEGORY
 import ru.application.homemedkit.helpers.DoseTypes
+import ru.application.homemedkit.helpers.Preferences
+import ru.application.homemedkit.helpers.toBio
 import ru.application.homemedkit.helpers.toMedicine
 import ru.application.homemedkit.helpers.toState
 import ru.application.homemedkit.helpers.toTimestamp
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.events.Response.Default
 import ru.application.homemedkit.models.events.Response.Error
+import ru.application.homemedkit.models.events.Response.IncorrectCode
 import ru.application.homemedkit.models.events.Response.Loading
 import ru.application.homemedkit.models.events.Response.NoNetwork
 import ru.application.homemedkit.models.states.MedicineState
@@ -38,49 +38,59 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
     private val _state = MutableStateFlow(MedicineState())
     val state = _state.asStateFlow()
         .onStart { dao.getById(medicineId)?.let { _state.value = it.toState() } }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MedicineState())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MedicineState())
 
     fun add() = viewModelScope.launch(Dispatchers.IO) {
         val id = dao.add(_state.value.toMedicine())
         _state.update { it.copy(adding = false, default = true, id = id) }
     }
 
-    fun fetch() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _response.emit(Loading)
+    fun fetch(dir: File) = viewModelScope.launch(Dispatchers.IO) {
+        _response.emit(Loading)
 
-            try {
-                Network.client.requestData(_state.value.cis).apply {
-                    if (category == CATEGORY && codeFounded && checkResult) {
-                        val medicine = Medicine(
+        try {
+            Network.getMedicine(_state.value.cis).apply {
+                if (codeFounded && checkResult) {
+                    if (drugsData != null) {
+                        val medicine = drugsData.toMedicine().copy(
                             id = _state.value.id,
+                            cis = _state.value.cis,
                             kitId = _state.value.kitId,
-                            cis = cis,
-                            productName = drugsData.prodDescLabel,
-                            expDate = drugsData.expireDate,
-                            prodFormNormName = drugsData.foiv.prodFormNormName,
-                            prodDNormName = drugsData.foiv.prodDNormName ?: BLANK,
-                            prodAmount = drugsData.foiv.prodPack1Size?.let {
-                                it.toDouble() * (drugsData.foiv.prodPack12?.toDoubleOrNull() ?: 1.0)
-                            } ?: 0.0,
-                            phKinetics = drugsData.vidalData.phKinetics ?: BLANK,
                             comment = _state.value.comment.ifEmpty { BLANK },
-                            technical = Technical(scanned = true, verified = true)
+                            image = if (Preferences.getDownloadNeeded())
+                                Network.getImage(dir, drugsData.vidalData?.images) else BLANK
                         )
 
                         dao.update(medicine)
                         _state.value = medicine.toState()
                         _response.emit(Default)
-                    } else {
-                        _response.emit(Error)
-                        delay(2000)
+                    } else if (bioData != null) {
+                        val medicine = bioData.toBio().copy(
+                            id = _state.value.id,
+                            cis = _state.value.cis,
+                            kitId = _state.value.kitId,
+                            comment = _state.value.comment.ifEmpty { BLANK }
+                        )
+
+                        dao.update(medicine)
+                        _state.value = medicine.toState()
                         _response.emit(Default)
+                    } else _response.apply {
+                        emit(IncorrectCode)
+                        delay(2500L)
+                        emit(Default)
                     }
+                } else _response.apply {
+                    emit(Error)
+                    delay(2500L)
+                    emit(Default)
                 }
-            } catch (e: Throwable) {
-                _response.emit(NoNetwork(_state.value.cis))
-                delay(2000)
-                _response.emit(Default)
+            }
+        } catch (e: Throwable) {
+            _response.apply {
+                emit(NoNetwork(_state.value.cis))
+                delay(2500L)
+                emit(Default)
             }
         }
     }
@@ -94,7 +104,6 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
         dao.delete(_state.value.toMedicine())
     }.invokeOnCompletion { File(dir, _state.value.image).delete() }
 
-    fun setAdding() = _state.update { it.copy(adding = true, default = false) }
     fun setEditing() = _state.update { it.copy(editing = true, default = false) }
     fun setCis(cis: String) = _state.update { it.copy(cis = cis) }
     fun setProductName(productName: String) = _state.update { it.copy(productName = productName) }

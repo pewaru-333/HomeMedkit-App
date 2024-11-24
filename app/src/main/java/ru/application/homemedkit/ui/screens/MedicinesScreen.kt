@@ -180,7 +180,7 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
             }
         }
     ) { values ->
-        medicines.let { list ->
+        medicines?.let { list ->
             if (list.isEmpty()) Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -289,6 +289,7 @@ private fun KitsDialog(model: MedicinesViewModel, state: MedicinesState) = Alert
     text = {
         Column(Modifier.selectableGroup()) {
             Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
@@ -296,8 +297,7 @@ private fun KitsDialog(model: MedicinesViewModel, state: MedicinesState) = Alert
                         selected = state.kitId == 0L,
                         onClick = { model.setFilter(0L) },
                         role = Role.RadioButton
-                    ),
-                verticalAlignment = Alignment.CenterVertically
+                    )
             ) {
                 RadioButton(state.kitId == 0L, null)
                 Text(
@@ -307,21 +307,21 @@ private fun KitsDialog(model: MedicinesViewModel, state: MedicinesState) = Alert
                 )
             }
 
-            database.kitDAO().getAll().forEach { kit ->
+            database.kitDAO().getAll().forEach { (kitId, title) ->
                 Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
                         .selectable(
-                            selected = state.kitId == kit.kitId,
-                            onClick = { model.setFilter(kit.kitId) },
+                            selected = state.kitId == kitId,
+                            onClick = { model.setFilter(kitId) },
                             role = Role.RadioButton
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
+                        )
                 ) {
-                    RadioButton(state.kitId == kit.kitId, null)
+                    RadioButton(state.kitId == kitId, null)
                     Text(
-                        text = kit.title,
+                        text = title,
                         modifier = Modifier.padding(start = 16.dp),
                         style = MaterialTheme.typography.bodyLarge
                     )

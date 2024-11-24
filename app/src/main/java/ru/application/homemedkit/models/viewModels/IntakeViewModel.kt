@@ -72,7 +72,7 @@ class IntakeViewModel(intakeId: Long, private val setter: AlarmSetter) : ViewMod
                     )
                 }
             }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), IntakeState())
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), IntakeState())
 
     fun getIntervalTitle() = if (_state.value.intervalE == CUSTOM) CUSTOM.title
     else Intervals.getTitle(_state.value.interval)

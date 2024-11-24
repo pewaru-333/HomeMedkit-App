@@ -1,14 +1,15 @@
 package ru.application.homemedkit.network.models
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
-import ru.application.homemedkit.helpers.BLANK
+import kotlinx.serialization.Serializable
+import ru.application.homemedkit.network.models.bio.BioData
+import ru.application.homemedkit.network.models.medicine.DrugsData
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class MainModel(
-    @Json val codeFounded: Boolean,
-    @Json val checkResult: Boolean,
-    @Json val category: String? = BLANK,
-    @Json val cis: String = BLANK,
-    @Json val drugsData: DrugsData = DrugsData()
+    val codeFounded: Boolean,
+    val checkResult: Boolean,
+    val category: String?,
+    val code: String,
+    val drugsData: DrugsData?,
+    val bioData: BioData?
 )

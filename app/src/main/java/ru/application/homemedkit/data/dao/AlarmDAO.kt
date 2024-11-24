@@ -8,7 +8,6 @@ import ru.application.homemedkit.data.dto.Alarm
 
 @Dao
 interface AlarmDAO {
-
     // ============================== Queries ==============================
     @Query("SELECT * FROM alarms")
     fun getAll(): List<Alarm>

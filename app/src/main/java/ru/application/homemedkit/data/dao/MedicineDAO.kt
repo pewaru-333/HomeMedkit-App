@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.Medicine
@@ -11,9 +12,7 @@ import ru.application.homemedkit.data.dto.Medicine
 @Dao
 interface MedicineDAO {
     // ============================== Queries ==============================
-    @Query("SELECT * FROM medicines")
-    fun getAll(): List<Medicine>
-
+    @Transaction
     @Query("SELECT * FROM medicines")
     fun getFlow(): Flow<List<Medicine>>
 
@@ -24,16 +23,13 @@ interface MedicineDAO {
     fun getProdAmount(medicineId: Long): Double
 
     @Query("SELECT id FROM medicines where cis = :cis")
-    fun getIdByCis(cis: String?): Long
+    fun getIdByCis(cis: String): Long
 
     @Query("SELECT * FROM medicines WHERE id = :id ")
     fun getById(id: Long): Medicine?
 
     @Query("SELECT title FROM kits WHERE kitId = :kitId")
     fun getKitTitle(kitId: Long?): String?
-
-    @Query("SELECT * FROM medicines WHERE kitId = :kitId")
-    fun getByKitId(kitId: Long?): List<Medicine>
 
     @Query("SELECT cis from medicines")
     fun getAllCis(): List<String>

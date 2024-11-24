@@ -4,16 +4,18 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.Intake
 
 @Dao
 interface IntakeDAO {
-
     // ============================== Queries ==============================
+    @Transaction
     @Query("SELECT * FROM intakes")
-    fun getAll(): List<Intake>
+    fun getFlow(): Flow<List<Intake>>
 
     @Query("SELECT * FROM intakes WHERE intakeId = :intakeId")
     fun getById(intakeId: Long): Intake?
@@ -32,7 +34,4 @@ interface IntakeDAO {
     // ============================== Delete ==============================
     @Delete
     suspend fun delete(intake: Intake)
-
-    @Delete
-    fun remove(intake: Intake)
 }

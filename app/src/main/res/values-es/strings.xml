@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
+
     <!-- Menú -->
     <string name="bottom_bar_medicines">Medicamentos</string>
     <string name="bottom_bar_intakes">Tomas</string>
     <string name="bottom_bar_settings">Ajustes</string>
+
     <!-- Preferencias -->
     <string name="preference_app_view">Aplicación</string>
     <string name="preference_kits_group">Grupos de medicamentos</string>
@@ -17,17 +19,21 @@
     <string name="preference_app_theme">Tema de la aplicación</string>
     <string name="preference_dynamic_color">Color dinámico</string>
     <string name="preference_import_export">Importar/Exportar</string>
+
     <!-- Languages -->
     <string name="lang_system">Sistema</string>
+
     <!-- Ordenación -->
     <string name="sorting_a_z">Alfabéticamente (de A a z)</string>
     <string name="sorting_z_a">Alfabéticamente (de z a A)</string>
     <string name="sorting_from_oldest">Fecha de caducidad (reciente)</string>
     <string name="sorting_from_newest">Fecha de caducidad (antigua)</string>
+
     <!-- Themes -->
     <string name="theme_system">Seguir tema del sistema</string>
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Oscuro</string>
+
     <!-- Notificaciones -->
     <string name="channel_name">Sonido de las notificaciones</string>
     <string name="channel_exp_desc">Fecha de caducidad</string>
@@ -41,10 +47,12 @@
     <string name="text_intake_prealarm_title">Próxima incorporación</string>
     <string name="text_intake_time">Medicamento: %1$s\nImporte: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Medicación insuficiente</string>
+
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_kitchen">Cocina</string>
     <string name="placeholder_time">Hora #%1$d</string>
+
     <!-- Medicamentos -->
     <string name="text_exp_date">Fecha de caducidad</string>
     <string name="text_indications_for_use">Indicaciones para el uso</string>
@@ -60,6 +68,7 @@
     <string name="text_medicine_status_scanned">Escaneado, sin verificar</string>
     <string name="text_medicine_status_self_added">Añadido manualmente</string>
     <string name="text_medicine_storage_conditions">Condiciones de almacenamiento</string>
+
     <!-- Medicine types -->
     <string name="type_tablets">COMPRIMIDOS</string>
     <string name="type_capsules">CÁPSULAS</string>
@@ -83,6 +92,7 @@
     <string name="type_aerosol">AEROSOL</string>
     <string name="type_spray">ESPRAY</string>
     <string name="type_drops">GOTAS</string>
+
     <!-- Medicine dose types -->
     <string name="dose_ed">ED</string>
     <string name="dose_pcs">unidades</string>
@@ -90,10 +100,12 @@
     <string name="dose_mg">mg</string>
     <string name="dose_l">l</string>
     <string name="dose_ml">ml</string>
+
     <!-- Intakes -->
     <string name="intakes_tab_current">Actual</string>
     <string name="intakes_tab_list">Lista</string>
     <string name="intakes_tab_taken">Ya tomado</string>
+
     <string name="intake_card_text_from">(desde %1$s)</string>
     <string name="intake_text_amount">Cantidad</string>
     <string name="intake_text_by_schedule">Por horario</string>
@@ -114,15 +126,19 @@
     <string name="intake_text_taken">Tomado</string>
     <string name="intake_text_time">Hora</string>
     <string name="intake_extra_fullscreen">Notificación a pantalla completa</string>
+
     <string name="intake_extra_no_sound">Sin sonido</string>
     <string name="intake_extra_prealarm">Próximas notificaciones</string>
     <string name="intake_extra_prealarm_desc">Notificación en la barra de estado antes de los 30 minutos del tiempo de admisión.</string>
+
     <string name="intake_interval_daily">diariamente</string>
     <string name="intake_interval_weekly">semanalmente</string>
     <string name="intake_interval_other">personalizado</string>
+
     <string name="intake_period_pick">elección de fechas</string>
     <string name="intake_period_other">entrada de días</string>
     <string name="intake_period_indef">indefinido</string>
+
     <!-- Diálogos -->
     <string name="manual_add">¿Quieres añadir un medicamento manualmente?</string>
     <string name="text_connection_error">Error de conexión!</string>
@@ -137,6 +153,7 @@
     <string name="text_request_post">Para recibir notificaciones, se debe otorgar a la aplicación el permiso apropiado</string>
     <string name="text_select_time">Seleccionar hora</string>
     <string name="text_try_again">¡Vuelve a escanear la etiqueta!</string>
+
     <!-- Strings -->
     <string name="text_add">Añadir</string>
     <string name="text_all">Todo</string>
@@ -168,6 +185,7 @@
     <string name="text_update">Actualizar</string>
     <string name="text_yes">Sí</string>
     <string name="text_dismiss">Descartar</string>
+
     <!-- Plurals -->
     <plurals name="intakes_a_day">
         <item quantity="one">%d vez al día</item>

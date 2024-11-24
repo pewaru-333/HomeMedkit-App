@@ -1,7 +1,6 @@
 package ru.application.homemedkit
 
 import android.os.Bundle
-import android.view.Window
 import android.view.WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import androidx.activity.ComponentActivity
@@ -12,6 +11,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import ru.application.homemedkit.R.string.intake_text_not_taken
 import ru.application.homemedkit.R.string.intake_text_taken
 import ru.application.homemedkit.R.string.text_do_intake
@@ -27,11 +29,15 @@ import ru.application.homemedkit.ui.theme.AppTheme
 
 class IntakeDialogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
         theme.applyStyle(android.R.style.Theme_Wallpaper, true)
         super.onCreate(savedInstanceState)
 
         window.addFlags(FLAG_KEEP_SCREEN_ON or FLAG_ALLOW_LOCK_WHILE_SCREEN_ON)
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            hide(WindowInsetsCompat.Type.statusBars())
+            hide(WindowInsetsCompat.Type.navigationBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
 
         val database = MedicineDatabase.getInstance(this)
         val takenDAO = database.takenDAO()

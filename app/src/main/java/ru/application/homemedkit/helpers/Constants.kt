@@ -31,6 +31,7 @@ import ru.application.homemedkit.R.drawable.vector_type_suspension
 import ru.application.homemedkit.R.drawable.vector_type_syrup
 import ru.application.homemedkit.R.drawable.vector_type_tablets
 import ru.application.homemedkit.R.drawable.vector_type_tincture
+import ru.application.homemedkit.R.drawable.vector_type_unknown
 import ru.application.homemedkit.R.string.blank
 import ru.application.homemedkit.R.string.bottom_bar_intakes
 import ru.application.homemedkit.R.string.bottom_bar_medicines
@@ -61,12 +62,14 @@ import ru.application.homemedkit.R.string.lang_en
 import ru.application.homemedkit.R.string.lang_es
 import ru.application.homemedkit.R.string.lang_it
 import ru.application.homemedkit.R.string.lang_ko
+import ru.application.homemedkit.R.string.lang_nl
 import ru.application.homemedkit.R.string.lang_pl
 import ru.application.homemedkit.R.string.lang_pt_BR
 import ru.application.homemedkit.R.string.lang_ru
 import ru.application.homemedkit.R.string.lang_system
 import ru.application.homemedkit.R.string.lang_tr
 import ru.application.homemedkit.R.string.lang_vi
+import ru.application.homemedkit.R.string.lang_zh_CN
 import ru.application.homemedkit.R.string.lang_zh_TW
 import ru.application.homemedkit.R.string.sorting_a_z
 import ru.application.homemedkit.R.string.sorting_from_newest
@@ -103,7 +106,6 @@ import java.util.Comparator.comparing
 // ============================================ Strings ============================================
 const val ALARM_ID = "alarmId"
 const val BLANK = ""
-const val CATEGORY = "drugs"
 const val CHANNEL_ID_INTAKES = "channel_intakes"
 const val CHANNEL_ID_EXP = "channel_expiration"
 const val CHANNEL_ID_PRE = "channel_prealarm"
@@ -141,8 +143,8 @@ enum class DoseTypes(val value: String, @StringRes val title: Int) {
     RATIO("ratio", dose_ratio);
 
     companion object {
-        fun getValue(value: String) = DoseTypes.entries.find { it.value == value }
-        fun getTitle(value: String?) = DoseTypes.entries.find { it.value == value }?.title ?: blank
+        fun getValue(value: String) = entries.find { it.value == value }
+        fun getTitle(value: String?) = entries.find { it.value == value }?.title ?: blank
     }
 }
 
@@ -164,7 +166,7 @@ enum class Intervals(val days: Int, @StringRes val title: Int) {
     CUSTOM(10, intake_interval_other);
 
     companion object {
-        fun getValue(days: Int) = Intervals.entries.find { it.days == days } ?: CUSTOM
+        fun getValue(days: Int) = entries.find { it.days == days } ?: CUSTOM
         fun getTitle(days: String) = try {
             when (days.toInt()) {
                 1 -> DAILY.title
@@ -185,12 +187,14 @@ enum class Languages(val value: String, @StringRes val title: Int) {
     ITALIAN("it", lang_it),
     SPANISH("es", lang_es),
     PORTUGAL_BR("pt-BR", lang_pt_BR),
+    DUTCH("nl", lang_nl),
     CZECH("cs", lang_cs),
     POLISH("pl", lang_pl),
     TURKISH("tr", lang_tr),
     VIETNAMESE("vi", lang_vi),
     KOREAN("ko", lang_ko),
-    CHINESE_TW("zh-TW", lang_zh_TW),
+    CHINESE_CN("zh-CN", lang_zh_CN),
+    CHINESE_TW("zh-TW", lang_zh_TW)
 }
 
 enum class Menu(val route: Any, @StringRes val title: Int, @DrawableRes val icon: Int) {
@@ -205,7 +209,7 @@ enum class Periods(val days: Int, @StringRes val title: Int) {
     INDEFINITE(38500, intake_period_indef);
 
     companion object {
-        fun getValue(days: Int) = Periods.entries.find { it.days == days } ?: OTHER
+        fun getValue(days: Int) = entries.find { it.days == days } ?: OTHER
     }
 }
 
@@ -244,7 +248,11 @@ enum class Types(val value: String, @StringRes val title: Int, @DrawableRes val 
     SUPPOSITORY("vector_type_suppository", type_suppository, vector_type_suppository),
     AEROSOL("vector_type_aerosol", type_aerosol, vector_type_aerosol),
     SPRAY("vector_type_nasal_spray", type_spray, vector_type_nasal_spray),
-    DROPS("vector_type_drops", type_drops, vector_type_drops)
+    DROPS("vector_type_drops", type_drops, vector_type_drops);
+
+    companion object {
+        fun getIcon(title: String) = entries.find { it.value == title }?.icon ?: vector_type_unknown
+    }
 }
 
 // ============================================ Screens ============================================

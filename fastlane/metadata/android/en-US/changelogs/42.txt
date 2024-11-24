@@ -1,0 +1,1 @@
+— Added the option to scan the datamatrix labeling of dietary supplements (only for Russia).

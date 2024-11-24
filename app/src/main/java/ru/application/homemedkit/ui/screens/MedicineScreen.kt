@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -99,14 +100,17 @@ import ru.application.homemedkit.R.string.text_empty
 import ru.application.homemedkit.R.string.text_exp_date
 import ru.application.homemedkit.R.string.text_indications_for_use
 import ru.application.homemedkit.R.string.text_medicine_comment
+import ru.application.homemedkit.R.string.text_medicine_composition
 import ru.application.homemedkit.R.string.text_medicine_description
 import ru.application.homemedkit.R.string.text_medicine_dose
 import ru.application.homemedkit.R.string.text_medicine_form
 import ru.application.homemedkit.R.string.text_medicine_group
 import ru.application.homemedkit.R.string.text_medicine_product_name
+import ru.application.homemedkit.R.string.text_medicine_recommendations
 import ru.application.homemedkit.R.string.text_medicine_status_checked
 import ru.application.homemedkit.R.string.text_medicine_status_scanned
 import ru.application.homemedkit.R.string.text_medicine_status_self_added
+import ru.application.homemedkit.R.string.text_medicine_storage_conditions
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_status
 import ru.application.homemedkit.R.string.text_try_again
@@ -145,12 +149,7 @@ fun MedicineScreen(
     val state by model.state.collectAsStateWithLifecycle()
     val response by model.response.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        if (id == 0L) {
-            model.setAdding()
-            model.setCis(cis)
-        }
-    }
+    LaunchedEffect(Unit) { if (id == 0L) model.setCis(cis) }
 
     if (duplicate) {
         var show by remember { mutableStateOf(true) }
@@ -213,7 +212,7 @@ fun MedicineScreen(
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(text_update)) },
                     icon = { Icon(Icons.Outlined.Refresh, null) },
-                    onClick = model::fetch
+                    onClick = { model.fetch(context.filesDir) }
                 )
         }
     ) { values ->
@@ -229,8 +228,14 @@ fun MedicineScreen(
             }
             item { ProductFormName(model, state) }
             item { ProductNormName(model, state) }
+            if (state.default && state.structure.isNotEmpty())
+                item { Structure(state.structure) }
             if (state.adding || state.editing || state.phKinetics.isNotEmpty())
                 item { PhKinetics(model, state) }
+            if (state.default && state.recommendations.isNotEmpty())
+                item { Recommendations(state.recommendations) }
+            if (state.default && state.storageConditions.isNotEmpty())
+                item { StorageConditions(state.storageConditions) }
             if (state.adding || state.editing || state.comment.isNotEmpty())
                 item { Comment(model, state) }
         }
@@ -411,7 +416,6 @@ private fun ProductImage(model: MedicineViewModel, state: MedicineState) = Medic
         )
 )
 
-
 @Composable
 private fun ProductFormName(model: MedicineViewModel, state: MedicineState) =
     Column(verticalArrangement = Arrangement.spacedBy(8.dp))  {
@@ -425,12 +429,28 @@ private fun ProductFormName(model: MedicineViewModel, state: MedicineState) =
             onValueChange = model::setFormName,
             modifier = Modifier.fillMaxWidth(),
             readOnly = state.default || state.technical.verified,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
-            decorationBox = {
-                if (state.default || state.technical.verified) NoDecorationBox(state.prodFormNormName, it)
-                else DecorationBox(state.prodFormNormName, it)
-            }
+            textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
+        ) {
+            if (state.default || state.technical.verified) NoDecorationBox(state.prodFormNormName, it)
+            else DecorationBox(state.prodFormNormName, it)
+        }
+    }
+
+@Composable
+private fun Structure(structure: String) =
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(text_medicine_composition),
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
+
+        BasicTextField(
+            value = structure,
+            onValueChange = {},
+            modifier = Modifier.fillMaxWidth(),
+            readOnly = true,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
+        ) { NoDecorationBox(structure, it) }
     }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -448,29 +468,28 @@ private fun ProductNormName(model: MedicineViewModel, state: MedicineState) =
                 onValueChange = model::setDoseName,
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = state.default || state.technical.verified,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
-                decorationBox = {
-                    if (state.adding || state.editing && !state.technical.verified) OutlinedTextFieldDefaults.DecorationBox(
-                        value = state.prodDNormName,
-                        innerTextField = it,
-                        enabled = true,
-                        singleLine = false,
-                        visualTransformation = VisualTransformation.None,
-                        interactionSource = remember(::MutableInteractionSource),
-                        placeholder = { Text(stringResource(placeholder_dose)) }
-                    )
-                    else OutlinedTextFieldDefaults.DecorationBox(
-                        value = state.prodDNormName.ifEmpty { stringResource(text_unspecified) },
-                        innerTextField = it,
-                        enabled = true,
-                        singleLine = false,
-                        visualTransformation = VisualTransformation.None,
-                        interactionSource = remember(::MutableInteractionSource),
-                        contentPadding = PaddingValues(0.dp),
-                        container = {}
-                    )
-                }
-            )
+                textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
+            ) {
+                if (state.adding || state.editing && !state.technical.verified) OutlinedTextFieldDefaults.DecorationBox(
+                    value = state.prodDNormName,
+                    innerTextField = it,
+                    enabled = true,
+                    singleLine = false,
+                    visualTransformation = VisualTransformation.None,
+                    interactionSource = remember(::MutableInteractionSource),
+                    placeholder = { Text(stringResource(placeholder_dose)) }
+                )
+                else OutlinedTextFieldDefaults.DecorationBox(
+                    value = state.prodDNormName.ifEmpty { stringResource(text_unspecified) },
+                    innerTextField = it,
+                    enabled = true,
+                    singleLine = false,
+                    visualTransformation = VisualTransformation.None,
+                    interactionSource = remember(::MutableInteractionSource),
+                    contentPadding = PaddingValues(0.dp),
+                    container = {}
+                )
+            }
         }
 
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
@@ -506,16 +525,17 @@ private fun ProductNormName(model: MedicineViewModel, state: MedicineState) =
                     interactionSource = remember(::MutableInteractionSource),
                     placeholder = { Text(stringResource(text_empty)) },
                     suffix = {
-                        ExposedDropdownMenuBox(state.showMenuDose, model::showDoseMenu) {
+                        ExposedDropdownMenuBox(state.showMenuDose, model::showDoseMenu, Modifier.width(48.dp)) {
                             Row(Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable)) {
                                 Text(stringResource(DoseTypes.getTitle(state.doseType)))
                                 ExposedDropdownMenuDefaults.TrailingIcon(state.showMenuDose)
                             }
-                            ExposedDropdownMenu(state.showMenuDose, model::hideDoseMenu, Modifier.width(48.dp)) {
+                            ExposedDropdownMenu(state.showMenuDose, model::hideDoseMenu) {
                                 DoseTypes.entries.forEach { item ->
                                     DropdownMenuItem(
                                         text = { Text(stringResource(item.title)) },
-                                        onClick = { model.setDoseType(item) }
+                                        onClick = { model.setDoseType(item) },
+                                        modifier = Modifier.wrapContentWidth()
                                     )
                                 }
                             }
@@ -527,26 +547,58 @@ private fun ProductNormName(model: MedicineViewModel, state: MedicineState) =
     }
 
 @Composable
-private fun PhKinetics(model: MedicineViewModel, state: MedicineState) = Column(
-    verticalArrangement = Arrangement.spacedBy(8.dp)
-)
-{
-    Text(
-        text = stringResource(text_indications_for_use),
-        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-    )
+private fun PhKinetics(model: MedicineViewModel, state: MedicineState) =
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(text_indications_for_use),
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        )
 
-    BasicTextField(
-        value = fromHtml(state.phKinetics, FROM_HTML_OPTION_USE_CSS_COLORS).toString(),
-        onValueChange = model::setPhKinetics,
-        modifier = Modifier.fillMaxWidth(),
-        readOnly = state.default,
-        textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
-    ) {
-        if (state.default) NoDecorationBox(state.phKinetics, it)
-        else DecorationBox(state.phKinetics, it)
+        BasicTextField(
+            value = fromHtml(state.phKinetics, FROM_HTML_OPTION_USE_CSS_COLORS).toString(),
+            onValueChange = model::setPhKinetics,
+            modifier = Modifier.fillMaxWidth(),
+            readOnly = state.default,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
+        ) {
+            if (state.default) NoDecorationBox(state.phKinetics, it)
+            else DecorationBox(state.phKinetics, it)
+        }
     }
-}
+
+@Composable
+private fun Recommendations(recommendations: String) =
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(text_medicine_recommendations),
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        )
+
+        BasicTextField(
+            value = fromHtml(recommendations, FROM_HTML_OPTION_USE_CSS_COLORS).toString(),
+            onValueChange = {},
+            modifier = Modifier.fillMaxWidth(),
+            readOnly = true,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
+        ) { NoDecorationBox(recommendations, it) }
+    }
+
+@Composable
+private fun StorageConditions(conditions: String) =
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(text_medicine_storage_conditions),
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        )
+
+        BasicTextField(
+            value = fromHtml(conditions, FROM_HTML_OPTION_USE_CSS_COLORS).toString(),
+            onValueChange = {},
+            modifier = Modifier.fillMaxWidth(),
+            readOnly = true,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
+        ) { NoDecorationBox(conditions, it) }
+    }
 
 @Composable
 private fun Comment(model: MedicineViewModel, state: MedicineState) = Column(
@@ -562,12 +614,8 @@ private fun Comment(model: MedicineViewModel, state: MedicineState) = Column(
         onValueChange = model::setComment,
         modifier = Modifier.fillMaxWidth(),
         readOnly = state.default,
-        textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface),
-        decorationBox = {
-            if (state.default) NoDecorationBox(state.comment, it)
-            else DecorationBox(state.comment, it)
-        }
-    )
+        textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
+    ) { if (state.default) NoDecorationBox(state.comment, it) else DecorationBox(state.comment, it) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -680,9 +728,9 @@ fun MedicineImage(image: String, modifier: Modifier = Modifier, state: MedicineS
     val isIcon = image.contains(TYPE)
     val noIcon = image.isEmpty()
     val icon = when {
-        isIcon -> Types.entries.find { it.value == image }?.icon ?: vector_type_unknown
+        isIcon -> Types.getIcon(image)
         noIcon -> vector_type_unknown
-        else -> File(LocalContext.current.filesDir, image).run { if (exists()) this else vector_type_unknown }
+        else -> File(LocalContext.current.filesDir, image)
     }
 
     Image(

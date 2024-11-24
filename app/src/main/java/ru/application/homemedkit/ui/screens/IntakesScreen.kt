@@ -67,6 +67,9 @@ import ru.application.homemedkit.R.string.intake_text_in_fact
 import ru.application.homemedkit.R.string.intake_text_not_taken
 import ru.application.homemedkit.R.string.intake_text_quantity
 import ru.application.homemedkit.R.string.intake_text_taken
+import ru.application.homemedkit.R.string.intakes_tab_current
+import ru.application.homemedkit.R.string.intakes_tab_list
+import ru.application.homemedkit.R.string.intakes_tab_taken
 import ru.application.homemedkit.R.string.text_amount
 import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_edit
@@ -143,7 +146,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit) {
     ) { values ->
         Column(Modifier.padding(top = values.calculateTopPadding())) {
             TabRow(state.tab) {
-                model.tabs.forEachIndexed { index, tab ->
+                listOf(intakes_tab_list, intakes_tab_current, intakes_tab_taken).forEachIndexed { index, tab ->
                     Tab(
                         selected = state.tab == index,
                         onClick = { model.pickTab(index) },
@@ -153,7 +156,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit) {
             }
 
             when (state.tab) {
-                0 -> intakes.let { list ->
+                0 -> intakes?.let { list ->
                     if (list.isEmpty()) Box(
                         modifier = Modifier
                             .fillMaxSize()

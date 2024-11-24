@@ -71,9 +71,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import ru.application.homemedkit.MainActivity
-import ru.application.homemedkit.R
+import ru.application.homemedkit.R.drawable.vector_flash
 import ru.application.homemedkit.R.string.manual_add
 import ru.application.homemedkit.R.string.text_connection_error
+import ru.application.homemedkit.R.string.text_error_not_medicine
 import ru.application.homemedkit.R.string.text_grant_permission
 import ru.application.homemedkit.R.string.text_no
 import ru.application.homemedkit.R.string.text_request_camera
@@ -84,6 +85,7 @@ import ru.application.homemedkit.helpers.DataMatrixAnalyzer
 import ru.application.homemedkit.models.events.Response.Default
 import ru.application.homemedkit.models.events.Response.Duplicate
 import ru.application.homemedkit.models.events.Response.Error
+import ru.application.homemedkit.models.events.Response.IncorrectCode
 import ru.application.homemedkit.models.events.Response.Loading
 import ru.application.homemedkit.models.events.Response.NoNetwork
 import ru.application.homemedkit.models.events.Response.Success
@@ -159,13 +161,7 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
                 onClick = {
                     controller.cameraControl?.enableTorch(controller.cameraInfo?.torchState?.value != TorchState.ON)
                 }
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.vector_flash),
-                    contentDescription = null,
-                    tint = Color.White
-                )
-            }
+            ) { Icon(painterResource(vector_flash), null, Modifier, Color.White) }
         }
     } else {
         LaunchedEffect(Unit) { launcher.launch(Manifest.permission.CAMERA) }
@@ -175,15 +171,23 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
     when (val data = response) {
         Default -> controller.setImageAnalysisAnalyzer(
             Dispatchers.Main.immediate.asExecutor(),
-            DataMatrixAnalyzer { model.fetchData(context, it.substring(1)) }
+            DataMatrixAnalyzer { model.fetch(context.filesDir, it.substring(1)) }
         )
 
-        Loading -> LoadingDialog()
+        Loading -> {
+            controller.clearImageAnalysisAnalyzer()
+            LoadingDialog()
+        }
         is Duplicate -> navigateToMedicine(data.id, BLANK, true)
         is Success -> navigateToMedicine(data.id, BLANK, false)
         is NoNetwork -> {
             controller.clearImageAnalysisAnalyzer()
             AddMedicineDialog(model::setDefault) { navigateToMedicine(0L, data.cis, false) }
+        }
+
+        IncorrectCode -> {
+            controller.clearImageAnalysisAnalyzer()
+            Snackbar(text_error_not_medicine)
         }
 
         Error -> {
@@ -210,7 +214,7 @@ fun Snackbar(id: Int) = Dialog({}, DialogProperties(usePlatformDefaultWidth = fa
                 .background(
                     MaterialTheme.colorScheme.errorContainer,
                     MaterialTheme.shapes.extraSmall
-                ),
+                )
         ) {
             Text(
                 text = stringResource(id),

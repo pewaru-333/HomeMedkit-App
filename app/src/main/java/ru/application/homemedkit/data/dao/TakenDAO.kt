@@ -8,7 +8,6 @@ import ru.application.homemedkit.data.dto.IntakeTaken
 
 @Dao
 interface TakenDAO {
-
     // ============================== Queries ==============================
     @Query("SELECT * FROM intakes_taken")
     fun getAll(): List<IntakeTaken>

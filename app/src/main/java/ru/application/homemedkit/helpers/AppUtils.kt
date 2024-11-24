@@ -26,6 +26,8 @@ import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.states.TechnicalState
+import ru.application.homemedkit.network.models.bio.BioData
+import ru.application.homemedkit.network.models.medicine.DrugsData
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -89,7 +91,7 @@ fun showToast(success: Boolean, context: Context) = Toast.makeText(
     Toast.LENGTH_LONG).show()
 
 fun formName(name: String) = name.substringBefore(" ")
-fun shortName(name: String?) = name?.substringBefore(",") ?: BLANK
+fun shortName(name: String?) = name?.substringBefore(",").orEmpty()
 fun decimalFormat(text: Any?): String {
     val amount = try {
         text.toString().toDouble()
@@ -136,15 +138,18 @@ fun Medicine.toState() = MedicineState(
     fetch = Response.Default,
     id = id,
     kitId = kitId,
-    kitTitle = database.medicineDAO().getKitTitle(kitId) ?: BLANK,
+    kitTitle = database.medicineDAO().getKitTitle(kitId).orEmpty(),
     cis = cis,
     productName = productName,
     expDate = expDate,
     prodFormNormName = prodFormNormName,
+    structure = structure,
     prodDNormName = prodDNormName,
     prodAmount = prodAmount.toString(),
     doseType = doseType,
     phKinetics = phKinetics,
+    recommendations = recommendations,
+    storageConditions = storageConditions,
     comment = comment,
     image = image,
     technical = TechnicalState(
@@ -160,10 +165,13 @@ fun MedicineState.toMedicine() = Medicine(
     productName = productName,
     expDate = expDate,
     prodFormNormName = prodFormNormName,
+    structure = structure,
     prodDNormName = prodDNormName,
     prodAmount = prodAmount.ifEmpty { "0.0" }.toDouble(),
     doseType = doseType,
     phKinetics = phKinetics,
+    recommendations = recommendations,
+    storageConditions = storageConditions,
     comment = comment,
     image = image,
     technical = Technical(
@@ -185,4 +193,29 @@ fun IntakeState.toIntake(time: List<LocalTime>) = Intake(
     fullScreen = fullScreen,
     noSound = noSound,
     preAlarm = preAlarm
+)
+
+fun DrugsData.toMedicine() = Medicine(
+    productName = prodDescLabel,
+    expDate = expireDate,
+    prodFormNormName = foiv.prodFormNormName,
+    prodDNormName = foiv.prodDNormName.orEmpty(),
+    phKinetics = vidalData?.phKinetics.orEmpty(),
+    technical = Technical(scanned = true, verified = true),
+    prodAmount = foiv.prodPack1Size?.let {
+        it.toDouble() * (foiv.prodPack12?.toDoubleOrNull() ?: 1.0)
+    } ?: 0.0
+)
+
+fun BioData.toBio() = Medicine(
+    productName = productName,
+    expDate = expireDate,
+    prodDNormName = productProperty.unitVolumeWeight.orEmpty(),
+    prodAmount = productProperty.quantityInPack ?: 0.0,
+    phKinetics = productProperty.applicationArea.orEmpty(),
+    recommendations = productProperty.recommendForUse.orEmpty(),
+    storageConditions = productProperty.storageConditions.orEmpty(),
+    structure = productProperty.structure.orEmpty(),
+    technical = Technical(scanned = true, verified = true),
+    prodFormNormName = productProperty.releaseForm.orEmpty().substringBefore(" ").uppercase()
 )

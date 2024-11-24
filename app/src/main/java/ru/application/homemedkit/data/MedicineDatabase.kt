@@ -29,7 +29,7 @@ private const val DATABASE_NAME = "medicines"
 
 @Database(
     entities = [Medicine::class, Intake::class, Alarm::class, Kit::class, IntakeTaken::class],
-    version = 15
+    version = 16
 )
 @TypeConverters(Converters::class)
 abstract class MedicineDatabase : RoomDatabase() {
@@ -61,7 +61,8 @@ abstract class MedicineDatabase : RoomDatabase() {
                     MIGRATION_11_12,
                     MIGRATION_12_13,
                     MIGRATION_13_14,
-                    MIGRATION_14_15
+                    MIGRATION_14_15,
+                    MIGRATION_15_16
                 )
                 .allowMainThreadQueries()
                 .build()
@@ -363,6 +364,14 @@ abstract class MedicineDatabase : RoomDatabase() {
         private val MIGRATION_14_15 = object : Migration(14, 15) {
             override fun migrate(db: SupportSQLiteDatabase) =
                 db.execSQL("ALTER TABLE intakes ADD COLUMN fullScreen INTEGER NOT NULL DEFAULT 0")
+        }
+
+        private val MIGRATION_15_16 = object : Migration(15, 16) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE medicines ADD COLUMN structure TEXT NOT NULL DEFAULT '' ")
+                db.execSQL("ALTER TABLE medicines ADD COLUMN recommendations TEXT NOT NULL DEFAULT '' ")
+                db.execSQL("ALTER TABLE medicines ADD COLUMN storageConditions TEXT NOT NULL DEFAULT '' ")
+            }
         }
     }
 }

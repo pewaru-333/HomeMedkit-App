@@ -1,2 +1,0 @@
-— The frame size has been changed when scanning the marking label.
-— When using the fullscreen notification of intake, the current device wallpaper will now be displayed instead of the background.

@@ -5,21 +5,23 @@ package ru.application.homemedkit.models.viewModels
 import android.app.AlarmManager
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
+import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.runBlocking
 import ru.application.homemedkit.HomeMeds.Companion.database
-import ru.application.homemedkit.R.string.intakes_tab_current
-import ru.application.homemedkit.R.string.intakes_tab_list
-import ru.application.homemedkit.R.string.intakes_tab_taken
 import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.helpers.BLANK
@@ -33,34 +35,31 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.util.Locale.ROOT
 
 class IntakesViewModel : ViewModel() {
+    private val intakeDAO = database.intakeDAO()
+    private val medicineDAO = database.medicineDAO()
+    private val takenDAO = database.takenDAO()
+
     private val _state = MutableStateFlow(IntakesState())
     val state = _state.asStateFlow()
 
     private val _takenState = MutableStateFlow(TakenState())
     val takenState = _takenState.asStateFlow()
 
-    val tabs = listOf(intakes_tab_list, intakes_tab_current, intakes_tab_taken)
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val intakes = _state.flatMapLatest { (search) ->
-        flow {
-            emit(
-                database.intakeDAO().getAll().filter { (_, medicineId) ->
-                    database.medicineDAO().getProductName(medicineId).lowercase(ROOT)
-                        .contains(search.lowercase(ROOT))
-                }
-            )
-        }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), database.intakeDAO().getAll())
+    val intakes = _state.combine(intakeDAO.getFlow()) { query, list ->
+        list.fastFilter { medicineDAO.getProductName(it.medicineId).contains(query.search, true) }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = runBlocking(Dispatchers.IO) { intakeDAO.getFlow().firstOrNull() }
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val schedule = intakes.flatMapLatest { filtered ->
         flow {
             emit(mutableListOf<Alarm>().apply {
-                filtered.forEach { (intakeId, _, _, interval, _, time, _, startDate, finalDate) ->
+                filtered?.forEach { (intakeId, _, _, interval, _, time, _, startDate, finalDate) ->
                     if (time.size == 1) {
                         var milliS = LocalDateTime.parse("$startDate ${time[0]}", FORMAT_DH)
                             .toInstant(ZONE).toEpochMilli()
@@ -94,16 +93,16 @@ class IntakesViewModel : ViewModel() {
                 .groupBy { Instant.ofEpochMilli(it.trigger).atZone(ZONE).toLocalDate().toEpochDay() }
             )
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyMap())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyMap())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val taken = _state.flatMapLatest { (search) ->
-        database.takenDAO().getFlow().mapLatest { list ->
-            list.filter { it.productName.lowercase(ROOT).contains(search.lowercase(ROOT)) }
+        takenDAO.getFlow().map { list ->
+            list.filter { it.productName.contains(search, true) }
                 .sortedByDescending { it.trigger }
                 .groupBy { Instant.ofEpochMilli(it.trigger).atZone(ZONE).toLocalDate().toEpochDay() }
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyMap())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyMap())
 
     fun setSearch(text: String) = _state.update { it.copy(search = text) }
     fun clearSearch() = _state.update { it.copy(search = BLANK) }
@@ -145,10 +144,10 @@ class IntakesViewModel : ViewModel() {
     }
 
     fun saveTaken(id: Long, taken: Boolean) {
-        database.takenDAO().setTaken(id, taken, if (taken) _takenState.value.inFact else 0L)
-        database.medicineDAO().getById(_takenState.value.medicineId)?.let {
-            if (taken) database.medicineDAO().intakeMedicine(it.id, _takenState.value.amount)
-            else database.medicineDAO().untakeMedicine(it.id, _takenState.value.amount)
+        takenDAO.setTaken(id, taken, if (taken) _takenState.value.inFact else 0L)
+        medicineDAO.getById(_takenState.value.medicineId)?.let {
+            if (taken) medicineDAO.intakeMedicine(it.id, _takenState.value.amount)
+            else medicineDAO.untakeMedicine(it.id, _takenState.value.amount)
         }
 
         _state.update { it.copy(showDialog = false) }

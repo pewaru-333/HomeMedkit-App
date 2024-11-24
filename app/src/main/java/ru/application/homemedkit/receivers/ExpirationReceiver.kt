@@ -13,6 +13,9 @@ import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.runBlocking
+import ru.application.homemedkit.MainActivity
 import ru.application.homemedkit.R.drawable.vector_time
 import ru.application.homemedkit.R.string.text_attention
 import ru.application.homemedkit.R.string.text_expire_soon
@@ -24,9 +27,9 @@ class ExpirationReceiver : BroadcastReceiver() {
     @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         val dao = MedicineDatabase.getInstance(context).medicineDAO()
-        val medicines = dao.getAll()
+        val medicines = runBlocking { dao.getFlow().firstOrNull() }
 
-        if (medicines.isNotEmpty()) medicines.forEach { (id, _, _, _, expDate, _, _, prodAmount) ->
+        if (!medicines.isNullOrEmpty()) medicines.forEach { (id, _, _, _, expDate, _, _, _, prodAmount) ->
             if (expDate < System.currentTimeMillis() + 30 * INTERVAL_DAY && prodAmount > 0) {
                 NotificationManagerCompat.from(context).notify(
                     id.toInt(),
@@ -34,7 +37,8 @@ class ExpirationReceiver : BroadcastReceiver() {
                         .setAutoCancel(true)
                         .setCategory(CATEGORY_REMINDER)
                         .setContentIntent(TaskStackBuilder.create(context).run {
-                            addNextIntentWithParentStack(Intent(Intent.ACTION_VIEW).apply {
+                            addNextIntentWithParentStack(Intent(context, MainActivity::class.java).apply {
+                                action = Intent.ACTION_VIEW
                                 data = "app://medicines/$id".toUri()
                             })
                             getPendingIntent(id.toInt(), FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
