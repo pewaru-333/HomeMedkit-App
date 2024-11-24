@@ -154,4 +154,8 @@
     <string name="sorting_from_newest">Expiration date (from newest)</string>
     <string name="channel_pre_desc">Upcoming intake</string>
     <string name="text_cancel">Cancel</string>
+    <string name="text_medicine_storage_conditions">Storage conditions</string>
+    <string name="text_error_not_medicine">This label code is not medicine\'s!</string>
+    <string name="text_medicine_recommendations">Recommendations for usage</string>
+    <string name="text_medicine_composition">Composition</string>
 </resources>

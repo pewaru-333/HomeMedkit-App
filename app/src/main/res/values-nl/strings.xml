@@ -155,4 +155,8 @@
     <string name="channel_pre_desc">Aankomende inname</string>
     <string name="text_cancel">Cancel</string>
     <string name="intake_extra_no_sound">No sound</string>
+    <string name="text_medicine_composition">Composition</string>
+    <string name="text_error_not_medicine">This label code is not medicine\'s!</string>
+    <string name="text_medicine_recommendations">Recommendations for usage</string>
+    <string name="text_medicine_storage_conditions">Storage conditions</string>
 </resources>
