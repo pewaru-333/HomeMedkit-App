@@ -166,8 +166,8 @@
     <string name="channel_exp_desc">Ablaufdatum</string>
     <string name="intake_extra_fullscreen">Benachrichtigung im Vollbild-Modus</string>
     <string name="channel_pre_desc">Anstehende Einnahme</string>
-    <string name="text_error_not_medicine">This label code is not medicine\'s!</string>
-    <string name="text_medicine_recommendations">Recommendations for usage</string>
-    <string name="text_medicine_composition">Composition</string>
-    <string name="text_medicine_storage_conditions">Storage conditions</string>
+    <string name="text_error_not_medicine">Dies ist kein Arzneimittelcode!</string>
+    <string name="text_medicine_recommendations">Anwendungsempfehlungen</string>
+    <string name="text_medicine_composition">Zusammensetzung</string>
+    <string name="text_medicine_storage_conditions">Lagerungsverhältnisse</string>
 </resources>
