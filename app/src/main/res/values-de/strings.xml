@@ -172,4 +172,9 @@
     <string name="text_medicine_recommendations">Anwendungsempfehlungen</string>
     <string name="text_medicine_composition">Zusammensetzung</string>
     <string name="text_medicine_storage_conditions">Lagerungsverhältnisse</string>
+    <string name="type_napkins">NAPKINS</string>
+    <string name="type_sachet">SACHET</string>
+    <string name="type_bandage">BANDAGE</string>
+    <string name="type_patch">PATCH</string>
+    <string name="dose_sach">sach</string>
 </resources>
