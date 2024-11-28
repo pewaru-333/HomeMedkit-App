@@ -16,6 +16,9 @@
 [<img src="https://raw.githubusercontent.com/pewaru-333/HomeMedkit-App/master/IzzyOnDroid.png"
   alt="Get it on IzzyOnDroid"
   height=80/>](https://apt.izzysoft.de/fdroid/index/apk/ru.application.homemedkit)
+[<img src="https://f-droid.org/badge/get-it-on.png"
+  alt="Get it on F-Droid"
+  height="80">](https://f-droid.org/packages/ru.application.homemedkit)
 
 </div>
 
