@@ -171,4 +171,9 @@
     <string name="text_medicine_composition">Composition</string>
     <string name="text_medicine_recommendations">Recommendations for usage</string>
     <string name="text_medicine_storage_conditions">Storage conditions</string>
+    <string name="type_napkins">NAPKINS</string>
+    <string name="type_sachet">SACHET</string>
+    <string name="type_bandage">BANDAGE</string>
+    <string name="type_patch">PATCH</string>
+    <string name="dose_sach">sach</string>
 </resources>
