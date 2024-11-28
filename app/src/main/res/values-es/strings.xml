@@ -76,6 +76,7 @@
     <string name="type_dragee">GRAGEAS</string>
     <string name="type_granules">GRÁNULOS</string>
     <string name="type_powder">POLVOS</string>
+    <string name="type_sachet">SACHET</string>
     <string name="type_solution">DISOLUCIÓN</string>
     <string name="type_tincture">TINTURA</string>
     <string name="type_decoction">DECOCCIÓN</string>
@@ -92,10 +93,14 @@
     <string name="type_aerosol">AEROSOL</string>
     <string name="type_spray">ESPRAY</string>
     <string name="type_drops">GOTAS</string>
+    <string name="type_patch">PATCH</string>
+    <string name="type_bandage">BANDAGE</string>
+    <string name="type_napkins">NAPKINS</string>
 
     <!-- Medicine dose types -->
     <string name="dose_ed">ED</string>
     <string name="dose_pcs">unidades</string>
+    <string name="dose_sach">sach</string>
     <string name="dose_g">g</string>
     <string name="dose_mg">mg</string>
     <string name="dose_l">l</string>

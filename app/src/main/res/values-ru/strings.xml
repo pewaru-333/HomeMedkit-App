@@ -76,6 +76,7 @@
     <string name="type_dragee">ДРАЖЕ</string>
     <string name="type_granules">ГРАНУЛЫ</string>
     <string name="type_powder">ПОРОШОК</string>
+    <string name="type_sachet">ПАКЕТИК</string>
     <string name="type_solution">РАСТВОР</string>
     <string name="type_tincture">НАСТОЙКА</string>
     <string name="type_decoction">ОТВАР</string>
@@ -92,10 +93,14 @@
     <string name="type_aerosol">АЭРОЗОЛЬ</string>
     <string name="type_spray">СПРЕЙ</string>
     <string name="type_drops">КАПЛИ</string>
+    <string name="type_patch">ПЛАСТЫРЬ</string>
+    <string name="type_bandage">БИНТ</string>
+    <string name="type_napkins">САЛФЕТКИ</string>
 
     <!-- Виды доз лекарств -->
     <string name="dose_ed">ЕД</string>
     <string name="dose_pcs">шт</string>
+    <string name="dose_sach">пак.</string>
     <string name="dose_g">г</string>
     <string name="dose_mg">мг</string>
     <string name="dose_l">л</string>
