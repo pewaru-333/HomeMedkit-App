@@ -18,30 +18,24 @@
     <string name="preference_app_theme">App-Thema</string>
     <string name="preference_dynamic_color">Dynamische Farbe</string>
     <string name="preference_import_export">Importieren / Exportieren</string>
-
     <!-- Languages -->
     <string name="lang_system">System</string>
-
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabetisch (A bis z)</string>
     <string name="sorting_z_a">Alphabetisch (z bis A)</string>
-
     <!-- Notifications -->
     <string name="channel_intakes_desc">Medikamenten-Einnahme</string>
     <string name="text_attention">Achtung!</string>
     <string name="text_do_intake">Einnehmen</string>
-
     <!-- Placeholders -->
     <string name="placeholder_kitchen">Küche</string>
     <string name="placeholder_time">Zeit #%1$d</string>
-
     <!-- Medicines -->
     <string name="text_exp_date">Ablaufdatum</string>
     <string name="text_medicine_comment">Kommentar</string>
     <string name="text_medicine_description">Beschreibung</string>
     <string name="text_medicine_dose">Dosis</string>
     <string name="text_medicine_product_name">Produktname</string>
-
     <!-- Intakes -->
     <string name="intakes_tab_current">Aktuell</string>
     <string name="intakes_tab_list">Liste</string>
@@ -56,14 +50,12 @@
     <string name="intake_text_food_after">Nach dem Essen</string>
     <string name="intake_text_food_before">Vor dem Essen</string>
     <string name="intake_text_food_during">Während dem Essen</string>
-
     <!-- Dialogs -->
     <string name="text_grant_permission">Berechtigung gewähren</string>
     <string name="text_new_group">Neue Gruppe</string>
     <string name="text_select_time">Zeit auswählen</string>
     <string name="text_connection_error">Verbindungsfehler!</string>
     <string name="text_error">Fehler!</string>
-
     <!-- Strings -->
     <string name="text_every">"Alle "</string>
     <string name="text_export">Exportieren</string>
@@ -160,7 +152,7 @@
     <string name="intake_period_pick">von bis</string>
     <string name="dose_ed">ED</string>
     <string name="dose_g">g</string>
-    <string name="dose_pcs">st.</string>
+    <string name="dose_pcs">St.</string>
     <string name="dose_l">l</string>
     <string name="dose_ml">ml</string>
     <string name="dose_mg">mg</string>
@@ -180,4 +172,9 @@
     <string name="text_medicine_recommendations">Anwendungsempfehlungen</string>
     <string name="text_medicine_composition">Zusammensetzung</string>
     <string name="text_medicine_storage_conditions">Lagerungsverhältnisse</string>
+    <string name="type_napkins">NAPKINS</string>
+    <string name="type_sachet">BEUTEL</string>
+    <string name="type_bandage">BANDAGE</string>
+    <string name="type_patch">PFLASTER</string>
+    <string name="dose_sach">sach</string>
 </resources>
