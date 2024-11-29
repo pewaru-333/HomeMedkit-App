@@ -49,6 +49,8 @@ class MainActivity : ComponentActivity() {
         Preferences.changeLanguage(this, Preferences.getLanguage())
         super.onCreate(savedInstanceState)
 
+        actionBar?.hide()
+
         if (intent.getBooleanExtra(KEY_EXP_IMP, false)) {
             showToast(true, this)
             AlarmSetter(this).resetAll()

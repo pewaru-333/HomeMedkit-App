@@ -1,0 +1,3 @@
+— Now, when scanning the marking, the units of measurement and the medicine icon will be inserted automatically if possible.
+— Added new medicine icons and units of measurement.
+— Many minor fixes and improvements.

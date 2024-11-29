@@ -29,7 +29,7 @@ import ru.application.homemedkit.ui.theme.AppTheme
 
 class IntakeDialogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        theme.applyStyle(android.R.style.Theme_Wallpaper, true)
+        theme.applyStyle(android.R.style.Theme_Wallpaper_NoTitleBar, true)
         super.onCreate(savedInstanceState)
 
         window.addFlags(FLAG_KEEP_SCREEN_ON or FLAG_ALLOW_LOCK_WHILE_SCREEN_ON)

@@ -601,6 +601,7 @@ val fieldColorsInverted
     @Composable get() = TextFieldDefaults.colors(
         disabledTextColor = MaterialTheme.colorScheme.onSurface,
         disabledContainerColor = MaterialTheme.colorScheme.surface,
+        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
         disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
         disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
         disabledIndicatorColor = MaterialTheme.colorScheme.outline

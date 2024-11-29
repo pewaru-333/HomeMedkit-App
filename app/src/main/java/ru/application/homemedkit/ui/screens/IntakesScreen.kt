@@ -163,7 +163,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit) {
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.Center
                     ) { Text(stringResource(text_no_intakes_found), textAlign = TextAlign.Center) }
-                    else if (Preferences.getMedCompactView()) LazyColumn(state = state.stateA)
+                    else if (Preferences.getSimpleView()) LazyColumn(state = state.stateA)
                     { items(list) { IntakeItem(it, navigateToIntake); HorizontalDivider() } }
                     else LazyColumn(
                         state = state.stateA,

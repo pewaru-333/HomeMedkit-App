@@ -35,8 +35,8 @@ object Preferences : ViewModel() {
 
     fun getSortingOrder() = preferences.getString(KEY_ORDER, SORTING[0]) ?: SORTING[0]
     fun getLastKit() = preferences.getLong(KEY_LAST_KIT, 0L)
-    fun getMedCompactView() = preferences.getBoolean(KEY_MED_COMPACT_VIEW, false)
-    fun getDownloadNeeded() = preferences.getBoolean(KEY_DOWNLOAD, false)
+    fun getSimpleView() = preferences.getBoolean(KEY_MED_COMPACT_VIEW, false)
+    fun getImageFetch() = preferences.getBoolean(KEY_DOWNLOAD, false)
     fun getCheckExpDate() = preferences.getBoolean(KEY_CHECK_EXP_DATE, false)
     fun getLanguage() = preferences.getString(KEY_LANGUAGE, LANGUAGES[0]) ?: LANGUAGES[0]
     fun getDynamicColors() = preferences.getBoolean(KEY_DYNAMIC_COLOR, false)

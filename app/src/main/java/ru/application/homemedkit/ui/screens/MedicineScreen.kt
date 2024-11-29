@@ -1,11 +1,12 @@
 package ru.application.homemedkit.ui.screens
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -18,19 +19,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Refresh
@@ -48,7 +46,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -64,7 +61,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -73,18 +71,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.text.HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS
 import androidx.core.text.HtmlCompat.fromHtml
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.delay
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R.drawable.vector_type_unknown
@@ -183,11 +182,21 @@ fun MedicineScreen(
 
                         DropdownMenu(expanded, { expanded = false }) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(text_edit)) },
-                                onClick = model::setEditing
+                                onClick = model::setEditing,
+                                text = {
+                                    Text(
+                                        text = stringResource(text_edit),
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                }
                             )
                             DropdownMenuItem(
-                                text = { Text(stringResource(text_delete)) },
+                                text = {
+                                    Text(
+                                        text = stringResource(text_delete),
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                },
                                 onClick = {
                                     expanded = false
                                     model.delete(context.filesDir)
@@ -272,133 +281,116 @@ private fun ProductBrief(model: MedicineViewModel, state: MedicineState) = Colum
 
 @Composable
 private fun ProductName(model: MedicineViewModel, state: MedicineState) = Column {
-    Text(
-        stringResource(text_medicine_product_name),
-        style = MaterialTheme.typography.titleMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.W400
+    if (state.default || state.technical.verified) {
+        Text(
+            text = stringResource(text_medicine_product_name),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
         )
-    )
-    BasicTextField(
+
+        Text(
+            text = state.productName,
+            softWrap = false,
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+        )
+    } else OutlinedTextField(
         value = state.productName,
         onValueChange = model::setProductName,
         modifier = Modifier.fillMaxWidth(),
-        readOnly = state.default || state.technical.verified,
         singleLine = true,
-        textStyle = MaterialTheme.typography.titleMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.SemiBold
-        ),
-        decorationBox = {
-            if (state.default || state.technical.verified) NoDecorationBox(state.productName, it)
-            else DecorationBox(state.productName, it)
-        }
+        label = { Text(stringResource(text_medicine_product_name)) },
+        placeholder = { Text(stringResource(text_empty)) },
+        keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
     )
 }
 
 @Composable
 private fun ProductForm(state: MedicineState) = Column {
     Text(
-        stringResource(text_medicine_form), style = MaterialTheme.typography.titleMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.W400
-        )
+        text = stringResource(text_medicine_form),
+        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
     )
     Text(
         text = formName(state.prodFormNormName).ifEmpty { stringResource(text_unspecified) },
-        style = MaterialTheme.typography.titleMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.SemiBold
-        )
+        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
     )
 }
 
 @Composable
 private fun ProductKit(model: MedicineViewModel, state: MedicineState) = Column {
-    Text(
-        stringResource(text_medicine_group), style = MaterialTheme.typography.titleMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.W400
+    if (state.default) {
+        Text(
+            text = stringResource(text_medicine_group),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
         )
-    )
-    if (state.default) Text(
-        text = state.kitTitle.ifBlank { stringResource(text_unspecified) },
-        style = MaterialTheme.typography.titleMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.SemiBold
+        Text(
+            text = state.kitTitle.ifBlank { stringResource(text_unspecified) },
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
         )
-    )
-    else OutlinedTextField(
+    } else OutlinedTextField(
         value = state.kitTitle,
         onValueChange = {},
+        enabled = false,
+        readOnly = true,
+        label = { Text(stringResource(text_medicine_group)) },
+        placeholder = { Text(stringResource(text_empty)) },
+        colors = fieldColorsInverted,
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = model::showKitDialog),
-        enabled = false,
-        readOnly = true,
-        placeholder = { Text(stringResource(text_empty)) },
-        colors = fieldColorsInverted
     )
 }
 
 @Composable
 private fun ProductExp(model: MedicineViewModel, state: MedicineState) = Column {
-    Text(
-        stringResource(text_exp_date), style = MaterialTheme.typography.titleMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.W400
-        )
-    )
     when {
-        state.default || state.technical.verified ->
+        state.default || state.technical.verified -> {
+            Text(
+                text = stringResource(text_exp_date),
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
+            )
             Text(
                 text = toExpDate(state.expDate).ifEmpty { stringResource(text_unspecified) },
-                style = MaterialTheme.typography.titleMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-
-        (state.adding || state.editing) && !state.technical.verified -> {
-            OutlinedTextField(
-                value = toExpDate(state.expDate),
-                onValueChange = {},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = model::showDatePicker),
-                enabled = false,
-                readOnly = true,
-                placeholder = { Text(LocalDate.now().plusDays(555).format(FORMAT_DMMMMY)) },
-                leadingIcon = { Icon(Icons.Outlined.DateRange, null) },
-                colors = fieldColorsInverted
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
             )
         }
+
+        (state.adding || state.editing) && !state.technical.verified -> OutlinedTextField(
+            value = toExpDate(state.expDate),
+            onValueChange = {},
+            enabled = false,
+            readOnly = true,
+            label = { Text(stringResource(text_exp_date)) },
+            placeholder = { Text(LocalDate.now().plusDays(555).format(FORMAT_DMMMMY)) },
+            colors = fieldColorsInverted,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = model::showDatePicker),
+        )
     }
 }
 
 @Composable
 private fun ProductStatus(state: MedicineState) = Column {
     Text(
-        stringResource(text_status), style = MaterialTheme.typography.titleMedium.copy(
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.W400
+        text = stringResource(text_status),
+        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
+    )
+    Text(
+        text = stringResource(
+            if (state.technical.verified) text_medicine_status_checked
+            else if (state.technical.scanned && !state.technical.verified) text_medicine_status_scanned
+            else text_medicine_status_self_added
+        ),
+        style = MaterialTheme.typography.titleMedium.copy(
+            fontWeight = FontWeight.SemiBold,
+            color = if (state.technical.verified) MaterialTheme.colorScheme.primary
+            else if (state.technical.scanned && !state.technical.verified) MaterialTheme.colorScheme.onBackground
+            else MaterialTheme.colorScheme.error
         )
     )
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = stringResource(
-                if (state.technical.verified) text_medicine_status_checked
-                else if (state.technical.scanned && !state.technical.verified) text_medicine_status_scanned
-                else text_medicine_status_self_added
-            ),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.SemiBold,
-                color = if (state.technical.verified) MaterialTheme.colorScheme.primary
-                else if (state.technical.scanned && !state.technical.verified) MaterialTheme.colorScheme.onBackground
-                else MaterialTheme.colorScheme.error
-            )
-        )
-    }
 }
 
 @Composable
@@ -418,22 +410,20 @@ private fun ProductImage(model: MedicineViewModel, state: MedicineState) = Medic
 
 @Composable
 private fun ProductFormName(model: MedicineViewModel, state: MedicineState) =
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp))  {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
             text = stringResource(text_medicine_description),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
 
-        BasicTextField(
+        if (state.default || state.technical.verified) Text(state.prodFormNormName)
+        else OutlinedTextField(
             value = state.prodFormNormName,
             onValueChange = model::setFormName,
             modifier = Modifier.fillMaxWidth(),
-            readOnly = state.default || state.technical.verified,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
-        ) {
-            if (state.default || state.technical.verified) NoDecorationBox(state.prodFormNormName, it)
-            else DecorationBox(state.prodFormNormName, it)
-        }
+            placeholder = { Text(stringResource(text_empty)) },
+            keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
+        )
     }
 
 @Composable
@@ -443,53 +433,26 @@ private fun Structure(structure: String) =
             text = stringResource(text_medicine_composition),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
-
-        BasicTextField(
-            value = structure,
-            onValueChange = {},
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
-        ) { NoDecorationBox(structure, it) }
+        Text(structure, Modifier.fillMaxWidth())
     }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductNormName(model: MedicineViewModel, state: MedicineState) =
-    Row(horizontalArrangement =  Arrangement.spacedBy(16.dp)) {
+    Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(16.dp)) {
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
             Text(
                 text = stringResource(text_medicine_dose),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
 
-            BasicTextField(
+            if (state.adding || state.editing && !state.technical.verified) OutlinedTextField(
                 value = state.prodDNormName,
                 onValueChange = model::setDoseName,
                 modifier = Modifier.fillMaxWidth(),
-                readOnly = state.default || state.technical.verified,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
-            ) {
-                if (state.adding || state.editing && !state.technical.verified) OutlinedTextFieldDefaults.DecorationBox(
-                    value = state.prodDNormName,
-                    innerTextField = it,
-                    enabled = true,
-                    singleLine = false,
-                    visualTransformation = VisualTransformation.None,
-                    interactionSource = remember(::MutableInteractionSource),
-                    placeholder = { Text(stringResource(placeholder_dose)) }
-                )
-                else OutlinedTextFieldDefaults.DecorationBox(
-                    value = state.prodDNormName.ifEmpty { stringResource(text_unspecified) },
-                    innerTextField = it,
-                    enabled = true,
-                    singleLine = false,
-                    visualTransformation = VisualTransformation.None,
-                    interactionSource = remember(::MutableInteractionSource),
-                    contentPadding = PaddingValues(0.dp),
-                    container = {}
-                )
-            }
+                placeholder = { Text(stringResource(placeholder_dose)) },
+                keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
+            ) else Text(state.prodDNormName.ifEmpty { stringResource(text_unspecified) })
         }
 
         Column(Modifier.weight(0.5f), Arrangement.spacedBy(8.dp)) {
@@ -498,51 +461,41 @@ private fun ProductNormName(model: MedicineViewModel, state: MedicineState) =
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
             )
 
-            BasicTextField(
-                value = if (state.default) "${decimalFormat(state.prodAmount)} ${
-                    stringResource(DoseTypes.getTitle(state.doseType))}"
-                else state.prodAmount,
+            if(state.default) Text("${decimalFormat(state.prodAmount)} " +
+                    stringResource(DoseTypes.getTitle(state.doseType))
+            )
+            else OutlinedTextField(
+                value = state.prodAmount,
                 onValueChange = model::setProdAmount,
-                readOnly = state.default,
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
+                modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                interactionSource = remember(::MutableInteractionSource),
+                placeholder = { Text(stringResource(text_empty)) },
                 visualTransformation = {
-                    TransformedText(
-                        AnnotatedString(it.text.replace('.', ',')),
-                        OffsetMapping.Identity
-                    )
-                }
-            ) { field ->
-                if (state.default) NoDecorationBox(state.prodAmount, field)
-                else OutlinedTextFieldDefaults.DecorationBox(
-                    value = state.prodAmount,
-                    innerTextField = field,
-                    enabled = true,
-                    singleLine = true,
-                    visualTransformation = VisualTransformation.None,
-                    interactionSource = remember(::MutableInteractionSource),
-                    placeholder = { Text(stringResource(text_empty)) },
-                    suffix = {
-                        ExposedDropdownMenuBox(state.showMenuDose, model::showDoseMenu, Modifier.width(48.dp)) {
-                            Row(Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable)) {
-                                Text(stringResource(DoseTypes.getTitle(state.doseType)))
-                                ExposedDropdownMenuDefaults.TrailingIcon(state.showMenuDose)
-                            }
-                            ExposedDropdownMenu(state.showMenuDose, model::hideDoseMenu) {
-                                DoseTypes.entries.forEach { item ->
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(item.title)) },
-                                        onClick = { model.setDoseType(item) },
-                                        modifier = Modifier.wrapContentWidth()
-                                    )
-                                }
+                    TransformedText(AnnotatedString(it.text.replace('.', ',')), OffsetMapping.Identity)
+                },
+                suffix = {
+                    ExposedDropdownMenuBox(state.showMenuDose, model::showDoseMenu, Modifier.width(64.dp)) {
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                                .fillMaxWidth()
+                        ) {
+                            Text(stringResource(DoseTypes.getTitle(state.doseType)))
+                            ExposedDropdownMenuDefaults.TrailingIcon(state.showMenuDose)
+                        }
+                        ExposedDropdownMenu(state.showMenuDose, model::hideDoseMenu) {
+                            DoseTypes.entries.forEach { item ->
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(item.title)) },
+                                    onClick = { model.setDoseType(item) },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
                             }
                         }
                     }
-                )
-            }
+                }
+            )
         }
     }
 
@@ -554,16 +507,14 @@ private fun PhKinetics(model: MedicineViewModel, state: MedicineState) =
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
 
-        BasicTextField(
+        if (state.default) Text("${fromHtml(state.phKinetics, FROM_HTML_OPTION_USE_CSS_COLORS)}")
+        else OutlinedTextField(
             value = fromHtml(state.phKinetics, FROM_HTML_OPTION_USE_CSS_COLORS).toString(),
             onValueChange = model::setPhKinetics,
             modifier = Modifier.fillMaxWidth(),
-            readOnly = state.default,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
-        ) {
-            if (state.default) NoDecorationBox(state.phKinetics, it)
-            else DecorationBox(state.phKinetics, it)
-        }
+            placeholder = { Text(stringResource(text_empty)) },
+            keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
+        )
     }
 
 @Composable
@@ -573,14 +524,7 @@ private fun Recommendations(recommendations: String) =
             text = stringResource(text_medicine_recommendations),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
-
-        BasicTextField(
-            value = fromHtml(recommendations, FROM_HTML_OPTION_USE_CSS_COLORS).toString(),
-            onValueChange = {},
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
-        ) { NoDecorationBox(recommendations, it) }
+        Text(fromHtml(recommendations, FROM_HTML_OPTION_USE_CSS_COLORS).toString())
     }
 
 @Composable
@@ -590,65 +534,31 @@ private fun StorageConditions(conditions: String) =
             text = stringResource(text_medicine_storage_conditions),
             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
         )
-
-        BasicTextField(
-            value = fromHtml(conditions, FROM_HTML_OPTION_USE_CSS_COLORS).toString(),
-            onValueChange = {},
-            modifier = Modifier.fillMaxWidth(),
-            readOnly = true,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
-        ) { NoDecorationBox(conditions, it) }
+        Text(fromHtml(conditions, FROM_HTML_OPTION_USE_CSS_COLORS).toString())
     }
 
 @Composable
-private fun Comment(model: MedicineViewModel, state: MedicineState) = Column(
-    verticalArrangement = Arrangement.spacedBy(8.dp)
-) {
-    Text(
-        text = stringResource(text_medicine_comment),
-        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-    )
+private fun Comment(model: MedicineViewModel, state: MedicineState) =
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = stringResource(text_medicine_comment),
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        )
 
-    BasicTextField(
-        value = state.comment,
-        onValueChange = model::setComment,
-        modifier = Modifier.fillMaxWidth(),
-        readOnly = state.default,
-        textStyle = MaterialTheme.typography.bodyLarge.copy(MaterialTheme.colorScheme.onSurface)
-    ) { if (state.default) NoDecorationBox(state.comment, it) else DecorationBox(state.comment, it) }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DecorationBox(text: String, field: @Composable () -> Unit) =
-    OutlinedTextFieldDefaults.DecorationBox(
-        value = text,
-        innerTextField = field,
-        enabled = true,
-        singleLine = false,
-        visualTransformation = VisualTransformation.None,
-        interactionSource = remember(::MutableInteractionSource),
-        placeholder = { Text(stringResource(text_empty)) }
-    )
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun NoDecorationBox(text: String, field: @Composable () -> Unit) =
-    OutlinedTextFieldDefaults.DecorationBox(
-        value = text,
-        innerTextField = field,
-        enabled = true,
-        singleLine = false,
-        visualTransformation = VisualTransformation.None,
-        interactionSource = remember(::MutableInteractionSource),
-        contentPadding = PaddingValues(0.dp),
-        container = {}
-    )
+        if (state.default) Text(state.comment)
+        else OutlinedTextField(
+            value = state.comment,
+            onValueChange = model::setComment,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text(stringResource(text_empty)) },
+            keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
+        )
+    }
 
 @Composable
 private fun DialogKits(model: MedicineViewModel, state: MedicineState) = AlertDialog(
     onDismissRequest = model::hideKitDialog,
-    dismissButton = { TextButton(model::setKitId) { Text(stringResource(text_clear)) } },
+    dismissButton = { TextButton(model::clearKit) { Text(stringResource(text_clear)) } },
     title = { Text(stringResource(preference_kits_group)) },
     confirmButton = {
         TextButton(model::setKitId, enabled = state.kitId != null)
@@ -656,21 +566,21 @@ private fun DialogKits(model: MedicineViewModel, state: MedicineState) = AlertDi
     },
     text = {
         Column(Modifier.selectableGroup()) {
-            database.kitDAO().getAll().forEach { kit ->
+            database.kitDAO().getAll().forEach { (kitId, title) ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
                         .selectable(
-                            selected = state.kitId == kit.kitId,
-                            onClick = { model.pickKit(kit.kitId) },
+                            selected = state.kitId == kitId,
+                            onClick = { model.pickKit(kitId) },
                             role = Role.RadioButton
                         )
                 ) {
-                    RadioButton(state.kitId == kit.kitId, null)
+                    RadioButton(state.kitId == kitId, null)
                     Text(
-                        text = kit.title,
+                        text = title,
                         modifier = Modifier.padding(start = 16.dp),
                         style = MaterialTheme.typography.bodyLarge
                     )
@@ -685,21 +595,18 @@ private fun DialogKits(model: MedicineViewModel, state: MedicineState) = AlertDi
 private fun IconPicker(model: MedicineViewModel) = Dialog(model::hideIconPicker) {
     Surface(Modifier.padding(vertical = 64.dp), RoundedCornerShape(16.dp)) {
         FlowRow(
+            maxItemsInEachRow = 4,
+            horizontalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.Center,
-            verticalArrangement = Arrangement.Center,
-            maxItemsInEachRow = 4
         ) {
             Types.entries.forEach {
                 ElevatedCard(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .clickable { model.setIcon(it.value) },
-                    colors = CardDefaults.cardColors().copy(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
+                    onClick = { model.setIcon(it.value) },
+                    modifier = Modifier.padding(8.dp),
+                    colors = CardDefaults.cardColors().copy(MaterialTheme.colorScheme.secondaryContainer)
                 ) {
                     Image(
                         painter = painterResource(it.icon),
@@ -710,12 +617,10 @@ private fun IconPicker(model: MedicineViewModel) = Dialog(model::hideIconPicker)
                     )
                     Text(
                         text = stringResource(it.title),
-                        modifier = Modifier
-                            .padding(vertical = 4.dp)
-                            .align(Alignment.CenterHorizontally),
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         fontWeight = FontWeight.SemiBold,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 }
             }
@@ -725,21 +630,23 @@ private fun IconPicker(model: MedicineViewModel) = Dialog(model::hideIconPicker)
 
 @Composable
 fun MedicineImage(image: String, modifier: Modifier = Modifier, state: MedicineState? = null) {
+    val context = LocalContext.current
     val isIcon = image.contains(TYPE)
     val noIcon = image.isEmpty()
     val icon = when {
-        isIcon -> Types.getIcon(image)
-        noIcon -> vector_type_unknown
-        else -> File(LocalContext.current.filesDir, image)
+        noIcon -> null
+        isIcon -> ContextCompat.getDrawable(context, Types.getIcon(image))?.toBitmap()?.asImageBitmap()
+        else -> File(context.filesDir, image).let {
+            if(it.exists()) BitmapFactory.decodeFile(it.absolutePath).asImageBitmap() else null
+        }
     }
 
     Image(
-        painter = rememberAsyncImagePainter(icon),
+        painter = icon?.let { BitmapPainter(it) } ?: painterResource(vector_type_unknown),
         contentDescription = null,
         modifier = modifier,
         alignment = Alignment.Center,
         contentScale = ContentScale.Fit,
-        colorFilter = if (noIcon) ColorFilter.tint(MaterialTheme.colorScheme.onSurface) else null,
         alpha = when {
             state?.default == true -> 1f
             state?.default == false && (isIcon || noIcon) -> 0.4f

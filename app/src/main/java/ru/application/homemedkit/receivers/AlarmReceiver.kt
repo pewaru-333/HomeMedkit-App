@@ -51,7 +51,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
         val medicine = medicineDAO.getById(medicineId)!!
         val trigger = alarmDAO.getByPK(alarmId).trigger
-        val flag = medicineDAO.getProdAmount(medicineId) >= intake.amount
+        val flag = medicine.prodAmount >= intake.amount
 
         val intakeTaken = IntakeTaken(
             medicineId = medicineId,

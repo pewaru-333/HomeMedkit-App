@@ -12,10 +12,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
 import androidx.annotation.StringRes
 import androidx.camera.core.TorchState
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
+import androidx.camera.view.PreviewView
 import androidx.camera.view.TransformExperimental
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -60,6 +62,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat.checkSelfPermission
@@ -122,23 +125,29 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
     val controller = remember {
         LifecycleCameraController(context).apply {
             setEnabledUseCases(CameraController.IMAGE_ANALYSIS)
-            imageAnalysisResolutionSelector = ResolutionSelector.Builder().setResolutionStrategy(
-                ResolutionStrategy(
-                    android.util.Size(960,960),
-                    ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+            imageAnalysisResolutionSelector = ResolutionSelector.Builder()
+                .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+                .setResolutionStrategy(
+                    ResolutionStrategy(
+                        android.util.Size(1920, 1080),
+                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+                    )
                 )
-            ).build()
+                .build()
         }
-    }
-
-    LaunchedEffect(lifecycleOwner, controller) {
-        controller.unbind()
-        controller.bindToLifecycle(lifecycleOwner)
     }
 
     BackHandler(onBack = navigateUp)
     if (permissionGranted) Box {
-        CameraPreview(controller, Modifier.fillMaxSize())
+        AndroidView(
+            modifier = Modifier.fillMaxSize(),
+            factory = {
+                PreviewView(it).apply {
+                    this.controller = controller
+                    controller.bindToLifecycle(lifecycleOwner)
+                }
+            }
+        )
         Canvas(Modifier.fillMaxSize()) {
             val length = if (size.width > size.height) size.height * 0.5f else size.width * 0.7f
 
@@ -171,7 +180,7 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
     when (val data = response) {
         Default -> controller.setImageAnalysisAnalyzer(
             Dispatchers.Main.immediate.asExecutor(),
-            DataMatrixAnalyzer { model.fetch(context.filesDir, it.substring(1)) }
+            DataMatrixAnalyzer { model.fetch(context.filesDir, it) }
         )
 
         Loading -> {

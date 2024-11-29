@@ -15,6 +15,7 @@ import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.Preferences
+import ru.application.homemedkit.helpers.Types
 import ru.application.homemedkit.helpers.toBio
 import ru.application.homemedkit.helpers.toMedicine
 import ru.application.homemedkit.helpers.toState
@@ -57,8 +58,8 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
                             cis = _state.value.cis,
                             kitId = _state.value.kitId,
                             comment = _state.value.comment.ifEmpty { BLANK },
-                            image = if (Preferences.getDownloadNeeded())
-                                Network.getImage(dir, drugsData.vidalData?.images) else BLANK
+                            image = if (Preferences.getImageFetch()) Network.getImage(dir, drugsData.vidalData?.images)
+                            else Types.setIcon(drugsData.foiv.prodFormNormName)
                         )
 
                         dao.update(medicine)
@@ -119,6 +120,7 @@ class MedicineViewModel(private val medicineId: Long) : ViewModel() {
     fun showKitDialog() = _state.update { it.copy(showDialogKits = true) }
     fun hideKitDialog() = _state.update { it.copy(showDialogKits = false) }
     fun pickKit(kitId: Long?) = _state.update { it.copy(kitId = kitId) }
+    fun clearKit() = _state.update { it.copy(kitId = null, kitTitle = BLANK, showDialogKits = false) }
     fun setKitId() = _state.update {
         it.copy(
             kitId = _state.value.kitId,

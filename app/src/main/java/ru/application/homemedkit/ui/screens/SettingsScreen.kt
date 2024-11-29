@@ -238,11 +238,11 @@ private fun KitsManager(onDismiss: () -> Unit) {
                 }
             ) { paddingValues ->
                 Column(Modifier.padding(top = paddingValues.calculateTopPadding())) {
-                    kits.forEach { kit ->
+                    kits.forEach { (kitId, title) ->
                         ListItem(
-                            headlineContent = { Text(kit.title) },
+                            headlineContent = { Text(title) },
                             trailingContent = {
-                                IconButton({ dao.delete(Kit(kit.kitId)) }) {
+                                IconButton({ dao.delete(Kit(kitId)) }) {
                                     Icon(Icons.Outlined.Delete, null)
                                 }
                             }

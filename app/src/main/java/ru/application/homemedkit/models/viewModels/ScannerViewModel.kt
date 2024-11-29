@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
-import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.Preferences
+import ru.application.homemedkit.helpers.Types
 import ru.application.homemedkit.helpers.toBio
 import ru.application.homemedkit.helpers.toMedicine
 import ru.application.homemedkit.models.events.Response
@@ -32,19 +32,23 @@ class ScannerViewModel : ViewModel() {
     fun fetch(dir: File, code: String) = viewModelScope.launch(Dispatchers.IO) {
         _response.emit(Loading)
 
-        if (code in dao.getAllCis()) _response.emit(Duplicate(dao.getIdByCis(code)))
-        else try {
+        dao.getAllCis().filterNot(String::isBlank).find { it in code }?.let {
+            _response.emit(Duplicate(dao.getIdByCis(it)))
+        } ?: try {
             Network.getMedicine(code).apply {
                 if (codeFounded && checkResult) {
                     if (drugsData != null) {
                         val medicine = drugsData.toMedicine().copy(
                             cis = this.code,
-                            image = if (Preferences.getDownloadNeeded())
-                                Network.getImage(dir, drugsData.vidalData?.images) else BLANK
+                            image = if (Preferences.getImageFetch()) Network.getImage(dir, drugsData.vidalData?.images)
+                            else Types.setIcon(drugsData.foiv.prodFormNormName)
                         )
                         _response.emit(Success(dao.add(medicine)))
                     } else if (bioData != null) {
-                        val medicine = bioData.toBio().copy(cis = this.code)
+                        val medicine = bioData.toBio().copy(
+                            cis = this.code,
+                            image = Types.setIcon(bioData.productProperty.releaseForm.orEmpty())
+                        )
 
                         _response.emit(Success(dao.add(medicine)))
                     } else _response.apply {

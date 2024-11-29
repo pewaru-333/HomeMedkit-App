@@ -19,9 +19,6 @@ interface MedicineDAO {
     @Query("SELECT productName FROM medicines WHERE id = :medicineId")
     fun getProductName(medicineId: Long): String
 
-    @Query("SELECT prodAmount FROM medicines WHERE id = :medicineId")
-    fun getProdAmount(medicineId: Long): Double
-
     @Query("SELECT id FROM medicines where cis = :cis")
     fun getIdByCis(cis: String): Long
 

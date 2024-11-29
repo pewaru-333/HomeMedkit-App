@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -187,7 +186,7 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
                     .padding(horizontal = 16.dp),
                 contentAlignment = Alignment.Center
             ) { Text(stringResource(text_no_data_found), textAlign = TextAlign.Center) }
-            else if (Preferences.getMedCompactView())
+            else if (Preferences.getSimpleView())
                 LazyColumn(
                     state = state.listState,
                     contentPadding = PaddingValues(top = values.calculateTopPadding())
@@ -267,12 +266,7 @@ private fun MedicineCard(medicine: Medicine, navigateToMedicine: (Long) -> Unit)
                 )
             }
         },
-        leadingContent = {
-            MedicineImage(medicine.image, Modifier
-                .size(64.dp)
-                .offset(y = 12.dp)
-            )
-        },
+        leadingContent = { MedicineImage(medicine.image, Modifier.size(64.dp)) },
         colors = ListItemDefaults.colors(
             if (medicine.expDate < System.currentTimeMillis()) MaterialTheme.colorScheme.errorContainer
             else MaterialTheme.colorScheme.secondaryContainer

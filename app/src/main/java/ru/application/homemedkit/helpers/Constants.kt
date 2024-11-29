@@ -10,6 +10,7 @@ import ru.application.homemedkit.R.drawable.vector_medicine
 import ru.application.homemedkit.R.drawable.vector_settings
 import ru.application.homemedkit.R.drawable.vector_time
 import ru.application.homemedkit.R.drawable.vector_type_aerosol
+import ru.application.homemedkit.R.drawable.vector_type_bandage
 import ru.application.homemedkit.R.drawable.vector_type_capsule
 import ru.application.homemedkit.R.drawable.vector_type_decoction
 import ru.application.homemedkit.R.drawable.vector_type_dragee
@@ -20,11 +21,14 @@ import ru.application.homemedkit.R.drawable.vector_type_gel
 import ru.application.homemedkit.R.drawable.vector_type_granules
 import ru.application.homemedkit.R.drawable.vector_type_mix
 import ru.application.homemedkit.R.drawable.vector_type_mixture
+import ru.application.homemedkit.R.drawable.vector_type_napkins
 import ru.application.homemedkit.R.drawable.vector_type_nasal_spray
 import ru.application.homemedkit.R.drawable.vector_type_ointment
 import ru.application.homemedkit.R.drawable.vector_type_paste
+import ru.application.homemedkit.R.drawable.vector_type_patch
 import ru.application.homemedkit.R.drawable.vector_type_pills
 import ru.application.homemedkit.R.drawable.vector_type_powder
+import ru.application.homemedkit.R.drawable.vector_type_sachet
 import ru.application.homemedkit.R.drawable.vector_type_solution
 import ru.application.homemedkit.R.drawable.vector_type_suppository
 import ru.application.homemedkit.R.drawable.vector_type_suspension
@@ -43,6 +47,7 @@ import ru.application.homemedkit.R.string.dose_mg
 import ru.application.homemedkit.R.string.dose_ml
 import ru.application.homemedkit.R.string.dose_pcs
 import ru.application.homemedkit.R.string.dose_ratio
+import ru.application.homemedkit.R.string.dose_sach
 import ru.application.homemedkit.R.string.intake_extra_fullscreen
 import ru.application.homemedkit.R.string.intake_extra_no_sound
 import ru.application.homemedkit.R.string.intake_extra_prealarm
@@ -79,6 +84,7 @@ import ru.application.homemedkit.R.string.theme_dark
 import ru.application.homemedkit.R.string.theme_light
 import ru.application.homemedkit.R.string.theme_system
 import ru.application.homemedkit.R.string.type_aerosol
+import ru.application.homemedkit.R.string.type_bandage
 import ru.application.homemedkit.R.string.type_capsules
 import ru.application.homemedkit.R.string.type_decoction
 import ru.application.homemedkit.R.string.type_dragee
@@ -89,10 +95,13 @@ import ru.application.homemedkit.R.string.type_gel
 import ru.application.homemedkit.R.string.type_granules
 import ru.application.homemedkit.R.string.type_mix
 import ru.application.homemedkit.R.string.type_mixture
+import ru.application.homemedkit.R.string.type_napkins
 import ru.application.homemedkit.R.string.type_ointment
 import ru.application.homemedkit.R.string.type_paste
+import ru.application.homemedkit.R.string.type_patch
 import ru.application.homemedkit.R.string.type_pills
 import ru.application.homemedkit.R.string.type_powder
+import ru.application.homemedkit.R.string.type_sachet
 import ru.application.homemedkit.R.string.type_solution
 import ru.application.homemedkit.R.string.type_spray
 import ru.application.homemedkit.R.string.type_suppository
@@ -101,6 +110,10 @@ import ru.application.homemedkit.R.string.type_syrup
 import ru.application.homemedkit.R.string.type_tablets
 import ru.application.homemedkit.R.string.type_tincture
 import ru.application.homemedkit.data.dto.Medicine
+import ru.application.homemedkit.helpers.DoseTypes.GRAMS
+import ru.application.homemedkit.helpers.DoseTypes.MILLIGRAMS
+import ru.application.homemedkit.helpers.DoseTypes.MILLILITERS
+import ru.application.homemedkit.helpers.DoseTypes.PIECES
 import java.util.Comparator.comparing
 
 // ============================================ Strings ============================================
@@ -136,6 +149,7 @@ val THEMES = Themes.entries.map(Themes::value)
 enum class DoseTypes(val value: String, @StringRes val title: Int) {
     UNITS("ed", dose_ed),
     PIECES("pcs", dose_pcs),
+    SACHETS("sach", dose_sach),
     GRAMS("g", dose_g),
     MILLIGRAMS("mg", dose_mg),
     LITERS("l", dose_l),
@@ -226,32 +240,46 @@ enum class Themes(val value: String, @StringRes val title: Int) {
     DARK("Dark", theme_dark)
 }
 
-enum class Types(val value: String, @StringRes val title: Int, @DrawableRes val icon: Int) {
-    TABLETS("vector_type_tablets", type_tablets, vector_type_tablets),
-    CAPSULES("vector_type_capsule", type_capsules, vector_type_capsule),
-    PILLS("vector_type_pills", type_pills, vector_type_pills),
-    DRAGEE("vector_type_dragee", type_dragee, vector_type_dragee),
-    GRANULES("vector_type_granules", type_granules, vector_type_granules),
-    POWDER("vector_type_powder", type_powder, vector_type_powder),
-    SOLUTION("vector_type_solution", type_solution, vector_type_solution),
-    TINCTURE("vector_type_tincture", type_tincture, vector_type_tincture),
-    DECOCTION("vector_type_decoction", type_decoction, vector_type_decoction),
-    EXTRACT("vector_type_extract", type_extract, vector_type_extract),
-    MIXTURE("vector_type_mixture", type_mixture, vector_type_mixture),
-    SYRUP("vector_type_syrup", type_syrup, vector_type_syrup),
-    EMULSION("vector_type_emulsion", type_emulsion, vector_type_emulsion),
-    SUSPENSION("vector_type_suspension", type_suspension, vector_type_suspension),
-    MIX("vector_type_mix", type_mix, vector_type_mix),
-    OINTMENT("vector_type_ointment", type_ointment, vector_type_ointment),
-    GEL("vector_type_gel", type_gel, vector_type_gel),
-    PASTE("vector_type_paste", type_paste, vector_type_paste),
-    SUPPOSITORY("vector_type_suppository", type_suppository, vector_type_suppository),
-    AEROSOL("vector_type_aerosol", type_aerosol, vector_type_aerosol),
-    SPRAY("vector_type_nasal_spray", type_spray, vector_type_nasal_spray),
-    DROPS("vector_type_drops", type_drops, vector_type_drops);
+enum class Types(
+    val value: String,
+    val ruValue: String,
+    @StringRes val title: Int,
+    @DrawableRes val icon: Int,
+    val doseType: DoseTypes
+) {
+    TABLETS("vector_type_tablets", "ТАБЛЕТКИ", type_tablets, vector_type_tablets, PIECES),
+    CAPSULES("vector_type_capsule","КАПСУЛЫ", type_capsules, vector_type_capsule, PIECES),
+    PILLS("vector_type_pills","ПИЛЮЛИ", type_pills, vector_type_pills, PIECES),
+    DRAGEE("vector_type_dragee","ДРАЖЕ", type_dragee, vector_type_dragee, PIECES),
+    GRANULES("vector_type_granules","ГРАНУЛЫ", type_granules, vector_type_granules, PIECES),
+    POWDER("vector_type_powder","ПОРОШОК", type_powder, vector_type_powder, GRAMS),
+    SACHETS("vector_type_sachets","ПАКЕТИК", type_sachet, vector_type_sachet, PIECES),
+    SOLUTION("vector_type_solution","РАСТВОР", type_solution, vector_type_solution, MILLILITERS),
+    TINCTURE("vector_type_tincture","НАСТОЙКА", type_tincture, vector_type_tincture, MILLILITERS),
+    DECOCTION("vector_type_decoction","ОТВАР", type_decoction, vector_type_decoction, MILLILITERS),
+    EXTRACT("vector_type_extract","ЭКСТРАКТ", type_extract, vector_type_extract, MILLILITERS),
+    MIXTURE("vector_type_mixture","МИКСТУРА", type_mixture, vector_type_mixture, MILLILITERS),
+    SYRUP("vector_type_syrup","СИРОП", type_syrup, vector_type_syrup, MILLILITERS),
+    EMULSION("vector_type_emulsion","ЭМУЛЬСИЯ", type_emulsion, vector_type_emulsion, MILLILITERS),
+    SUSPENSION("vector_type_suspension","СУСПЕНЗИЯ", type_suspension, vector_type_suspension, MILLILITERS),
+    MIX("vector_type_mix","СМЕСЬ", type_mix, vector_type_mix, MILLIGRAMS),
+    OINTMENT("vector_type_ointment","МАЗЬ", type_ointment, vector_type_ointment, GRAMS),
+    GEL("vector_type_gel","ГЕЛЬ", type_gel, vector_type_gel, GRAMS),
+    PASTE("vector_type_paste","ПАСТА", type_paste, vector_type_paste, GRAMS),
+    SUPPOSITORY("vector_type_suppository","СВЕЧИ", type_suppository, vector_type_suppository, PIECES),
+    AEROSOL("vector_type_aerosol","АЭРОЗОЛЬ", type_aerosol, vector_type_aerosol, MILLIGRAMS),
+    SPRAY("vector_type_nasal_spray","СПРЕЙ", type_spray, vector_type_nasal_spray, MILLILITERS),
+    DROPS("vector_type_drops","КАПЛИ", type_drops, vector_type_drops, MILLILITERS),
+    PATCH("vector_type_patch","ПЛАСТЫРЬ", type_patch, vector_type_patch, PIECES),
+    BANDAGE("vector_type_bandage","БИНТ", type_bandage, vector_type_bandage, PIECES),
+    NAPKINS("vector_type_napkins","САЛФЕТКИ", type_napkins, vector_type_napkins, PIECES);
 
     companion object {
-        fun getIcon(title: String) = entries.find { it.value == title }?.icon ?: vector_type_unknown
+        fun getIcon(value: String) = entries.find { it.value == value }?.icon ?: vector_type_unknown
+        fun setIcon(value: String) = entries.find {  value.contains(it.ruValue.dropLast(1), true) }?.value ?: BLANK
+        fun getDoseType(value: String) = entries.find {
+            value.contains(it.ruValue.dropLast(1), true)
+        }?.doseType?.value ?: BLANK
     }
 }
 

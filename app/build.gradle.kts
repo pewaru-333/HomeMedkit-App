@@ -15,8 +15,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 42
-        versionName = "1.5.7"
+        versionCode = 43
+        versionName = "1.5.8"
     }
 
     dependenciesInfo {
@@ -82,9 +82,6 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
     implementation(libs.zxing)
-
-    // ==================== Coil ====================
-    implementation(libs.coil.compose)
 
     // ==================== Settings ====================
     implementation(libs.material.preferences)

@@ -200,6 +200,7 @@ fun DrugsData.toMedicine() = Medicine(
     expDate = expireDate,
     prodFormNormName = foiv.prodFormNormName,
     prodDNormName = foiv.prodDNormName.orEmpty(),
+    doseType = Types.getDoseType(foiv.prodFormNormName),
     phKinetics = vidalData?.phKinetics.orEmpty(),
     technical = Technical(scanned = true, verified = true),
     prodAmount = foiv.prodPack1Size?.let {
@@ -217,5 +218,6 @@ fun BioData.toBio() = Medicine(
     storageConditions = productProperty.storageConditions.orEmpty(),
     structure = productProperty.structure.orEmpty(),
     technical = Technical(scanned = true, verified = true),
-    prodFormNormName = productProperty.releaseForm.orEmpty().substringBefore(" ").uppercase()
+    prodFormNormName = productProperty.releaseForm.orEmpty().substringBefore(" ").uppercase(),
+    doseType = Types.getDoseType(productProperty.releaseForm.orEmpty()),
 )
