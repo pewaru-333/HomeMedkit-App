@@ -150,7 +150,7 @@
     <string name="intake_period_other">Anzahl Tage</string>
     <string name="intake_interval_weekly">wöchentlich</string>
     <string name="intake_period_pick">von bis</string>
-    <string name="dose_ed">ED</string>
+    <string name="dose_ed">EINH.</string>
     <string name="dose_g">g</string>
     <string name="dose_pcs">St.</string>
     <string name="dose_l">l</string>
@@ -172,9 +172,9 @@
     <string name="text_medicine_recommendations">Anwendungsempfehlungen</string>
     <string name="text_medicine_composition">Zusammensetzung</string>
     <string name="text_medicine_storage_conditions">Lagerungsverhältnisse</string>
-    <string name="type_napkins">NAPKINS</string>
+    <string name="type_napkins">TÜCHER</string>
     <string name="type_sachet">BEUTEL</string>
     <string name="type_bandage">BANDAGE</string>
     <string name="type_patch">PFLASTER</string>
-    <string name="dose_sach">sach</string>
+    <string name="dose_sach">Btl.</string>
 </resources>
