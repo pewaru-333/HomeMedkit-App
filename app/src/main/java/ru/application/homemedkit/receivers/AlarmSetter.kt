@@ -14,7 +14,6 @@ import ru.application.homemedkit.helpers.ALARM_ID
 import ru.application.homemedkit.helpers.expirationCheckTime
 
 class AlarmSetter(private val context: Context) {
-
     private val manager = context.getSystemService(AlarmManager::class.java)
     private val database = MedicineDatabase.getInstance(context)
 

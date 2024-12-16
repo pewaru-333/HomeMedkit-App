@@ -149,11 +149,16 @@
     <string name="text_connection_error">Ошибка при подключении!</string>
     <string name="text_duplicate">Лекарство уже было добавлено!</string>
     <string name="text_error_not_medicine">Это не код лекарства!</string>
+    <string name="text_exit_app">Вы подтверждаете выход из приложения?</string>
+    <string name="text_explain_camera">Для сканирования маркировки необходимо выдать разрешение на использование камеры. Пример того, как выглядит маркировка, представлен ниже</string>
     <string name="text_export_import_description">Это экспериментальная функция.\nПри импорте текущие данные будут удалены!</string>
+    <string name="text_fill_field">Заполните это поле!</string>
     <string name="text_grant_permission">Выдать разрешение</string>
     <string name="text_medicine_deleted">Лекарство было удалено из списка, невозможно изменить статус приёма</string>
     <string name="text_new_group">Новая группа</string>
+    <string name="text_not_saved_intake">Настройки данного приёма не сохранены! Вы действительно хотите выйти?</string>
     <string name="text_notification_pick_action_first">Для изменения сначала выберите пункт в уведомлении</string>
+    <string name="text_pay_attention">Обратите внимание!</string>
     <string name="text_request_camera">Для сканировании маркировки приложению необходимо выдать разрешение на использовании камеры</string>
     <string name="text_request_post">Для получения уведомлений приложению необходимо выдать соответствующее разрешение</string>
     <string name="text_select_time">Выберите время</string>
@@ -174,8 +179,10 @@
     <string name="text_enter_product_name">Поиск</string>
     <string name="text_error">Ошибка!</string>
     <string name="text_every">Каждые\u0020</string>
+    <string name="text_exit">Выйти</string>
     <string name="text_export">Экспорт</string>
     <string name="text_finish_date">Конечная дата</string>
+    <string name="text_grant">Выдать</string>
     <string name="text_import">Импорт</string>
     <string name="text_no_data_found">Лекарства отсутствуют. Добавьте их или измените фильтр.</string>
     <string name="text_no_intakes_found">Назначенные приёмы лекарств отсутствуют. Добавьте их через карточку информации о лекарстве или измените условие поиска.</string>
@@ -185,6 +192,7 @@
     <string name="text_save">Сохранить</string>
     <string name="text_start_date">Начальная дата</string>
     <string name="text_status">Статус</string>
+    <string name="text_stay">Остаться</string>
     <string name="text_success">Успешно!</string>
     <string name="text_tap_to_view">Нажмите для просмотра</string>
     <string name="text_unspecified">Не указано</string>

@@ -1,7 +1,6 @@
 package ru.application.homemedkit.helpers
 
 import android.app.Activity
-import android.app.LocaleManager
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
@@ -47,22 +46,21 @@ object Preferences : ViewModel() {
 
     fun setLocale(context: Context, locale: String) = preferences.edit()
         .putString(KEY_LANGUAGE, locale).apply().also {
-            changeLanguage(context, locale); (context as Activity).recreate()
+            changeLanguage(context)
+            (context as Activity).recreate()
         }
 
-    @Suppress("DEPRECATION")
-    fun changeLanguage(context: Context, locale: String) =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            context.getSystemService(LocaleManager::class.java)
-                .applicationLocales = LocaleList.forLanguageTags(locale)
+    fun changeLanguage(context: Context?) =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) context
         else {
-            val newLocale = Locale(locale)
+            val newLocale = Locale(getLanguage())
             Locale.setDefault(newLocale)
 
-            val resources = context.resources
-            val configuration = resources.configuration
-            configuration.setLocales(LocaleList(newLocale))
-            resources.updateConfiguration(configuration, resources.displayMetrics)
+            val resources = context?.resources
+            val configuration = resources?.configuration
+            configuration?.setLocales(LocaleList(newLocale))
+
+            configuration?.let { context.createConfigurationContext(it) } ?: context
         }
 }
 

@@ -15,6 +15,8 @@ import androidx.core.os.LocaleListCompat
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.text_error
@@ -91,7 +93,16 @@ fun showToast(success: Boolean, context: Context) = Toast.makeText(
     Toast.LENGTH_LONG).show()
 
 fun formName(name: String) = name.substringBefore(" ")
-fun shortName(name: String?) = name?.substringBefore(",").orEmpty()
+fun shortName(name: String?) = name?.run {
+    when {
+        contains(",") -> substringBefore(",")
+        contains("«") -> substringAfter("«").substringBefore("»")
+        contains("®") -> substringBefore("®")
+        contains("Биологически активная добавка к пище") -> substringAfter("Биологически активная добавка к пище")
+        else -> this
+    }
+} ?: BLANK
+
 fun decimalFormat(text: Any?): String {
     val amount = try {
         text.toString().toDouble()
@@ -130,6 +141,15 @@ fun createNotificationChannel(
 
 fun <T: Any> NavBackStackEntry?.isCurrentRoute(route: KClass<T>) =
     this?.destination?.hierarchy?.any { it.hasRoute(route) } == true
+
+fun NavHostController.toBottomBarItem(route: Any) = navigate(route) {
+    launchSingleTop = true
+    restoreState = true
+
+    popUpTo(this@toBottomBarItem.graph.findStartDestination().id) {
+        saveState = true
+    }
+}
 
 fun Medicine.toState() = MedicineState(
     adding = false,

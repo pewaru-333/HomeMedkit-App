@@ -1,5 +1,6 @@
 package ru.application.homemedkit
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,13 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
-import androidx.navigation.toRoute
 import ru.application.homemedkit.helpers.Intake
 import ru.application.homemedkit.helpers.Intakes
 import ru.application.homemedkit.helpers.KEY_EXP_IMP
@@ -35,6 +34,7 @@ import ru.application.homemedkit.helpers.Scanner
 import ru.application.homemedkit.helpers.Settings
 import ru.application.homemedkit.helpers.isCurrentRoute
 import ru.application.homemedkit.helpers.showToast
+import ru.application.homemedkit.helpers.toBottomBarItem
 import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.ui.screens.IntakeScreen
 import ru.application.homemedkit.ui.screens.IntakesScreen
@@ -46,7 +46,6 @@ import ru.application.homemedkit.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        Preferences.changeLanguage(this, Preferences.getLanguage())
         super.onCreate(savedInstanceState)
 
         actionBar?.hide()
@@ -77,16 +76,7 @@ class MainActivity : ComponentActivity() {
                                         icon = { Icon(painterResource(screen.icon), null) },
                                         label = { Text(stringResource(screen.title)) },
                                         selected = backStack.isCurrentRoute(screen.route::class),
-                                        onClick = {
-                                            navigator.navigate(screen.route) {
-                                                launchSingleTop = true
-                                                restoreState = true
-
-                                                popUpTo(navigator.graph.findStartDestination().id) {
-                                                    saveState = true
-                                                }
-                                            }
-                                        }
+                                        onClick = { navigator.toBottomBarItem(screen.route) }
                                     )
                                 }
                             }
@@ -102,10 +92,13 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable<Intakes> { _ ->
-                            IntakesScreen { navigator.navigate(Intake(it)) }
+                            IntakesScreen(
+                                backClick = { navigator.toBottomBarItem(Medicines) },
+                                navigateToIntake = { navigator.navigate(Intake(intakeId = it)) },
+                            )
                         }
                         composable<Settings> {
-                            SettingsScreen()
+                            SettingsScreen { navigator.toBottomBarItem(Intakes) }
                         }
 
                         // Screens //
@@ -119,33 +112,22 @@ class MainActivity : ComponentActivity() {
                         }
                         composable<Medicine>(
                             deepLinks = listOf(navDeepLink<Medicine>("app://medicines/{id}"))
-                        ) { back ->
-                            val args = back.toRoute<Medicine>()
-
+                        ) {
                             MedicineScreen(
-                                id = args.id,
-                                cis = args.cis,
-                                duplicate = args.duplicate,
                                 navigateBack = { navigator.popBackStack(Medicines, false) },
                                 navigateToIntake = { navigator.navigate(Intake(medicineId = it)) }
                             )
                         }
-                        composable<Intake> {
-                            val args = it.toRoute<Intake>()
-
-                            IntakeScreen(
-                                intakeId = args.intakeId,
-                                medicineId = args.medicineId,
-                                navigateUp = {
-                                    navigator.navigate(Intakes) {
-                                        popUpTo<Medicines> { inclusive = true }
-                                    }
-                                }
-                            )
+                        composable<Intake>{
+                            IntakeScreen(navigator::popBackStack)
                         }
                     }
                 }
             }
         }
+    }
+
+    override fun attachBaseContext(newBase: Context?) {
+        super.attachBaseContext(Preferences.changeLanguage(newBase))
     }
 }

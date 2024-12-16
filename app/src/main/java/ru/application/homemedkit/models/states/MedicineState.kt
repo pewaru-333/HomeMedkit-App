@@ -1,5 +1,6 @@
 package ru.application.homemedkit.models.states
 
+import androidx.annotation.StringRes
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.Types
@@ -16,6 +17,7 @@ data class MedicineState(
     val kitTitle: String = BLANK,
     val cis: String = BLANK,
     val productName: String = BLANK,
+    @StringRes val productNameError: Int? = null,
     val expDate: Long = -1L,
     val prodFormNormName: String = BLANK,
     val structure: String = BLANK,

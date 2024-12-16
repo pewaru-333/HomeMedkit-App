@@ -52,4 +52,6 @@ class MedicinesViewModel : ViewModel() {
         Preferences.setLastKit(_state.value.kitId)
         _state.update { it.copy(showFilter = false) }
     }
+
+    fun showExit(flag: Boolean = false) = _state.update { it.copy(showExit = flag) }
 }

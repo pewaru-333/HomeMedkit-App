@@ -14,5 +14,6 @@ data class MedicinesState(
     val showSort: Boolean = false,
     val showFilter: Boolean = false,
     val showAdding: Boolean = false,
+    val showExit: Boolean = false,
     val listState: LazyListState = LazyListState()
 )

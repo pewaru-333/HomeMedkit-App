@@ -1,5 +1,6 @@
 package ru.application.homemedkit.ui.screens
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -54,6 +55,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -71,8 +73,11 @@ import ru.application.homemedkit.R.string.preference_kits_group
 import ru.application.homemedkit.R.string.text_all
 import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_enter_product_name
+import ru.application.homemedkit.R.string.text_exit_app
+import ru.application.homemedkit.R.string.text_no
 import ru.application.homemedkit.R.string.text_no_data_found
 import ru.application.homemedkit.R.string.text_save
+import ru.application.homemedkit.R.string.text_yes
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DoseTypes
@@ -88,13 +93,14 @@ import ru.application.homemedkit.models.viewModels.MedicinesViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) -> Unit) {
+    val activity = LocalContext.current as Activity
+
     val model = viewModel<MedicinesViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
     val medicines by model.medicines.collectAsStateWithLifecycle()
     val offset by remember { derivedStateOf { state.listState.firstVisibleItemScrollOffset } }
 
-    if (state.showFilter) KitsDialog(model, state)
-    BackHandler{}
+    BackHandler { model.showExit(true) }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -198,6 +204,11 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
             ) { items(list) { MedicineCard(it, navigateToMedicine) } }
         }
     }
+
+    when {
+        state.showFilter -> DialogKits(model, state)
+        state.showExit -> DialogExit(model::showExit, activity::finishAndRemoveTask)
+    }
 }
 
 @Composable
@@ -275,7 +286,7 @@ private fun MedicineCard(medicine: Medicine, navigateToMedicine: (Long) -> Unit)
 }
 
 @Composable
-private fun KitsDialog(model: MedicinesViewModel, state: MedicinesState) = AlertDialog(
+private fun DialogKits(model: MedicinesViewModel, state: MedicinesState) = AlertDialog(
     onDismissRequest = model::hideFilter,
     confirmButton = { TextButton(model::saveFilter) { Text(stringResource(text_save)) } },
     dismissButton = { TextButton(model::hideFilter) { Text(stringResource(text_cancel)) } },
@@ -322,5 +333,18 @@ private fun KitsDialog(model: MedicinesViewModel, state: MedicinesState) = Alert
                 }
             }
         }
+    }
+)
+
+@Composable
+private fun DialogExit(dismiss: () -> Unit, exit: () -> Unit) = AlertDialog(
+    onDismissRequest = dismiss,
+    confirmButton = { TextButton(exit) { Text(stringResource(text_yes)) } },
+    dismissButton = { TextButton(dismiss) { Text(stringResource(text_no)) } },
+    text = {
+        Text(
+            text = stringResource(text_exit_app),
+            style = MaterialTheme.typography.bodyLarge
+        )
     }
 )

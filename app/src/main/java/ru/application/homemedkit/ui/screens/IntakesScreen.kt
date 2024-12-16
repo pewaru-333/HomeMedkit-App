@@ -104,7 +104,7 @@ import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IntakesScreen(navigateToIntake: (Long) -> Unit) {
+fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
     val model = viewModel<IntakesViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
     val intakes by model.intakes.collectAsStateWithLifecycle()
@@ -112,7 +112,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit) {
     val taken by model.taken.collectAsStateWithLifecycle()
 
     if (state.showDialog) DialogTaken(model)
-    BackHandler{}
+    BackHandler(onBack = backClick)
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(

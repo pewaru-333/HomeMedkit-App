@@ -128,16 +128,22 @@
     <string name="intake_period_pick">elección de fechas</string>
     <string name="intake_period_other">entrada de días</string>
     <string name="intake_period_indef">indefinido</string>
+
     <!-- Diálogos -->
     <string name="manual_add">¿Quieres añadir un medicamento manualmente?</string>
     <string name="text_connection_error">Error de conexión!</string>
     <string name="text_duplicate">¡Este medicamento ya ha sido agregado!</string>
     <string name="text_error_not_medicine">This label code is not medicine\'s</string>
+    <string name="text_exit_app">Are you sure you want to exit app?</string>
+    <string name="text_explain_camera">To scan a label, you must give the camera permission. An example of what the marking looks like is shown below (it only works for Russian treatments)</string>
     <string name="text_export_import_description">Esta es una característica experimental.\n¡Al importar, los datos actuales se eliminarán!</string>
+    <string name="text_fill_field">Fill in this field!</string>
     <string name="text_grant_permission">Otorgar permiso</string>
     <string name="text_medicine_deleted">Se ha eliminado el medicamento, es imposible cambiar el estado de ingesta</string>
     <string name="text_new_group">Nuevo grupo</string>
+    <string name="text_not_saved_intake">The intake is not saved! Do you want to go back?</string>
     <string name="text_notification_pick_action_first">Para cambiar la acción de selección en la primera notificación</string>
+    <string name="text_pay_attention">Pay attention!</string>
     <string name="text_request_camera">Para escanear la etiqueta, la aplicación debe tener permiso para usar la cámara</string>
     <string name="text_request_post">Para recibir notificaciones, se debe otorgar a la aplicación el permiso apropiado</string>
     <string name="text_select_time">Seleccionar hora</string>
@@ -156,8 +162,10 @@
     <string name="text_enter_product_name">Buscar</string>
     <string name="text_error">¡Error!</string>
     <string name="text_every">Cada\u0020</string>
+    <string name="text_exit">Exit</string>
     <string name="text_export">Exportar</string>
     <string name="text_finish_date">Fecha de finalización</string>
+    <string name="text_grant">Grant</string>
     <string name="text_import">Importar</string>
     <string name="text_no">No</string>
     <string name="text_no_data_found">No se han encontrado medicamentos. Añádalos o cambie el filtro.</string>
@@ -167,6 +175,7 @@
     <string name="text_save">Guardar</string>
     <string name="text_start_date">Fecha de inicio</string>
     <string name="text_status">Estado</string>
+    <string name="text_stay">Stay</string>
     <string name="text_success">¡Exitosamente!</string>
     <string name="text_tap_to_view">Tocar para ver</string>
     <string name="text_unspecified">Sin especificar</string>

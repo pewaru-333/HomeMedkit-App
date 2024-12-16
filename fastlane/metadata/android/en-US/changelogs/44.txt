@@ -1,0 +1,3 @@
+— Added a hint when you first go to the label scanning screen.
+— Now, if you do not fill in the required fields in the medicine or intake card, an error will appear in this field.
+— Fixed a few bugs and added a few small features and improvements.

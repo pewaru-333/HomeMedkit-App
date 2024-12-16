@@ -127,6 +127,7 @@
     <string name="type_extract">EXTRAKT</string>
     <string name="type_suspension">SUSPENSION</string>
     <string name="text_status">Status</string>
+    <string name="text_exit_app">Are you sure you want to exit app?</string>
     <string name="type_ointment">SALBE</string>
     <string name="type_capsules">KAPSELN</string>
     <string name="type_syrup">SIRUP</string>

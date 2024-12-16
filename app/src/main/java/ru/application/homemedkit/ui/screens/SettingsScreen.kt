@@ -5,6 +5,7 @@ import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
 import android.database.sqlite.SQLiteDatabase.openDatabase
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
@@ -102,7 +103,9 @@ import ru.application.homemedkit.ui.theme.isDynamicColorAvailable
 import java.io.File
 
 @Composable
-fun SettingsScreen(context: Context = LocalContext.current) {
+fun SettingsScreen(backClick: () -> Unit) {
+    val context = LocalContext.current
+
     val sorting = Sorting.entries.map { stringResource(it.title) }
     val languages = Languages.entries.map { stringResource(it.title) }
     val themes = Themes.entries.map { stringResource(it.title) }
@@ -110,7 +113,7 @@ fun SettingsScreen(context: Context = LocalContext.current) {
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var showExport by rememberSaveable { mutableStateOf(false) }
 
-    BackHandler{}
+    BackHandler(onBack = backClick)
     ProvidePreferenceLocals {
         LazyColumn {
             preferenceCategory(
@@ -167,7 +170,7 @@ fun SettingsScreen(context: Context = LocalContext.current) {
                 }
             )
 
-            item {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) item {
                 var value by remember { mutableStateOf(Preferences.getLanguage()) }
 
                 ListPreference(

@@ -38,14 +38,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import ru.application.homemedkit.R
+import ru.application.homemedkit.R.string.text_cancel
+import ru.application.homemedkit.R.string.text_save
 import java.time.LocalDate
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MonthYear(
-    onConfirm: (Int, Int) -> Unit,
-    onCancel: () -> Unit,
+    confirm: (Int, Int) -> Unit,
+    cancel: () -> Unit,
     currentMonth: Int = LocalDate.now().month.value - 1,
     currentYear: Int = LocalDate.now().year
 ) {
@@ -54,7 +55,7 @@ fun MonthYear(
     var month by remember { mutableStateOf(months[currentMonth]) }
     var year by remember { mutableIntStateOf(currentYear) }
 
-    Dialog(onCancel) {
+    Dialog(cancel) {
         Surface(shape = CardDefaults.shape) {
             Column(Modifier.padding(16.dp), Arrangement.spacedBy(16.dp)) {
                 Row(Modifier.fillMaxWidth(), Arrangement.Center, Alignment.CenterVertically) {
@@ -115,12 +116,12 @@ fun MonthYear(
                 }
 
                 Row(Modifier.fillMaxWidth(), Arrangement.End) {
-                    TextButton({ onCancel() }) {
-                        Text(stringResource(R.string.text_cancel))
+                    TextButton(cancel) {
+                        Text(stringResource(text_cancel))
                     }
 
-                    TextButton({ onConfirm(months.indexOf(month) + 1, year) }) {
-                        Text(stringResource(R.string.text_save))
+                    TextButton({ confirm(months.indexOf(month) + 1, year) }) {
+                        Text(stringResource(text_save))
                     }
                 }
             }

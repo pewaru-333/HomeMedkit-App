@@ -9,9 +9,13 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
@@ -69,6 +73,8 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -87,7 +93,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R.drawable.vector_medicine
 import ru.application.homemedkit.R.drawable.vector_period
 import ru.application.homemedkit.R.drawable.vector_remove
@@ -109,11 +114,14 @@ import ru.application.homemedkit.R.string.text_dismiss
 import ru.application.homemedkit.R.string.text_edit
 import ru.application.homemedkit.R.string.text_empty
 import ru.application.homemedkit.R.string.text_every
+import ru.application.homemedkit.R.string.text_exit
 import ru.application.homemedkit.R.string.text_finish_date
 import ru.application.homemedkit.R.string.text_medicine_description
 import ru.application.homemedkit.R.string.text_medicine_product_name
+import ru.application.homemedkit.R.string.text_not_saved_intake
 import ru.application.homemedkit.R.string.text_request_post
 import ru.application.homemedkit.R.string.text_start_date
+import ru.application.homemedkit.R.string.text_stay
 import ru.application.homemedkit.dialogs.DateRangePicker
 import ru.application.homemedkit.dialogs.TimePickerDialog
 import ru.application.homemedkit.helpers.DoseTypes
@@ -122,7 +130,7 @@ import ru.application.homemedkit.helpers.IntakeExtras
 import ru.application.homemedkit.helpers.Intervals
 import ru.application.homemedkit.helpers.Periods
 import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.viewModelFactory
+import ru.application.homemedkit.models.events.IntakeEvent
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.viewModels.IntakeViewModel
 import ru.application.homemedkit.receivers.AlarmSetter
@@ -130,19 +138,15 @@ import ru.application.homemedkit.receivers.AlarmSetter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IntakeScreen(intakeId: Long = 0L, medicineId: Long = 0L, navigateUp: () -> Unit) {
-    val medId = if (intakeId == 0L) medicineId else
-        database.intakeDAO().getById(intakeId)?.medicineId ?: 0L
-    val medicine = database.medicineDAO().getById(medId)!!
-
+fun IntakeScreen(navigateBack: () -> Unit) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
-    val model = viewModel<IntakeViewModel>(factory = viewModelFactory {
-        IntakeViewModel(intakeId, AlarmSetter(context))
-    })
+    val model = viewModel<IntakeViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
-    model.setMedicineId(medId)
+    val medicine = model.getIntakeMedicine()
+
+    model.setAlarmSetter(AlarmSetter(context))
 
     var permissionGranted by remember {
         if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -174,21 +178,30 @@ fun IntakeScreen(intakeId: Long = 0L, medicineId: Long = 0L, navigateUp: () -> U
         onDispose { lifecycle.removeObserver(observer) }
     }
 
-    BackHandler(onBack = navigateUp)
+    BackHandler {
+        if (state.adding || state.editing) model.onEvent(IntakeEvent.ShowDialogDataLoss(true))
+        else navigateBack()
+    }
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(navigateUp) {
+                    IconButton(
+                        onClick = {
+                            if (state.adding || state.editing) model.onEvent(IntakeEvent.ShowDialogDataLoss(true))
+                            else navigateBack()
+                        }
+                    ) {
                         Icon(Icons.AutoMirrored.Outlined.ArrowBack, null)
                     }
                 },
                 actions = {
                     if (state.adding || state.editing) IconButton(
-                        onClick = if (state.adding) model::add else model::update,
-                        enabled = model.validate()
-                    ) { Icon(Icons.Outlined.Check, null) }
+                        onClick = if (state.adding) model::add else model::update
+                    ) {
+                        Icon(Icons.Outlined.Check, null)
+                    }
                     else {
                         LocalFocusManager.current.clearFocus(true)
                         var expanded by remember { mutableStateOf(false) }
@@ -203,7 +216,7 @@ fun IntakeScreen(intakeId: Long = 0L, medicineId: Long = 0L, navigateUp: () -> U
                                 onClick = {
                                     expanded = false
                                     model.delete()
-                                    navigateUp()
+                                    navigateBack()
                                 }
                             )
                         }
@@ -223,27 +236,31 @@ fun IntakeScreen(intakeId: Long = 0L, medicineId: Long = 0L, navigateUp: () -> U
             contentPadding = PaddingValues(16.dp, values.calculateTopPadding(), 16.dp, 0.dp)
         ) {
             item { Title(medicine.productName) }
-            item { Amount(model, state, medicine.prodAmount, medicine.doseType) }
-            item { Interval(model, state) }
-            item { Period(model, state) }
-            item { Food(model::setFoodType, state) }
-            item { Time(model, state) }
-            item { Extra(model, state) }
+            item { Amount(state, medicine.prodAmount, medicine.doseType, model::onEvent) }
+            item { Interval(state, model.getIntervalTitle(), model::onEvent) }
+            item { Period(state, model::onEvent) }
+            item { Food(state, model::onEvent) }
+            item { Time(state, model::onEvent) }
+            item { Extra(state, model::onEvent) }
         }
     }
 
     when {
+        state.showDialog -> DialogDescription(model::onEvent)
+        state.showDialogDataLoss -> DialogDataLoss(model::onEvent, navigateBack)
         state.showPeriodD -> DateRangePicker(
             startDate = state.startDate,
             finalDate = state.finalDate,
-            onDismiss = model::showPeriodD,
-            onRangeSelected = model::setPeriod
+            onDismiss = { model.onEvent(IntakeEvent.ShowPeriodD(false)) },
+            onRangeSelected = { model.onEvent(IntakeEvent.SetPeriod(it)) }
         )
 
-        state.showDialog -> DialogDescription(model)
-
-        state.showTimeP -> TimePickerDialog(model::showTimePicker, model::setTime)
-        { TimePicker(state.times[state.timeF]) }
+        state.showTimeP -> TimePickerDialog(
+            onCancel = { model.onEvent(IntakeEvent.ShowTimePicker(false)) },
+            onConfirm = { model.onEvent(IntakeEvent.SetTime) }
+        ) {
+            TimePicker(state.times[state.timeF])
+        }
     }
 }
 
@@ -260,74 +277,85 @@ private fun Title(name: String) = Column(verticalArrangement =  spacedBy(8.dp)) 
 }
 
 @Composable
-private fun Amount(model: IntakeViewModel, state: IntakeState, prodAmount: Double, type: String) =
-    Row(horizontalArrangement = spacedBy(16.dp)) {
-        Column(Modifier.weight(0.5f), spacedBy(8.dp)) {
-            LabelText(intake_text_amount)
-            OutlinedTextField(
-                value = state.amount,
-                onValueChange = model::setAmount,
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = state.default,
-                placeholder = { Text(stringResource(text_empty)) },
-                leadingIcon = { Icon(painterResource(vector_medicine), null) },
-                suffix = { Text(stringResource(DoseTypes.getTitle(type))) },
-                visualTransformation = {
-                    TransformedText(
-                        AnnotatedString(it.text.replace('.', ',')),
-                        OffsetMapping.Identity
-                    )
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                maxLines = 1,
-                shape = RoundedCornerShape(14.dp)
-            )
-        }
-
-        Column(Modifier.weight(0.5f), spacedBy(8.dp)) {
-            LabelText(intake_text_left)
-            OutlinedTextField(
-                value = decimalFormat(prodAmount),
-                onValueChange = {},
-                modifier = Modifier.fillMaxWidth(),
-                readOnly = true,
-                leadingIcon = { Icon(Icons.Outlined.Home, null) },
-                suffix = { Text(stringResource(DoseTypes.getTitle(type))) },
-                maxLines = 1,
-                shape = RoundedCornerShape(14.dp)
-            )
-        }
+private fun Amount(
+    state: IntakeState,
+    prodAmount: Double,
+    type: String,
+    event: (IntakeEvent) -> Unit
+) = Row(horizontalArrangement = spacedBy(16.dp)) {
+    Column(Modifier.weight(0.5f), spacedBy(8.dp)) {
+        LabelText(intake_text_amount)
+        OutlinedTextField(
+            value = state.amount,
+            onValueChange = { event(IntakeEvent.SetAmount(it)) },
+            modifier = Modifier.fillMaxWidth(),
+            readOnly = state.default,
+            isError = state.amountError != null,
+            supportingText = state.amountError?.let { { Text(stringResource(it)) } },
+            placeholder = { Text(stringResource(text_empty)) },
+            leadingIcon = { Icon(painterResource(vector_medicine), null) },
+            suffix = { Text(stringResource(DoseTypes.getTitle(type))) },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            shape = RoundedCornerShape(14.dp),
+            visualTransformation = {
+                TransformedText(
+                    AnnotatedString(it.text.replace('.', ',')),
+                    OffsetMapping.Identity
+                )
+            }
+        )
     }
+
+    Column(Modifier.weight(0.5f), spacedBy(8.dp)) {
+        LabelText(intake_text_left)
+        OutlinedTextField(
+            value = decimalFormat(prodAmount),
+            onValueChange = {},
+            modifier = Modifier.fillMaxWidth(),
+            readOnly = true,
+            singleLine = true,
+            leadingIcon = { Icon(Icons.Outlined.Home, null) },
+            suffix = { Text(stringResource(DoseTypes.getTitle(type))) },
+            shape = RoundedCornerShape(14.dp)
+        )
+    }
+}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Interval(model: IntakeViewModel, state: IntakeState) =
+private fun Interval(state: IntakeState, @StringRes title: Int, event: (IntakeEvent) -> Unit) =
     Column(verticalArrangement =  spacedBy(8.dp)) {
         LabelText(intake_text_interval)
         Row(horizontalArrangement = spacedBy(16.dp)) {
             ExposedDropdownMenuBox(
                 expanded = state.showIntervalM,
-                onExpandedChange = model::showIntervalM,
+                onExpandedChange = {event(IntakeEvent.ShowIntervalM(true))},
                 modifier = Modifier.weight(0.5f)
             ) {
                 OutlinedTextField(
-                    value = stringResource(model.getIntervalTitle()),
+                    value = stringResource(title),
                     onValueChange = {},
+                    readOnly = true,
+                    isError = state.intervalError != null,
+                    supportingText = state.intervalError?.let { { Text(stringResource(it)) } },
+                    placeholder = { Text(stringResource(intake_text_select_interval)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(state.showIntervalM) },
+                    shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                    readOnly = true,
-                    placeholder = { Text(stringResource(intake_text_select_interval)) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(state.showIntervalM) },
-                    shape = RoundedCornerShape(14.dp)
                 )
-                ExposedDropdownMenu(state.showIntervalM, { model.showIntervalM(false) }) {
+                ExposedDropdownMenu(
+                    expanded = state.showIntervalM,
+                    onDismissRequest = { event(IntakeEvent.ShowIntervalM(false)) }
+                ) {
                     Intervals.entries.forEach {
                         DropdownMenuItem(
                             text = { Text(stringResource(it.title)) },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                            onClick = { model.setInterval(it) }
+                            onClick = { event(IntakeEvent.SetInterval(it)) }
                         )
                     }
                 }
@@ -335,13 +363,14 @@ private fun Interval(model: IntakeViewModel, state: IntakeState) =
 
             if (state.intervalE == Intervals.CUSTOM) OutlinedTextField(
                 value = state.interval,
-                onValueChange = model::setInterval,
+                onValueChange = { event(IntakeEvent.SetInterval(it)) },
                 modifier = Modifier.weight(0.5f),
                 readOnly = state.default,
                 placeholder = { Text("N") },
                 prefix = { Text(stringResource(text_every)) },
                 suffix = { Text(stringResource(text_days_short)) },
-                isError = state.interval.isEmpty(),
+                isError = state.intervalError != null,
+                supportingText = state.intervalError?.let { { Text(stringResource(it)) } },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp)
@@ -351,32 +380,37 @@ private fun Interval(model: IntakeViewModel, state: IntakeState) =
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Period(model: IntakeViewModel, state: IntakeState) =
-    Column(verticalArrangement =  spacedBy(8.dp)) {
+private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
+    Column(verticalArrangement = spacedBy(8.dp)) {
         LabelText(intake_text_period)
         Row(horizontalArrangement = spacedBy(16.dp)) {
             ExposedDropdownMenuBox(
                 expanded = state.showPeriodM,
-                onExpandedChange = model::showPeriodM,
+                onExpandedChange = { event(IntakeEvent.ShowPeriodM(true)) },
                 modifier = Modifier.weight(1f)
             ) {
                 OutlinedTextField(
                     value = stringResource(state.periodE.title),
                     onValueChange = {},
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                     readOnly = true,
+                    isError = state.periodError != null,
+                    supportingText = state.periodError?.let { { Text(stringResource(it)) } },
                     placeholder = { Text(stringResource(intake_text_pick_period)) },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(state.showPeriodM) },
-                    shape = RoundedCornerShape(14.dp)
+                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                 )
-                ExposedDropdownMenu(state.showPeriodM, { model.showPeriodM(false) }) {
+                ExposedDropdownMenu(
+                    expanded = state.showPeriodM,
+                    onDismissRequest = { event(IntakeEvent.ShowPeriodM(false)) }
+                ) {
                     Periods.entries.forEach {
                         DropdownMenuItem(
                             text = { Text(stringResource(it.title)) },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                            onClick = { model.setPeriod(it) }
+                            onClick = { event(IntakeEvent.SetPeriod(it)) }
                         )
                     }
                 }
@@ -384,14 +418,15 @@ private fun Period(model: IntakeViewModel, state: IntakeState) =
 
             if (state.periodE == Periods.OTHER) OutlinedTextField(
                 value = state.period,
-                onValueChange = model::setPeriod,
+                onValueChange = { event(IntakeEvent.SetPeriod(it)) },
                 modifier = Modifier.weight(1f),
                 readOnly = state.default,
                 textStyle = MaterialTheme.typography.titleMedium,
                 placeholder = { Text(stringResource(text_empty)) },
                 leadingIcon = { Icon(painterResource(vector_period), null) },
                 suffix = { Text(stringResource(text_days_short)) },
-                isError = state.period.isEmpty(),
+                isError = state.periodError != null,
+                supportingText = state.periodError?.let { { Text(stringResource(it)) } },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 shape = RoundedCornerShape(14.dp)
@@ -402,134 +437,156 @@ private fun Period(model: IntakeViewModel, state: IntakeState) =
             OutlinedTextField(
                 value = state.startDate,
                 onValueChange = {},
-                modifier = Modifier
-                    .weight(0.5f)
-                    .clickable { model.showPeriodD(true) },
-                enabled = false,
                 readOnly = true,
+                isError = state.startDateError != null,
                 leadingIcon = { Icon(Icons.Outlined.DateRange, null) },
                 placeholder = { Text(stringResource(text_empty)) },
                 supportingText = { Text(stringResource(text_start_date)) },
                 singleLine = true,
                 shape = RoundedCornerShape(14.dp),
-                colors = fieldColorsInverted
+                modifier = Modifier
+                    .weight(0.5f)
+                    .pointerInput(Unit) {
+                        awaitEachGesture {
+                            awaitFirstDown(pass = PointerEventPass.Initial)
+                            val up = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                            up?.let { event(IntakeEvent.ShowPeriodD(true)) }
+                        }
+                    }
             )
             OutlinedTextField(
                 value = state.finalDate,
                 onValueChange = {},
-                modifier = Modifier
-                    .weight(0.5f)
-                    .clickable { model.showPeriodD(true) },
-                enabled = false,
                 readOnly = true,
+                isError = state.finalDateError != null,
                 leadingIcon = { Icon(Icons.Outlined.DateRange, null) },
                 placeholder = { Text(stringResource(text_empty)) },
                 supportingText = { Text(stringResource(text_finish_date)) },
                 singleLine = true,
                 shape = RoundedCornerShape(14.dp),
-                colors = fieldColorsInverted
+                modifier = Modifier
+                    .weight(0.5f)
+                    .pointerInput(Unit) {
+                        awaitEachGesture {
+                            awaitFirstDown(pass = PointerEventPass.Initial)
+                            val up = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                            up?.let { event(IntakeEvent.ShowPeriodD(true)) }
+                        }
+                    }
             )
         }
     }
 
 @Composable
-private fun Food(event: (Int) -> Unit, state: IntakeState) = Column(verticalArrangement = spacedBy(8.dp)) {
-    LabelText(intake_text_food)
-    Row(Modifier.fillMaxWidth(), SpaceBetween) {
-        FoodTypes.entries.forEach {
-            Column(
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .clickable { if (!state.default) event(it.value) }
-                    .size(112.dp, 96.dp)
-                    .border(1.dp, MaterialTheme.colorScheme.onSurface, RoundedCornerShape(16.dp))
-                    .background(
-                        if (state.foodType != it.value) Color.Transparent
-                        else MaterialTheme.colorScheme.secondaryContainer,
-                        RoundedCornerShape(16.dp)
+private fun Food(state: IntakeState, event: (IntakeEvent) -> Unit) =
+    Column(verticalArrangement = spacedBy(8.dp)) {
+        LabelText(intake_text_food)
+        Row(Modifier.fillMaxWidth(), SpaceBetween) {
+            FoodTypes.entries.forEach {
+                Column(
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clickable { if (!state.default) event(IntakeEvent.SetFoodType(it.value)) }
+                        .size(112.dp, 96.dp)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                        .background(
+                            color = if (state.foodType != it.value) Color.Transparent
+                            else MaterialTheme.colorScheme.secondaryContainer,
+                            shape = RoundedCornerShape(16.dp)
+                        )
+                ) {
+                    Icon(painterResource(it.icon), null, Modifier.size(32.dp))
+                    Text(
+                        text = stringResource(it.title),
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold)
                     )
-            ) {
-                Icon(painterResource(it.icon), null, Modifier.size(32.dp))
-                Text(
-                    text = stringResource(it.title),
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold)
-                )
+                }
             }
         }
     }
-}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun Time(model: IntakeViewModel, state: IntakeState) = Column(verticalArrangement = spacedBy(8.dp)) {
-    LabelText(intake_text_time)
-    if (state.adding || state.editing) {
-        repeat(state.time.size) { index ->
-            Row(horizontalArrangement = spacedBy(16.dp), verticalAlignment = CenterVertically) {
+private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
+    Column(verticalArrangement = spacedBy(8.dp)) {
+        LabelText(intake_text_time)
+        if (state.adding || state.editing) {
+            repeat(state.time.size) { index ->
+                Row(horizontalArrangement = spacedBy(16.dp), verticalAlignment = CenterVertically) {
+                    OutlinedTextField(
+                        value = state.time[index],
+                        onValueChange = {},
+                        readOnly = true,
+                        placeholder = { Text(stringResource(placeholder_time, index + 1)) },
+                        leadingIcon = { Icon(painterResource(vector_time), null) },
+                        shape = RoundedCornerShape(14.dp),
+                        isError = state.time[index].isBlank() && state.timesError != null,
+                        modifier = Modifier
+                            .fillMaxWidth(0.8f)
+                            .pointerInput(Unit) {
+                                awaitEachGesture {
+                                    awaitFirstDown(pass = PointerEventPass.Initial)
+                                    val up =
+                                        waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                                    up?.let { event(IntakeEvent.ShowTimePicker(true, index)) }
+                                }
+                            }
+                    )
+
+                    val showBox: Boolean
+                    var color = MaterialTheme.colorScheme.secondaryContainer
+                    var icon = Icons.Outlined.Add
+                    var tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    var onClick = {}
+
+                    if (index + 1 == 1) {
+                        showBox = true
+                        color = MaterialTheme.colorScheme.secondaryContainer
+                        icon = Icons.Outlined.Add
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        onClick = { event(IntakeEvent.IncTime) }
+                    } else if (index + 1 == state.time.size) {
+                        showBox = true
+                        color = MaterialTheme.colorScheme.errorContainer
+                        icon = ImageVector.vectorResource(vector_remove)
+                        tint = MaterialTheme.colorScheme.onErrorContainer
+                        onClick = { event(IntakeEvent.DecTime) }
+                    } else showBox = false
+
+                    if (showBox) Box(
+                        Modifier
+                            .size(56.dp)
+                            .background(color, RoundedCornerShape(12.dp))
+                            .clickable(onClick = onClick), Alignment.Center
+                    ) { Icon(icon, null, tint = tint) }
+                }
+            }
+        } else FlowRow(
+            horizontalArrangement = spacedBy(16.dp),
+            verticalArrangement = spacedBy(8.dp)
+        ) {
+            repeat(state.time.size) { index ->
                 OutlinedTextField(
                     value = state.time[index],
                     onValueChange = {},
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .clickable { model.showTimePicker(true, index) },
-                    enabled = false,
-                    placeholder = { Text(stringResource(placeholder_time, index + 1)) },
+                    modifier = Modifier.width(128.dp),
+                    readOnly = true,
                     leadingIcon = { Icon(painterResource(vector_time), null) },
-                    shape = RoundedCornerShape(14.dp),
-                    colors = fieldColorsInverted
+                    shape = RoundedCornerShape(14.dp)
                 )
-
-                val showBox: Boolean
-                var color = MaterialTheme.colorScheme.secondaryContainer
-                var icon = Icons.Outlined.Add
-                var tint = MaterialTheme.colorScheme.onSecondaryContainer
-                var onClick = {}
-
-                if (index + 1 == 1) {
-                    showBox = true
-                    color = MaterialTheme.colorScheme.secondaryContainer
-                    icon = Icons.Outlined.Add
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer
-                    onClick = model::incTime
-                }
-                else if (index + 1 == state.time.size) {
-                    showBox = true
-                    color = MaterialTheme.colorScheme.errorContainer
-                    icon = ImageVector.vectorResource(vector_remove)
-                    tint = MaterialTheme.colorScheme.onErrorContainer
-                    onClick = model::decTime
-                }
-                else showBox = false
-
-                if (showBox) Box(
-                    Modifier
-                        .size(56.dp)
-                        .background(color, RoundedCornerShape(12.dp))
-                        .clickable(onClick = onClick), Alignment.Center
-                ) { Icon(icon, null, tint = tint) }
             }
         }
     }
-    else FlowRow(horizontalArrangement = spacedBy(16.dp), verticalArrangement = spacedBy(8.dp)) {
-        repeat(state.time.size) { index ->
-            OutlinedTextField(
-                value = state.time[index],
-                onValueChange = {},
-                modifier = Modifier.width(128.dp),
-                enabled = false,
-                leadingIcon = { Icon(painterResource(vector_time), null) },
-                shape = RoundedCornerShape(14.dp),
-                colors = fieldColorsInverted
-            )
-        }
-    }
-}
 
 @Composable
-private fun Extra(model: IntakeViewModel, state: IntakeState) = Column {
+private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = Column {
     LabelText(intake_text_extra, Modifier.padding(bottom = 8.dp))
     IntakeExtras.entries.forEach { entry ->
         Row(
@@ -546,11 +603,13 @@ private fun Extra(model: IntakeViewModel, state: IntakeState) = Column {
                         IntakeExtras.NO_SOUND -> state.noSound
                         IntakeExtras.PREALARM -> state.preAlarm
                     },
-                    onValueChange = when (entry) {
-                        IntakeExtras.FULLSCREEN -> model::setFullScreen
-                        IntakeExtras.NO_SOUND -> model::setNoSound
-                        IntakeExtras.PREALARM -> model::setPreAlarm
-                    },
+                    onValueChange = {
+                        when (entry) {
+                            IntakeExtras.FULLSCREEN -> event(IntakeEvent.SetFullScreen(it))
+                            IntakeExtras.NO_SOUND -> event(IntakeEvent.SetNoSound(it))
+                            IntakeExtras.PREALARM -> event(IntakeEvent.SetPreAlarm(it))
+                        }
+                    }
                 )
         ) {
             Row {
@@ -569,7 +628,11 @@ private fun Extra(model: IntakeViewModel, state: IntakeState) = Column {
                 )
             }
             entry.description?.let {
-                IconButton(model::showDialog) { Icon(Icons.Outlined.Info, null) }
+                IconButton(
+                    onClick = { event(IntakeEvent.ShowDialog(true)) }
+                ) {
+                    Icon(Icons.Outlined.Info, null)
+                }
             }
         }
     }
@@ -585,12 +648,37 @@ private fun LabelText(id: Int, modifier: Modifier = Modifier) = Text(
 )
 
 @Composable
-private fun DialogDescription(model: IntakeViewModel) = AlertDialog(
-    onDismissRequest = model::hideDialog,
-    dismissButton = { TextButton(model::hideDialog) { Text(stringResource(text_dismiss)) } },
+private fun DialogDescription(event: (IntakeEvent) -> Unit) = AlertDialog(
+    onDismissRequest = { event(IntakeEvent.ShowDialog(false)) },
     confirmButton = {},
     title = { Text(stringResource(text_medicine_description)) },
-    text = { Text(stringResource(intake_extra_prealarm_desc)) }
+    text = { Text(stringResource(intake_extra_prealarm_desc)) },
+    dismissButton = {
+        TextButton(
+            onClick = { event(IntakeEvent.ShowDialog(false)) }
+        ) {
+            Text(stringResource(text_dismiss))
+        }
+    }
+)
+
+@Composable
+private fun DialogDataLoss(event: (IntakeEvent) -> Unit, navigateUp: () -> Unit) = AlertDialog(
+    onDismissRequest = { event(IntakeEvent.ShowDialogDataLoss(false)) },
+    confirmButton = { TextButton(navigateUp) { Text(stringResource(text_exit)) } },
+    text = {
+        Text(
+            text = stringResource(text_not_saved_intake),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    },
+    dismissButton = {
+        TextButton(
+            onClick = { event(IntakeEvent.ShowDialogDataLoss(false)) }
+        ) {
+            Text(stringResource(text_stay))
+        }
+    }
 )
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -604,5 +692,5 @@ val fieldColorsInverted
         disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
         disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
         disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-        disabledIndicatorColor = MaterialTheme.colorScheme.outline
+        disabledIndicatorColor = MaterialTheme.colorScheme.outline,
     )
