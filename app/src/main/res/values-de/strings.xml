@@ -127,7 +127,7 @@
     <string name="type_extract">EXTRAKT</string>
     <string name="type_suspension">SUSPENSION</string>
     <string name="text_status">Status</string>
-    <string name="text_exit_app">Are you sure you want to exit app?</string>
+    <string name="text_exit_app">Soll die App wirklich beendet werden?</string>
     <string name="type_ointment">SALBE</string>
     <string name="type_capsules">KAPSELN</string>
     <string name="type_syrup">SIRUP</string>
@@ -178,11 +178,11 @@
     <string name="type_bandage">BANDAGE</string>
     <string name="type_patch">PFLASTER</string>
     <string name="dose_sach">Btl.</string>
-    <string name="text_stay">Stay</string>
-    <string name="text_explain_camera">To scan a label, you must give the camera permission. An example of what the marking looks like is shown below (it only works for Russian treatments)</string>
-    <string name="text_fill_field">Fill in this field!</string>
-    <string name="text_pay_attention">Pay attention!</string>
-    <string name="text_grant">Grant</string>
-    <string name="text_not_saved_intake">The intake is not saved! Do you want to go back?</string>
-    <string name="text_exit">Exit</string>
+    <string name="text_stay"></string>
+    <string name="text_explain_camera"></string>
+    <string name="text_fill_field">Dieses Feld ausfüllen!</string>
+    <string name="text_pay_attention">Achtung!</string>
+    <string name="text_grant"></string>
+    <string name="text_not_saved_intake">Die Einnahme ist nicht gesichert! Möchten Sie zurückgehen?</string>
+    <string name="text_exit">Beenden</string>
 </resources>
