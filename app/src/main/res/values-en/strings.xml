@@ -147,7 +147,6 @@
     <string name="text_request_post">To receive notifications, the application must be granted the appropriate permission</string>
     <string name="text_select_time">Select time</string>
     <string name="text_try_again">Try again to scan label!</string>
-
     <!-- Strings -->
     <string name="text_add">Add</string>
     <string name="text_all">All</string>
