@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
-
     <!-- Menu -->
     <string name="bottom_bar_medicines">Medicines</string>
     <string name="bottom_bar_intakes">Intakes</string>
     <string name="bottom_bar_settings">Settings</string>
-
     <!-- Preferences -->
     <string name="preference_app_view">App view</string>
     <string name="preference_kits_group">Medicine groups</string>
@@ -19,21 +17,17 @@
     <string name="preference_app_theme">App theme</string>
     <string name="preference_dynamic_color">Dynamic color</string>
     <string name="preference_import_export">Import/Export</string>
-
     <!-- Languages -->
     <string name="lang_system">System</string>
-
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabetically (A to z)</string>
     <string name="sorting_z_a">Alphabetically (z to A)</string>
     <string name="sorting_from_oldest">Expiration date (from oldest)</string>
     <string name="sorting_from_newest">Expiration date (from newest)</string>
-
     <!-- Themes -->
     <string name="theme_system">System</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
-
     <!-- Notifications -->
     <string name="channel_name">Sound notifications</string>
     <string name="channel_exp_desc">Expiration date</string>
@@ -47,12 +41,10 @@
     <string name="text_intake_prealarm_title">Upcoming intake</string>
     <string name="text_intake_time">Medicine: %1$s\nAmount: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Not enough amount left</string>
-
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_kitchen">Kitchen</string>
     <string name="placeholder_time">Time #%1$d</string>
-
     <!-- Medicines -->
     <string name="text_exp_date">Exp. date</string>
     <string name="text_indications_for_use">Indications for use</string>
@@ -69,7 +61,6 @@
     <string name="text_medicine_status_scanned">Scanned, unverified</string>
     <string name="text_medicine_status_self_added">Added manually</string>
     <string name="text_medicine_storage_conditions">Storage conditions</string>
-
     <!-- Medicine types -->
     <string name="type_tablets">TABLETS</string>
     <string name="type_capsules">CAPSULES</string>
@@ -97,7 +88,6 @@
     <string name="type_patch">PATCH</string>
     <string name="type_bandage">BANDAGE</string>
     <string name="type_napkins">NAPKINS</string>
-
     <!-- Medicine dose types -->
     <string name="dose_ed">ED</string>
     <string name="dose_pcs">pcs</string>
@@ -106,12 +96,10 @@
     <string name="dose_mg">mg</string>
     <string name="dose_l">l</string>
     <string name="dose_ml">ml</string>
-
     <!-- Intakes -->
     <string name="intakes_tab_current">Current</string>
     <string name="intakes_tab_list">List</string>
     <string name="intakes_tab_taken">Taken</string>
-
     <string name="intake_card_text_from">(from %1$s)</string>
     <string name="intake_text_amount">Quantity</string>
     <string name="intake_text_by_schedule">By schedule</string>
@@ -131,23 +119,18 @@
     <string name="intake_text_select_interval">Select interval</string>
     <string name="intake_text_taken">Taken</string>
     <string name="intake_text_time">Time</string>
-
     <string name="intake_extra_cancellable">Notification timeout</string>
     <string name="intake_extra_fullscreen">Fullscreen notification</string>
     <string name="intake_extra_no_sound">No sound</string>
     <string name="intake_extra_prealarm">Upcoming notification</string>
-
     <string name="intake_extra_cancellable_desc">Specifies, that this notification will be canceled automatically after 10 minutes</string>
     <string name="intake_extra_prealarm_desc">Notification in status bar before 30 minutes of intake time</string>
-
     <string name="intake_interval_daily">daily</string>
     <string name="intake_interval_weekly">weekly</string>
     <string name="intake_interval_other">custom</string>
-
     <string name="intake_period_pick">dates choice</string>
     <string name="intake_period_other">days input</string>
     <string name="intake_period_indef">indefinite</string>
-
     <!-- Dialogs -->
     <string name="manual_add">Do you want to add medicine manually?</string>
     <string name="text_confirm_deletion">Are you sure you want to delete this medicine?</string>
@@ -168,7 +151,6 @@
     <string name="text_request_post">To receive notifications, the application must be granted the appropriate permission</string>
     <string name="text_select_time">Select time</string>
     <string name="text_try_again">Try again to scan label!</string>
-
     <!-- Strings -->
     <string name="text_add">Add</string>
     <string name="text_all">All</string>
@@ -203,7 +185,6 @@
     <string name="text_unspecified">Unspecified</string>
     <string name="text_update">Update</string>
     <string name="text_yes">Yes</string>
-
     <!-- Plurals -->
     <plurals name="intakes_a_day">
         <item quantity="one">%d time a day</item>
