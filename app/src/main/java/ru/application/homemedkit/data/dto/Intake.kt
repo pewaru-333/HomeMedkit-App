@@ -4,20 +4,20 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import ru.application.homemedkit.data.Converters
 import ru.application.homemedkit.helpers.BLANK
 import java.time.LocalTime
 
 @Entity(
     tableName = "intakes",
-    foreignKeys = [ForeignKey(
-        entity = Medicine::class,
-        parentColumns = arrayOf("id"),
-        childColumns = arrayOf("medicineId"),
-        onUpdate = CASCADE,
-        onDelete = CASCADE
-    )]
+    foreignKeys = [
+        ForeignKey(
+            entity = Medicine::class,
+            parentColumns = ["id"],
+            childColumns = ["medicineId"],
+            onUpdate = CASCADE,
+            onDelete = CASCADE
+        )
+    ]
 )
 data class Intake(
     @PrimaryKey(autoGenerate = true)
@@ -26,12 +26,12 @@ data class Intake(
     val amount: Double = 0.0,
     val interval: Int = 0,
     val foodType: Int = -1,
-    @TypeConverters(Converters::class)
     val time: List<LocalTime> = emptyList(),
     val period: Int = 0,
     val startDate: String = BLANK,
     val finalDate: String = BLANK,
     val fullScreen: Boolean = false,
     val noSound: Boolean = false,
-    val preAlarm: Boolean = false
+    val preAlarm: Boolean = false,
+    val cancellable: Boolean = true
 )

@@ -18,6 +18,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
@@ -97,6 +99,7 @@ import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.getDateTime
 import ru.application.homemedkit.helpers.shortName
+import ru.application.homemedkit.models.states.IntakesState
 import ru.application.homemedkit.models.viewModels.IntakesViewModel
 import java.time.Instant
 import java.time.LocalDate
@@ -141,6 +144,17 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                 modifier = Modifier.drawBehind {
                     drawLine(Color.LightGray, Offset(0f, size.height), Offset(size.width, size.height), 4f)
                 },
+                actions = {
+                    if(state.tab == 2) {
+                        IconButton(model::setLayoutTaken) {
+                            Icon(
+                                contentDescription = null,
+                                imageVector = if(state.reverseTaken) Icons.Outlined.KeyboardArrowUp
+                                else Icons.Outlined.KeyboardArrowDown
+                            )
+                        }
+                    }
+                }
             )
         }
     ) { values ->
@@ -185,8 +199,8 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                         state = state.stateC,
                         contentPadding = PaddingValues(4.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
-                        reverseLayout = true
-                    ) { items(list.size) { IntakeTaken(model, list.entries.elementAt(it)) } }
+                        reverseLayout = state.reverseTaken
+                    ) { items(list.size) { IntakeTaken(model, state, list.entries.elementAt(it)) } }
                 }
             }
         }
@@ -204,14 +218,14 @@ fun IntakeCard(intake: Intake, navigateToIntake:(Long) -> Unit) {
     ListItem(
         colors = ListItemDefaults.colors(MaterialTheme.colorScheme.tertiaryContainer),
         headlineContent = { Text("$intervalName $startDate") },
-        supportingContent = { Text(intake.time.joinToString(", ")) },
+        supportingContent = { Text(intake.time.joinToString()) },
         leadingContent = { MedicineImage(medicine?.image ?: BLANK, Modifier.size(56.dp)) },
         modifier = Modifier
             .clip(MaterialTheme.shapes.medium)
             .clickable { navigateToIntake(intake.intakeId) },
         overlineContent = {
             Text(
-                text = shortName(medicine?.productName),
+                text = medicine?.let { it.nameAlias.ifEmpty { it.productName } } ?: BLANK,
                 softWrap = false,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = SemiBold)
             )
@@ -228,10 +242,10 @@ fun IntakeItem(intake: Intake, navigateToIntake:(Long) -> Unit) {
 
     ListItem(
         trailingContent = { Text(intervalName) },
-        supportingContent = { Text(intake.time.joinToString(", "), maxLines = 1) },
+        supportingContent = { Text(intake.time.joinToString(), maxLines = 1) },
         leadingContent = { MedicineImage(medicine?.image ?: BLANK, Modifier.size(40.dp)) },
         modifier = Modifier.clickable { navigateToIntake(intake.intakeId) },
-        headlineContent = { Text(shortName(medicine?.productName), softWrap = false) }
+        headlineContent = { Text(medicine?.let { it.nameAlias.ifEmpty { it.productName } } ?: BLANK, softWrap = false) }
     )
 }
 
@@ -253,11 +267,15 @@ fun IntakeSchedule(data: Map.Entry<Long, List<Alarm>>) = OutlinedCard(
 }
 
 @Composable
-fun IntakeTaken(model: IntakesViewModel, data: Map.Entry<Long, List<IntakeTaken>>) = OutlinedCard(
-    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerLowest)
-) {
+fun IntakeTaken(
+    model: IntakesViewModel,
+    state: IntakesState,
+    data: Map.Entry<Long, List<IntakeTaken>>
+) = OutlinedCard(colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerLowest)) {
     TextDate(data.key)
-    data.value.sortedBy { it.trigger }.forEachIndexed { index, value ->
+    data.value.run {
+        if (state.reverseTaken) sortedBy { it.trigger } else sortedByDescending { it.trigger }
+    }.forEachIndexed { index, value ->
         MedicineItem(
             value.productName, value.formName, value.doseType, value.amount, value.image,
             value.trigger, value.taken
@@ -389,7 +407,7 @@ private fun MedicineItem(
     image: String?,
     trigger: Long,
     taken: Boolean = true,
-    showDialog: ( () -> Unit)? = null
+    showDialog: (() -> Unit)? = null
 ) {
     ListItem(
         headlineContent = { Text(shortName(title), softWrap = false) },

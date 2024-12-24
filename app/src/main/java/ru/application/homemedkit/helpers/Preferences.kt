@@ -33,13 +33,11 @@ object Preferences : ViewModel() {
     }
 
     fun getSortingOrder() = preferences.getString(KEY_ORDER, SORTING[0]) ?: SORTING[0]
-    fun getLastKit() = preferences.getLong(KEY_LAST_KIT, 0L)
     fun getSimpleView() = preferences.getBoolean(KEY_MED_COMPACT_VIEW, false)
     fun getImageFetch() = preferences.getBoolean(KEY_DOWNLOAD, false)
     fun getCheckExpDate() = preferences.getBoolean(KEY_CHECK_EXP_DATE, false)
     fun getLanguage() = preferences.getString(KEY_LANGUAGE, LANGUAGES[0]) ?: LANGUAGES[0]
     fun getDynamicColors() = preferences.getBoolean(KEY_DYNAMIC_COLOR, false)
-    fun setLastKit(kitId: Long?) = preferences.edit().putLong(KEY_LAST_KIT, kitId ?: 0L).apply()
     fun setCheckExpDate(context: Context, check: Boolean) =
         AlarmSetter(context).checkExpiration(check)
             .also { preferences.edit().putBoolean(KEY_CHECK_EXP_DATE, check).apply() }

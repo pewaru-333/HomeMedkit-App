@@ -34,6 +34,7 @@ data class IntakeState(
     @StringRes val startDateError: Int? = null,
     val finalDate: String = BLANK,
     @StringRes val finalDateError: Int? = null,
+    @StringRes val extraDesc: Int? = null,
     val showIntervalM: Boolean = false,
     val showPeriodD: Boolean = false,
     val showPeriodM: Boolean = false,
@@ -41,6 +42,7 @@ data class IntakeState(
     val fullScreen: Boolean = false,
     val noSound: Boolean = false,
     val preAlarm: Boolean = false,
+    val cancellable: Boolean = true,
     val showDialog: Boolean = false,
     val showDialogDataLoss: Boolean = false
 )

@@ -7,6 +7,7 @@ import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
@@ -157,10 +158,10 @@ fun Medicine.toState() = MedicineState(
     default = true,
     fetch = Response.Default,
     id = id,
-    kitId = kitId,
-    kitTitle = database.medicineDAO().getKitTitle(kitId).orEmpty(),
+    kits = database.kitDAO().getIdList(id).toMutableStateList(),
     cis = cis,
     productName = productName,
+    nameAlias = nameAlias,
     expDate = expDate,
     prodFormNormName = prodFormNormName,
     structure = structure,
@@ -180,9 +181,9 @@ fun Medicine.toState() = MedicineState(
 
 fun MedicineState.toMedicine() = Medicine(
     id = id,
-    kitId = kitId,
     cis = cis,
     productName = productName,
+    nameAlias = nameAlias,
     expDate = expDate,
     prodFormNormName = prodFormNormName,
     structure = structure,
@@ -212,7 +213,8 @@ fun IntakeState.toIntake(time: List<LocalTime>) = Intake(
     finalDate = finalDate,
     fullScreen = fullScreen,
     noSound = noSound,
-    preAlarm = preAlarm
+    preAlarm = preAlarm,
+    cancellable = cancellable
 )
 
 fun DrugsData.toMedicine() = Medicine(

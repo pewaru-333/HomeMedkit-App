@@ -1,5 +1,6 @@
 package ru.application.homemedkit.models.viewModels
 
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
+import ru.application.homemedkit.data.dto.MedicineKit
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.Medicine
 import ru.application.homemedkit.helpers.Preferences
@@ -38,6 +40,7 @@ import java.io.File
 
 class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     private val dao = database.medicineDAO()
+    private val daoK = database.kitDAO()
     private val args = saved.toRoute<Medicine>()
 
     private val _duplicate = Channel<Boolean>()
@@ -65,6 +68,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
         if (checkProductName.successful) {
             val id = dao.add(_state.value.toMedicine())
+            _state.value.kits.forEach { daoK.pinKit(MedicineKit(id, it)) }
             _state.update { it.copy(adding = false, default = true, id = id, productNameError = null) }
         } else _state.update { it.copy(productNameError = checkProductName.errorMessage) }
     }
@@ -79,7 +83,6 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                         val medicine = drugsData.toMedicine().copy(
                             id = _state.value.id,
                             cis = _state.value.cis,
-                            kitId = _state.value.kitId,
                             comment = _state.value.comment.ifEmpty { BLANK },
                             image = if (Preferences.getImageFetch()) Network.getImage(dir, drugsData.vidalData?.images)
                             else Types.setIcon(drugsData.foiv.prodFormNormName)
@@ -92,7 +95,6 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                         val medicine = bioData.toBio().copy(
                             id = _state.value.id,
                             cis = _state.value.cis,
-                            kitId = _state.value.kitId,
                             comment = _state.value.comment.ifEmpty { BLANK }
                         )
 
@@ -124,6 +126,8 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
         if (checkProductName.successful) {
             dao.update(_state.value.toMedicine())
+            daoK.deleteAll(args.id)
+            _state.value.kits.forEach { daoK.pinKit(MedicineKit(args.id, it)) }
             _state.update { it.copy(adding = false, editing = false, default = true, productNameError = null) }
         } else _state.update { it.copy(productNameError = checkProductName.errorMessage) }
     }
@@ -134,14 +138,15 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
     fun onEvent(event: MedicineEvent) {
         when (event) {
-            is MedicineEvent.SetCis->_state.update { it.copy(cis = event.cis) }
+            is MedicineEvent.SetCis -> _state.update { it.copy(cis = event.cis) }
             is MedicineEvent.SetProductName -> _state.update { it.copy(productName = event.productName) }
+            is MedicineEvent.SetNameAlias -> _state.update { it.copy(nameAlias = event.alias) }
             is MedicineEvent.SetExpDate -> _state.update {
                 it.copy(expDate = toTimestamp(event.month, event.year), showDialogDate = false)
             }
             is MedicineEvent.SetFormName -> _state.update { it.copy(prodFormNormName = event.formName) }
             is MedicineEvent.SetDoseName -> _state.update { it.copy(prodDNormName = event.doseName) }
-            is MedicineEvent.SetDoseType ->_state.update {
+            is MedicineEvent.SetDoseType -> _state.update {
                 it.copy(doseType = event.type.value, doseTypeE = event.type, showMenuDose = false)
             }
             is MedicineEvent.SetAmount -> when {
@@ -153,20 +158,20 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             }
             is MedicineEvent.SetPhKinetics -> _state.update { it.copy(phKinetics = event.phKinetics) }
             is MedicineEvent.SetComment -> _state.update { it.copy(comment = event.comment) }
-            is MedicineEvent.PickKit ->_state.update { it.copy(kitId = event.kitId) }
-            MedicineEvent.ClearKit ->_state.update { it.copy(kitId = null, kitTitle = BLANK, showDialogKits = false) }
-            MedicineEvent.SetKitId -> _state.update {
+            is MedicineEvent.PickKit -> _state.update {
                 it.copy(
-                    kitId = _state.value.kitId,
-                    kitTitle = dao.getKitTitle(_state.value.kitId) ?: BLANK,
-                    showDialogKits = false
+                    kits = it.kits.apply {
+                        if (event.kitId in this) remove(event.kitId) else add(event.kitId)
+                    }
                 )
             }
+            MedicineEvent.ClearKit -> _state.update { it.copy(kits = it.kits.apply(SnapshotStateList<Long>::clear)) }
             is MedicineEvent.SetIcon -> _state.update { it.copy(image = event.icon, showDialogIcons = false) }
-            is MedicineEvent.ShowKitDialog -> _state.update { it.copy(showDialogKits = event.flag) }
-            is MedicineEvent.ShowDatePicker -> _state.update { it.copy(showDialogDate = event.flag) }
-            is MedicineEvent.ShowIconPicker -> _state.update { it.copy(showDialogIcons = event.flag) }
-            is MedicineEvent.ShowDoseMenu -> _state.update { it.copy(showMenuDose = event.flag) }
+            MedicineEvent.ShowKitDialog -> _state.update { it.copy(showDialogKits = !it.showDialogKits) }
+            MedicineEvent.ShowDatePicker -> _state.update { it.copy(showDialogDate = !it.showDialogDate) }
+            MedicineEvent.ShowIconPicker -> _state.update { it.copy(showDialogIcons = !it.showDialogIcons) }
+            MedicineEvent.ShowDialogDelete -> _state.update { it.copy(showDialogDelete = !it.showDialogDelete) }
+            MedicineEvent.ShowDoseMenu -> _state.update { it.copy(showMenuDose = !it.showMenuDose) }
         }
     }
 

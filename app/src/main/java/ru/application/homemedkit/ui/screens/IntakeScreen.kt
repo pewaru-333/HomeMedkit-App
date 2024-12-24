@@ -97,7 +97,6 @@ import ru.application.homemedkit.R.drawable.vector_medicine
 import ru.application.homemedkit.R.drawable.vector_period
 import ru.application.homemedkit.R.drawable.vector_remove
 import ru.application.homemedkit.R.drawable.vector_time
-import ru.application.homemedkit.R.string.intake_extra_prealarm_desc
 import ru.application.homemedkit.R.string.intake_text_amount
 import ru.application.homemedkit.R.string.intake_text_extra
 import ru.application.homemedkit.R.string.intake_text_food
@@ -235,7 +234,7 @@ fun IntakeScreen(navigateBack: () -> Unit) {
             modifier = Modifier.padding(top = 16.dp),
             contentPadding = PaddingValues(16.dp, values.calculateTopPadding(), 16.dp, 0.dp)
         ) {
-            item { Title(medicine.productName) }
+            item { Title(medicine.nameAlias.ifEmpty { medicine.productName }) }
             item { Amount(state, medicine.prodAmount, medicine.doseType, model::onEvent) }
             item { Interval(state, model.getIntervalTitle(), model::onEvent) }
             item { Period(state, model::onEvent) }
@@ -246,7 +245,7 @@ fun IntakeScreen(navigateBack: () -> Unit) {
     }
 
     when {
-        state.showDialog -> DialogDescription(model::onEvent)
+        state.showDialog -> DialogDescription(state, model::onEvent)
         state.showDialogDataLoss -> DialogDataLoss(model::onEvent, navigateBack)
         state.showPeriodD -> DateRangePicker(
             startDate = state.startDate,
@@ -599,12 +598,14 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = Column {
                     enabled = !state.default,
                     role = Role.Checkbox,
                     value = when (entry) {
+                        IntakeExtras.CANCELLABLE -> state.cancellable
                         IntakeExtras.FULLSCREEN -> state.fullScreen
                         IntakeExtras.NO_SOUND -> state.noSound
                         IntakeExtras.PREALARM -> state.preAlarm
                     },
                     onValueChange = {
                         when (entry) {
+                            IntakeExtras.CANCELLABLE -> event(IntakeEvent.SetCancellable(it))
                             IntakeExtras.FULLSCREEN -> event(IntakeEvent.SetFullScreen(it))
                             IntakeExtras.NO_SOUND -> event(IntakeEvent.SetNoSound(it))
                             IntakeExtras.PREALARM -> event(IntakeEvent.SetPreAlarm(it))
@@ -616,6 +617,7 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = Column {
                 Checkbox(
                     onCheckedChange = null,
                     checked = when (entry) {
+                        IntakeExtras.CANCELLABLE -> state.cancellable
                         IntakeExtras.FULLSCREEN -> state.fullScreen
                         IntakeExtras.NO_SOUND -> state.noSound
                         IntakeExtras.PREALARM -> state.preAlarm
@@ -629,7 +631,7 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = Column {
             }
             entry.description?.let {
                 IconButton(
-                    onClick = { event(IntakeEvent.ShowDialog(true)) }
+                    onClick = { event(IntakeEvent.ShowDialog(it)) }
                 ) {
                     Icon(Icons.Outlined.Info, null)
                 }
@@ -648,14 +650,21 @@ private fun LabelText(id: Int, modifier: Modifier = Modifier) = Text(
 )
 
 @Composable
-private fun DialogDescription(event: (IntakeEvent) -> Unit) = AlertDialog(
-    onDismissRequest = { event(IntakeEvent.ShowDialog(false)) },
+private fun DialogDescription(state: IntakeState, event: (IntakeEvent) -> Unit) = AlertDialog(
+    onDismissRequest = { event(IntakeEvent.ShowDialog()) },
     confirmButton = {},
     title = { Text(stringResource(text_medicine_description)) },
-    text = { Text(stringResource(intake_extra_prealarm_desc)) },
+    text = state.extraDesc?.let {
+        {
+            Text(
+                text = stringResource(it),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    },
     dismissButton = {
         TextButton(
-            onClick = { event(IntakeEvent.ShowDialog(false)) }
+            onClick = { event(IntakeEvent.ShowDialog()) }
         ) {
             Text(stringResource(text_dismiss))
         }

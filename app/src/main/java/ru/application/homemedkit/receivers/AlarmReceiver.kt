@@ -89,6 +89,7 @@ class AlarmReceiver : BroadcastReceiver() {
                     addAction(confirmAction)
                     addAction(declineAction)
 
+                    if (intake.cancellable) setTimeoutAfter(600000L)
                     if (intake.fullScreen) setFullScreenIntent(
                         getActivity(
                             context,
@@ -120,7 +121,6 @@ class AlarmReceiver : BroadcastReceiver() {
                         )
                     )
                 )
-                .setTimeoutAfter(600000L)
                 .setVisibility(VISIBILITY_PUBLIC)
                 .extend(
                     NotificationCompat.WearableExtender().apply {

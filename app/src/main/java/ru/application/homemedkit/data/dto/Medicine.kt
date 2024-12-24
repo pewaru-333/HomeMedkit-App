@@ -2,28 +2,16 @@ package ru.application.homemedkit.data.dto
 
 import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.ForeignKey.Companion.CASCADE
-import androidx.room.ForeignKey.Companion.SET_NULL
 import androidx.room.PrimaryKey
 import ru.application.homemedkit.helpers.BLANK
 
-@Entity(
-    tableName = "medicines",
-    foreignKeys = [ForeignKey(
-        entity = Kit::class,
-        parentColumns = arrayOf("kitId"),
-        childColumns = arrayOf("kitId"),
-        onUpdate = CASCADE,
-        onDelete = SET_NULL
-    )]
-)
+@Entity(tableName = "medicines")
 data class Medicine(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
-    val kitId: Long? = null,
     val cis: String = BLANK,
     val productName: String = BLANK,
+    val nameAlias: String = BLANK,
     val expDate: Long = -1L,
     val prodFormNormName: String = BLANK,
     val structure: String = BLANK,

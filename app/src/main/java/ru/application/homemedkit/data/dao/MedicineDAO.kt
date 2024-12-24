@@ -25,9 +25,6 @@ interface MedicineDAO {
     @Query("SELECT * FROM medicines WHERE id = :id ")
     fun getById(id: Long): Medicine?
 
-    @Query("SELECT title FROM kits WHERE kitId = :kitId")
-    fun getKitTitle(kitId: Long?): String?
-
     @Query("SELECT cis from medicines")
     fun getAllCis(): List<String>
 

@@ -1,0 +1,4 @@
+— Now you can select several groups for one medicine.
+— The intake notification can now be removed only with the user's action.
+— Added the ability to change the displayed name of the medicine in the list.
+— Minor bug fixes and many changes and improvements.

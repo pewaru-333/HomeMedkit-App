@@ -1,6 +1,8 @@
 package ru.application.homemedkit.models.states
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.Types
@@ -13,11 +15,11 @@ data class MedicineState(
     val default: Boolean = false,
     val fetch: Response = Response.Default,
     val id: Long = 0L,
-    val kitId: Long? = null,
-    val kitTitle: String = BLANK,
+    val kits: SnapshotStateList<Long> = mutableStateListOf(),
     val cis: String = BLANK,
     val productName: String = BLANK,
     @StringRes val productNameError: Int? = null,
+    val nameAlias: String = BLANK,
     val expDate: Long = -1L,
     val prodFormNormName: String = BLANK,
     val structure: String = BLANK,
@@ -34,5 +36,6 @@ data class MedicineState(
     val showDialogKits: Boolean = false,
     val showDialogDate: Boolean = false,
     val showDialogIcons: Boolean = false,
+    val showDialogDelete: Boolean = false,
     val showMenuDose: Boolean = false
 )

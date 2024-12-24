@@ -59,6 +59,7 @@
     <string name="text_medicine_comment">Комментарий</string>
     <string name="text_medicine_composition">Состав</string>
     <string name="text_medicine_description">Описание</string>
+    <string name="text_medicine_display_name">Отображаемое имя</string>
     <string name="text_medicine_dose">Дозировка</string>
     <string name="text_medicine_form">Форма выпуска</string>
     <string name="text_medicine_group">Группа</string>
@@ -131,10 +132,13 @@
     <string name="intake_text_taken">Принято</string>
     <string name="intake_text_time">Время</string>
 
+    <string name="intake_extra_cancellable">Исчезающее уведомление</string>
     <string name="intake_extra_fullscreen">Полноэкранное уведомление</string>
     <string name="intake_extra_no_sound">Без звука</string>
     <string name="intake_extra_prealarm">Уведомлять заранее</string>
-    <string name="intake_extra_prealarm_desc">Уведомление в строке состояния за 30 минут до времени приёма.</string>
+
+    <string name="intake_extra_cancellable_desc">Устанавливает, что это уведомление будет автоматически отменено через 10 минут</string>
+    <string name="intake_extra_prealarm_desc">Уведомление в строке состояния за 30 минут до времени приёма</string>
 
     <string name="intake_interval_daily">ежедневно</string>
     <string name="intake_interval_weekly">еженедельно</string>
@@ -146,6 +150,7 @@
 
     <!-- Диалоговые окна -->
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
+    <string name="text_confirm_deletion">Вы подтверждаете удаление этого лекарства?</string>
     <string name="text_connection_error">Ошибка при подключении!</string>
     <string name="text_duplicate">Лекарство уже было добавлено!</string>
     <string name="text_error_not_medicine">Это не код лекарства!</string>

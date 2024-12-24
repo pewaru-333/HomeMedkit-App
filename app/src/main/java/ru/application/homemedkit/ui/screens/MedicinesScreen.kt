@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Clear
@@ -28,8 +28,8 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -70,8 +70,7 @@ import ru.application.homemedkit.R.drawable.vector_filter
 import ru.application.homemedkit.R.drawable.vector_scanner
 import ru.application.homemedkit.R.drawable.vector_sort
 import ru.application.homemedkit.R.string.preference_kits_group
-import ru.application.homemedkit.R.string.text_all
-import ru.application.homemedkit.R.string.text_cancel
+import ru.application.homemedkit.R.string.text_clear
 import ru.application.homemedkit.R.string.text_enter_product_name
 import ru.application.homemedkit.R.string.text_exit_app
 import ru.application.homemedkit.R.string.text_no
@@ -79,14 +78,12 @@ import ru.application.homemedkit.R.string.text_no_data_found
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_yes
 import ru.application.homemedkit.data.dto.Medicine
-import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.Sorting
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.inCard
-import ru.application.homemedkit.helpers.shortName
 import ru.application.homemedkit.models.states.MedicinesState
 import ru.application.homemedkit.models.viewModels.MedicinesViewModel
 
@@ -133,10 +130,21 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
                     IconButton(model::showSort) { Icon(painterResource(vector_sort), null) }
                     DropdownMenu(state.showSort, model::hideSort) {
                         Sorting.entries.forEach { entry ->
-                            DropdownMenuItem(
-                                { Text(stringResource(entry.title)) },
-                                { model.setSorting(entry.type) }
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp)
+                                    .padding(horizontal = 16.dp)
+                                    .selectable(
+                                        selected = entry.type == state.sorting,
+                                        onClick = {model.setSorting(entry.type)},
+                                        role = Role.RadioButton
+                                    )
+                            ) {
+                                RadioButton(entry.type == state.sorting, null)
+                                Text(stringResource(entry.title), Modifier.padding(start = 16.dp))
+                            }
                         }
                     }
 
@@ -213,10 +221,12 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
 
 @Composable
 private fun MedicineItem(medicine: Medicine, navigateToMedicine: (Long) -> Unit) {
-    val shortName = shortName(medicine.productName)
+    val shortName = medicine.nameAlias.ifEmpty { medicine.productName }
     val formName = formName(medicine.prodFormNormName)
     val expDate = inCard(medicine.expDate)
-    val kitTitle = database.medicineDAO().getKitTitle(medicine.kitId) ?: BLANK
+    val kitTitle = database.kitDAO().getTitleByMedicine(medicine.id).joinToString().run {
+        if (length >= 25) substring(0, 26).padEnd(29, '.') else this
+    }
 
     ListItem(
         headlineContent = { Text(shortName) },
@@ -242,10 +252,12 @@ private fun MedicineItem(medicine: Medicine, navigateToMedicine: (Long) -> Unit)
 
 @Composable
 private fun MedicineCard(medicine: Medicine, navigateToMedicine: (Long) -> Unit) {
-    val shortName = shortName(medicine.productName)
+    val shortName = medicine.nameAlias.ifEmpty { medicine.productName }
     val formName = formName(medicine.prodFormNormName)
     val expDate = inCard(medicine.expDate)
-    val kitTitle = database.medicineDAO().getKitTitle(medicine.kitId) ?: BLANK
+    val kitTitle = database.kitDAO().getTitleByMedicine(medicine.id).joinToString().run {
+        if (length >= 25) substring(0, 26).padEnd(29, '.') else this
+    }
 
     ListItem(
         headlineContent = {
@@ -287,44 +299,24 @@ private fun MedicineCard(medicine: Medicine, navigateToMedicine: (Long) -> Unit)
 
 @Composable
 private fun DialogKits(model: MedicinesViewModel, state: MedicinesState) = AlertDialog(
-    onDismissRequest = model::hideFilter,
-    confirmButton = { TextButton(model::saveFilter) { Text(stringResource(text_save)) } },
-    dismissButton = { TextButton(model::hideFilter) { Text(stringResource(text_cancel)) } },
+    onDismissRequest = model::showFilter,
+    confirmButton = { TextButton(model::showFilter) { Text(stringResource(text_save)) } },
+    dismissButton = { TextButton(model::clearFilter) { Text(stringResource(text_clear)) } },
     title = { Text(stringResource(preference_kits_group)) },
     text = {
-        Column(Modifier.selectableGroup()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-                    .selectable(
-                        selected = state.kitId == 0L,
-                        onClick = { model.setFilter(0L) },
-                        role = Role.RadioButton
-                    )
-            ) {
-                RadioButton(state.kitId == 0L, null)
-                Text(
-                    text = stringResource(text_all),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 16.dp)
-                )
-            }
-
-            database.kitDAO().getAll().forEach { (kitId, title) ->
+        LazyColumn {
+            items(database.kitDAO().getAll()) { (kitId, title) ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .fillMaxWidth()
                         .height(56.dp)
-                        .selectable(
-                            selected = state.kitId == kitId,
-                            onClick = { model.setFilter(kitId) },
-                            role = Role.RadioButton
+                        .toggleable(
+                            value = kitId in state.kits,
+                            onValueChange = { model.pickFilter(kitId) },
+                            role = Role.Checkbox
                         )
                 ) {
-                    RadioButton(state.kitId == kitId, null)
+                    Checkbox(kitId in state.kits, null)
                     Text(
                         text = title,
                         modifier = Modifier.padding(start = 16.dp),

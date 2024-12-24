@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
@@ -47,7 +46,7 @@ class IntakesViewModel : ViewModel() {
     private val _takenState = MutableStateFlow(TakenState())
     val takenState = _takenState.asStateFlow()
 
-    val intakes = _state.combine(intakeDAO.getFlow()) { query, list ->
+    val intakes = combine(_state, intakeDAO.getFlow()) { query, list ->
         list.fastFilter { medicineDAO.getProductName(it.medicineId).contains(query.search, true) }
     }.stateIn(
         scope = viewModelScope,
@@ -95,17 +94,16 @@ class IntakesViewModel : ViewModel() {
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyMap())
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val taken = _state.flatMapLatest { (search) ->
-        takenDAO.getFlow().map { list ->
-            list.filter { it.productName.contains(search, true) }
-                .sortedByDescending { it.trigger }
-                .groupBy { Instant.ofEpochMilli(it.trigger).atZone(ZONE).toLocalDate().toEpochDay() }
-        }
+    val taken = combine(_state, takenDAO.getFlow()) { query, list ->
+        list.fastFilter { it.productName.contains(query.search, true) }
+            .sortedByDescending { it.trigger }
+            .groupBy { Instant.ofEpochMilli(it.trigger).atZone(ZONE).toLocalDate().toEpochDay() }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyMap())
 
     fun setSearch(text: String) = _state.update { it.copy(search = text) }
     fun clearSearch() = _state.update { it.copy(search = BLANK) }
+
+    fun setLayoutTaken() = _state.update { it.copy(reverseTaken = !it.reverseTaken) }
 
     fun showDialog(taken: IntakeTaken) {
         val time = getDateTime(taken.inFact)

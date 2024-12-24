@@ -10,10 +10,11 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
@@ -44,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,7 +57,6 @@ import me.zhanghai.compose.preference.preference
 import me.zhanghai.compose.preference.preferenceCategory
 import me.zhanghai.compose.preference.switchPreference
 import ru.application.homemedkit.HomeMeds.Companion.database
-import ru.application.homemedkit.R.string.placeholder_kitchen
 import ru.application.homemedkit.R.string.preference_app_theme
 import ru.application.homemedkit.R.string.preference_app_view
 import ru.application.homemedkit.R.string.preference_check_expiration_date
@@ -234,14 +235,14 @@ private fun KitsManager(onDismiss: () -> Unit) {
                 },
                 floatingActionButton = {
                     ExtendedFloatingActionButton(
-                        { Text(stringResource(text_add)) },
-                        { Icon(Icons.Outlined.Add, null) },
-                        { show = true },
+                        text = { Text(stringResource(text_add)) },
+                        icon = { Icon(Icons.Outlined.Add, null) },
+                        onClick = { show = true },
                     )
                 }
-            ) { paddingValues ->
-                Column(Modifier.padding(top = paddingValues.calculateTopPadding())) {
-                    kits.forEach { (kitId, title) ->
+            ) { values ->
+                LazyColumn(contentPadding = PaddingValues(top = values.calculateTopPadding())) {
+                    items(kits) { (kitId, title) ->
                         ListItem(
                             headlineContent = { Text(title) },
                             trailingContent = {
@@ -273,7 +274,7 @@ private fun KitsManager(onDismiss: () -> Unit) {
                     OutlinedTextField(
                         value = text,
                         onValueChange = { text = it },
-                        placeholder = { Text(stringResource(placeholder_kitchen)) }
+                        keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
                     )
                 }
             )

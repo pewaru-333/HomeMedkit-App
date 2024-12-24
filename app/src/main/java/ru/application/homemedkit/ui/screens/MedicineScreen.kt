@@ -23,11 +23,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,6 +40,7 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
@@ -52,7 +53,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -103,11 +103,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
+import ru.application.homemedkit.R
 import ru.application.homemedkit.R.drawable.vector_type_unknown
 import ru.application.homemedkit.R.string.placeholder_dose
 import ru.application.homemedkit.R.string.preference_kits_group
 import ru.application.homemedkit.R.string.text_amount
+import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_clear
+import ru.application.homemedkit.R.string.text_confirm_deletion
 import ru.application.homemedkit.R.string.text_connection_error
 import ru.application.homemedkit.R.string.text_delete
 import ru.application.homemedkit.R.string.text_duplicate
@@ -205,9 +208,8 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
                                     )
                                 },
                                 onClick = {
+                                    model.onEvent(MedicineEvent.ShowDialogDelete)
                                     expanded = false
-                                    model.delete(context.filesDir)
-                                    navigateBack()
                                 }
                             )
                         }
@@ -245,6 +247,8 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
                     ProductBrief(state, focusManager, model::onEvent)
                 }
             }
+            if (state.adding || state.editing || state.nameAlias.isNotEmpty())
+                item { ProductAlias(state, focusManager, model::onEvent) }
             item { ProductFormName(state, focusManager, model::onEvent) }
             item { ProductNormName(state, model::onEvent) }
             if (state.default && state.structure.isNotEmpty())
@@ -263,11 +267,19 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
     when {
         state.showDialogKits -> DialogKits(state, model::onEvent)
         state.showDialogIcons -> IconPicker(model::onEvent)
+        state.showDialogDelete -> DialogDelete(
+            cancel = { model.onEvent(MedicineEvent.ShowDialogDelete) },
+            confirm = {
+                model.delete(context.filesDir)
+                navigateBack()
+            }
+        )
+
         state.showDialogDate -> MonthYear(
-            cancel = { model.onEvent(MedicineEvent.ShowDatePicker(false)) },
+            cancel = { model.onEvent(MedicineEvent.ShowDatePicker) },
             confirm = { month, year ->
                 model.onEvent(MedicineEvent.SetExpDate(month, year))
-            },
+            }
         )
     }
 
@@ -372,12 +384,16 @@ private fun ProductKit(state: MedicineState, event: (MedicineEvent) -> Unit) = C
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
         )
         Text(
-            text = state.kitTitle.ifBlank { stringResource(text_unspecified) },
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+            maxLines = 1,
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            text = if (state.kits.isEmpty()) stringResource(text_unspecified)
+            else state.kits.joinToString(transform = database.kitDAO()::getTitle),
         )
     } else OutlinedTextField(
-        value = state.kitTitle,
+        value = state.kits.joinToString(transform = database.kitDAO()::getTitle),
         onValueChange = {},
+        singleLine = true,
         readOnly = true,
         label = { Text(stringResource(text_medicine_group)) },
         placeholder = { Text(stringResource(text_empty)) },
@@ -387,7 +403,7 @@ private fun ProductKit(state: MedicineState, event: (MedicineEvent) -> Unit) = C
                 awaitEachGesture {
                     awaitFirstDown(pass = PointerEventPass.Initial)
                     val up = waitForUpOrCancellation(pass = PointerEventPass.Initial)
-                    up?.let { event(MedicineEvent.ShowKitDialog(true)) }
+                    up?.let { event(MedicineEvent.ShowKitDialog) }
                 }
             }
     )
@@ -419,7 +435,7 @@ private fun ProductExp(state: MedicineState, event: (MedicineEvent) -> Unit) = C
                     awaitEachGesture {
                         awaitFirstDown(pass = PointerEventPass.Initial)
                         val up = waitForUpOrCancellation(pass = PointerEventPass.Initial)
-                        up?.let { event(MedicineEvent.ShowDatePicker(true)) }
+                        up?.let { event(MedicineEvent.ShowDatePicker) }
                     }
                 }
         )
@@ -457,9 +473,36 @@ private fun ProductImage(state: MedicineState, event: (MedicineEvent) -> Unit) =
         .border(1.dp, MaterialTheme.colorScheme.onSurface, MaterialTheme.shapes.medium)
         .padding(8.dp)
         .clickable(!state.default && (state.image.contains(TYPE) || state.image.isEmpty())) {
-            event(MedicineEvent.ShowIconPicker(true))
+            event(MedicineEvent.ShowIconPicker)
         }
 )
+
+@Composable
+private fun ProductAlias(
+    state: MedicineState,
+    focusManager: FocusManager,
+    event: (MedicineEvent) -> Unit
+) = Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Text(
+        text = stringResource(R.string.text_medicine_display_name),
+        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+    )
+
+    if (state.default && state.nameAlias.isNotEmpty()) Text(state.nameAlias)
+    else OutlinedTextField(
+        value = state.nameAlias,
+        onValueChange = { event(MedicineEvent.SetNameAlias(it)) },
+        modifier = Modifier.fillMaxWidth(),
+        placeholder = { Text(stringResource(text_empty)) },
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.Sentences,
+            imeAction = ImeAction.Next
+        ),
+        keyboardActions = KeyboardActions(
+            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+        )
+    )
+}
 
 @Composable
 private fun ProductFormName(
@@ -542,7 +585,7 @@ private fun ProductNormName(state: MedicineState, event: (MedicineEvent) -> Unit
                 suffix = {
                     ExposedDropdownMenuBox(
                         expanded = state.showMenuDose,
-                        onExpandedChange = { event(MedicineEvent.ShowDoseMenu(it)) },
+                        onExpandedChange = { event(MedicineEvent.ShowDoseMenu) },
                         modifier = Modifier.width(64.dp)
                     ) {
                         Row(
@@ -556,7 +599,7 @@ private fun ProductNormName(state: MedicineState, event: (MedicineEvent) -> Unit
                         }
                         ExposedDropdownMenu(
                             expanded = state.showMenuDose,
-                            onDismissRequest = { event(MedicineEvent.ShowDoseMenu(false)) }
+                            onDismissRequest = { event(MedicineEvent.ShowDoseMenu) }
                         ) {
                             DoseTypes.entries.forEach { item ->
                                 DropdownMenuItem(
@@ -642,7 +685,7 @@ private fun Comment(state: MedicineState, event: (MedicineEvent) -> Unit) =
 
 @Composable
 private fun DialogKits(state: MedicineState, event: (MedicineEvent) -> Unit) = AlertDialog(
-    onDismissRequest = { event(MedicineEvent.ShowKitDialog(false)) },
+    onDismissRequest = { event(MedicineEvent.ShowKitDialog) },
     title = { Text(stringResource(preference_kits_group)) },
     dismissButton = {
         TextButton(
@@ -653,28 +696,26 @@ private fun DialogKits(state: MedicineState, event: (MedicineEvent) -> Unit) = A
     },
     confirmButton = {
         TextButton(
-            enabled = state.kitId != null,
-            onClick = { event(MedicineEvent.SetKitId) }
-        )
-        {
+            onClick = { event(MedicineEvent.ShowKitDialog) }
+        ) {
             Text(stringResource(text_save))
         }
     },
     text = {
-        Column(Modifier.selectableGroup()) {
-            database.kitDAO().getAll().forEach { (kitId, title) ->
+        LazyColumn {
+            items(database.kitDAO().getAll()) { (kitId, title) ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
-                        .selectable(
-                            selected = state.kitId == kitId,
-                            onClick = { event(MedicineEvent.PickKit(kitId)) },
-                            role = Role.RadioButton
+                        .toggleable(
+                            value = kitId in state.kits,
+                            onValueChange = { event(MedicineEvent.PickKit(kitId)) },
+                            role = Role.Checkbox
                         )
                 ) {
-                    RadioButton(state.kitId == kitId, null)
+                    Checkbox(kitId in state.kits, null)
                     Text(
                         text = title,
                         modifier = Modifier.padding(start = 16.dp),
@@ -690,7 +731,7 @@ private fun DialogKits(state: MedicineState, event: (MedicineEvent) -> Unit) = A
 @Composable
 private fun IconPicker(event: (MedicineEvent) -> Unit) =
     Dialog(
-        onDismissRequest = { event(MedicineEvent.ShowIconPicker(false)) }
+        onDismissRequest = { event(MedicineEvent.ShowIconPicker) }
     ) {
         Surface(Modifier.padding(vertical = 64.dp), RoundedCornerShape(16.dp)) {
             FlowRow(
@@ -727,6 +768,19 @@ private fun IconPicker(event: (MedicineEvent) -> Unit) =
             }
         }
     }
+
+@Composable
+private fun DialogDelete(cancel: () -> Unit, confirm: () -> Unit) = AlertDialog(
+    onDismissRequest = cancel,
+    confirmButton = { TextButton(confirm) { Text(stringResource(text_delete)) } },
+    dismissButton = { TextButton(cancel) { Text(stringResource(text_cancel)) } },
+    text = {
+        Text(
+            text = stringResource(text_confirm_deletion),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+)
 
 @Composable
 fun MedicineImage(image: String, modifier: Modifier = Modifier, state: MedicineState? = null) {

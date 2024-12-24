@@ -2,6 +2,7 @@ package ru.application.homemedkit.data
 
 import android.app.AlarmManager
 import android.content.Context
+import androidx.core.database.getIntOrNull
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -18,6 +19,7 @@ import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.Medicine
+import ru.application.homemedkit.data.dto.MedicineKit
 import ru.application.homemedkit.helpers.FORMAT_DH
 import ru.application.homemedkit.helpers.FORMAT_S
 import ru.application.homemedkit.helpers.ZONE
@@ -28,8 +30,10 @@ import java.time.LocalTime
 private const val DATABASE_NAME = "medicines"
 
 @Database(
-    entities = [Medicine::class, Intake::class, Alarm::class, Kit::class, IntakeTaken::class],
-    version = 16
+    version = 17,
+    entities = [
+        Medicine::class, Intake::class, Alarm::class, Kit::class, IntakeTaken::class, MedicineKit::class
+    ]
 )
 @TypeConverters(Converters::class)
 abstract class MedicineDatabase : RoomDatabase() {
@@ -62,7 +66,8 @@ abstract class MedicineDatabase : RoomDatabase() {
                     MIGRATION_12_13,
                     MIGRATION_13_14,
                     MIGRATION_14_15,
-                    MIGRATION_15_16
+                    MIGRATION_15_16,
+                    MIGRATION_16_17
                 )
                 .allowMainThreadQueries()
                 .build()
@@ -371,6 +376,56 @@ abstract class MedicineDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE medicines ADD COLUMN structure TEXT NOT NULL DEFAULT '' ")
                 db.execSQL("ALTER TABLE medicines ADD COLUMN recommendations TEXT NOT NULL DEFAULT '' ")
                 db.execSQL("ALTER TABLE medicines ADD COLUMN storageConditions TEXT NOT NULL DEFAULT '' ")
+            }
+        }
+
+        private val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS medicines_kits " +
+                        "(`medicineId` INTEGER NOT NULL, `kitId` INTEGER NOT NULL, " +
+                        "PRIMARY KEY (medicineId, kitId)" +
+                        "FOREIGN KEY (medicineId) REFERENCES medicines (id) ON UPDATE CASCADE ON DELETE CASCADE, " +
+                        "FOREIGN KEY (kitId) REFERENCES kits (kitId) ON UPDATE CASCADE ON DELETE CASCADE)"
+                )
+
+                val cursor = db.query("SELECT id, kitId FROM MEDICINES")
+                cursor.moveToFirst()
+
+                while (!cursor.isAfterLast) {
+                    val medicineId = cursor.getInt(0)
+                    val kitId = cursor.getIntOrNull(1)
+
+                    kitId?.let {
+                        db.execSQL("INSERT INTO medicines_kits (medicineId, kitId) VALUES ($medicineId, $kitId)")
+                    }
+
+                    cursor.moveToNext()
+                }
+
+                db.execSQL(
+                    "CREATE TABLE medicines_r (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`cis` TEXT NOT NULL, `productName` TEXT NOT NULL, " +
+                            "`expDate` INTEGER NOT NULL, `prodFormNormName` TEXT NOT NULL, " +
+                            "`structure` TEXT NOT NULL DEFAULT '', `recommendations` TEXT NOT NULL DEFAULT '', " +
+                            "`storageConditions` TEXT NOT NULL DEFAULT '', " +
+                            "`prodDNormName` TEXT NOT NULL, `prodAmount` REAL NOT NULL, " +
+                            "`doseType` TEXT NOT NULL DEFAULT '', " +
+                            "`phKinetics` TEXT NOT NULL, `comment` TEXT NOT NULL, " +
+                            "`image` TEXT NOT NULL DEFAULT '', " +
+                            "`scanned` INTEGER NOT NULL, `verified` INTEGER NOT NULL)"
+                )
+                db.execSQL("INSERT INTO medicines_r " +
+                        "(id, cis, productName, expDate, prodFormNormName, structure, " +
+                        "recommendations, storageConditions, prodDNormName, prodAmount, " +
+                        "doseType, phKinetics, comment, image, scanned, verified) " +
+                        "SELECT id, cis, productName, expDate, prodFormNormName, structure, " +
+                        "recommendations, storageConditions, prodDNormName, prodAmount, doseType, " +
+                        "phKinetics, comment, image, scanned, verified FROM medicines")
+                db.execSQL("DROP TABLE medicines")
+                db.execSQL("ALTER TABLE medicines_r RENAME TO medicines")
+
+                db.execSQL("ALTER TABLE medicines ADD COLUMN nameAlias TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE intakes ADD COLUMN cancellable INTEGER NOT NULL DEFAULT 1")
             }
         }
     }

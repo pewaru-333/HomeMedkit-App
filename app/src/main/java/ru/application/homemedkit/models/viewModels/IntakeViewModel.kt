@@ -77,7 +77,8 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                         finalDate = intake.finalDate,
                         fullScreen = intake.fullScreen,
                         noSound = intake.noSound,
-                        preAlarm = intake.preAlarm
+                        preAlarm = intake.preAlarm,
+                        cancellable = intake.cancellable
                     )
                 }
             }
@@ -244,7 +245,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                 else if (period.isDigitsOnly() && period.length <= 3) _state.update {
                     it.copy(
                         startDate = LocalDate.now().format(FORMAT_S),
-                        finalDate = LocalDate.now().plusDays(period.toLong()).format(FORMAT_S),
+                        finalDate = LocalDate.now().plusDays(period.toLong() - 1).format(FORMAT_S),
                         period = period
                     )
                 }
@@ -264,6 +265,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             is IntakeEvent.SetFullScreen -> _state.update { it.copy(fullScreen = event.flag) }
             is IntakeEvent.SetNoSound -> _state.update { it.copy(noSound = event.flag) }
             is IntakeEvent.SetPreAlarm -> _state.update { it.copy(preAlarm = event.flag) }
+            is IntakeEvent.SetCancellable -> _state.update { it.copy(cancellable = event.flag) }
             IntakeEvent.SetTime -> {
                 val picker = _state.value.times[_state.value.timeF]
                 val time = LocalTime.of(picker.hour, picker.minute).format(FORMAT_H)
@@ -291,7 +293,12 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             is IntakeEvent.ShowPeriodM -> if (_state.value.adding || state.value.editing)
                 _state.update { it.copy(showPeriodM = event.flag) }
             is IntakeEvent.ShowTimePicker -> _state.update { it.copy(showTimeP = event.flag, timeF = event.index) }
-            is IntakeEvent.ShowDialog -> _state.update { it.copy(showDialog = event.flag) }
+            is IntakeEvent.ShowDialog -> _state.update {
+                it.copy(
+                    extraDesc = event.desc,
+                    showDialog = !it.showDialog
+                )
+            }
             is IntakeEvent.ShowDialogDataLoss -> _state.update { it.copy(showDialogDataLoss = event.flag) }
         }
     }
