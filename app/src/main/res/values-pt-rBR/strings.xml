@@ -15,7 +15,6 @@
     </plurals>
     <string name="intake_text_select_interval">Select interval</string>
     <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
-    <string name="text_all">All</string>
     <string name="preference_med_compact_view">Compact view of medicines list</string>
     <string name="preference_system">System</string>
     <string name="lang_system">System</string>
@@ -36,7 +35,6 @@
     <string name="text_intake_time">Medicine: %1$s
 \nAmount: %2$s %3$s</string>
     <string name="text_attention">Attention!</string>
-    <string name="placeholder_kitchen">Kitchen</string>
     <string name="text_medicine_amount_not_enough">Not enough amount left</string>
     <string name="text_medicine_group">Group</string>
     <string name="type_paste">PASTE</string>
@@ -58,7 +56,7 @@
     <string name="intake_text_amount">Quantity</string>
     <string name="intakes_tab_current">Current</string>
     <string name="intake_text_date">Date</string>
-    <string name="intakes_tab_taken">Taken</string>
+    <string name="intakes_tab_past">Taken</string>
     <string name="text_connection_error">Connection error!</string>
     <string name="intake_text_pick_period">Pick period</string>
     <string name="intake_text_time">Time</string>

@@ -15,13 +15,17 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 45
-        versionName = "1.6.1"
+        versionCode = 46
+        versionName = "1.6.2"
     }
 
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
+    }
+
+    androidResources {
+        generateLocaleConfig = true
     }
 
     room {

@@ -63,7 +63,6 @@
 
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_kitchen">Kitchen</string>
     <string name="placeholder_time">Time #%1$d</string>
 
     <!-- Medicines -->
@@ -122,9 +121,9 @@
     <string name="dose_ratio" translatable="false">%</string>
 
     <!-- Intakes -->
-    <string name="intakes_tab_current">Current</string>
     <string name="intakes_tab_list">List</string>
-    <string name="intakes_tab_taken">Taken</string>
+    <string name="intakes_tab_current">Current</string>
+    <string name="intakes_tab_past">Past</string>
 
     <string name="intake_card_text_from">(from %1$s)</string>
     <string name="intake_text_amount">Quantity</string>
@@ -186,7 +185,6 @@
     <!-- Strings -->
     <string name="blank" translatable="false" />
     <string name="text_add">Add</string>
-    <string name="text_all">All</string>
     <string name="text_amount">Amount</string>
     <string name="text_cancel">Cancel</string>
     <string name="text_clear">Clear</string>

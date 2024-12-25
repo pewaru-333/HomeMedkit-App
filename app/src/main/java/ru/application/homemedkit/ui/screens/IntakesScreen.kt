@@ -1,6 +1,7 @@
 package ru.application.homemedkit.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,15 +15,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -31,7 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults.MinHeight
 import androidx.compose.material3.OutlinedTextFieldDefaults.MinWidth
@@ -71,7 +69,7 @@ import ru.application.homemedkit.R.string.intake_text_quantity
 import ru.application.homemedkit.R.string.intake_text_taken
 import ru.application.homemedkit.R.string.intakes_tab_current
 import ru.application.homemedkit.R.string.intakes_tab_list
-import ru.application.homemedkit.R.string.intakes_tab_taken
+import ru.application.homemedkit.R.string.intakes_tab_past
 import ru.application.homemedkit.R.string.text_amount
 import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_edit
@@ -83,9 +81,7 @@ import ru.application.homemedkit.R.string.text_no_intakes_found
 import ru.application.homemedkit.R.string.text_notification_pick_action_first
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_status
-import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.Intake
-import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.dialogs.TimePickerDialog
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DoseTypes
@@ -98,8 +94,6 @@ import ru.application.homemedkit.helpers.ZONE
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.getDateTime
-import ru.application.homemedkit.helpers.shortName
-import ru.application.homemedkit.models.states.IntakesState
 import ru.application.homemedkit.models.viewModels.IntakesViewModel
 import java.time.Instant
 import java.time.LocalDate
@@ -143,24 +137,13 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                 },
                 modifier = Modifier.drawBehind {
                     drawLine(Color.LightGray, Offset(0f, size.height), Offset(size.width, size.height), 4f)
-                },
-                actions = {
-                    if(state.tab == 2) {
-                        IconButton(model::setLayoutTaken) {
-                            Icon(
-                                contentDescription = null,
-                                imageVector = if(state.reverseTaken) Icons.Outlined.KeyboardArrowUp
-                                else Icons.Outlined.KeyboardArrowDown
-                            )
-                        }
-                    }
                 }
             )
         }
     ) { values ->
         Column(Modifier.padding(top = values.calculateTopPadding())) {
             TabRow(state.tab) {
-                listOf(intakes_tab_list, intakes_tab_current, intakes_tab_taken).forEachIndexed { index, tab ->
+                listOf(intakes_tab_list, intakes_tab_current, intakes_tab_past).forEachIndexed { index, tab ->
                     Tab(
                         selected = state.tab == index,
                         onClick = { model.pickTab(index) },
@@ -186,21 +169,43 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                     ) { items(list) { IntakeCard(it, navigateToIntake) } }
                 }
 
-                1 -> schedule.let { list ->
-                    LazyColumn(
-                        state = state.stateB,
-                        contentPadding = PaddingValues(4.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) { items(list.size) { IntakeSchedule(list.entries.elementAt(it)) } }
+                1 -> LazyColumn(state = state.stateB) {
+                    schedule.forEach { future ->
+                        item { TextDate(future.date) }
+                        itemsIndexed(future.intakes) { index, value ->
+                            val intake = database.intakeDAO().getById(value.intakeId)
+                            val medicine = database.medicineDAO().getById(intake?.medicineId ?: 0L)
+
+                            if (intake != null && medicine != null)
+                                MedicineItem(
+                                    title = medicine.nameAlias.ifEmpty { medicine.productName },
+                                    formName = medicine.prodFormNormName,
+                                    doseType = medicine.doseType,
+                                    amount = intake.amount,
+                                    image = medicine.image,
+                                    trigger = value.trigger
+                                )
+                            if (index < future.intakes.lastIndex) HorizontalDivider()
+                        }
+                    }
                 }
 
-                2 -> taken.let { list ->
-                    LazyColumn(
-                        state = state.stateC,
-                        contentPadding = PaddingValues(4.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        reverseLayout = state.reverseTaken
-                    ) { items(list.size) { IntakeTaken(model, state, list.entries.elementAt(it)) } }
+                2 -> LazyColumn(state = state.stateC) {
+                    taken.forEach { past ->
+                        item { TextDate(past.date) }
+                        itemsIndexed(past.intakes.reversed()) { index, value->
+                            MedicineItem(
+                                title = value.productName,
+                                formName = value.formName,
+                                doseType = value.doseType,
+                                amount = value.amount,
+                                image = value.image,
+                                trigger = value.trigger,
+                                taken = value.taken
+                            ) { model.showDialog(value) }
+                            if(index < past.intakes.lastIndex) HorizontalDivider()
+                        }
+                    }
                 }
             }
         }
@@ -247,41 +252,6 @@ fun IntakeItem(intake: Intake, navigateToIntake:(Long) -> Unit) {
         modifier = Modifier.clickable { navigateToIntake(intake.intakeId) },
         headlineContent = { Text(medicine?.let { it.nameAlias.ifEmpty { it.productName } } ?: BLANK, softWrap = false) }
     )
-}
-
-@Composable
-fun IntakeSchedule(data: Map.Entry<Long, List<Alarm>>) = OutlinedCard(
-    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerLowest)
-) {
-    TextDate(data.key)
-    data.value.forEachIndexed { index, (_, intakeId, trigger) ->
-        val intake = database.intakeDAO().getById(intakeId)
-        val medicine = database.medicineDAO().getById(intake?.medicineId ?: 0L)
-
-        MedicineItem(
-            medicine?.productName, medicine?.prodFormNormName, medicine?.doseType, intake?.amount,
-            medicine?.image, trigger
-        )
-        if (index < data.value.size - 1) HorizontalDivider()
-    }
-}
-
-@Composable
-fun IntakeTaken(
-    model: IntakesViewModel,
-    state: IntakesState,
-    data: Map.Entry<Long, List<IntakeTaken>>
-) = OutlinedCard(colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainerLowest)) {
-    TextDate(data.key)
-    data.value.run {
-        if (state.reverseTaken) sortedBy { it.trigger } else sortedByDescending { it.trigger }
-    }.forEachIndexed { index, value ->
-        MedicineItem(
-            value.productName, value.formName, value.doseType, value.amount, value.image,
-            value.trigger, value.taken
-        ) { model.showDialog(value) }
-        if (index < data.value.size - 1) HorizontalDivider()
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -391,46 +361,47 @@ private fun DialogTaken(model: IntakesViewModel) {
 
 @Composable
 private fun TextDate(timestamp: Long) = Text(
+    style = MaterialTheme.typography.titleLarge.copy(fontWeight = SemiBold),
     text = LocalDate.ofEpochDay(timestamp).let {
         it.format(if (it.year == LocalDate.now().year) FORMAT_DME else FORMAT_DMMMMY)
     },
-    modifier = Modifier.padding(12.dp),
-    style = MaterialTheme.typography.titleLarge.copy(fontWeight = SemiBold)
+    modifier = Modifier
+        .fillMaxWidth()
+        .background(MaterialTheme.colorScheme.background)
+        .padding(12.dp, 24.dp)
 )
 
 @Composable
 private fun MedicineItem(
-    title: String?,
-    formName: String?,
-    doseType: String?,
-    amount: Double?,
-    image: String?,
+    title: String,
+    formName: String,
+    doseType: String,
+    amount: Double,
+    image: String,
     trigger: Long,
     taken: Boolean = true,
     showDialog: (() -> Unit)? = null
-) {
-    ListItem(
-        headlineContent = { Text(shortName(title), softWrap = false) },
-        modifier = Modifier.clickable { showDialog?.invoke() },
-        supportingContent = {
-            Text(
-                text = stringResource(
-                    intake_text_quantity,
-                    formName?.let { if (it.isEmpty()) stringResource(text_amount) else formName(it) } ?: BLANK,
-                    decimalFormat(amount), stringResource(DoseTypes.getTitle(doseType)),
-                )
+) = ListItem(
+    headlineContent = { Text(text = title, maxLines = 1, softWrap = false) },
+    leadingContent = { MedicineImage(image, Modifier.size(40.dp)) },
+    modifier = Modifier.clickable { showDialog?.invoke() },
+    supportingContent = {
+        Text(
+            text = stringResource(
+                intake_text_quantity,
+                formName.let { if (it.isEmpty()) stringResource(text_amount) else formName(it) },
+                decimalFormat(amount), stringResource(DoseTypes.getTitle(doseType)),
             )
-        },
-        leadingContent = { MedicineImage(image ?: BLANK, Modifier.size(40.dp)) },
-        trailingContent = {
-            Text(
-                text = LocalDateTime.ofInstant(Instant.ofEpochMilli(trigger), ZONE).format(FORMAT_H),
-                style = MaterialTheme.typography.labelLarge
-            )
-        },
-        colors = ListItemDefaults.colors(
-            if (taken) MaterialTheme.colorScheme.surfaceContainerLowest
-            else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
         )
+    },
+    trailingContent = {
+        Text(
+            text = LocalDateTime.ofInstant(Instant.ofEpochMilli(trigger), ZONE).format(FORMAT_H),
+            style = MaterialTheme.typography.labelLarge
+        )
+    },
+    colors = ListItemDefaults.colors(
+        if (taken) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+        else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.65f)
     )
-}
+)

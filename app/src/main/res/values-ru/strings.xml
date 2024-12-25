@@ -50,7 +50,6 @@
 
     <!-- "Заполнители" -->
     <string name="placeholder_dose">0,5 мг + 84 мкг</string>
-    <string name="placeholder_kitchen">Кухня</string>
     <string name="placeholder_time">Время #%1$d</string>
 
     <!-- Лекарства -->
@@ -108,9 +107,9 @@
     <string name="dose_ml">мл</string>
 
     <!-- Приём -->
-    <string name="intakes_tab_current">Текущее</string>
     <string name="intakes_tab_list">Список</string>
-    <string name="intakes_tab_taken">Принятое</string>
+    <string name="intakes_tab_current">Текущие</string>
+    <string name="intakes_tab_past">Прошедшие</string>
 
     <string name="intake_card_text_from">(с %1$s)</string>
     <string name="intake_text_amount">Количество</string>
@@ -171,7 +170,6 @@
 
     <!-- Строки -->
     <string name="text_add">Добавить</string>
-    <string name="text_all">Все</string>
     <string name="text_amount">Количество</string>
     <string name="text_cancel">Отменить</string>
     <string name="text_clear">Очистить</string>

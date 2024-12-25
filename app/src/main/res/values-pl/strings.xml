@@ -35,7 +35,6 @@
     <string name="text_medicine_status_scanned">Scanned, unchecked</string>
     <string name="text_medicine_comment">Comment</string>
     <string name="type_tablets">TABLETS</string>
-    <string name="placeholder_kitchen">Kitchen</string>
     <string name="type_powder">POWDER</string>
     <string name="type_granules">GRANULES</string>
     <string name="type_dragee">DRAGEE</string>
@@ -92,7 +91,6 @@
     <string name="text_request_post">To receive notifications, the application must be granted the appropriate permission</string>
     <string name="text_medicine_status_self_added">Added manually</string>
     <string name="intake_text_amount">Quantity</string>
-    <string name="text_all">All</string>
     <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
     <string name="text_medicine_status_checked">Scanned, checked</string>
     <string name="text_medicine_description">Description</string>
@@ -121,7 +119,7 @@
     <string name="text_medicine_deleted">Medicine has been deleted, impossible to change intake status</string>
     <string name="type_mixture">MIXTURE</string>
     <string name="preference_import_export">Import/Export</string>
-    <string name="intakes_tab_taken">Taken</string>
+    <string name="intakes_tab_past">Taken</string>
     <string name="text_indications_for_use">Indications for use</string>
     <string name="text_grant_permission">Grant permission</string>
     <string name="text_tap_to_view">Tap to view</string>

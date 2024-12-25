@@ -75,7 +75,6 @@
     <string name="text_dismiss">Dismiss</string>
     <string name="intake_text_in_fact">Actual</string>
     <string name="type_drops">DROPS</string>
-    <string name="placeholder_kitchen">Keuken</string>
     <string name="type_suppository">SUPPOSITORY</string>
     <string name="type_powder">POWDER</string>
     <string name="text_medicine_amount_not_enough">Niet genoeg hoeveelheid over</string>
@@ -95,7 +94,6 @@
     <string name="dose_ml">ml</string>
     <string name="preference_app_theme">App-thema</string>
     <string name="intake_text_amount">Quantity</string>
-    <string name="text_all">All</string>
     <string name="dose_g">g</string>
     <string name="text_medicine_status_self_added">Added manually</string>
     <string name="intake_text_not_taken">Not taken</string>
@@ -136,7 +134,7 @@
     <string name="preference_import_export">Import/Export</string>
     <string name="text_indications_for_use">Indications for use</string>
     <string name="bottom_bar_medicines">Medicijnen</string>
-    <string name="intakes_tab_taken">Taken</string>
+    <string name="intakes_tab_past">Taken</string>
     <string name="intake_period_pick">dates choice</string>
     <string name="bottom_bar_settings">Instellingen</string>
     <string name="text_tap_to_view">Tap to view</string>

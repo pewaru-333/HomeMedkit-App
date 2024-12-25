@@ -3,7 +3,6 @@ package ru.application.homemedkit.helpers
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import kotlinx.serialization.Serializable
-import ru.application.homemedkit.R
 import ru.application.homemedkit.R.drawable.vector_after_food
 import ru.application.homemedkit.R.drawable.vector_before_food
 import ru.application.homemedkit.R.drawable.vector_in_food
@@ -37,7 +36,81 @@ import ru.application.homemedkit.R.drawable.vector_type_syrup
 import ru.application.homemedkit.R.drawable.vector_type_tablets
 import ru.application.homemedkit.R.drawable.vector_type_tincture
 import ru.application.homemedkit.R.drawable.vector_type_unknown
-import ru.application.homemedkit.R.string.*
+import ru.application.homemedkit.R.string.blank
+import ru.application.homemedkit.R.string.bottom_bar_intakes
+import ru.application.homemedkit.R.string.bottom_bar_medicines
+import ru.application.homemedkit.R.string.bottom_bar_settings
+import ru.application.homemedkit.R.string.dose_ed
+import ru.application.homemedkit.R.string.dose_g
+import ru.application.homemedkit.R.string.dose_l
+import ru.application.homemedkit.R.string.dose_mg
+import ru.application.homemedkit.R.string.dose_ml
+import ru.application.homemedkit.R.string.dose_pcs
+import ru.application.homemedkit.R.string.dose_ratio
+import ru.application.homemedkit.R.string.dose_sach
+import ru.application.homemedkit.R.string.intake_extra_cancellable
+import ru.application.homemedkit.R.string.intake_extra_cancellable_desc
+import ru.application.homemedkit.R.string.intake_extra_fullscreen
+import ru.application.homemedkit.R.string.intake_extra_no_sound
+import ru.application.homemedkit.R.string.intake_extra_prealarm
+import ru.application.homemedkit.R.string.intake_extra_prealarm_desc
+import ru.application.homemedkit.R.string.intake_interval_daily
+import ru.application.homemedkit.R.string.intake_interval_other
+import ru.application.homemedkit.R.string.intake_interval_weekly
+import ru.application.homemedkit.R.string.intake_period_indef
+import ru.application.homemedkit.R.string.intake_period_other
+import ru.application.homemedkit.R.string.intake_period_pick
+import ru.application.homemedkit.R.string.intake_text_food_after
+import ru.application.homemedkit.R.string.intake_text_food_before
+import ru.application.homemedkit.R.string.intake_text_food_during
+import ru.application.homemedkit.R.string.lang_cs
+import ru.application.homemedkit.R.string.lang_de
+import ru.application.homemedkit.R.string.lang_en
+import ru.application.homemedkit.R.string.lang_es
+import ru.application.homemedkit.R.string.lang_it
+import ru.application.homemedkit.R.string.lang_ko
+import ru.application.homemedkit.R.string.lang_nl
+import ru.application.homemedkit.R.string.lang_pl
+import ru.application.homemedkit.R.string.lang_pt_BR
+import ru.application.homemedkit.R.string.lang_ru
+import ru.application.homemedkit.R.string.lang_system
+import ru.application.homemedkit.R.string.lang_tr
+import ru.application.homemedkit.R.string.lang_vi
+import ru.application.homemedkit.R.string.lang_zh_CN
+import ru.application.homemedkit.R.string.lang_zh_TW
+import ru.application.homemedkit.R.string.sorting_a_z
+import ru.application.homemedkit.R.string.sorting_from_newest
+import ru.application.homemedkit.R.string.sorting_from_oldest
+import ru.application.homemedkit.R.string.sorting_z_a
+import ru.application.homemedkit.R.string.theme_dark
+import ru.application.homemedkit.R.string.theme_light
+import ru.application.homemedkit.R.string.theme_system
+import ru.application.homemedkit.R.string.type_aerosol
+import ru.application.homemedkit.R.string.type_bandage
+import ru.application.homemedkit.R.string.type_capsules
+import ru.application.homemedkit.R.string.type_decoction
+import ru.application.homemedkit.R.string.type_dragee
+import ru.application.homemedkit.R.string.type_drops
+import ru.application.homemedkit.R.string.type_emulsion
+import ru.application.homemedkit.R.string.type_extract
+import ru.application.homemedkit.R.string.type_gel
+import ru.application.homemedkit.R.string.type_granules
+import ru.application.homemedkit.R.string.type_mix
+import ru.application.homemedkit.R.string.type_mixture
+import ru.application.homemedkit.R.string.type_napkins
+import ru.application.homemedkit.R.string.type_ointment
+import ru.application.homemedkit.R.string.type_paste
+import ru.application.homemedkit.R.string.type_patch
+import ru.application.homemedkit.R.string.type_pills
+import ru.application.homemedkit.R.string.type_powder
+import ru.application.homemedkit.R.string.type_sachet
+import ru.application.homemedkit.R.string.type_solution
+import ru.application.homemedkit.R.string.type_spray
+import ru.application.homemedkit.R.string.type_suppository
+import ru.application.homemedkit.R.string.type_suspension
+import ru.application.homemedkit.R.string.type_syrup
+import ru.application.homemedkit.R.string.type_tablets
+import ru.application.homemedkit.R.string.type_tincture
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.helpers.DoseTypes.GRAMS
 import ru.application.homemedkit.helpers.DoseTypes.MILLIGRAMS
@@ -63,7 +136,6 @@ const val KEY_DYNAMIC_COLOR = "dynamic_color"
 const val KEY_EXP_IMP = "export_import"
 const val KEY_KITS = "kits_group"
 const val KEY_LANGUAGE = "language"
-const val KEY_LAST_KIT = "last_kit"
 const val KEY_MED_COMPACT_VIEW = "med_comp_view"
 const val KEY_ORDER = "sorting_order"
 const val TAKEN_ID = "takenId"

@@ -33,7 +33,6 @@
     <string name="text_intake_amount_not_enough">Đã đến lúc uống thuốc %1$s nhưng số lượng ít hơn quy định! Tái tạo lượng tiêu thụ!</string>
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_kitchen">Nhà bếp</string>
     <string name="placeholder_time">Thời gian #%1$d</string>
     <!-- Medicines -->
     <string name="text_exp_date">Ngày h.hạn</string>
@@ -45,7 +44,7 @@
     <!-- Intakes -->
     <string name="intakes_tab_list">Danh sách</string>
     <string name="intakes_tab_current">Hiện tại</string>
-    <string name="intakes_tab_taken">Uống</string>
+    <string name="intakes_tab_past">Uống</string>
     <string name="intake_card_text_from">(từ %1$s)</string>
     <string name="intake_text_amount">Số lượng</string>
     <string name="intake_text_food_after">Sau bữa ăn</string>
@@ -71,7 +70,6 @@
     <string name="text_select_time">Chọn thời gian</string>
     <!-- Strings -->
     <string name="text_add">Thêm</string>
-    <string name="text_all">Tất cả</string>
     <string name="text_amount">Số lượng</string>
     <string name="text_cancel">Hủy</string>
     <string name="text_clear">Dọn</string>

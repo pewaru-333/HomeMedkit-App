@@ -30,7 +30,6 @@
     <string name="text_expire_soon">%1$s 的到期日即將到期</string>
     <!-- Placeholders -->
     <string name="placeholder_dose">0.5 mg + 84 mcg</string>
-    <string name="placeholder_kitchen">廚房</string>
     <string name="placeholder_time">時間 #%1$d</string>
     <!-- Medicines -->
     <string name="text_exp_date">到期日</string>
@@ -42,7 +41,7 @@
     <!-- Intakes -->
     <string name="intakes_tab_list">清單</string>
     <string name="intakes_tab_current">目前</string>
-    <string name="intakes_tab_taken">采取</string>
+    <string name="intakes_tab_past">采取</string>
     <string name="intake_text_amount">數量</string>
     <string name="intake_text_food_after">用餐後</string>
     <string name="intake_text_food_before">用餐前</string>
@@ -83,7 +82,6 @@
     <string name="text_clear">清除</string>
     <string name="text_cancel">取消</string>
     <string name="text_amount">數量</string>
-    <string name="text_all">全部</string>
     <string name="text_add">增加</string>
     <!-- Plurals -->
     <plurals name="intakes_a_day">

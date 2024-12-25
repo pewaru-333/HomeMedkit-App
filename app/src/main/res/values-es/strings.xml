@@ -50,7 +50,6 @@
 
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_kitchen">Cocina</string>
     <string name="placeholder_time">Hora #%1$d</string>
 
     <!-- Medicamentos -->
@@ -108,9 +107,9 @@
     <string name="dose_ml">ml</string>
 
     <!-- Intakes -->
-    <string name="intakes_tab_current">Actual</string>
     <string name="intakes_tab_list">Lista</string>
-    <string name="intakes_tab_taken">Ya tomado</string>
+    <string name="intakes_tab_current">Actual</string>
+    <string name="intakes_tab_past">Ya tomado</string>
 
     <string name="intake_card_text_from">(desde %1$s)</string>
     <string name="intake_text_amount">Cantidad</string>
@@ -171,7 +170,6 @@
 
     <!-- Strings -->
     <string name="text_add">Añadir</string>
-    <string name="text_all">Todo</string>
     <string name="text_amount">Importe</string>
     <string name="text_cancel">Cancelar</string>
     <string name="text_clear">Limpiar</string>

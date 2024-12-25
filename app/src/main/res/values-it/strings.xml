@@ -34,7 +34,6 @@
     <string name="text_medicine_amount_not_enough">Non abbastanza importo lasciato</string>
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_kitchen">Cucina</string>
     <string name="placeholder_time">Tempo #%1$d</string>
     <!-- Medicines -->
     <string name="text_exp_date">Data di scadenza</string>
@@ -51,7 +50,7 @@
     <!-- Intakes -->
     <string name="intakes_tab_current">Corrente</string>
     <string name="intakes_tab_list">Elenco</string>
-    <string name="intakes_tab_taken">Preso</string>
+    <string name="intakes_tab_past">Preso</string>
     <string name="intake_card_text_from">(da %1$s)</string>
     <string name="intake_text_amount">Quantità</string>
     <string name="intake_text_date">Data</string>
@@ -83,7 +82,6 @@
     <string name="text_try_again">Prova di nuovo a scansionare l\'etichetta!</string>
     <!-- Strings -->
     <string name="text_add">Aggiungi</string>
-    <string name="text_all">Tutti</string>
     <string name="text_amount">Numero</string>
     <string name="text_cancel">Annulla</string>
     <string name="text_clear">Libero</string>

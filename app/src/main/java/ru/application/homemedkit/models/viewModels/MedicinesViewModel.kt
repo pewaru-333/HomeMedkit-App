@@ -28,8 +28,9 @@ class MedicinesViewModel : ViewModel() {
         database.medicineDAO().getFlow(),
         database.kitDAO().getMedicinesKits()
     ) { query, list, kits ->
-        list.fastFilter { (id, _, _, productName) ->
-            productName.contains(query.search, true) && if (query.kits.isEmpty()) true
+        list.fastFilter { (id, _, productName, nameAlias, _, _, structure, _, _, _, phKinetics) ->
+            listOf(productName, nameAlias, structure, phKinetics).any { it.contains(query.search, true) } &&
+            if (query.kits.isEmpty()) true
             else id in kits.filter { it.kitId in query.kits }.map(MedicineKit::medicineId)
         }.sortedWith(query.sorting)
     }.stateIn(

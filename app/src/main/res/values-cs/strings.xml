@@ -56,7 +56,6 @@
     <string name="text_add">Add</string>
     <string name="text_attention">Attention!</string>
     <string name="type_drops">DROPS</string>
-    <string name="placeholder_kitchen">Kitchen</string>
     <string name="type_suppository">SUPPOSITORY</string>
     <string name="type_powder">POWDER</string>
     <string name="text_medicine_amount_not_enough">Not enough amount left</string>
@@ -76,7 +75,6 @@
     <string name="text_request_post">To receive notifications, the application must be granted the appropriate permission</string>
     <string name="text_medicine_status_self_added">Added manually</string>
     <string name="intake_text_amount">Quantity</string>
-    <string name="text_all">All</string>
     <string name="intake_text_not_taken">Not taken</string>
     <string name="intake_text_select_interval">Select interval</string>
     <string name="preference_check_expiration_date">Checking the expiration date of medicines</string>
@@ -115,7 +113,7 @@
     <string name="text_medicine_deleted">Medicine has been deleted, impossible to change intake status</string>
     <string name="type_mixture">MIXTURE</string>
     <string name="preference_import_export">Import/Export</string>
-    <string name="intakes_tab_taken">Taken</string>
+    <string name="intakes_tab_past">Taken</string>
     <string name="text_indications_for_use">Indications for use</string>
     <string name="text_grant_permission">Grant permission</string>
     <string name="bottom_bar_medicines">Medicines</string>

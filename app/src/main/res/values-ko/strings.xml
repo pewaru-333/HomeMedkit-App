@@ -8,7 +8,7 @@
     <string name="lang_system">System</string>
     <string name="text_medicine_comment">Comment</string>
     <string name="intake_card_text_from">(from %1$s)</string>
-    <string name="intakes_tab_taken">Taken</string>
+    <string name="intakes_tab_past">Taken</string>
     <string name="intake_text_taken">Taken</string>
     <string name="preference_med_compact_view">Compact view of medicines list</string>
     <string name="theme_light">Light</string>
@@ -17,7 +17,6 @@
     <string name="text_intake_time">Medicine: %1$s
 \nAmount: %2$s %3$s</string>
     <string name="text_attention">Attention!</string>
-    <string name="placeholder_kitchen">Kitchen</string>
     <string name="text_medicine_amount_not_enough">Not enough amount left</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="text_expire_soon">The expiration date of %1$s is about to expire</string>
@@ -85,7 +84,6 @@
     <string name="text_request_post">To receive notifications, the application must be granted the appropriate permission</string>
     <string name="text_medicine_status_self_added">Added manually</string>
     <string name="intake_text_amount">Quantity</string>
-    <string name="text_all">All</string>
     <string name="intake_text_not_taken">Not taken</string>
     <string name="intake_text_select_interval">Select interval</string>
     <string name="preference_check_expiration_date">Checking the expiration date of medicines</string>

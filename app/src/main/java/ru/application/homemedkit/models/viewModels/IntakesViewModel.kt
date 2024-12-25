@@ -5,6 +5,8 @@ package ru.application.homemedkit.models.viewModels
 import android.app.AlarmManager
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,6 +25,8 @@ import kotlinx.coroutines.runBlocking
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.IntakeTaken
+import ru.application.homemedkit.data.model.IntakeFuture
+import ru.application.homemedkit.data.model.IntakePast
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.FORMAT_DH
 import ru.application.homemedkit.helpers.FORMAT_S
@@ -87,23 +91,24 @@ class IntakesViewModel : ViewModel() {
                         }
                     }
                 }
-            }.sortedBy { it.trigger }
+            }
+                .sortedBy { it.trigger }
                 .filter { it.trigger > System.currentTimeMillis() }
                 .groupBy { Instant.ofEpochMilli(it.trigger).atZone(ZONE).toLocalDate().toEpochDay() }
+                .map { IntakeFuture(it.key, it.value) }
             )
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyMap())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     val taken = combine(_state, takenDAO.getFlow()) { query, list ->
         list.fastFilter { it.productName.contains(query.search, true) }
-            .sortedByDescending { it.trigger }
             .groupBy { Instant.ofEpochMilli(it.trigger).atZone(ZONE).toLocalDate().toEpochDay() }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyMap())
+            .toSortedMap(Comparator.reverseOrder())
+            .map { IntakePast(it.key, it.value.toMutableStateList()) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), mutableStateListOf())
 
     fun setSearch(text: String) = _state.update { it.copy(search = text) }
     fun clearSearch() = _state.update { it.copy(search = BLANK) }
-
-    fun setLayoutTaken() = _state.update { it.copy(reverseTaken = !it.reverseTaken) }
 
     fun showDialog(taken: IntakeTaken) {
         val time = getDateTime(taken.inFact)

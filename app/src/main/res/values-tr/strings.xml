@@ -33,7 +33,6 @@
     <string name="text_intake_amount_not_enough">%1$s alım zamanı, ancak miktarı reçetelenenden az! Alımı tekrar oluştur!</string>
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_kitchen">Mutfak</string>
     <string name="placeholder_time">Zaman #%1$d</string>
     <!-- Medicines -->
     <string name="text_exp_date">Son k.t.</string>
@@ -45,7 +44,7 @@
     <!-- Intakes -->
     <string name="intakes_tab_current">Güncel</string>
     <string name="intakes_tab_list">Liste</string>
-    <string name="intakes_tab_taken">Alındı</string>
+    <string name="intakes_tab_past">Alındı</string>
     <string name="intake_card_text_from">(den %1$s)</string>
     <string name="intake_text_amount">Miktar</string>
     <string name="intake_text_food">Yemek &amp; İlaç</string>
@@ -71,7 +70,6 @@
     <string name="text_select_time">Zamanı seç</string>
     <!-- Strings -->
     <string name="text_add">Ekle</string>
-    <string name="text_all">Tümü</string>
     <string name="text_amount">Miktar</string>
     <string name="text_cancel">İptal</string>
     <string name="text_clear">Temizle</string>
