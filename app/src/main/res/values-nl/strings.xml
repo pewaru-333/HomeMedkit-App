@@ -129,7 +129,7 @@
     <string name="intake_text_food_after">After meal</string>
     <string name="sorting_from_oldest">Vervaldatum (van oudst)</string>
     <string name="text_medicine_deleted">Medicine has been deleted, impossible to change intake status</string>
-    <string name="channel_name">Geluidmeldingen</string>
+    <string name="channel_name">Sound notifications</string>
     <string name="type_mixture">MIXTURE</string>
     <string name="preference_import_export">Import/Export</string>
     <string name="text_indications_for_use">Indicatie voor gebruik</string>
