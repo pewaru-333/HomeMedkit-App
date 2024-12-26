@@ -40,7 +40,7 @@
     <string name="intake_text_pick_period">Pick period</string>
     <string name="dose_l">l</string>
     <string name="text_finish_date">Finish date</string>
-    <string name="lang_system">System</string>
+    <string name="lang_system">Systeem</string>
     <string name="text_clear">Clear</string>
     <string name="type_solution">SOLUTION</string>
     <string name="bottom_bar_intakes">Inname</string>
@@ -88,7 +88,7 @@
     <string name="text_success">Successfully!</string>
     <string name="text_medicine_product_name">Product name</string>
     <string name="preference_med_compact_view">Compacte weergave van lijsten</string>
-    <string name="preference_system">System</string>
+    <string name="preference_system">Systeem</string>
     <string name="type_granules">GRANULES</string>
     <string name="intake_extra_prealarm">Upcoming notification</string>
     <string name="dose_ml">ml</string>
