@@ -176,11 +176,11 @@
     <string name="type_bandage">BANDAGE</string>
     <string name="type_patch">PFLASTER</string>
     <string name="dose_sach">Btl.</string>
-    <string name="text_stay">Stay</string>
-    <string name="text_explain_camera">To scan a label, you must give the camera permission. An example of what the marking looks like is shown below (it only works for Russian treatments)</string>
+    <string name="text_stay">Bleiben</string>
+    <string name="text_explain_camera">Kamera-Erlaubnis erforderlich. Ein Muster für das Aussehen der Markierung wird unterhalb gezeigt (funktioniert nur für russische Präparate).</string>
     <string name="text_fill_field">Dieses Feld ausfüllen!</string>
     <string name="text_pay_attention">Achtung!</string>
-    <string name="text_grant">Grant</string>
+    <string name="text_grant">Erlauben</string>
     <string name="text_not_saved_intake">Die Einnahme ist nicht gesichert! Möchten Sie zurückgehen?</string>
     <string name="text_exit">Beenden</string>
     <string name="text_confirm_deletion">Soll dieses Medikament wirklich gelöscht werden?</string>
