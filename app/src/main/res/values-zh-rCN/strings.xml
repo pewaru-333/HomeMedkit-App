@@ -2,7 +2,7 @@
 <resources>
     <string name="channel_exp_desc">Expiration date</string>
     <string name="theme_light">Light</string>
-    <string name="bottom_bar_intakes">Intakes</string>
+    <string name="bottom_bar_intakes">摄入</string>
     <string name="lang_system">System</string>
     <string name="theme_dark">Dark</string>
     <string name="preference_dynamic_color">Dynamic color</string>
@@ -132,8 +132,8 @@
     <string name="intakes_tab_past">Taken</string>
     <string name="text_indications_for_use">Indications for use</string>
     <string name="text_grant_permission">Grant permission</string>
-    <string name="bottom_bar_medicines">Medicines</string>
-    <string name="bottom_bar_settings">Settings</string>
+    <string name="bottom_bar_medicines">药物</string>
+    <string name="bottom_bar_settings">设置</string>
     <string name="text_tap_to_view">Tap to view</string>
     <string name="intake_text_interval">Interval</string>
     <string name="preference_app_view">App view</string>
