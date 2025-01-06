@@ -147,7 +147,7 @@
     <string name="text_intake_prealarm_text">Medicamento: %1$s\nQuantidade: %2$s %3$s\nTempo: %4$s</string>
     <string name="text_dismiss">Dismiss</string>
     <string name="intake_text_in_fact">Real</string>
-    <string name="intake_text_by_schedule">Por agendamento</string>
+    <string name="intake_text_by_schedule">Por cronograma</string>
     <string name="intake_text_extra">Extra</string>
     <string name="intake_extra_prealarm">Notificação próxima</string>
     <string name="intake_extra_prealarm_desc">Notificação na barra de status 30 minutos antes do horário de consumo</string>
