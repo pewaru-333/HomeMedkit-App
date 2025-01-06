@@ -133,7 +133,7 @@
     <string name="type_tincture">TINTURA</string>
     <string name="sorting_from_newest">Data de validade (da mais recente)</string>
     <string name="intake_period_indef">por tempo indefinido</string>
-    <string name="intake_interval_other">customizado</string>
+    <string name="intake_interval_other">personalizado</string>
     <string name="intake_interval_daily">diariamente</string>
     <string name="intake_period_other">por número de dias</string>
     <string name="intake_interval_weekly">semanalmente</string>
@@ -166,7 +166,7 @@
     <string name="type_patch">CURATIVO</string>
     <string name="dose_sach">sach</string>
     <string name="text_explain_camera">Para fazer scan da etiqueta, você precisa dar a permissão de câmera. Um exemplo de como a etiqueta deve se parecer está representado abaixo (só funciona com tratamentos russos)</string>
-    <string name="text_fill_field">Fill in this field!</string>
+    <string name="text_fill_field">Preencha este campo!</string>
     <string name="text_pay_attention">Preste atenção!</string>
     <string name="text_stay">Ficar</string>
     <string name="text_exit_app">Você tem certeza que quer sair do app?</string>
