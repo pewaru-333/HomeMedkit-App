@@ -46,8 +46,7 @@
     <string name="text_medicine_form">Release form</string>
     <string name="text_unspecified">Unspecified</string>
     <string name="type_tablets">TABLETS</string>
-    <string name="text_intake_time">Medicine: %1$s
-\nAmount: %2$s %3$s</string>
+    <string name="text_intake_time">Medicine: %1$s \nAmount: %2$s %3$s</string>
     <string name="text_empty">Empty</string>
     <string name="text_no_data_found">No medicines found. Add them or change the filter.</string>
     <string name="type_spray">SPRAY</string>
