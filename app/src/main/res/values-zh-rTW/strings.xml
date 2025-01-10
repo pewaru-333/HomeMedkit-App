@@ -112,8 +112,7 @@
     <string name="text_medicine_status_scanned">Scanned, unchecked</string>
     <string name="text_medicine_form">Release form</string>
     <string name="type_tablets">TABLETS</string>
-    <string name="text_intake_time">Medicine: %1$s
-\nAmount: %2$s %3$s</string>
+    <string name="text_intake_time">Medicine: %1$s \nAmount: %2$s %3$s</string>
     <string name="type_spray">SPRAY</string>
     <string name="type_drops">DROPS</string>
     <string name="type_suppository">SUPPOSITORY</string>
