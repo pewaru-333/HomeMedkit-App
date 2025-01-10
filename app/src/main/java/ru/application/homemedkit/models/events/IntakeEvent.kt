@@ -19,5 +19,6 @@ sealed interface IntakeEvent {
     data class ShowPeriodM(val flag: Boolean) : IntakeEvent
     data class ShowTimePicker(val flag: Boolean, val index: Int = 0) : IntakeEvent
     data class ShowDialog(@StringRes val desc: Int? = null) : IntakeEvent
+    data object ShowDialogDelete : IntakeEvent
     data class ShowDialogDataLoss(val flag: Boolean) : IntakeEvent
 }

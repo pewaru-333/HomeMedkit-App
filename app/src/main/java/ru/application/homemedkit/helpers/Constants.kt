@@ -74,6 +74,7 @@ import ru.application.homemedkit.R.string.lang_pl
 import ru.application.homemedkit.R.string.lang_pt_BR
 import ru.application.homemedkit.R.string.lang_ru
 import ru.application.homemedkit.R.string.lang_system
+import ru.application.homemedkit.R.string.lang_ta
 import ru.application.homemedkit.R.string.lang_tr
 import ru.application.homemedkit.R.string.lang_vi
 import ru.application.homemedkit.R.string.lang_zh_CN
@@ -116,21 +117,21 @@ import ru.application.homemedkit.helpers.DoseTypes.GRAMS
 import ru.application.homemedkit.helpers.DoseTypes.MILLIGRAMS
 import ru.application.homemedkit.helpers.DoseTypes.MILLILITERS
 import ru.application.homemedkit.helpers.DoseTypes.PIECES
-import java.util.Comparator.comparing
 
 // ============================================ Strings ============================================
 const val ALARM_ID = "alarmId"
 const val BLANK = ""
-const val CHANNEL_ID_INTAKES = "channel_intakes"
 const val CHANNEL_ID_EXP = "channel_expiration"
-const val CHANNEL_ID_PRE = "channel_prealarm"
+const val CHANNEL_ID_INTAKES = "channel_intakes"
 const val CHANNEL_ID_LEGACY = "intake_notifications"
+const val CHANNEL_ID_PRE = "channel_prealarm"
 const val CIS = "cis"
 const val ID = "id"
 const val KEY_APP_SYSTEM = "app_system"
 const val KEY_APP_THEME = "app_theme"
 const val KEY_APP_VIEW = "app_view"
 const val KEY_CHECK_EXP_DATE = "check_exp_date"
+const val KEY_CONFIRM_EXIT = "confirm_exit"
 const val KEY_DOWNLOAD = "download_images"
 const val KEY_DYNAMIC_COLOR = "dynamic_color"
 const val KEY_EXP_IMP = "export_import"
@@ -210,7 +211,8 @@ enum class Languages(val value: String, @StringRes val title: Int) {
     VIETNAMESE("vi", lang_vi),
     KOREAN("ko", lang_ko),
     CHINESE_CN("zh-CN", lang_zh_CN),
-    CHINESE_TW("zh-TW", lang_zh_TW)
+    CHINESE_TW("zh-TW", lang_zh_TW),
+    TAMIL("ta", lang_ta)
 }
 
 enum class Menu(val route: Any, @StringRes val title: Int, @DrawableRes val icon: Int) {
@@ -230,10 +232,10 @@ enum class Periods(val days: Int, @StringRes val title: Int) {
 }
 
 enum class Sorting(val value: String, @StringRes val title: Int, val type: Comparator<Medicine>) {
-    IN_NAME("A-z", sorting_a_z, comparing(Medicine::productName)),
-    RE_NAME("z-A", sorting_z_a, comparing(Medicine::productName).reversed()),
-    IN_DATE("old-new", sorting_from_oldest, comparing(Medicine::expDate)),
-    RE_DATE("new-old", sorting_from_newest, comparing(Medicine::expDate).reversed())
+    IN_NAME("A-z", sorting_a_z, compareBy { it.nameAlias.ifEmpty(it::productName) }),
+    RE_NAME("z-A", sorting_z_a, compareByDescending { it.nameAlias.ifEmpty(it::productName) }),
+    IN_DATE("old-new", sorting_from_oldest, compareBy(Medicine::expDate)),
+    RE_DATE("new-old", sorting_from_newest, compareByDescending(Medicine::expDate))
 }
 
 enum class Themes(val value: String, @StringRes val title: Int) {
@@ -278,7 +280,7 @@ enum class Types(
 
     companion object {
         fun getIcon(value: String) = entries.find { it.value == value }?.icon ?: vector_type_unknown
-        fun setIcon(value: String) = entries.find {  value.contains(it.ruValue.dropLast(1), true) }?.value ?: BLANK
+        fun setIcon(value: String) = entries.find { value.contains(it.ruValue.dropLast(1), true) }?.value ?: BLANK
         fun getDoseType(value: String) = entries.find {
             value.contains(it.ruValue.dropLast(1), true)
         }?.doseType?.value ?: BLANK
@@ -311,3 +313,7 @@ data class Intake(
     val intakeId: Long = 0L,
     val medicineId: Long = 0L
 )
+
+// ===== Settings items ===== //
+@Serializable
+object KitsManager

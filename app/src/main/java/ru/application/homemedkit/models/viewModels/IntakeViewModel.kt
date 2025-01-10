@@ -40,6 +40,7 @@ import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.validation.Validation
 import ru.application.homemedkit.receivers.AlarmSetter
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 
 class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
@@ -89,7 +90,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun getIntakeMedicine(): Medicine {
-        val medicineId = if(args.intakeId == 0L) args.medicineId
+        val medicineId = if (args.intakeId == 0L) args.medicineId
         else dao.getById(args.intakeId)?.medicineId ?: 0L
 
         _state.update { it.copy(medicineId = medicineId) }
@@ -135,22 +136,28 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
         if (validate()) {
             val time = _state.value.time.map { LocalTime.parse(it, FORMAT_H) }
             val startDate = _state.value.startDate
+            val finalDate = LocalDateTime.of(
+                LocalDate.parse(_state.value.finalDate, FORMAT_S), time.lastOrNull()
+            )
 
             viewModelScope.launch(Dispatchers.IO) {
                 dao.getAlarms(intakeId = _state.value.intakeId)
                     .forEach { setter.removeAlarm(it.alarmId) }
-                setter.setAlarm(
-                    intakeId = _state.value.intakeId,
-                    triggers = longSeconds(startDate, time)
-                )
 
-                if (_state.value.preAlarm) {
-                    val preTriggers = longSeconds(startDate, time.map { it.minusMinutes(30) })
+                if (finalDate >= LocalDateTime.now()) {
                     setter.setAlarm(
                         intakeId = _state.value.intakeId,
-                        triggers = preTriggers,
-                        preAlarm = true
+                        triggers = longSeconds(startDate, time)
                     )
+
+                    if (_state.value.preAlarm) {
+                        val preTriggers = longSeconds(startDate, time.map { it.minusMinutes(30) })
+                        setter.setAlarm(
+                            intakeId = _state.value.intakeId,
+                            triggers = preTriggers,
+                            preAlarm = true
+                        )
+                    }
                 }
 
                 dao.update(_state.value.toIntake(time))
@@ -299,6 +306,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                     showDialog = !it.showDialog
                 )
             }
+            is IntakeEvent.ShowDialogDelete -> _state.update { it.copy(showDialogDelete = !it.showDialogDelete) }
             is IntakeEvent.ShowDialogDataLoss -> _state.update { it.copy(showDialogDataLoss = event.flag) }
         }
     }

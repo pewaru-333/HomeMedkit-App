@@ -62,7 +62,7 @@
     <string name="intakes_tab_past">கடந்த</string>
     <string name="text_empty">காலி</string>
     <string name="text_no_data_found">மருந்துகள் எதுவும் கிடைக்கவில்லை. அவற்றைச் சேர்க்கவும் அல்லது வடிப்பானை மாற்றவும்.</string>
-    <string name="text_confirm_deletion">இந்த மருந்தை நீக்க விரும்புகிறீர்களா?</string>
+    <string name="text_confirm_deletion_med">இந்த மருந்தை நீக்க விரும்புகிறீர்களா?</string>
     <string name="type_spray">தெளிப்பு</string>
     <string name="text_save">சேமி</string>
     <string name="sorting_a_z">அகரவரிசை (A முதல் சட் வரை)</string>

@@ -9,5 +9,6 @@ data class IntakesState(
     val stateA: LazyListState = LazyListState(),
     val stateB: LazyListState = LazyListState(),
     val stateC: LazyListState = LazyListState(),
-    val showDialog: Boolean = false
+    val showDialog: Boolean = false,
+    val showDialogDate: Boolean = false
 )

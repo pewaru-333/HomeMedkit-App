@@ -183,7 +183,7 @@
     <string name="text_grant">Erlauben</string>
     <string name="text_not_saved_intake">Die Einnahme ist nicht gesichert! Möchten Sie zurückgehen?</string>
     <string name="text_exit">Beenden</string>
-    <string name="text_confirm_deletion">Soll dieses Medikament wirklich gelöscht werden?</string>
+    <string name="text_confirm_deletion_med">Soll dieses Medikament wirklich gelöscht werden?</string>
     <string name="intake_extra_cancellable_desc">Legt fest, dass diese Benachrichtigung automatisch nach 10 Minuten verworfen wird</string>
     <string name="intake_extra_cancellable">Verschwindende Benachrichtigung</string>
     <string name="text_medicine_display_name">Dargestellter Name</string>

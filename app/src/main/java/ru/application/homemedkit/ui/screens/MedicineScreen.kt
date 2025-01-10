@@ -110,7 +110,6 @@ import ru.application.homemedkit.R.string.preference_kits_group
 import ru.application.homemedkit.R.string.text_amount
 import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_clear
-import ru.application.homemedkit.R.string.text_confirm_deletion
 import ru.application.homemedkit.R.string.text_connection_error
 import ru.application.homemedkit.R.string.text_delete
 import ru.application.homemedkit.R.string.text_duplicate
@@ -268,6 +267,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
         state.showDialogKits -> DialogKits(state, model::onEvent)
         state.showDialogIcons -> IconPicker(model::onEvent)
         state.showDialogDelete -> DialogDelete(
+            text = R.string.text_confirm_deletion_med,
             cancel = { model.onEvent(MedicineEvent.ShowDialogDelete) },
             confirm = {
                 model.delete(context.filesDir)
@@ -770,13 +770,13 @@ private fun IconPicker(event: (MedicineEvent) -> Unit) =
     }
 
 @Composable
-private fun DialogDelete(cancel: () -> Unit, confirm: () -> Unit) = AlertDialog(
+fun DialogDelete(text: Int, cancel: () -> Unit, confirm: () -> Unit) = AlertDialog(
     onDismissRequest = cancel,
     confirmButton = { TextButton(confirm) { Text(stringResource(text_delete)) } },
     dismissButton = { TextButton(cancel) { Text(stringResource(text_cancel)) } },
     text = {
         Text(
-            text = stringResource(text_confirm_deletion),
+            text = stringResource(text),
             style = MaterialTheme.typography.bodyLarge
         )
     }

@@ -44,5 +44,6 @@ data class IntakeState(
     val preAlarm: Boolean = false,
     val cancellable: Boolean = true,
     val showDialog: Boolean = false,
+    val showDialogDelete: Boolean = false,
     val showDialogDataLoss: Boolean = false
 )

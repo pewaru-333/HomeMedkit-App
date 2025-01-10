@@ -173,7 +173,7 @@
     <string name="text_grant">Conceder</string>
     <string name="text_not_saved_intake">O consumo não foi salvo! Você gostaria de voltar?</string>
     <string name="text_exit">Sair</string>
-    <string name="text_confirm_deletion">Você tem certeza que gostaria de excluir este medicamento?</string>
+    <string name="text_confirm_deletion_med">Você tem certeza que gostaria de excluir este medicamento?</string>
     <string name="intake_extra_cancellable_desc">Especifica, que esta notificação será cancelada automaticamente depois de 10 minutos</string>
     <string name="intake_extra_cancellable">Notificação de tempo esgotado</string>
     <string name="text_medicine_display_name">Nome de exibição</string>

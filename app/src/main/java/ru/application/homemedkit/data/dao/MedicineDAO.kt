@@ -12,6 +12,9 @@ import ru.application.homemedkit.data.dto.Medicine
 @Dao
 interface MedicineDAO {
     // ============================== Queries ==============================
+    @Query("SELECT * FROM medicines")
+    fun getAll(): List<Medicine>
+
     @Transaction
     @Query("SELECT * FROM medicines")
     fun getFlow(): Flow<List<Medicine>>

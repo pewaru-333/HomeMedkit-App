@@ -55,8 +55,10 @@ fun DateRangePicker(
     val state = rememberDateRangePickerState(
         initialSelectedStartDateMillis = initialStart,
         initialSelectedEndDateMillis = initialFinal,
-        yearRange = IntRange(LocalDate.now().year, LocalDate.now().year + 10),
-        selectableDates = object : SelectableDates {
+        yearRange = if (initialStart != null) DatePickerDefaults.YearRange
+        else IntRange(LocalDate.now().year, LocalDate.now().year + 10),
+        selectableDates = if (initialStart != null) DatePickerDefaults.AllDates
+        else object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long) =
                 getDateTime(utcTimeMillis).toLocalDate() >= LocalDate.now()
 

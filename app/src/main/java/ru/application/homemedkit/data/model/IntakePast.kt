@@ -5,6 +5,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import ru.application.homemedkit.data.dto.IntakeTaken
 
 data class IntakePast(
-    val date: Long = 0L,
-    val intakes: SnapshotStateList<IntakeTaken> = mutableStateListOf()
-)
+    override val date: Long = 0L,
+    override val intakes: SnapshotStateList<IntakeTaken> = mutableStateListOf()
+) : IntakeListScheme<IntakeTaken>

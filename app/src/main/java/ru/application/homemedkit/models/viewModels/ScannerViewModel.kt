@@ -36,7 +36,7 @@ class ScannerViewModel : ViewModel() {
             _response.emit(Duplicate(dao.getIdByCis(it)))
         } ?: try {
             Network.getMedicine(code).apply {
-                if (codeFounded && checkResult) {
+                if (codeFounded) {
                     if (drugsData != null) {
                         val medicine = drugsData.toMedicine().copy(
                             cis = this.code,

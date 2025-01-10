@@ -4,15 +4,12 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.runBlocking
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.MedicineKit
@@ -36,9 +33,7 @@ class MedicinesViewModel : ViewModel() {
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = runBlocking(Dispatchers.IO) {
-            database.medicineDAO().getFlow().firstOrNull()
-        }
+        initialValue = database.medicineDAO().getAll()
     )
 
     fun showAdding() = _state.update { it.copy(showAdding = !it.showAdding) }
@@ -47,8 +42,7 @@ class MedicinesViewModel : ViewModel() {
     fun setSearch(text: String) = _state.update { it.copy(search = text) }
     fun clearSearch() = _state.update { it.copy(search = BLANK) }
 
-    fun showSort() = _state.update { it.copy(showSort = true) }
-    fun hideSort() = _state.update { it.copy(showSort = false) }
+    fun showSort() = _state.update { it.copy(showSort = !it.showSort) }
     fun setSorting(sorting: Comparator<Medicine>) = _state.update { it.copy(sorting = sorting) }
 
     fun showFilter() = _state.update { it.copy(showFilter = !it.showFilter) }

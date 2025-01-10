@@ -12,6 +12,7 @@
     <string name="preference_kits_group">Группы лекарств</string>
     <string name="preference_sorting_type">Сортировка лекарств по</string>
     <string name="preference_med_compact_view">Компактный вид списков</string>
+    <string name="preference_confirm_exit">Подтверждать выход из приложения</string>
     <string name="preference_download_images">Загружать изображения лекарств</string>
     <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
     <string name="preference_system">Системные</string>
@@ -45,7 +46,7 @@
     <string name="text_intake_amount_not_enough">Время приёма лекарства %1$s, но его оставшегося количества меньше предписанного!</string>
     <string name="text_intake_prealarm_text">Лекарство: %1$s\nКоличество: %2$s %3$s\nВремя: %4$s</string>
     <string name="text_intake_prealarm_title">Предстоящий приём</string>
-    <string name="text_intake_time">Лекарство: %1$s\nКоличество: %2$s %3$s</string>
+    <string name="text_intake_time">Лекарство: %1$s\nДоза приёма: %2$s %3$s\nОстаток лекарства: %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Осталось недостаточно лекарства</string>
 
     <!-- "Заполнители" -->
@@ -149,7 +150,8 @@
 
     <!-- Диалоговые окна -->
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
-    <string name="text_confirm_deletion">Вы подтверждаете удаление этого лекарства?</string>
+    <string name="text_confirm_deletion_int">Вы подтверждаете удаление этого приёма лекарства?</string>
+    <string name="text_confirm_deletion_med">Вы подтверждаете удаление этого лекарства?</string>
     <string name="text_connection_error">Ошибка при подключении!</string>
     <string name="text_duplicate">Лекарство уже было добавлено!</string>
     <string name="text_error_not_medicine">Это не код лекарства!</string>
@@ -185,6 +187,7 @@
     <string name="text_exit">Выйти</string>
     <string name="text_export">Экспорт</string>
     <string name="text_finish_date">Конечная дата</string>
+    <string name="text_go_to">Перейти</string>
     <string name="text_grant">Выдать</string>
     <string name="text_import">Импорт</string>
     <string name="text_no_data_found">Лекарства отсутствуют. Добавьте их или измените фильтр.</string>

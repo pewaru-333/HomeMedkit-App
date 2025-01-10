@@ -10,18 +10,16 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.IntakeTaken
@@ -38,6 +36,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import kotlin.math.abs
 
 class IntakesViewModel : ViewModel() {
     private val intakeDAO = database.intakeDAO()
@@ -55,14 +54,14 @@ class IntakesViewModel : ViewModel() {
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = runBlocking(Dispatchers.IO) { intakeDAO.getFlow().firstOrNull() }
+        initialValue = intakeDAO.getAll()
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val schedule = intakes.flatMapLatest { filtered ->
         flow {
             emit(mutableListOf<Alarm>().apply {
-                filtered?.forEach { (intakeId, _, _, interval, _, time, _, startDate, finalDate) ->
+                filtered.forEach { (intakeId, _, _, interval, _, time, _, startDate, finalDate) ->
                     if (time.size == 1) {
                         var milliS = LocalDateTime.parse("$startDate ${time[0]}", FORMAT_DH)
                             .toInstant(ZONE).toEpochMilli()
@@ -133,6 +132,35 @@ class IntakesViewModel : ViewModel() {
     fun pickTab(tab: Int) = _state.update { it.copy(tab = tab) }
     fun hideDialog() = _state.update { it.copy(showDialog = false) }
     fun showPicker(flag: Boolean = false) = _takenState.update { it.copy(showPicker = flag) }
+
+    fun showDialogDate() = _state.update { it.copy(showDialogDate = !it.showDialogDate) }
+    fun scrollToClosest(time: Long) {
+        val list = if (_state.value.tab == 1) schedule.value else taken.value
+
+        if (list.isEmpty()) {
+            _state.update { it.copy(showDialogDate = !it.showDialogDate) }
+            return
+        }
+
+        val day = Instant.ofEpochMilli(time).atZone(ZONE).toLocalDate().toEpochDay()
+        val value = list.map { it.date }.minByOrNull { abs(day - it) } ?: list.first().date
+        val itemsIndex = list.indexOfFirst { it.date == value }
+
+        var group = 0
+        kotlin.run lit@{
+            list.forEachIndexed { index, listScheme ->
+                if (index < itemsIndex) group += listScheme.intakes.size
+                else return@lit
+            }
+        }
+
+        viewModelScope.launch {
+            _state.value.run {
+                (if (tab == 1) stateB else stateC).scrollToItem(group + itemsIndex)
+            }
+            _state.update { it.copy(showDialogDate = !it.showDialogDate) }
+        }
+    }
 
     fun setFactTime() {
         val picker = _takenState.value.pickerState

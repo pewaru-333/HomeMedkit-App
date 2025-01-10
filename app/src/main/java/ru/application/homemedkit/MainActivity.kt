@@ -4,10 +4,13 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -26,6 +29,7 @@ import androidx.navigation.navDeepLink
 import ru.application.homemedkit.helpers.Intake
 import ru.application.homemedkit.helpers.Intakes
 import ru.application.homemedkit.helpers.KEY_EXP_IMP
+import ru.application.homemedkit.helpers.KitsManager
 import ru.application.homemedkit.helpers.Medicine
 import ru.application.homemedkit.helpers.Medicines
 import ru.application.homemedkit.helpers.Menu
@@ -38,6 +42,7 @@ import ru.application.homemedkit.helpers.toBottomBarItem
 import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.ui.screens.IntakeScreen
 import ru.application.homemedkit.ui.screens.IntakesScreen
+import ru.application.homemedkit.ui.screens.KitsManager
 import ru.application.homemedkit.ui.screens.MedicineScreen
 import ru.application.homemedkit.ui.screens.MedicinesScreen
 import ru.application.homemedkit.ui.screens.ScannerScreen
@@ -46,15 +51,15 @@ import ru.application.homemedkit.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        theme.applyStyle(android.R.style.Theme_Material_NoActionBar_Fullscreen, true)
         super.onCreate(savedInstanceState)
-
-        actionBar?.hide()
 
         if (intent.getBooleanExtra(KEY_EXP_IMP, false)) {
             showToast(true, this)
             AlarmSetter(this).resetAll()
         }
 
+        enableEdgeToEdge()
         setContent {
             val navigator = rememberNavController()
             val backStack by navigator.currentBackStackEntryAsState()
@@ -64,6 +69,7 @@ class MainActivity : ComponentActivity() {
 
             AppTheme(theme, dynamicColors) {
                 Scaffold(
+                    modifier = Modifier.safeDrawingPadding(),
                     bottomBar = {
                         AnimatedVisibility(
                             visible = Menu.entries.any { backStack.isCurrentRoute(it.route::class) },
@@ -98,7 +104,18 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable<Settings> {
-                            SettingsScreen { navigator.toBottomBarItem(Intakes) }
+                            SettingsScreen(
+                                backClick = { navigator.toBottomBarItem(Intakes) },
+                                toKitsManager = { navigator.navigate(KitsManager) }
+                            )
+                        }
+
+                        // Settings screens //
+                        composable<KitsManager>(
+                            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) },
+                            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End) }
+                        ) {
+                            KitsManager(navigator::navigateUp)
                         }
 
                         // Screens //

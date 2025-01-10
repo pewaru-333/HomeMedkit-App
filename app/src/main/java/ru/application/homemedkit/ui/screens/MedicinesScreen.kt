@@ -128,7 +128,7 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
                 },
                 actions = {
                     IconButton(model::showSort) { Icon(painterResource(vector_sort), null) }
-                    DropdownMenu(state.showSort, model::hideSort) {
+                    DropdownMenu(state.showSort, model::showSort) {
                         Sorting.entries.forEach { entry ->
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -138,7 +138,7 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
                                     .padding(horizontal = 16.dp)
                                     .selectable(
                                         selected = entry.type == state.sorting,
-                                        onClick = {model.setSorting(entry.type)},
+                                        onClick = { model.setSorting(entry.type) },
                                         role = Role.RadioButton
                                     )
                             ) {
@@ -193,12 +193,12 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
             }
         }
     ) { values ->
-        medicines?.let { list ->
+        medicines.let { list ->
             if (list.isEmpty()) Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                contentAlignment = Alignment.Center
+                    .padding(horizontal = 16.dp)
             ) { Text(stringResource(text_no_data_found), textAlign = TextAlign.Center) }
             else if (Preferences.getSimpleView())
                 LazyColumn(
@@ -215,7 +215,8 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
 
     when {
         state.showFilter -> DialogKits(model, state)
-        state.showExit -> DialogExit(model::showExit, activity::finishAndRemoveTask)
+        state.showExit -> if (!Preferences.getConfirmExit()) activity.finishAndRemoveTask()
+        else DialogExit(model::showExit, activity::finishAndRemoveTask)
     }
 }
 

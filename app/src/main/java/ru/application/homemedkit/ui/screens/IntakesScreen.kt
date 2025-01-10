@@ -20,9 +20,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -43,12 +46,17 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
@@ -74,6 +82,7 @@ import ru.application.homemedkit.R.string.text_amount
 import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_edit
 import ru.application.homemedkit.R.string.text_enter_product_name
+import ru.application.homemedkit.R.string.text_go_to
 import ru.application.homemedkit.R.string.text_medicine_amount_not_enough
 import ru.application.homemedkit.R.string.text_medicine_deleted
 import ru.application.homemedkit.R.string.text_medicine_product_name
@@ -137,28 +146,49 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                 },
                 modifier = Modifier.drawBehind {
                     drawLine(Color.LightGray, Offset(0f, size.height), Offset(size.width, size.height), 4f)
+                },
+                actions = {
+                    if (state.tab != 0) IconButton(model::showDialogDate) {
+                        Icon(Icons.Outlined.DateRange, null)
+                    }
                 }
             )
         }
     ) { values ->
+        val initial = MaterialTheme.typography.bodyMedium
+
+        var style by remember { mutableStateOf(initial) }
+        var draw by remember { mutableStateOf(false) }
+
         Column(Modifier.padding(top = values.calculateTopPadding())) {
             TabRow(state.tab) {
                 listOf(intakes_tab_list, intakes_tab_current, intakes_tab_past).forEachIndexed { index, tab ->
                     Tab(
                         selected = state.tab == index,
                         onClick = { model.pickTab(index) },
-                        text = { Text(stringResource(tab)) }
+                        text = {
+                            Text(
+                                text = stringResource(tab),
+                                softWrap = false,
+                                modifier = Modifier.drawWithContent { if (draw) drawContent() },
+                                style = style,
+                                onTextLayout = {
+                                    if (!it.didOverflowWidth) draw = true
+                                    else style = style.copy(fontSize = style.fontSize * 0.95)
+                                }
+                            )
+                        }
                     )
                 }
             }
 
             when (state.tab) {
-                0 -> intakes?.let { list ->
+                0 -> intakes.let { list ->
                     if (list.isEmpty()) Box(
+                        contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 16.dp),
-                        contentAlignment = Alignment.Center
+                            .padding(horizontal = 16.dp)
                     ) { Text(stringResource(text_no_intakes_found), textAlign = TextAlign.Center) }
                     else if (Preferences.getSimpleView()) LazyColumn(state = state.stateA)
                     { items(list) { IntakeItem(it, navigateToIntake); HorizontalDivider() } }
@@ -203,11 +233,13 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                                 trigger = value.trigger,
                                 taken = value.taken
                             ) { model.showDialog(value) }
-                            if(index < past.intakes.lastIndex) HorizontalDivider()
+                            if (index < past.intakes.lastIndex) HorizontalDivider()
                         }
                     }
                 }
             }
+
+            if (state.showDialogDate) DialogGoToDate(model::showDialogDate, model::scrollToClosest)
         }
     }
 }
@@ -252,6 +284,28 @@ fun IntakeItem(intake: Intake, navigateToIntake:(Long) -> Unit) {
         modifier = Modifier.clickable { navigateToIntake(intake.intakeId) },
         headlineContent = { Text(medicine?.let { it.nameAlias.ifEmpty { it.productName } } ?: BLANK, softWrap = false) }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DialogGoToDate(show: () -> Unit, scroll: (Long) -> Unit) {
+    val pickerState = rememberDatePickerState()
+
+    DatePickerDialog(
+        onDismissRequest = show,
+        dismissButton = { TextButton(show) { Text(stringResource(text_cancel)) } },
+        confirmButton = {
+            TextButton(
+                enabled = pickerState.selectedDateMillis != null,
+                onClick = { scroll(pickerState.selectedDateMillis!!) }
+            ) { Text(stringResource(text_go_to)) }
+        }
+    ) {
+        DatePicker(
+            state = pickerState,
+            showModeToggle = false
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

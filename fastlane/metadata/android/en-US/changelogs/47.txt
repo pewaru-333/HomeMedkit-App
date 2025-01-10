@@ -1,0 +1,3 @@
+— Added a quick jump to the date in the list of intakes (future and past).
+— The remaining amount is now displayed in the intake notification.
+— Fixed a few minor bugs.

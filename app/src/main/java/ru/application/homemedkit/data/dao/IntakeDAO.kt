@@ -13,6 +13,9 @@ import ru.application.homemedkit.data.dto.Intake
 @Dao
 interface IntakeDAO {
     // ============================== Queries ==============================
+    @Query("SELECT * FROM intakes")
+    fun getAll(): List<Intake>
+
     @Transaction
     @Query("SELECT * FROM intakes")
     fun getFlow(): Flow<List<Intake>>

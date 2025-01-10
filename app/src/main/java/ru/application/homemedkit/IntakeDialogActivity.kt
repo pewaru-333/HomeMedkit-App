@@ -5,15 +5,13 @@ import android.view.WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import ru.application.homemedkit.R.string.intake_text_not_taken
 import ru.application.homemedkit.R.string.intake_text_taken
 import ru.application.homemedkit.R.string.text_do_intake
@@ -23,21 +21,16 @@ import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.TAKEN_ID
-import ru.application.homemedkit.helpers.shortName
+import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.ui.theme.AppTheme
 
 
 class IntakeDialogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        theme.applyStyle(android.R.style.Theme_Wallpaper_NoTitleBar, true)
+        theme.applyStyle(android.R.style.Theme_Wallpaper_NoTitleBar_Fullscreen, true)
         super.onCreate(savedInstanceState)
 
         window.addFlags(FLAG_KEEP_SCREEN_ON or FLAG_ALLOW_LOCK_WHILE_SCREEN_ON)
-        WindowCompat.getInsetsController(window, window.decorView).apply {
-            hide(WindowInsetsCompat.Type.statusBars())
-            hide(WindowInsetsCompat.Type.navigationBars())
-            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        }
 
         val database = MedicineDatabase.getInstance(this)
         val takenDAO = database.takenDAO()
@@ -46,8 +39,9 @@ class IntakeDialogActivity : ComponentActivity() {
         val takenId = intent.getLongExtra(TAKEN_ID, 0L)
         val amount = intent.getDoubleExtra(BLANK, 0.0)
 
-        val medicine = database.medicineDAO().getById(medicineId)
+        val medicine = database.medicineDAO().getById(medicineId)!!
 
+        enableEdgeToEdge()
         setContent {
             AppTheme {
                 AlertDialog(
@@ -82,9 +76,10 @@ class IntakeDialogActivity : ComponentActivity() {
                             style = MaterialTheme.typography.bodyLarge,
                             text = stringResource(
                                 text_intake_time,
-                                shortName(medicine?.productName),
-                                amount,
-                                stringResource(DoseTypes.getTitle(medicine?.doseType))
+                                medicine.nameAlias.ifEmpty(medicine::productName),
+                                decimalFormat(amount),
+                                stringResource(DoseTypes.getTitle(medicine.doseType)),
+                                decimalFormat(medicine.prodAmount.minus(amount))
                             )
                         )
                     }

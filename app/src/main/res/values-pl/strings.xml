@@ -178,7 +178,7 @@
     <string name="text_not_saved_intake">The intake is not saved! Do you want to go back?</string>
     <string name="text_exit">Exit</string>
     <string name="intake_extra_cancellable_desc">Specifies, that this notification will be canceled automatically after 10 minutes</string>
-    <string name="text_confirm_deletion">Are you sure you want to delete this medicine?</string>
+    <string name="text_confirm_deletion_med">Are you sure you want to delete this medicine?</string>
     <string name="intake_extra_cancellable">Notification timeout</string>
     <string name="text_medicine_display_name">Display name</string>
 </resources>

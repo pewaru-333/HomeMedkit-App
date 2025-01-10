@@ -87,6 +87,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -107,6 +108,7 @@ import ru.application.homemedkit.R.string.intake_text_pick_period
 import ru.application.homemedkit.R.string.intake_text_select_interval
 import ru.application.homemedkit.R.string.intake_text_time
 import ru.application.homemedkit.R.string.placeholder_time
+import ru.application.homemedkit.R.string.text_confirm_deletion_int
 import ru.application.homemedkit.R.string.text_days_short
 import ru.application.homemedkit.R.string.text_delete
 import ru.application.homemedkit.R.string.text_dismiss
@@ -209,13 +211,25 @@ fun IntakeScreen(navigateBack: () -> Unit) {
                             Icon(Icons.Outlined.MoreVert, null)
                         }
                         DropdownMenu(expanded, { expanded = false }) {
-                            DropdownMenuItem({ Text(stringResource(text_edit)) }, model::setEditing)
                             DropdownMenuItem(
-                                text = { Text(stringResource(text_delete)) },
+                                onClick = model::setEditing,
+                                text = {
+                                    Text(
+                                        text = stringResource(text_edit),
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = stringResource(text_delete),
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                },
                                 onClick = {
+                                    model.onEvent(IntakeEvent.ShowDialogDelete)
                                     expanded = false
-                                    model.delete()
-                                    navigateBack()
                                 }
                             )
                         }
@@ -247,6 +261,12 @@ fun IntakeScreen(navigateBack: () -> Unit) {
     when {
         state.showDialog -> DialogDescription(state, model::onEvent)
         state.showDialogDataLoss -> DialogDataLoss(model::onEvent, navigateBack)
+        state.showDialogDelete -> DialogDelete(
+            text = text_confirm_deletion_int,
+            cancel = { model.onEvent(IntakeEvent.ShowDialogDelete) },
+            confirm = { model.delete(); navigateBack() }
+        )
+
         state.showPeriodD -> DateRangePicker(
             startDate = state.startDate,
             finalDate = state.finalDate,
@@ -613,7 +633,7 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = Column {
                     }
                 )
         ) {
-            Row {
+            Row(Modifier.weight(0.9f)) {
                 Checkbox(
                     onCheckedChange = null,
                     checked = when (entry) {
@@ -626,11 +646,13 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = Column {
                 Text(
                     text = stringResource(entry.title),
                     modifier = Modifier.padding(start = 16.dp),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             entry.description?.let {
                 IconButton(
+                    modifier = Modifier.weight(0.1f),
                     onClick = { event(IntakeEvent.ShowDialog(it)) }
                 ) {
                     Icon(Icons.Outlined.Info, null)

@@ -36,6 +36,7 @@ object Preferences : ViewModel() {
     fun getSimpleView() = preferences.getBoolean(KEY_MED_COMPACT_VIEW, false)
     fun getImageFetch() = preferences.getBoolean(KEY_DOWNLOAD, false)
     fun getCheckExpDate() = preferences.getBoolean(KEY_CHECK_EXP_DATE, false)
+    fun getConfirmExit() = preferences.getBoolean(KEY_CONFIRM_EXIT, true)
     fun getLanguage() = preferences.getString(KEY_LANGUAGE, LANGUAGES[0]) ?: LANGUAGES[0]
     fun getDynamicColors() = preferences.getBoolean(KEY_DYNAMIC_COLOR, false)
     fun setCheckExpDate(context: Context, check: Boolean) =

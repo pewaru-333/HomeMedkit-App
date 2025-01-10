@@ -30,8 +30,8 @@ import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.TAKEN_ID
 import ru.application.homemedkit.helpers.TYPE
+import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.lastAlarm
-import ru.application.homemedkit.helpers.shortName
 
 class AlarmReceiver : BroadcastReceiver() {
 
@@ -115,9 +115,10 @@ class AlarmReceiver : BroadcastReceiver() {
                     BigTextStyle().bigText(
                         context.getString(
                             if (flag) text_intake_time else text_intake_amount_not_enough,
-                            shortName(medicine.productName),
-                            intake.amount,
-                            context.getString(DoseTypes.getTitle(medicine.doseType))
+                            medicine.nameAlias.ifEmpty(medicine::productName),
+                            decimalFormat(intake.amount),
+                            context.getString(DoseTypes.getTitle(medicine.doseType)),
+                            decimalFormat(medicine.prodAmount - intake.amount)
                         )
                     )
                 )

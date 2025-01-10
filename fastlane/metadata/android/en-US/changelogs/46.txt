@@ -1,2 +1,0 @@
-— Added a search for medicines in the list by structure and indications for use.
-— The view of the schedule of intakes and medicines already taken has been slightly changed. Now it scrolls smoothly.

@@ -11,8 +11,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.os.ConfigurationCompat
-import androidx.core.os.LocaleListCompat
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -41,9 +39,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.reflect.KClass
 
-val LOCALE
-    @Composable get() = ConfigurationCompat.getLocales(LocalConfiguration.current)[0]
-        ?: LocaleListCompat.getDefault()[0]!!
+val LOCALE @Composable get() = LocalConfiguration.current.locales[0]
 val ZONE = ZoneId.systemDefault().rules.getOffset(Instant.now())
 val FORMAT_S = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 val FORMAT_DH = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm")
@@ -94,15 +90,6 @@ fun showToast(success: Boolean, context: Context) = Toast.makeText(
     Toast.LENGTH_LONG).show()
 
 fun formName(name: String) = name.substringBefore(" ")
-fun shortName(name: String?) = name?.run {
-    when {
-        contains(",") -> substringBefore(",")
-        contains("«") -> substringAfter("«").substringBefore("»")
-        contains("®") -> substringBefore("®")
-        contains("Биологически активная добавка к пище") -> substringAfter("Биологически активная добавка к пище")
-        else -> this
-    }
-} ?: BLANK
 
 fun decimalFormat(text: Any?): String {
     val amount = try {
@@ -111,11 +98,10 @@ fun decimalFormat(text: Any?): String {
         0.0
     }
 
-    val formatter = DecimalFormat.getInstance()
-    formatter.maximumFractionDigits = 4
-    formatter.roundingMode = BigDecimal.ROUND_HALF_EVEN
-
-    return formatter.format(amount)
+    return DecimalFormat.getInstance().apply {
+        maximumFractionDigits = 4
+        roundingMode = BigDecimal.ROUND_HALF_EVEN
+    }.format(amount)
 }
 
 fun createNotificationChannel(

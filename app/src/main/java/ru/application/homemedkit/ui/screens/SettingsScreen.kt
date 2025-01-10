@@ -1,6 +1,5 @@
 package ru.application.homemedkit.ui.screens
 
-import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
@@ -10,8 +9,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,9 +24,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -46,8 +44,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.zhanghai.compose.preference.ListPreference
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
@@ -60,6 +56,7 @@ import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R.string.preference_app_theme
 import ru.application.homemedkit.R.string.preference_app_view
 import ru.application.homemedkit.R.string.preference_check_expiration_date
+import ru.application.homemedkit.R.string.preference_confirm_exit
 import ru.application.homemedkit.R.string.preference_download_images
 import ru.application.homemedkit.R.string.preference_dynamic_color
 import ru.application.homemedkit.R.string.preference_import_export
@@ -85,6 +82,7 @@ import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.KEY_APP_SYSTEM
 import ru.application.homemedkit.helpers.KEY_APP_THEME
 import ru.application.homemedkit.helpers.KEY_APP_VIEW
+import ru.application.homemedkit.helpers.KEY_CONFIRM_EXIT
 import ru.application.homemedkit.helpers.KEY_DOWNLOAD
 import ru.application.homemedkit.helpers.KEY_DYNAMIC_COLOR
 import ru.application.homemedkit.helpers.KEY_EXP_IMP
@@ -104,14 +102,16 @@ import ru.application.homemedkit.ui.theme.isDynamicColorAvailable
 import java.io.File
 
 @Composable
-fun SettingsScreen(backClick: () -> Unit) {
+fun SettingsScreen(
+    backClick: () -> Unit,
+    toKitsManager: () -> Unit,
+) {
     val context = LocalContext.current
 
     val sorting = Sorting.entries.map { stringResource(it.title) }
     val languages = Languages.entries.map { stringResource(it.title) }
     val themes = Themes.entries.map { stringResource(it.title) }
 
-    var showDialog by rememberSaveable { mutableStateOf(false) }
     var showExport by rememberSaveable { mutableStateOf(false) }
 
     BackHandler(onBack = backClick)
@@ -125,7 +125,7 @@ fun SettingsScreen(backClick: () -> Unit) {
             preference(
                 key = KEY_KITS,
                 title = { Text(stringResource(preference_kits_group)) },
-                onClick = { showDialog = true },
+                onClick = toKitsManager,
                 summary = { Text(stringResource(text_tap_to_view)) }
             )
 
@@ -142,6 +142,13 @@ fun SettingsScreen(backClick: () -> Unit) {
                 key = KEY_MED_COMPACT_VIEW,
                 defaultValue = false,
                 title = { Text(stringResource(preference_med_compact_view)) },
+                summary = { Text(stringResource(if (it) text_on else text_off)) }
+            )
+
+            switchPreference(
+                key = KEY_CONFIRM_EXIT,
+                defaultValue = true,
+                title = { Text(stringResource(preference_confirm_exit)) },
                 summary = { Text(stringResource(if (it) text_on else text_off)) }
             )
 
@@ -208,82 +215,79 @@ fun SettingsScreen(backClick: () -> Unit) {
         }
     }
 
-    if (showDialog) KitsManager { showDialog = false }
-    if (showExport) ExportImport({ showExport = false })
+    if (showExport) ExportImport { showExport = false }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun KitsManager(onDismiss: () -> Unit) {
+fun KitsManager(back: () -> Unit) {
     val dao = database.kitDAO()
     val kits by dao.getFlow().collectAsStateWithLifecycle(emptyList())
     var show by rememberSaveable { mutableStateOf(false) }
     var text by rememberSaveable { mutableStateOf(BLANK) }
 
-    Dialog(onDismiss, DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(Modifier.fillMaxSize()) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = { Text(stringResource(preference_kits_group)) },
-                        navigationIcon = {
-                            IconButton(onDismiss) {
-                                Icon(Icons.AutoMirrored.Outlined.ArrowBack, null)
-                            }
-                        }
-                    )
-                },
-                floatingActionButton = {
-                    ExtendedFloatingActionButton(
-                        text = { Text(stringResource(text_add)) },
-                        icon = { Icon(Icons.Outlined.Add, null) },
-                        onClick = { show = true },
-                    )
-                }
-            ) { values ->
-                LazyColumn(contentPadding = PaddingValues(top = values.calculateTopPadding())) {
-                    items(kits) { (kitId, title) ->
-                        ListItem(
-                            headlineContent = { Text(title) },
-                            trailingContent = {
-                                IconButton({ dao.delete(Kit(kitId)) }) {
-                                    Icon(Icons.Outlined.Delete, null)
-                                }
-                            }
-                        )
-                        HorizontalDivider()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(preference_kits_group)) },
+                navigationIcon = {
+                    IconButton(back) {
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, null)
                     }
-                }
-            }
-
-            if (show) AlertDialog(
-                onDismissRequest = { show = false },
-                confirmButton = {
-                    TextButton(
-                        onClick = { dao.add(Kit(title = text)); text = BLANK; show = false },
-                        enabled = text.isNotEmpty()
-                    ) { Text(stringResource(text_save)) }
-                },
-                dismissButton = {
-                    TextButton({ show = false; text = BLANK }) {
-                        Text(stringResource(text_cancel))
-                    }
-                },
-                title = { Text(stringResource(text_new_group)) },
-                text = {
-                    OutlinedTextField(
-                        value = text,
-                        onValueChange = { text = it },
-                        keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
-                    )
                 }
             )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = { Text(stringResource(text_add)) },
+                icon = { Icon(Icons.Outlined.Add, null) },
+                onClick = { show = true },
+            )
+        }
+    ) { values ->
+        LazyColumn(Modifier.padding(values)) {
+            items(kits) { (kitId, title) ->
+                ListItem(
+                    headlineContent = { Text(title) },
+                    trailingContent = {
+                        IconButton({ dao.delete(Kit(kitId)) }) {
+                            Icon(Icons.Outlined.Delete, null)
+                        }
+                    }
+                )
+                HorizontalDivider()
+            }
         }
     }
+
+    if (show) AlertDialog(
+        onDismissRequest = { show = false },
+        confirmButton = {
+            TextButton(
+                onClick = { dao.add(Kit(title = text)); text = BLANK; show = false },
+                enabled = text.isNotEmpty()
+            ) { Text(stringResource(text_save)) }
+        },
+        dismissButton = {
+            TextButton({ show = false; text = BLANK }) {
+                Text(stringResource(text_cancel))
+            }
+        },
+        title = { Text(stringResource(text_new_group)) },
+        text = {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
+            )
+        }
+    )
 }
 
 @Composable
-private fun ExportImport(onDismiss: () -> Unit, context: Context = LocalContext.current) {
+private fun ExportImport(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+
     val queryC = "SELECT 1 FROM sqlite_master WHERE type = 'table' and name = 'room_master_table'"
     val queryG = "SELECT * FROM room_master_table"
     val name = "exported.sqlite3"
@@ -357,7 +361,12 @@ private fun ExportImport(onDismiss: () -> Unit, context: Context = LocalContext.
         confirmButton = { TextButton({ importer.launch(mimes) }) { Text(stringResource(text_import)) } },
         dismissButton = { TextButton({ exporter.launch(name) }) { Text(stringResource(text_export)) } },
         title = { Text(stringResource(text_attention)) },
-        text = { Text(stringResource(text_export_import_description)) }
+        text = {
+            Text(
+                text = stringResource(text_export_import_description),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
     )
 }
 
