@@ -14,8 +14,7 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_system">System</string>
-    <string name="text_intake_time">Medicine: %1$s
-\nAmount: %2$s %3$s</string>
+    <string name="text_intake_time">Medicine: %1$s \nAmount: %2$s %3$s</string>
     <string name="text_attention">Attention!</string>
     <string name="text_medicine_amount_not_enough">Not enough amount left</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
