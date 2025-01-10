@@ -102,8 +102,7 @@
     <string name="text_medicine_form">Darreichungsform</string>
     <string name="intake_text_taken">Eingenommen</string>
     <string name="type_tablets">TABLETTEN</string>
-    <string name="text_intake_time">Medikament: %1$s
-\nMenge: %2$s %3$s</string>
+    <string name="text_intake_time">Medikament: %1$s \nMenge: %2$s %3$s</string>
     <string name="text_no_data_found">Kein Medikament gefunden. Bitte Filter ändern oder Medikament hinzufügen.</string>
     <string name="type_suppository">ZÄPFCHEN</string>
     <string name="type_powder">PULVER</string>
