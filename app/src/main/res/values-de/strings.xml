@@ -102,7 +102,7 @@
     <string name="text_medicine_form">Darreichungsform</string>
     <string name="intake_text_taken">Eingenommen</string>
     <string name="type_tablets">TABLETTEN</string>
-    <string name="text_intake_time">Medikament: %1$s \nMenge: %2$s %3$s</string>
+    <string name="text_intake_time">Medikament: %1$s \nEinnahmemenge: %2$s %3$s\nVerbleibend: %4$s %3$s</string>
     <string name="text_no_data_found">Kein Medikament gefunden. Bitte Filter ändern oder Medikament hinzufügen.</string>
     <string name="type_suppository">ZÄPFCHEN</string>
     <string name="type_powder">PULVER</string>
@@ -114,7 +114,7 @@
     <string name="text_medicine_status_self_added">Manuell hinzugefügt</string>
     <string name="intake_text_amount">Menge</string>
     <string name="type_decoction">AUFGUSS</string>
-    <string name="intake_text_not_taken">Nicht eingenommem</string>
+    <string name="intake_text_not_taken">Nicht eingenommen</string>
     <string name="type_mix">MISCHUNG</string>
     <string name="placeholder_dose">0,5 mg + 84 µg</string>
     <string name="text_expire_soon">Das Ablaufdatum von %1$s ist nahe</string>
