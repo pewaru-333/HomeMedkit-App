@@ -1,0 +1,3 @@
+— Um pulo rápido para a data na lista de consumos foi adicionado (futuro e passado).
+— A quantidade de medicamento sobrando agora é exibida na notificação de consumo.
+— Alguns bugs foram corrigidos.

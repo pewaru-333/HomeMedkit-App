@@ -15,6 +15,5 @@ Um aplicativo que permite que você registre e armazene informações sobre os m
 * Lembrete da data de validade dos medicamentos.
 * Exportar e importar o banco de dados para outros dispositivos.
 
-Um aplicativo que permite que você registre e armazene informações sobre medicamentos.
 Com ele, você pode rastrear as datas de validade dos medicamentos, criar um agendamento pro seu consumo, e receber notificações disso.
 É um assistente confiável e conveniente que ajuda a monitorar sua saúde.
