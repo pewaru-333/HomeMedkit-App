@@ -1,1 +1,1 @@
-Home Medkit — medicines storing and intakes reminders.
+Home Medkit — medicine storage and intake reminders.

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Medkit</string>
     <!-- Menu -->
     <string name="bottom_bar_medicines">藥物</string>
     <string name="bottom_bar_intakes">攝取量</string>
@@ -48,7 +47,6 @@
     <string name="intake_text_food_during">用餐期間</string>
     <string name="intake_text_interval">間隔</string>
     <string name="intake_text_left">左</string>
-    <string name="intake_text_quantity">%1$s：%2$s %3$s</string>
     <string name="intake_text_select_interval">選擇間隔</string>
     <string name="intake_text_time">時間</string>
     <!-- Dialogs -->

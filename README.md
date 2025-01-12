@@ -43,28 +43,28 @@
 
 # Home medkit (English)
 
-Application allows you to easily and quickly register and store information about medicines. With it, you can track the expiration dates of medicines,
-create a schedule for their intake and receive notifications about it.
+An application that allows you to easily and quickly register and store information about medicine.
+With it, you can track the expiration dates of medications, create a schedule for their intake and receive notifications about it.
 It is a reliable and convenient assistant that will help you monitor your health.
 
 # Main features
 
-* Automatic addition of medicines by scanning the label.
-* The ability to add medicines manually.
-* Update information about the medicine if it was scanned without an internet connection.
-* Edit information about medicines added manually.
-* Sorting of medicines by expiration date.
-* Grouping of medicines by categories.
-* Notification of the need to take medicine.
-* Display of the nearest medicines schedule.
-* Reminder of the expiration date of medicines.
+* Automatic addition of medications by scanning the label.
+* The ability to add medications manually.
+* Update information about the medication if it was scanned without an internet connection.
+* Edit information about medications added manually.
+* Sorting of medications by expiration date.
+* Grouping of medications by categories.
+* Notifications for when to take medications.
+* Display of the nearest medications to be taken.
+* Reminder of the expiration date of medications.
 * Export and import the database to other devices.
 
 </div>
 
 # Translations
 
-You can help with translations to your language.
+You can help translating Medkit to your language.
 
 <a href="https://hosted.weblate.org/engage/homemedkit/">
 <img src="https://hosted.weblate.org/widget/homemedkit/multi-auto.svg" alt="Состояние перевода" />

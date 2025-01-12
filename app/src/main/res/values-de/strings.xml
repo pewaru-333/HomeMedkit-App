@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Medkit</string>
     <!-- Menu -->
 
     <string name="bottom_bar_medicines">Medizin</string>
@@ -42,7 +41,6 @@
     <string name="intake_text_left">Übrig</string>
     <string name="intake_text_period">Zeitraum</string>
     <string name="intake_text_pick_period">Zeitraum auswählen</string>
-    <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
     <string name="intake_text_select_interval">Intervall auswählen</string>
     <string name="intake_text_time">Zeit</string>
     <string name="intake_card_text_from">(von %1$s)</string>
