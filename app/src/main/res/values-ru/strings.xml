@@ -4,7 +4,6 @@
     <string name="bottom_bar_medicines">Лекарства</string>
     <string name="bottom_bar_intakes">Приём</string>
     <string name="bottom_bar_settings">Настройки</string>
-
     <!-- Настройки -->
     <string name="preference_app_view">Вид приложения</string>
     <string name="preference_kits_group">Группы лекарств</string>
@@ -18,21 +17,17 @@
     <string name="preference_app_theme">Тема приложения</string>
     <string name="preference_dynamic_color">Системные цвета</string>
     <string name="preference_import_export">Импорт/Экспорт</string>
-
     <!-- Языки -->
     <string name="lang_system">Системный</string>
-
     <!-- Сортировка -->
     <string name="sorting_a_z">Названию (от А до Я)</string>
     <string name="sorting_z_a">Названию (от Я до А)</string>
     <string name="sorting_from_oldest">Сроку годности (со старых)</string>
     <string name="sorting_from_newest">Сроку годности (с новых)</string>
-
     <!-- Темы -->
     <string name="theme_system">Системная</string>
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
-
     <!-- Уведомления -->
     <string name="channel_name">Звуковые уведомления</string>
     <string name="channel_exp_desc">Окончание срока годности</string>
@@ -46,11 +41,9 @@
     <string name="text_intake_prealarm_title">Предстоящий приём</string>
     <string name="text_intake_time">Лекарство: %1$s\nДоза приёма: %2$s %3$s\nОстаток лекарства: %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Осталось недостаточно лекарства</string>
-
     <!-- "Заполнители" -->
     <string name="placeholder_dose">0,5 мг + 84 мкг</string>
     <string name="placeholder_time">Время #%1$d</string>
-
     <!-- Лекарства -->
     <string name="text_exp_date">Годен до</string>
     <string name="text_indications_for_use">Показания к применению</string>
@@ -67,7 +60,6 @@
     <string name="text_medicine_status_scanned">Не проверено</string>
     <string name="text_medicine_status_self_added">Добавлено вручную</string>
     <string name="text_medicine_storage_conditions">Условия хранения</string>
-
     <!-- Формы лекарств -->
     <string name="type_tablets">ТАБЛЕТКИ</string>
     <string name="type_capsules">КАПСУЛЫ</string>
@@ -95,7 +87,6 @@
     <string name="type_patch">ПЛАСТЫРЬ</string>
     <string name="type_bandage">БИНТ</string>
     <string name="type_napkins">САЛФЕТКИ</string>
-
     <!-- Виды доз лекарств -->
     <string name="dose_ed">ЕД</string>
     <string name="dose_pcs">шт</string>
@@ -104,12 +95,10 @@
     <string name="dose_mg">мг</string>
     <string name="dose_l">л</string>
     <string name="dose_ml">мл</string>
-
     <!-- Приём -->
     <string name="intakes_tab_list">Список</string>
     <string name="intakes_tab_current">Текущие</string>
     <string name="intakes_tab_past">Прошедшие</string>
-
     <string name="intake_card_text_from">(с %1$s)</string>
     <string name="intake_text_amount">Количество</string>
     <string name="intake_text_by_schedule">По расписанию</string>
@@ -128,23 +117,18 @@
     <string name="intake_text_select_interval">Выберите интервал</string>
     <string name="intake_text_taken">Принято</string>
     <string name="intake_text_time">Время</string>
-
     <string name="intake_extra_cancellable">Исчезающее уведомление</string>
     <string name="intake_extra_fullscreen">Полноэкранное уведомление</string>
     <string name="intake_extra_no_sound">Без звука</string>
     <string name="intake_extra_prealarm">Уведомлять заранее</string>
-
     <string name="intake_extra_cancellable_desc">Устанавливает, что это уведомление будет автоматически отменено через 10 минут</string>
     <string name="intake_extra_prealarm_desc">Уведомление в строке состояния за 30 минут до времени приёма</string>
-
     <string name="intake_interval_daily">ежедневно</string>
     <string name="intake_interval_weekly">еженедельно</string>
     <string name="intake_interval_other">другой</string>
-
     <string name="intake_period_pick">выбор по датам</string>
     <string name="intake_period_other">ввод дней</string>
     <string name="intake_period_indef">бессрочно</string>
-
     <!-- Диалоговые окна -->
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
     <string name="text_confirm_deletion_int">Вы подтверждаете удаление этого приёма лекарства?</string>
@@ -166,7 +150,6 @@
     <string name="text_request_post">Для получения уведомлений приложению необходимо выдать соответствующее разрешение</string>
     <string name="text_select_time">Выберите время</string>
     <string name="text_try_again">Попробуйте отсканировать код ещё раз!</string>
-
     <!-- Строки -->
     <string name="text_add">Добавить</string>
     <string name="text_amount">Количество</string>
@@ -201,7 +184,6 @@
     <string name="text_unspecified">Не указано</string>
     <string name="text_update">Загрузить</string>
     <string name="text_yes">Да</string>
-
     <!-- Числительные -->
     <plurals name="intakes_a_day">
         <item quantity="one">%d раз в день</item>
