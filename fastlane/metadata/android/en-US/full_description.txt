@@ -15,6 +15,5 @@ An application that allows you to easily and quickly register and store informat
 * Reminder of the expiration date of medications.
 * Export and import the database to other devices.
 
-An application that allows you to easily and quickly register and store information about medicine.
 With it, you can track the expiration dates of medications, create a schedule for their intake and receive notifications about it.
 It is a reliable and convenient assistant that will help you monitor your health.
