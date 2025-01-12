@@ -2,7 +2,7 @@
 <resources>
     <!-- Menu -->
 
-    <string name="bottom_bar_medicines">Medizin</string>
+    <string name="bottom_bar_medicines">Medikamente</string>
     <string name="bottom_bar_intakes">Einnahmen</string>
     <string name="bottom_bar_settings">Einstellung</string>
     <!-- Preferences -->
@@ -186,5 +186,5 @@
     <string name="text_medicine_display_name">Dargestellter Name</string>
     <string name="text_confirm_deletion_int">Soll diese Einnahme wirklich gelöscht werden?</string>
     <string name="preference_confirm_exit">Verlassen der App bestätigen</string>
-    <string name="text_go_to">Go to</string>
+    <string name="text_go_to">OK</string>
 </resources>
