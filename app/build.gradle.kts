@@ -51,6 +51,9 @@ android {
     buildFeatures {
         compose = true
     }
+    lint {
+        disable += "MissingTranslation" // Translation is crowd-sourced.
+    }
 }
 
 dependencies {

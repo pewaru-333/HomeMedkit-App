@@ -46,7 +46,6 @@
     <string name="text_intake_amount_not_enough">¡Es la hora de tomar %1$s, pero hay menos cantidad de la prescrita! ¡Vuelve a crear el recordatorio!</string>
     <string name="text_intake_prealarm_text">Medicamento: %1$s\nDosis: %2$s %3$s\nDuración: %4$s</string>
     <string name="text_intake_prealarm_title">Próxima incorporación</string>
-    <string name="text_intake_time">Medicine: %1$s\nIntake amount: %2$s %3$s\nLeftover medicine: %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Medicación insuficiente</string>
 
     <!-- Placeholders -->
@@ -59,7 +58,6 @@
     <string name="text_medicine_comment">Comentarios</string>
     <string name="text_medicine_composition">Composición</string>
     <string name="text_medicine_description">Descripción</string>
-    <string name="text_medicine_display_name">Display name</string>
     <string name="text_medicine_dose">Dosis</string>
     <string name="text_medicine_form">Formas farmaceuticas</string>
     <string name="text_medicine_group">Grupo</string>
@@ -132,7 +130,6 @@
     <string name="intake_text_taken">Tomado</string>
     <string name="intake_text_time">Hora</string>
 
-    <string name="intake_extra_cancellable">Notification timeout</string>
     <string name="intake_extra_fullscreen">Notificación a pantalla completa</string>
     <string name="intake_extra_no_sound">Sin sonido</string>
     <string name="intake_extra_prealarm">Próximas notificaciones</string>
