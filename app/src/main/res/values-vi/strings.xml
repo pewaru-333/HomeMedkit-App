@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Tủ thuốc</string>
     <!-- Menu -->
     <string name="bottom_bar_medicines">Các loại thuốc</string>
     <string name="bottom_bar_intakes">Uống thuốc</string>
@@ -55,7 +54,6 @@
     <string name="intake_text_left">Còn lại</string>
     <string name="intake_text_period">Giai đoạn</string>
     <string name="intake_text_pick_period">Chọn giai đoạn</string>
-    <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
     <string name="intake_text_select_interval">Chọn khoảng thời gian</string>
     <string name="intake_text_time">Thời gian</string>
     <!-- Dialogs -->

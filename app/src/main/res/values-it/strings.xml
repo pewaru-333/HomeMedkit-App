@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Medkit</string>
     <!-- Menu -->
     <string name="bottom_bar_medicines">Medicinali</string>
     <string name="bottom_bar_intakes">Assunzioni</string>
@@ -63,7 +62,6 @@
     <string name="intake_text_not_taken">Non preso</string>
     <string name="intake_text_period">Periodo</string>
     <string name="intake_text_pick_period">Periodo di scelta</string>
-    <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
     <string name="intake_text_select_interval">Selezionare l\'intervallo</string>
     <string name="intake_text_taken">Preso</string>
     <string name="intake_text_time">Tempo</string>

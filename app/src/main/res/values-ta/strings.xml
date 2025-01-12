@@ -128,7 +128,6 @@
     <string name="type_ointment">களிம்பு</string>
     <string name="text_error">பிழை!</string>
     <string name="type_capsules">காப்ச்யூல்கள்</string>
-    <string name="intake_text_quantity">%1$s: %2$s %3$s</string>
     <string name="intake_text_period">காலசுழற்சி</string>
     <string name="intake_extra_prealarm_desc">30 நிமிட உட்கொள்ளும் நேரத்திற்கு முன் நிலை பட்டியில் அறிவிப்பு</string>
     <string name="text_notification_pick_action_first">முதலில் அறிவிப்பில் தேர்வு செயலை மாற்றுவதற்காக</string>
@@ -160,7 +159,6 @@
     <string name="type_pills">மாத்திரைகள்</string>
     <string name="text_try_again">லேபிளை ச்கேன் செய்ய மீண்டும் முயற்சிக்கவும்!</string>
     <string name="text_daily_at">தினமும் 12:00 மணிக்கு</string>
-    <string name="app_name">தடியல்கள்</string>
     <string name="type_patch">இணைப்பு</string>
     <string name="dose_sach">சாக்</string>
     <string name="intake_text_food_during">உணவின் போது</string>
