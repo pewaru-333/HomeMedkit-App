@@ -1,0 +1,20 @@
+Home Medkit
+
+Um aplicativo que permite que você registre e armazene informações sobre os medicamentos tomados facilmente.
+
+<b>Recursos</b>
+
+* Adição automática de medicamentos ao escanear a etiqueta.
+* Adicionar medicamentos manualmente.
+* Atualizar informações do medicamento se foi escaneado sem uma conexão à internet.
+* Editar informações sobre medicamentos adicionados manualmente.
+* Ordenar medicamentos pela data de validade.
+* Agrupar medicamentos por categorias.
+* Notificações de quanto tomar um medicamento.
+* Visão de quais medicamentos estão mais pertos de serem consumidos.
+* Lembrete da data de validade dos medicamentos.
+* Exportar e importar o banco de dados para outros dispositivos.
+
+Um aplicativo que permite que você registre e armazene informações sobre medicamentos.
+Com ele, você pode rastrear as datas de validade dos medicamentos, criar um agendamento pro seu consumo, e receber notificações disso.
+É um assistente confiável e conveniente que ajuda a monitorar sua saúde.
