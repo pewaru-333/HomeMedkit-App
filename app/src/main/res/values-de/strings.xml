@@ -8,10 +8,10 @@
     <!-- Preferences -->
 
     <string name="preference_app_view">App-Ansicht</string>
-    <string name="preference_kits_group">Medizin-Gruppen</string>
-    <string name="preference_sorting_type">Medizinsortierung</string>
+    <string name="preference_kits_group">Medikamenten-Gruppen</string>
+    <string name="preference_sorting_type">Medikamentensortierung</string>
     <string name="preference_download_images">Bilder der Medikamente herunterladen</string>
-    <string name="preference_check_expiration_date">Überprüfung des Verfallsdatums von Arzneimitteln</string>
+    <string name="preference_check_expiration_date">Verfallsdatum der Medikamente prüfen</string>
     <string name="preference_system">System</string>
     <string name="preference_language">App-Sprache</string>
     <string name="preference_app_theme">App-Thema</string>
@@ -70,7 +70,7 @@
     <string name="text_on">Eingeschaltet</string>
     <string name="text_save">Speichern</string>
     <string name="text_start_date">Startdatum</string>
-    <string name="text_success">Erfolgreich!</string>
+    <string name="text_success">Geschafft!</string>
     <string name="text_yes">Ja</string>
     <string name="text_medicine_amount_not_enough">Vorrat zu gering</string>
     <string name="sorting_from_oldest">Ablaufdatum (alt zu neu)</string>
@@ -81,9 +81,9 @@
     <string name="type_gel">GEL</string>
     <string name="type_spray">SPRAY</string>
     <string name="type_drops">DROPS</string>
-    <string name="text_request_camera">Um das Label zu scannen, braucht die App Kamerazugriffs-Rechte</string>
+    <string name="text_request_camera">Um Labels zu scannen, benötigt die App Kamerazugriffs-Rechte</string>
     <string name="text_request_post">Um Benachrichtigungen anzuzeigen braucht die App die entsprechende Berechtigung</string>
-    <string name="text_notification_pick_action_first">Zum Ändern bitte zunächst eine Aktion in der Benachrichtigung wählen</string>
+    <string name="text_notification_pick_action_first">Zum Ändern der Einnahme bitte zunächst eine Aktion in der Benachrichtigung wählen</string>
     <string name="text_days_short">T.</string>
     <string name="text_update">Aktualisieren</string>
     <string name="text_unspecified">Nicht angegeben</string>
@@ -96,18 +96,18 @@
     </plurals>
     <string name="theme_system">System</string>
     <string name="text_no">Nein</string>
-    <string name="text_intake_amount_not_enough">Zeit %1$s einzunehmen, aber Vorrat ist geringer als verordnet!</string>
+    <string name="text_intake_amount_not_enough">Zeit %1$s einzunehmen, aber der Vorrat ist aufgebraucht!</string>
     <string name="text_medicine_form">Darreichungsform</string>
     <string name="intake_text_taken">Eingenommen</string>
     <string name="type_tablets">TABLETTEN</string>
     <string name="text_intake_time">Medikament: %1$s \nEinnahmemenge: %2$s %3$s\nVerbleibend: %4$s %3$s</string>
-    <string name="text_no_data_found">Kein Medikament gefunden. Bitte Filter ändern oder Medikament hinzufügen.</string>
+    <string name="text_no_data_found">Keine Medikamente gefunden. Bitte Filter ändern oder Medikament hinzufügen.</string>
     <string name="type_suppository">ZÄPFCHEN</string>
     <string name="type_powder">PULVER</string>
     <string name="text_medicine_group">Gruppe</string>
     <string name="text_no_intakes_found">Keine Einnahmen gefunden. Erst welche über den Medikamenten-Tab hinzufügen oder Suchbegriff ändern.</string>
     <string name="intake_text_food">Mahlzeiten &amp; Medikament</string>
-    <string name="preference_med_compact_view">Kompaktansicht der Listen</string>
+    <string name="preference_med_compact_view">Kompakte Listenansicht</string>
     <string name="type_granules">GRANULAT</string>
     <string name="text_medicine_status_self_added">Manuell hinzugefügt</string>
     <string name="intake_text_amount">Menge</string>
@@ -126,10 +126,10 @@
     <string name="type_ointment">SALBE</string>
     <string name="type_capsules">KAPSELN</string>
     <string name="type_syrup">SIRUP</string>
-    <string name="text_duplicate">Dieses Medikament wurde bereits eingetragen!</string>
+    <string name="text_duplicate">Dieses Medikament wurde bereits hinzugefügt!</string>
     <string name="text_export_import_description">Dieses Feature ist experimentell. \nBeim Import werden bestehende Daten gelöscht!</string>
     <string name="intake_text_date">Datum</string>
-    <string name="text_medicine_deleted">Medikament wurde gelöscht, Einnahmestatus nicht änderbar</string>
+    <string name="text_medicine_deleted">Medikament wurde gelöscht, Einnahmestatus ist nicht änderbar</string>
     <string name="type_mixture">MIXTUR</string>
     <string name="intakes_tab_past">Zurückliegend</string>
     <string name="text_indications_for_use">Indikationen für die Anwendung</string>
@@ -143,9 +143,9 @@
     <string name="intake_interval_daily">täglich</string>
     <string name="intake_period_indef">unendlich</string>
     <string name="intake_interval_other">eigenes</string>
-    <string name="intake_period_other">Anzahl Tage</string>
+    <string name="intake_period_other">nach Anzahl der Tage</string>
     <string name="intake_interval_weekly">wöchentlich</string>
-    <string name="intake_period_pick">von bis</string>
+    <string name="intake_period_pick">nach Datum</string>
     <string name="dose_ed">EINH.</string>
     <string name="dose_g">g</string>
     <string name="dose_pcs">St.</string>
@@ -153,18 +153,18 @@
     <string name="dose_ml">ml</string>
     <string name="dose_mg">mg</string>
     <string name="text_intake_prealarm_text">Medikament: %1$s\nMenge: %2$s %3$s\nZeit: %4$s</string>
-    <string name="text_dismiss">Ablehnen</string>
+    <string name="text_dismiss">Schließen</string>
     <string name="intake_text_in_fact">Tatsächlich</string>
     <string name="intake_text_by_schedule">Nach Zeitplan</string>
     <string name="intake_text_extra">Zusätzlich</string>
     <string name="intake_extra_prealarm">Bevorstehende Benachrichtigung</string>
-    <string name="intake_extra_prealarm_desc">Benachrichtigung in der Statusleiste 30 Minuten vor der Einnahmezeit.</string>
+    <string name="intake_extra_prealarm_desc">Benachrichtigung erscheint 30 Minuten vor der regulären Einnahmezeit</string>
     <string name="text_intake_prealarm_title">Bevorstehende Einnahme</string>
     <string name="intake_extra_no_sound">Ohne Ton</string>
     <string name="channel_exp_desc">Ablaufdatum</string>
     <string name="intake_extra_fullscreen">Benachrichtigung im Vollbild-Modus</string>
     <string name="channel_pre_desc">Anstehende Einnahme</string>
-    <string name="text_error_not_medicine">Dies ist kein Arzneimittelcode!</string>
+    <string name="text_error_not_medicine">Dies ist kein Medikamentencode!</string>
     <string name="text_medicine_recommendations">Anwendungsempfehlungen</string>
     <string name="text_medicine_composition">Zusammensetzung</string>
     <string name="text_medicine_storage_conditions">Lagerungsverhältnisse</string>
@@ -178,10 +178,10 @@
     <string name="text_fill_field">Dieses Feld ausfüllen!</string>
     <string name="text_pay_attention">Achtung!</string>
     <string name="text_grant">Erlauben</string>
-    <string name="text_not_saved_intake">Die Einnahme ist nicht gesichert! Möchten Sie zurückgehen?</string>
+    <string name="text_not_saved_intake">Die Einnahme wurde nicht gespeichert! Möchten Sie zurückgehen?</string>
     <string name="text_exit">Beenden</string>
     <string name="text_confirm_deletion_med">Soll dieses Medikament wirklich gelöscht werden?</string>
-    <string name="intake_extra_cancellable_desc">Legt fest, dass diese Benachrichtigung automatisch nach 10 Minuten verworfen wird</string>
+    <string name="intake_extra_cancellable_desc">Benachrichtigung wird automatisch nach 10 Minuten verworfen</string>
     <string name="intake_extra_cancellable">Verschwindende Benachrichtigung</string>
     <string name="text_medicine_display_name">Dargestellter Name</string>
     <string name="text_confirm_deletion_int">Soll diese Einnahme wirklich gelöscht werden?</string>
