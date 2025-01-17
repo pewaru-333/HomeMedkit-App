@@ -2,7 +2,7 @@
 <resources>
     <!-- Menu -->
     <string name="bottom_bar_medicines">Medicamentos</string>
-    <string name="bottom_bar_intakes">Consumo</string>
+    <string name="bottom_bar_intakes">Ingestão</string>
     <string name="bottom_bar_settings">Configurações</string>
     <!-- Preferences -->
     <string name="preference_app_view">Visualização do app</string>
@@ -23,14 +23,14 @@
     <string name="theme_system">Sistema</string>
     <string name="sorting_z_a">Alfabeticamente (z ao A)</string>
     <string name="sorting_a_z">Alfabeticamente (A ao z)</string>
-    <string name="channel_intakes_desc">Consumo de medicamentos</string>
+    <string name="channel_intakes_desc">Ingestão de medicamentos</string>
     <string name="sorting_from_oldest">Data de validade (da mais antiga)</string>
     <string name="placeholder_time">Tempo #%1$d</string>
     <string name="text_medicine_comment">Comentário</string>
-    <string name="text_intake_amount_not_enough">É hora de tomar %1$s, mas não há quantidade suficiente!</string>
+    <string name="text_intake_amount_not_enough">É hora de ingerir %1$s, mas não há quantidade suficiente!</string>
     <string name="text_medicine_form">Formulário de liberação</string>
     <string name="type_tablets">COMPRIMIDOS</string>
-    <string name="text_intake_time">Medicamento: %1$s\nQuantidade de consumo: %2$s %3$s\nMedicamento sobrando: %4$s %3$s</string>
+    <string name="text_intake_time">Medicamento: %1$s\nQuantidade de ingestão: %2$s %3$s\nMedicamento sobrando: %4$s %3$s</string>
     <string name="text_attention">Atenção!</string>
     <string name="text_medicine_amount_not_enough">Não há suficiente sobrando</string>
     <string name="text_medicine_group">Grupo</string>
@@ -67,7 +67,7 @@
     <string name="intake_text_food_before">Antes da refeição</string>
     <string name="text_duplicate">Esse medicamento já foi adicionado!</string>
     <string name="text_export_import_description">Esse é um recurso experimental.\nSe você importar, os dados atuais do app serão excluídos!</string>
-    <string name="text_medicine_deleted">O medicamento foi excluído, é impossível mudar o status de consumo</string>
+    <string name="text_medicine_deleted">O medicamento foi excluído, é impossível mudar o status de ingestão</string>
     <string name="text_grant_permission">Conceder permissão</string>
     <string name="text_request_camera">Para fazer scan de etiquetas, a permissão de câmera é necessária</string>
     <string name="text_new_group">Novo grupo</string>
@@ -75,7 +75,7 @@
     <string name="text_amount">Quantidade</string>
     <string name="text_add">Adicionar</string>
     <string name="text_request_post">Para receber notificações, a permissão de notificações é necessária</string>
-    <string name="text_notification_pick_action_first">Para modificar este consumo, escolha uma ação na notificação primeiro</string>
+    <string name="text_notification_pick_action_first">Para modificar esta ingestão, escolha uma ação na notificação primeiro</string>
     <string name="text_try_again">Tente fazer scan da etiqueta novamente!</string>
     <string name="text_cancel">Cancelar</string>
     <string name="text_enter_product_name">Pesquisar</string>
@@ -100,7 +100,7 @@
     <string name="preference_check_expiration_date">Verificar data de validade dos medicamentos</string>
     <string name="preference_sorting_type">Ordem dos medicamentos</string>
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="text_no_intakes_found">Nenhum consumo encontrado. Adicione um pelo cartão de informação do medicamento, ou mude o valor da pesquisa.</string>
+    <string name="text_no_intakes_found">Nenhuma ingestão encontrada. Adicione uma pelo cartão de informação do medicamento, ou mude o valor da pesquisa.</string>
     <string name="text_success">Sucesso!</string>
     <string name="text_medicine_product_name">Nome do produto</string>
     <string name="preference_app_theme">Tema do app</string>
@@ -126,7 +126,7 @@
     <string name="channel_name">Notificações de som</string>
     <string name="intake_text_food_during">Durante a refeição</string>
     <string name="text_medicine_dose">Dose</string>
-    <string name="text_do_intake">Tomar</string>
+    <string name="text_do_intake">Ingestão</string>
     <string name="text_exp_date">Data de val.</string>
     <string name="type_tincture">TINTURA</string>
     <string name="sorting_from_newest">Data de validade (da mais recente)</string>
@@ -149,10 +149,10 @@
     <string name="intake_text_extra">Extra</string>
     <string name="intake_extra_prealarm">Notificação próxima</string>
     <string name="intake_extra_prealarm_desc">Um lembrete será enviado 30 minutes antes do agendamento normal</string>
-    <string name="text_intake_prealarm_title">Consumo próximo</string>
+    <string name="text_intake_prealarm_title">Ingestão próxima</string>
     <string name="intake_extra_no_sound">Silencioso</string>
     <string name="channel_exp_desc">Data de validade</string>
-    <string name="channel_pre_desc">Consumo próximo</string>
+    <string name="channel_pre_desc">Ingestão próxima</string>
     <string name="intake_extra_fullscreen">Notificação em tela cheia</string>
     <string name="text_medicine_recommendations">Recomendações de uso</string>
     <string name="text_medicine_composition">Composição</string>
@@ -169,13 +169,13 @@
     <string name="text_stay">Ficar</string>
     <string name="text_exit_app">Você tem certeza que quer sair do app?</string>
     <string name="text_grant">Conceder</string>
-    <string name="text_not_saved_intake">O consumo não foi salvo! Você gostaria de voltar?</string>
+    <string name="text_not_saved_intake">A ingestão não foi salva! Você gostaria de voltar?</string>
     <string name="text_exit">Sair</string>
     <string name="text_confirm_deletion_med">Você tem certeza que gostaria de excluir este medicamento?</string>
     <string name="intake_extra_cancellable_desc">A notificação será cancelada automaticamente depois de 10 minutos</string>
     <string name="intake_extra_cancellable">Notificação de tempo esgotado</string>
     <string name="text_medicine_display_name">Nome de exibição</string>
     <string name="preference_confirm_exit">Confirmar saída do app</string>
-    <string name="text_confirm_deletion_int">Você tem certeza que deseja excluir este consumo?</string>
+    <string name="text_confirm_deletion_int">Você tem certeza que deseja excluir esta ingestão?</string>
     <string name="text_go_to">Ir</string>
 </resources>
