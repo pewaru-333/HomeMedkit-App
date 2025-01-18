@@ -57,10 +57,10 @@
     <string name="text_connection_error">Erro de conexão!</string>
     <string name="intake_text_pick_period">Escolher período</string>
     <string name="intake_text_time">Tempo</string>
-    <string name="intake_text_taken">Tomado</string>
+    <string name="intake_text_taken">Ingerido</string>
     <string name="intake_text_left">Sobrando</string>
     <string name="intake_text_food">Comida &amp; Med</string>
-    <string name="intake_text_not_taken">Não tomado</string>
+    <string name="intake_text_not_taken">Não ingerido</string>
     <string name="manual_add">Você gostaria de adicionar o medicamento manualmente?</string>
     <string name="intake_text_period">Período</string>
     <string name="intake_text_food_after">Depois da refeição</string>
