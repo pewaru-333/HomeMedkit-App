@@ -46,15 +46,12 @@
     <string name="intake_text_food_before">用餐前</string>
     <string name="intake_text_food_during">用餐期間</string>
     <string name="intake_text_interval">間隔</string>
-    <string name="intake_text_left">左</string>
-    <string name="intake_text_select_interval">選擇間隔</string>
     <string name="intake_text_time">時間</string>
     <!-- Dialogs -->
     <string name="text_connection_error">连接错误！</string>
-    <string name="text_grant_permission">授予權限</string>
+    <string name="text_permission_grant_full">授予權限</string>
     <string name="text_new_group">新群組</string>
     <string name="text_request_camera">要掃描標籤，應用程式必須獲得使用相機的權限</string>
-    <string name="text_request_post">要接收通知，應用程式必須已授予適當的權限</string>
     <string name="text_select_time">選擇時間</string>
     <!-- Strings -->
     <string name="text_yes">是</string>
@@ -82,7 +79,8 @@
     <string name="text_amount">數量</string>
     <string name="text_add">增加</string>
     <!-- Plurals -->
-    <plurals name="intakes_a_day">
+    <plurals name="intake_times_a_day">
         <item quantity="other">每天 %d 次</item>
     </plurals>
+    <string name="text_intake_prealarm_text">Medication: %1$s Amount: %2$s %3$s Time: %4$s</string>
 </resources>

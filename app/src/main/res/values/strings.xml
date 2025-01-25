@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Medkit</string>
+    <string name="app_name">Medkit</string>
 
     <!-- Menu -->
     <string name="bottom_bar_medicines">Medicine</string>
@@ -29,11 +29,8 @@
     <string name="lang_es" translatable="false">Español</string>
     <string name="lang_pt_BR" translatable="false">Português (Brasil)</string>
     <string name="lang_nl" translatable="false">Nederlands</string>
-    <string name="lang_cs" translatable="false">Čeština</string>
-    <string name="lang_pl" translatable="false">Polskie</string>
     <string name="lang_tr" translatable="false">Türkçe</string>
     <string name="lang_vi" translatable="false">Tiếng việt</string>
-    <string name="lang_ko" translatable="false">한국어</string>
     <string name="lang_zh_CN" translatable="false">中文 (中國)</string>
     <string name="lang_zh_TW" translatable="false">中文 (中華民國)</string>
     <string name="lang_ta" translatable="false">தமிழ்</string>
@@ -58,7 +55,7 @@
     <string name="text_do_intake">Intake</string>
     <string name="text_expire_soon">The expiration date of %1$s is near</string>
     <string name="text_intake_amount_not_enough">It\'s time to take %1$s, but there\'s not enough!</string>
-    <string name="text_intake_prealarm_text">Medication: %1$s\nAmount: %2$s %3$s\nTime: %4$s</string>
+    <string name="text_intake_prealarm_text">Medication: %1$s\nIntake amount: %2$s %3$s\nTime: %4$s</string>
     <string name="text_intake_prealarm_title">Upcoming intake</string>
     <string name="text_intake_time">Medication: %1$s\nIntake amount: %2$s %3$s\nLeftover medication: %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Not enough left</string>
@@ -127,7 +124,6 @@
     <string name="intakes_tab_current">Current</string>
     <string name="intakes_tab_past">Past</string>
 
-    <string name="intake_card_text_from">(from %1$s)</string>
     <string name="intake_text_amount">Quantity</string>
     <string name="intake_text_by_schedule">Scheduled</string>
     <string name="intake_text_date">Date</string>
@@ -137,27 +133,34 @@
     <string name="intake_text_food_before">Before meal</string>
     <string name="intake_text_food_during">During meal</string>
     <string name="intake_text_in_fact">Actual</string>
+    <string name="intake_text_in_stock">In stock: %1$s %2$s</string>
     <string name="intake_text_interval">Interval</string>
-    <string name="intake_text_left">Left</string>
     <string name="intake_text_not_taken">Not taken</string>
     <string name="intake_text_period">Period</string>
-    <string name="intake_text_pick_period">Pick period</string>
     <string name="intake_text_quantity" translatable="false">%1$s: %2$s %3$s</string>
-    <string name="intake_text_select_interval">Select interval</string>
+    <string name="intake_text_schema_type">Schema type</string>
     <string name="intake_text_taken">Taken</string>
     <string name="intake_text_time">Time</string>
+    <string name="intake_text_start">Start</string>
+    <string name="intake_text_finish">Finish</string>
 
     <string name="intake_extra_cancellable">Notification timeout</string>
     <string name="intake_extra_fullscreen">Fullscreen notification</string>
     <string name="intake_extra_no_sound">Silent</string>
     <string name="intake_extra_prealarm">Upcoming notification</string>
 
-    <string name="intake_extra_cancellable_desc">Notification will be canceled automatically after 10 minutes</string>
-    <string name="intake_extra_prealarm_desc">A reminder will be sent 30 minutes before the regular schedule</string>
+    <string name="intake_extra_desc_cancellable">Notification will be canceled automatically after 10 minutes</string>
+    <string name="intake_extra_desc_fullscreen">An intent to launch instead of posting the notification to the status bar on locked screen</string>
+    <string name="intake_extra_desc_no_sound">Silences notification, regardless of the sounds or vibrations</string>
+    <string name="intake_extra_desc_prealarm">A reminder will be sent 30 minutes before the regular schedule</string>
 
     <string name="intake_interval_daily">daily</string>
     <string name="intake_interval_weekly">weekly</string>
     <string name="intake_interval_other">custom</string>
+
+    <string name="intake_schema_type_indefinitely">Indefinitely</string>
+    <string name="intake_schema_type_day_picker">Day picker</string>
+    <string name="intake_schema_type_personal">Personal</string>
 
     <string name="intake_period_pick">by date</string>
     <string name="intake_period_other">by number of days</string>
@@ -171,19 +174,34 @@
     <string name="text_duplicate">This medication has been already added!</string>
     <string name="text_error_not_medicine">This label code is not from a medication!</string>
     <string name="text_exit_app">Are you sure you want to exit the app?</string>
-    <string name="text_explain_camera">To scan a label, you must give permission to use the camera. An example of what the marking should look like is shown below (it only works for Russian medication).</string>
     <string name="text_export_import_description">This is an experimental feature.\nIf you import, the current app data will be deleted!</string>
     <string name="text_fill_field">Fill in this field!</string>
-    <string name="text_grant_permission">Grant permission</string>
+
     <string name="text_medicine_deleted">Medication has been deleted, it is impossible to change the intake status</string>
     <string name="text_new_group">New group</string>
     <string name="text_not_saved_intake">The intake is not saved! Would you like to go back?</string>
-    <string name="text_notification_pick_action_first">In order to modify this intake, pick a action in the notification first</string>
+    <string name="text_notification_pick_action_first">In order to modify this intake, pick an action in the notification first</string>
     <string name="text_pay_attention">Pay attention!</string>
     <string name="text_request_camera">To scan labels, the camera permission is necessary</string>
-    <string name="text_request_post">To receive notifications, the notification permission is necessary</string>
     <string name="text_select_time">Select time</string>
     <string name="text_try_again">Try to scan the label again!</string>
+
+    <!-- Permissions -->
+    <string name="text_permission_title_full_screen">Full-screen notifications</string>
+    <string name="text_permission_title_ignore_battery">Ignore battery optimization</string>
+    <string name="text_permission_title_notifications">Notifications</string>
+    <string name="text_permission_title_reminders">Setting reminders</string>
+    
+    <string name="text_explain_camera">To scan a label, you must grant the permission to use the camera. An example of what the marking should look like is shown below (it only works for Russian medication)</string>
+    <string name="text_explain_full_screen_intent">Allow full-screen notifications of intake to be displayed</string>
+    <string name="text_expain_ignore_battery">Allow an app to ignore battery optimizations. If not granted, notifications can be lost!</string>
+    <string name="text_explain_notifications">Allow to show all app notifications</string>
+    <string name="text_explain_reminders">Allow reminders to be set at a precise time</string>
+    <string name="text_explain_request_permissions">To receive notifications, you must grant the following permissions</string>
+
+    <string name="text_permission_grant">Grant</string>
+    <string name="text_permission_granted">Granted</string>
+    <string name="text_permission_grant_full">Grant permission</string>
 
     <!-- Strings -->
     <string name="blank" translatable="false" />
@@ -200,6 +218,7 @@
     <string name="text_enter_product_name">Search</string>
     <string name="text_error">Error!</string>
     <string name="text_every">Every\u0020</string>
+    <string name="text_every_day">Every day</string>
     <string name="text_exit">Exit</string>
     <string name="text_export">Export</string>
     <string name="text_finish_date">Finish date</string>
@@ -209,20 +228,27 @@
     <string name="text_no">No</string>
     <string name="text_no_data_found">No medications found. Add them or change the filter.</string>
     <string name="text_no_intakes_found">No intakes found. Add them via a medication\'s information card or change the search value.</string>
+    <string name="text_not_selected">Not selected</string>
     <string name="text_off">Disabled</string>
     <string name="text_on">Enabled</string>
+    <string name="text_same_amount">Same amount on every intake</string>
     <string name="text_save">Save</string>
+    <string name="text_selected">Selected</string>
+    <string name="text_selected_of">Selected %1$s of %2$s</string>
     <string name="text_start_date">Start date</string>
     <string name="text_status">Status</string>
     <string name="text_stay">Stay</string>
     <string name="text_success">Success!</string>
     <string name="text_tap_to_view">Tap to view</string>
+    <string name="text_today">Today</string>
+    <string name="text_tomorrow">Tomorrow</string>
+    <string name="text_repeat">Repeat</string>
     <string name="text_unspecified">Unspecified</string>
     <string name="text_update">Update</string>
     <string name="text_yes">Yes</string>
 
     <!-- Plurals -->
-    <plurals name="intakes_a_day">
+    <plurals name="intake_times_a_day">
         <item quantity="zero">%d times a day</item>
         <item quantity="one">%d time a day</item>
         <item quantity="two">%d times a day</item>

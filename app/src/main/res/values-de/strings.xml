@@ -5,8 +5,8 @@
     <string name="bottom_bar_medicines">Medikamente</string>
     <string name="bottom_bar_intakes">Einnahmen</string>
     <string name="bottom_bar_settings">Einstellung</string>
-    <!-- Preferences -->
 
+    <!-- Preferences -->
     <string name="preference_app_view">App-Ansicht</string>
     <string name="preference_kits_group">Medikamenten-Gruppen</string>
     <string name="preference_sorting_type">Medikamentensortierung</string>
@@ -17,42 +17,45 @@
     <string name="preference_app_theme">App-Thema</string>
     <string name="preference_dynamic_color">Dynamische Farbe</string>
     <string name="preference_import_export">Importieren / Exportieren</string>
+
     <!-- Languages -->
     <string name="lang_system">System</string>
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabetisch (A bis z)</string>
     <string name="sorting_z_a">Alphabetisch (z bis A)</string>
+
     <!-- Notifications -->
     <string name="channel_intakes_desc">Medikamenten-Einnahme</string>
     <string name="text_attention">Achtung!</string>
     <string name="text_do_intake">Einnehmen</string>
+
     <!-- Placeholders -->
     <string name="placeholder_time">Zeit #%1$d</string>
+
     <!-- Medicines -->
     <string name="text_exp_date">Ablaufdatum</string>
     <string name="text_medicine_comment">Kommentar</string>
     <string name="text_medicine_description">Beschreibung</string>
     <string name="text_medicine_dose">Dosis</string>
     <string name="text_medicine_product_name">Produktname</string>
+
     <!-- Intakes -->
     <string name="intakes_tab_current">Aktuell</string>
     <string name="intakes_tab_list">Liste</string>
     <string name="intake_text_interval">Intervall</string>
-    <string name="intake_text_left">Übrig</string>
     <string name="intake_text_period">Zeitraum</string>
-    <string name="intake_text_pick_period">Zeitraum auswählen</string>
-    <string name="intake_text_select_interval">Intervall auswählen</string>
     <string name="intake_text_time">Zeit</string>
-    <string name="intake_card_text_from">(von %1$s)</string>
     <string name="intake_text_food_after">Nach dem Essen</string>
     <string name="intake_text_food_before">Vor dem Essen</string>
     <string name="intake_text_food_during">Während dem Essen</string>
+
     <!-- Dialogs -->
-    <string name="text_grant_permission">Berechtigung gewähren</string>
+    <string name="text_permission_grant_full">Berechtigung gewähren</string>
     <string name="text_new_group">Neue Gruppe</string>
     <string name="text_select_time">Zeit auswählen</string>
     <string name="text_connection_error">Verbindungsfehler!</string>
     <string name="text_error">Fehler!</string>
+
     <!-- Strings -->
     <string name="text_every">"Alle "</string>
     <string name="text_export">Exportieren</string>
@@ -82,7 +85,6 @@
     <string name="type_spray">SPRAY</string>
     <string name="type_drops">DROPS</string>
     <string name="text_request_camera">Um Labels zu scannen, benötigt die App Kamerazugriffs-Rechte</string>
-    <string name="text_request_post">Um Benachrichtigungen anzuzeigen braucht die App die entsprechende Berechtigung</string>
     <string name="text_notification_pick_action_first">Zum Ändern der Einnahme bitte zunächst eine Aktion in der Benachrichtigung wählen</string>
     <string name="text_days_short">T.</string>
     <string name="text_update">Aktualisieren</string>
@@ -90,7 +92,7 @@
     <string name="theme_light">Hell</string>
     <string name="text_medicine_status_scanned">Gescannt, nicht verifiziert</string>
     <string name="theme_dark">Dunkel</string>
-    <plurals name="intakes_a_day">
+    <plurals name="intake_times_a_day">
         <item quantity="one">%d-mal am Tag</item>
         <item quantity="other">%d-mal am Tag</item>
     </plurals>
@@ -158,7 +160,7 @@
     <string name="intake_text_by_schedule">Nach Zeitplan</string>
     <string name="intake_text_extra">Zusätzlich</string>
     <string name="intake_extra_prealarm">Bevorstehende Benachrichtigung</string>
-    <string name="intake_extra_prealarm_desc">Benachrichtigung erscheint 30 Minuten vor der regulären Einnahmezeit</string>
+    <string name="intake_extra_desc_prealarm">Benachrichtigung erscheint 30 Minuten vor der regulären Einnahmezeit</string>
     <string name="text_intake_prealarm_title">Bevorstehende Einnahme</string>
     <string name="intake_extra_no_sound">Ohne Ton</string>
     <string name="channel_exp_desc">Ablaufdatum</string>
@@ -181,7 +183,7 @@
     <string name="text_not_saved_intake">Die Einnahme wurde nicht gespeichert! Möchten Sie zurückgehen?</string>
     <string name="text_exit">Beenden</string>
     <string name="text_confirm_deletion_med">Soll dieses Medikament wirklich gelöscht werden?</string>
-    <string name="intake_extra_cancellable_desc">Benachrichtigung wird automatisch nach 10 Minuten verworfen</string>
+    <string name="intake_extra_desc_cancellable">Benachrichtigung wird automatisch nach 10 Minuten verworfen</string>
     <string name="intake_extra_cancellable">Verschwindende Benachrichtigung</string>
     <string name="text_medicine_display_name">Dargestellter Name</string>
     <string name="text_confirm_deletion_int">Soll diese Einnahme wirklich gelöscht werden?</string>

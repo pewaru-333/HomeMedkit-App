@@ -50,7 +50,6 @@
     <string name="intakes_tab_current">Corrente</string>
     <string name="intakes_tab_list">Elenco</string>
     <string name="intakes_tab_past">Preso</string>
-    <string name="intake_card_text_from">(da %1$s)</string>
     <string name="intake_text_amount">Quantità</string>
     <string name="intake_text_date">Data</string>
     <string name="intake_text_food">Cibo e Medicine</string>
@@ -58,11 +57,8 @@
     <string name="intake_text_food_before">Prima del pasto</string>
     <string name="intake_text_food_during">Durante il pasto</string>
     <string name="intake_text_interval">Intervallo</string>
-    <string name="intake_text_left">Rimasto</string>
     <string name="intake_text_not_taken">Non preso</string>
     <string name="intake_text_period">Periodo</string>
-    <string name="intake_text_pick_period">Periodo di scelta</string>
-    <string name="intake_text_select_interval">Selezionare l\'intervallo</string>
     <string name="intake_text_taken">Preso</string>
     <string name="intake_text_time">Tempo</string>
     <!-- Dialogs -->
@@ -70,12 +66,11 @@
     <string name="text_connection_error">Errore di connessione!</string>
     <string name="text_duplicate">Questo farmaco è già stato aggiunto!</string>
     <string name="text_export_import_description">Questa è una caratteristica sperimentale. \nQuando si esporta, è possibile modificare il nome del file. \nQuando l\'importazione, i dati attuali verranno cancellati! Si prega di rilanciare app dopo di esso!</string>
-    <string name="text_grant_permission">Il permesso di concessione</string>
+    <string name="text_permission_grant_full">Il permesso di concessione</string>
     <string name="text_medicine_deleted">La medicina è stata cancellata, impossibile cambiare lo stato di assunzione</string>
     <string name="text_new_group">Nuovo gruppo</string>
     <string name="text_notification_pick_action_first">Al fine di modificare l\'azione di scelta in notifica prima</string>
     <string name="text_request_camera">Per la scansione dell\'etichetta, l\'applicazione deve essere dato il permesso di utilizzare la fotocamera</string>
-    <string name="text_request_post">Per ricevere le notifiche, la domanda deve essere concessa l\'autorizzazione appropriata</string>
     <string name="text_select_time">Selezionare il tempo</string>
     <string name="text_try_again">Prova di nuovo a scansionare l\'etichetta!</string>
     <!-- Strings -->
@@ -108,7 +103,7 @@
     <string name="text_update">Aggiornamento</string>
     <string name="text_yes">Sì</string>
     <!-- Plurals -->
-    <plurals name="intakes_a_day">
+    <plurals name="intake_times_a_day">
         <item quantity="one">%d tempo al giorno</item>
         <item quantity="many">%d volte al giorno</item>
         <item quantity="other">%d volte al giorno</item>
@@ -157,7 +152,7 @@
     <string name="intake_text_by_schedule">In base al programma</string>
     <string name="intake_text_extra">Extra</string>
     <string name="intake_extra_prealarm">Upcoming notification</string>
-    <string name="intake_extra_prealarm_desc">Notifica nella barra di stato 30 minuti prima dell\'assunzione.</string>
+    <string name="intake_extra_desc_prealarm">Notifica nella barra di stato 30 minuti prima dell\'assunzione.</string>
     <string name="text_intake_prealarm_title">Prossima assunzione</string>
     <string name="intake_extra_no_sound">No sound</string>
     <string name="channel_exp_desc">Data di scadenza</string>

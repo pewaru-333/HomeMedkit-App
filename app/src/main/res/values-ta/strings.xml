@@ -2,7 +2,7 @@
 <resources>
     <string name="text_update">புதுப்பிப்பு</string>
     <string name="text_connection_error">இணைப்பு பிழை!</string>
-    <plurals name="intakes_a_day">
+    <plurals name="intake_times_a_day">
         <item quantity="one">ஒரு நாளைக்கு %d நேரம்</item>
         <item quantity="other">ஒரு நாளைக்கு %d முறை</item>
     </plurals>
@@ -17,13 +17,12 @@
     <string name="text_medicine_status_scanned">ச்கேன் செய்யப்பட்ட, சரிபார்க்கப்படாத</string>
     <string name="text_on">இயக்கப்பட்டது</string>
     <string name="type_napkins">நாப்கின்கள்</string>
-    <string name="intake_text_pick_period">தேர்வு காலம்</string>
     <string name="dose_l">எல்</string>
     <string name="text_finish_date">தேதியை முடிக்க</string>
     <string name="intake_text_time">நேரம்</string>
     <string name="intake_period_indef">காலவரையற்றது</string>
     <string name="placeholder_time">நேரம் #%1$d</string>
-    <string name="text_intake_prealarm_text">மருத்துவம்: %1$s\n தொகை: %2$s %3$s\n நேரம்: %4 $ s</string>
+    <string name="text_intake_prealarm_text">மருத்துவம்: %1$s\n தொகை: %2$s %3$s\n நேரம்: %4$s</string>
     <string name="text_clear">தெளிவான</string>
     <string name="type_solution">நீர்மக்கூழ்</string>
     <string name="bottom_bar_intakes">உட்கொள்ளல்</string>
@@ -45,7 +44,7 @@
     <string name="preference_kits_group">மருந்து குழுக்கள்</string>
     <string name="text_amount">தொகை</string>
     <string name="type_gel">களிமம்</string>
-    <string name="intake_extra_cancellable_desc">இந்த அறிவிப்பு 10 நிமிடங்களுக்குப் பிறகு தானாக ரத்து செய்யப்படும் என்று குறிப்பிடுகிறது</string>
+    <string name="intake_extra_desc_cancellable">இந்த அறிவிப்பு 10 நிமிடங்களுக்குப் பிறகு தானாக ரத்து செய்யப்படும் என்று குறிப்பிடுகிறது</string>
     <string name="theme_system">மண்டலம்</string>
     <string name="intake_text_taken">எடுக்கப்பட்டது</string>
     <string name="text_medicine_comment">கருத்து</string>
@@ -80,12 +79,10 @@
     <string name="text_edit">தொகு</string>
     <string name="intake_period_other">நாட்கள் உள்ளீடு</string>
     <string name="type_bandage">கட்டு</string>
-    <string name="intake_card_text_from">( %1$s இலிருந்து)</string>
     <string name="text_error_not_medicine">இந்த சிட்டை குறியீடு மருந்து அல்ல!</string>
     <string name="text_medicine_recommendations">பயன்பாட்டிற்கான பரிந்துரைகள்</string>
     <string name="text_medicine_composition">கலவை</string>
     <string name="intake_text_by_schedule">அட்டவணை மூலம்</string>
-    <string name="intake_text_left">இடது</string>
     <string name="text_success">வெற்றிகரமாக!</string>
     <string name="intake_text_food">உணவு &amp; மெட்</string>
     <string name="text_stay">தங்க</string>
@@ -98,13 +95,11 @@
     <string name="dose_ml">எம்.எல்</string>
     <string name="text_exit_app">பயன்பாட்டிலிருந்து வெளியேற விரும்புகிறீர்களா?</string>
     <string name="preference_app_theme">பயன்பாட்டு கருப்பொருள்</string>
-    <string name="text_request_post">அறிவிப்புகளைப் பெற, விண்ணப்பத்திற்கு பொருத்தமான இசைவு வழங்கப்பட வேண்டும்</string>
     <string name="intake_extra_cancellable">அறிவிப்பு நேரம் முடிந்தது</string>
     <string name="text_medicine_status_self_added">கைமுறையாக சேர்க்கப்பட்டது</string>
     <string name="intake_text_amount">அளவு</string>
     <string name="dose_g">g</string>
     <string name="intake_text_not_taken">எடுக்கப்படவில்லை</string>
-    <string name="intake_text_select_interval">இடைவெளியைத் தேர்ந்தெடுக்கவும்</string>
     <string name="preference_check_expiration_date">மருந்துகளின் காலாவதி தேதியை சரிபார்க்கிறது</string>
     <string name="type_mix">கலக்க</string>
     <string name="text_grant">மானியம்</string>
@@ -129,7 +124,7 @@
     <string name="text_error">பிழை!</string>
     <string name="type_capsules">காப்ச்யூல்கள்</string>
     <string name="intake_text_period">காலசுழற்சி</string>
-    <string name="intake_extra_prealarm_desc">30 நிமிட உட்கொள்ளும் நேரத்திற்கு முன் நிலை பட்டியில் அறிவிப்பு</string>
+    <string name="intake_extra_desc_prealarm">30 நிமிட உட்கொள்ளும் நேரத்திற்கு முன் நிலை பட்டியில் அறிவிப்பு</string>
     <string name="text_notification_pick_action_first">முதலில் அறிவிப்பில் தேர்வு செயலை மாற்றுவதற்காக</string>
     <string name="type_syrup">சிரப்</string>
     <string name="preference_language">பயன்பாட்டு மொழி</string>
@@ -147,7 +142,7 @@
     <string name="type_mixture">கலவை</string>
     <string name="preference_import_export">இறக்குமதி/ஏற்றுமதி</string>
     <string name="text_indications_for_use">பயன்பாட்டிற்கான அறிகுறிகள்</string>
-    <string name="text_grant_permission">இசைவு வழங்கவும்</string>
+    <string name="text_permission_grant_full">இசைவு வழங்கவும்</string>
     <string name="bottom_bar_medicines">மருந்துகள்</string>
     <string name="intake_period_pick">தேதிகள் தேர்வு</string>
     <string name="text_exit">வெளியேறு</string>

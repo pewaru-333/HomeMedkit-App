@@ -15,4 +15,5 @@
     <string name="preference_download_images">下载药物图片</string>
     <string name="bottom_bar_medicines">药物</string>
     <string name="bottom_bar_settings">设置</string>
+    <string name="text_intake_prealarm_text">Medication: %1$s Amount: %2$s %3$s Time: %4$s</string>
 </resources>

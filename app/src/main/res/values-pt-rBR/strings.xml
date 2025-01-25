@@ -7,12 +7,11 @@
     <!-- Preferences -->
     <string name="preference_app_view">Visualização do app</string>
     <string name="preference_kits_group">Grupos de medicamento</string>
-    <plurals name="intakes_a_day">
+    <plurals name="intake_times_a_day">
         <item quantity="one">%d vez por dia</item>
         <item quantity="many">%dM vezes por dia</item>
         <item quantity="other">%d vezes por dia</item>
     </plurals>
-    <string name="intake_text_select_interval">Selecionar intervalo</string>
     <string name="preference_med_compact_view">Visualização de lista compacta</string>
     <string name="preference_system">Sistema</string>
     <string name="lang_system">Sistema</string>
@@ -49,16 +48,13 @@
     <string name="type_aerosol">AEROSOL</string>
     <string name="type_spray">SPRAY</string>
     <string name="type_drops">GOTAS</string>
-    <string name="intake_card_text_from">(de %1$s)</string>
     <string name="intake_text_amount">Quantidade</string>
     <string name="intakes_tab_current">Atual</string>
     <string name="intake_text_date">Data</string>
     <string name="intakes_tab_past">Passado</string>
     <string name="text_connection_error">Erro de conexão!</string>
-    <string name="intake_text_pick_period">Escolher período</string>
     <string name="intake_text_time">Tempo</string>
     <string name="intake_text_taken">Tomado</string>
-    <string name="intake_text_left">Sobrando</string>
     <string name="intake_text_food">Comida &amp; Med</string>
     <string name="intake_text_not_taken">Não tomado</string>
     <string name="manual_add">Você gostaria de adicionar o medicamento manualmente?</string>
@@ -68,13 +64,12 @@
     <string name="text_duplicate">Esse medicamento já foi adicionado!</string>
     <string name="text_export_import_description">Esse é um recurso experimental.\nSe você importar, os dados atuais do app serão excluídos!</string>
     <string name="text_medicine_deleted">O medicamento foi excluído, é impossível mudar o status de ingestão</string>
-    <string name="text_grant_permission">Conceder permissão</string>
+    <string name="text_permission_grant_full">Conceder permissão</string>
     <string name="text_request_camera">Para fazer scan de etiquetas, a permissão de câmera é necessária</string>
     <string name="text_new_group">Novo grupo</string>
     <string name="text_select_time">Selecionar tempo</string>
     <string name="text_amount">Quantidade</string>
     <string name="text_add">Adicionar</string>
-    <string name="text_request_post">Para receber notificações, a permissão de notificações é necessária</string>
     <string name="text_notification_pick_action_first">Para modificar esta ingestão, escolha uma ação na notificação primeiro</string>
     <string name="text_try_again">Tente fazer scan da etiqueta novamente!</string>
     <string name="text_cancel">Cancelar</string>
@@ -148,7 +143,7 @@
     <string name="intake_text_by_schedule">Agendado</string>
     <string name="intake_text_extra">Extra</string>
     <string name="intake_extra_prealarm">Notificação próxima</string>
-    <string name="intake_extra_prealarm_desc">Um lembrete será enviado 30 minutes antes do agendamento normal</string>
+    <string name="intake_extra_desc_prealarm">Um lembrete será enviado 30 minutes antes do agendamento normal</string>
     <string name="text_intake_prealarm_title">Ingestão próxima</string>
     <string name="intake_extra_no_sound">Silencioso</string>
     <string name="channel_exp_desc">Data de validade</string>
@@ -172,7 +167,7 @@
     <string name="text_not_saved_intake">A ingestão não foi salva! Você gostaria de voltar?</string>
     <string name="text_exit">Sair</string>
     <string name="text_confirm_deletion_med">Você tem certeza que gostaria de excluir este medicamento?</string>
-    <string name="intake_extra_cancellable_desc">A notificação será cancelada automaticamente depois de 10 minutos</string>
+    <string name="intake_extra_desc_cancellable">A notificação será cancelada automaticamente depois de 10 minutos</string>
     <string name="intake_extra_cancellable">Notificação de tempo esgotado</string>
     <string name="text_medicine_display_name">Nome de exibição</string>
     <string name="preference_confirm_exit">Confirmar saída do app</string>

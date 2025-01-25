@@ -44,27 +44,22 @@
     <string name="intakes_tab_list">Danh sách</string>
     <string name="intakes_tab_current">Hiện tại</string>
     <string name="intakes_tab_past">Uống</string>
-    <string name="intake_card_text_from">(từ %1$s)</string>
     <string name="intake_text_amount">Số lượng</string>
     <string name="intake_text_food_after">Sau bữa ăn</string>
     <string name="intake_text_food_before">Trước bữa ăn</string>
     <string name="intake_text_food_during">Trong bữa ăn</string>
     <string name="intake_text_food">Thực phẩm &amp; thuốc men</string>
     <string name="intake_text_interval">Khoảng thời gian</string>
-    <string name="intake_text_left">Còn lại</string>
     <string name="intake_text_period">Giai đoạn</string>
-    <string name="intake_text_pick_period">Chọn giai đoạn</string>
-    <string name="intake_text_select_interval">Chọn khoảng thời gian</string>
     <string name="intake_text_time">Thời gian</string>
     <!-- Dialogs -->
     <string name="manual_add">Bạn có muốn thêm thuốc thủ công?</string>
     <string name="text_connection_error">Lỗi kết nối!</string>
     <string name="text_duplicate">Thuốc này đã được thêm vào!</string>
     <string name="text_export_import_description">Đây là một tính năng thử nghiệm.\nKhi xuất, bạn có thể thay đổi tên tệp.\nKhi nhập, dữ liệu hiện tại sẽ bị xóa! Xin vui lòng khởi chạy lại ứng dụng sau đó!</string>
-    <string name="text_grant_permission">Cấp quyền</string>
+    <string name="text_permission_grant_full">Cấp quyền</string>
     <string name="text_new_group">Nhóm mới</string>
     <string name="text_request_camera">Để quét nhãn, ứng dụng phải được cấp quyền sử dụng máy ảnh</string>
-    <string name="text_request_post">Để nhận được thông báo, ứng dụng phải được cấp quyền thích hợp</string>
     <string name="text_select_time">Chọn thời gian</string>
     <!-- Strings -->
     <string name="text_add">Thêm</string>
@@ -94,7 +89,8 @@
     <string name="text_success">Thành công!</string>
     <string name="text_yes">Ừ</string>
     <!-- Plurals -->
-    <plurals name="intakes_a_day">
+    <plurals name="intake_times_a_day">
         <item quantity="other">%d lần một ngày</item>
     </plurals>
+    <string name="text_intake_prealarm_text">Medication: %1$s Amount: %2$s %3$s Time: %4$s</string>
 </resources>
