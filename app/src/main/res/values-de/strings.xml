@@ -116,7 +116,7 @@
     <string name="type_extract">EXTRAKT</string>
     <string name="type_suspension">SUSPENSION</string>
     <string name="text_status">Status</string>
-    <string name="text_exit_app">Soll die App wirklich beendet werden?</string>
+    <string name="text_exit_app">Möchten Sie die App wirklich verlassen?</string>
     <string name="type_ointment">SALBE</string>
     <string name="type_capsules">KAPSELN</string>
     <string name="type_syrup">SIRUP</string>
@@ -181,4 +181,28 @@
     <string name="text_confirm_deletion_int">Soll diese Einnahme wirklich gelöscht werden?</string>
     <string name="preference_confirm_exit">Verlassen der App bestätigen</string>
     <string name="text_go_to">OK</string>
+    <string name="intake_text_schema_type">Schematyp</string>
+    <string name="intake_schema_type_day_picker">Tagesauswahl</string>
+    <string name="intake_schema_type_personal">Persönlich</string>
+    <string name="text_permission_title_ignore_battery">Akkuoptimierung ignorieren</string>
+    <string name="text_explain_full_screen_intent">Anzeige von Einnahme-Benachrichtigungen im Vollbildmodus zulassen</string>
+    <string name="text_explain_notifications">Sämtliche App-Benachrichtigungen zulassen</string>
+    <string name="text_permission_grant">Erlauben</string>
+    <string name="text_permission_granted">Erlaubt</string>
+    <string name="text_same_amount">Gleiche Menge bei jeder Einnahme</string>
+    <string name="text_repeat">Wiederholen</string>
+    <string name="intake_schema_type_indefinitely">Unendlich</string>
+    <string name="text_not_selected">Nicht ausgewählt</string>
+    <string name="intake_text_in_stock">Vorrätig: %1$s %2$s</string>
+    <string name="text_explain_reminders">Gestatte Benachrichtigungen zum präzisen Zeitpunkt</string>
+    <string name="text_permission_title_notifications">Benachrichtigungen</string>
+    <string name="text_explain_request_permissions">Um Benachrichtigungen anzuzeigen, müssen folgende Erlaubnisse gewährt werden</string>
+    <string name="intake_extra_desc_no_sound">Schaltet die Benachrichtigung stumm, unabhängig von den Einstellungen für Systemton oder Vibration</string>
+    <string name="text_permission_title_reminders">Einstellen von Benachrichtigungen</string>
+    <string name="text_expain_ignore_battery">Erlaubt der Anwendung, Akku-Optimierungen zu ignorieren. Wenn dies nicht erlaubt ist, können Benachrichtigungen verloren gehen!</string>
+    <string name="text_selected">Ausgewählt</string>
+    <string name="text_tomorrow">Morgen</string>
+    <string name="text_permission_title_full_screen">Vollbild-Benachrichtigungen</string>
+    <string name="text_today">Heute</string>
+    <string name="text_every_day">Jeden Tag</string>
 </resources>
