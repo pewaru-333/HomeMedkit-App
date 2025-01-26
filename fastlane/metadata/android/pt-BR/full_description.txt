@@ -1,4 +1,4 @@
-Home Medkit
+Kit Médico
 
 Um aplicativo que permite que você registre e armazene informações sobre os medicamentos tomados facilmente.
 
