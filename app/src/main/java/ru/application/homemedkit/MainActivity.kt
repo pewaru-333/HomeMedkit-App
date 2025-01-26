@@ -33,6 +33,7 @@ import ru.application.homemedkit.helpers.KitsManager
 import ru.application.homemedkit.helpers.Medicine
 import ru.application.homemedkit.helpers.Medicines
 import ru.application.homemedkit.helpers.Menu
+import ru.application.homemedkit.helpers.PermissionsScreen
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.Scanner
 import ru.application.homemedkit.helpers.Settings
@@ -45,6 +46,7 @@ import ru.application.homemedkit.ui.screens.IntakesScreen
 import ru.application.homemedkit.ui.screens.KitsManager
 import ru.application.homemedkit.ui.screens.MedicineScreen
 import ru.application.homemedkit.ui.screens.MedicinesScreen
+import ru.application.homemedkit.ui.screens.PermissionsScreen
 import ru.application.homemedkit.ui.screens.ScannerScreen
 import ru.application.homemedkit.ui.screens.SettingsScreen
 import ru.application.homemedkit.ui.theme.AppTheme
@@ -106,7 +108,8 @@ class MainActivity : ComponentActivity() {
                         composable<Settings> {
                             SettingsScreen(
                                 backClick = { navigator.toBottomBarItem(Intakes) },
-                                toKitsManager = { navigator.navigate(KitsManager) }
+                                toKitsManager = { navigator.navigate(KitsManager) },
+                                toPermissionsScreen = { navigator.navigate(PermissionsScreen) }
                             )
                         }
 
@@ -116,6 +119,13 @@ class MainActivity : ComponentActivity() {
                             exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End) }
                         ) {
                             KitsManager(navigator::navigateUp)
+                        }
+
+                        composable<PermissionsScreen>(
+                            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) },
+                            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End) }
+                        ) {
+                            PermissionsScreen(navigator::navigateUp, navigator::navigateUp)
                         }
 
                         // Screens //

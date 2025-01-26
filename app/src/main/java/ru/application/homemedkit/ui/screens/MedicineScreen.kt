@@ -329,7 +329,7 @@ private fun ProductName(
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             modifier = Modifier
                 .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
+                .horizontalScroll(rememberScrollState())
         )
     } else {
         val scope = rememberCoroutineScope()

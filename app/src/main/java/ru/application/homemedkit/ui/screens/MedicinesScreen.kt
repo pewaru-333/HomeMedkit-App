@@ -9,7 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,7 +50,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -59,9 +57,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -77,13 +73,9 @@ import ru.application.homemedkit.R.string.text_no
 import ru.application.homemedkit.R.string.text_no_data_found
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_yes
-import ru.application.homemedkit.data.dto.Medicine
-import ru.application.homemedkit.helpers.DoseTypes
+import ru.application.homemedkit.data.model.MedicineList
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.Sorting
-import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.formName
-import ru.application.homemedkit.helpers.inCard
 import ru.application.homemedkit.models.states.MedicinesState
 import ru.application.homemedkit.models.viewModels.MedicinesViewModel
 
@@ -200,16 +192,11 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
             ) { Text(stringResource(text_no_data_found), textAlign = TextAlign.Center) }
-            else if (Preferences.getSimpleView())
-                LazyColumn(
-                    state = state.listState,
-                    contentPadding = PaddingValues(top = values.calculateTopPadding())
-                ) { items(list) { MedicineItem(it, navigateToMedicine); HorizontalDivider() } }
-            else LazyColumn(
-                state = state.listState,
-                contentPadding = PaddingValues(16.dp, values.calculateTopPadding(), 16.dp, 0.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) { items(list) { MedicineCard(it, navigateToMedicine) } }
+            else LazyColumn(Modifier, state.listState, values) {
+                items(list, MedicineList::id) {
+                    MedicineItem(it, navigateToMedicine); HorizontalDivider()
+                }
+            }
         }
     }
 
@@ -221,82 +208,26 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
 }
 
 @Composable
-private fun MedicineItem(medicine: Medicine, navigateToMedicine: (Long) -> Unit) {
-    val shortName = medicine.nameAlias.ifEmpty { medicine.productName }
-    val formName = formName(medicine.prodFormNormName)
-    val expDate = inCard(medicine.expDate)
-    val kitTitle = database.kitDAO().getTitleByMedicine(medicine.id).joinToString().run {
-        if (length >= 25) substring(0, 26).padEnd(29, '.') else this
-    }
-
+private fun MedicineItem(medicine: MedicineList, navigateToMedicine: (Long) -> Unit) =
     ListItem(
-        headlineContent = { Text(shortName) },
+        headlineContent = { Text(medicine.title) },
+        leadingContent = { MedicineImage(medicine.image, Modifier.size(56.dp)) },
+        modifier = Modifier.clickable { navigateToMedicine(medicine.id) },
         overlineContent = {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                Text(formName); Text(kitTitle)
+                Text(medicine.formName); Text(medicine.kitTitle)
             }
         },
         supportingContent = {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                Text(expDate); Text("${decimalFormat(medicine.prodAmount)} ${
-                stringResource(DoseTypes.getTitle(medicine.doseType))}")
+                Text(medicine.expDateS); Text("${medicine.prodAmount} ${stringResource(medicine.doseType)}")
             }
         },
-        leadingContent = { MedicineImage(medicine.image, Modifier.size(56.dp)) },
-        modifier = Modifier.clickable { navigateToMedicine(medicine.id) },
         colors = ListItemDefaults.colors(
-            if (medicine.expDate >= System.currentTimeMillis()) ListItemDefaults.containerColor
+            if (medicine.expDateL >= System.currentTimeMillis()) ListItemDefaults.containerColor
             else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
         )
     )
-}
-
-@Composable
-private fun MedicineCard(medicine: Medicine, navigateToMedicine: (Long) -> Unit) {
-    val shortName = medicine.nameAlias.ifEmpty { medicine.productName }
-    val formName = formName(medicine.prodFormNormName)
-    val expDate = inCard(medicine.expDate)
-    val kitTitle = database.kitDAO().getTitleByMedicine(medicine.id).joinToString().run {
-        if (length >= 25) substring(0, 26).padEnd(29, '.') else this
-    }
-
-    ListItem(
-        headlineContent = {
-            Text(
-                text = shortName,
-                modifier = Modifier.padding(vertical = 8.dp),
-                overflow = TextOverflow.Clip,
-                softWrap = false,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = SemiBold)
-            )
-        },
-        modifier = Modifier
-            .clickable { navigateToMedicine(medicine.id) }
-            .padding(vertical = 8.dp)
-            .clip(MaterialTheme.shapes.medium),
-        overlineContent = {
-            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                Text(text = formName, style = MaterialTheme.typography.labelLarge)
-                Text(text = kitTitle, style = MaterialTheme.typography.labelLarge)
-            }
-        },
-        supportingContent = {
-            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                Text(text = expDate, fontWeight = SemiBold)
-                Text(
-                    text = "${decimalFormat(medicine.prodAmount)} ${
-                        stringResource(DoseTypes.getTitle(medicine.doseType))}",
-                    fontWeight = SemiBold
-                )
-            }
-        },
-        leadingContent = { MedicineImage(medicine.image, Modifier.size(64.dp)) },
-        colors = ListItemDefaults.colors(
-            if (medicine.expDate < System.currentTimeMillis()) MaterialTheme.colorScheme.errorContainer
-            else MaterialTheme.colorScheme.secondaryContainer
-        )
-    )
-}
 
 @Composable
 private fun DialogKits(model: MedicinesViewModel, state: MedicinesState) = AlertDialog(
@@ -330,14 +261,15 @@ private fun DialogKits(model: MedicinesViewModel, state: MedicinesState) = Alert
 )
 
 @Composable
-private fun DialogExit(dismiss: () -> Unit, exit: () -> Unit) = AlertDialog(
-    onDismissRequest = dismiss,
-    confirmButton = { TextButton(exit) { Text(stringResource(text_yes)) } },
-    dismissButton = { TextButton(dismiss) { Text(stringResource(text_no)) } },
-    text = {
-        Text(
-            text = stringResource(text_exit_app),
-            style = MaterialTheme.typography.bodyLarge
-        )
-    }
-)
+private fun DialogExit(dismiss: () -> Unit, exit: () -> Unit) =
+    AlertDialog(
+        onDismissRequest = dismiss,
+        confirmButton = { TextButton(exit) { Text(stringResource(text_yes)) } },
+        dismissButton = { TextButton(dismiss) { Text(stringResource(text_no)) } },
+        text = {
+            Text(
+                text = stringResource(text_exit_app),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    )

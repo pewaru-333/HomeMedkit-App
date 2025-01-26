@@ -1,6 +1,6 @@
 package ru.application.homemedkit.receivers
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.PendingIntent.getActivity
@@ -8,6 +8,8 @@ import android.app.PendingIntent.getBroadcast
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BigTextStyle
 import androidx.core.app.NotificationCompat.Builder
@@ -31,11 +33,8 @@ import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.TAKEN_ID
 import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.lastAlarm
 
 class AlarmReceiver : BroadcastReceiver() {
-
-    @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         val database = getInstance(context)
         val setter = AlarmSetter(context)
@@ -45,13 +44,14 @@ class AlarmReceiver : BroadcastReceiver() {
         val alarmDAO = database.alarmDAO()
 
         val alarmId = intent.getLongExtra(ALARM_ID, 0L)
-        val intakeId = alarmDAO.getByPK(alarmId).intakeId
+        val alarm = alarmDAO.getById(alarmId)
+        val intakeId = alarmDAO.getById(alarmId).intakeId
         val intake = intakeDAO.getById(intakeId)!!
         val medicineId = intake.medicineId
 
         val medicine = medicineDAO.getById(medicineId)!!
-        val trigger = alarmDAO.getByPK(alarmId).trigger
-        val flag = medicine.prodAmount >= intake.amount
+        val trigger = alarmDAO.getById(alarmId).trigger
+        val flag = medicine.prodAmount >= alarm.amount
 
         val intakeTaken = IntakeTaken(
             medicineId = medicineId,
@@ -59,7 +59,7 @@ class AlarmReceiver : BroadcastReceiver() {
             alarmId = alarmId,
             productName = medicine.productName,
             formName = medicine.prodFormNormName,
-            amount = intake.amount,
+            amount = alarm.amount,
             doseType = medicine.doseType,
             image = medicine.image,
             trigger = trigger
@@ -69,7 +69,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val action = Intent(context, ActionReceiver::class.java).apply {
             putExtra(ID, medicineId)
             putExtra(TAKEN_ID, takenId)
-            putExtra(BLANK, intake.amount)
+            putExtra(BLANK, alarm.amount)
         }
         val pendingA = getBroadcast(context, takenId.toInt(), action, FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
         val pendingB = getBroadcast(context, takenId.toInt(), action.setAction(TYPE), FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
@@ -82,57 +82,61 @@ class AlarmReceiver : BroadcastReceiver() {
             vector_time, context.getString(intake_text_not_taken), pendingA
         ).build()
 
-        NotificationManagerCompat.from(context).notify(
-            takenId.toInt(),
-            Builder(context, CHANNEL_ID_INTAKES).apply {
-                if (flag) {
-                    addAction(confirmAction)
-                    addAction(declineAction)
+        with(NotificationManagerCompat.from(context)) {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+                return@with
 
-                    if (intake.cancellable) setTimeoutAfter(600000L)
-                    if (intake.fullScreen) setFullScreenIntent(
-                        getActivity(
-                            context,
-                            takenId.toInt(),
-                            Intent(context, IntakeDialogActivity::class.java).apply {
-                                setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                putExtra(ID, medicineId)
-                                putExtra(TAKEN_ID, takenId)
-                                putExtra(BLANK, intake.amount)
-                            },
-                            FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
-                        ), true
-                    )
+            notify(
+                takenId.toInt(),
+                Builder(context, CHANNEL_ID_INTAKES).apply {
+                    if (flag) {
+                        addAction(confirmAction)
+                        addAction(declineAction)
+
+                        if (intake.cancellable) setTimeoutAfter(600000L)
+                        if (intake.fullScreen) setFullScreenIntent(
+                            getActivity(
+                                context,
+                                takenId.toInt(),
+                                Intent(context, IntakeDialogActivity::class.java).apply {
+                                    setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    putExtra(ID, medicineId)
+                                    putExtra(TAKEN_ID, takenId)
+                                    putExtra(BLANK, alarm.amount)
+                                },
+                                FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
+                            ), true
+                        )
+                    }
                 }
-            }
-                .setAutoCancel(false)
-                .setCategory(CATEGORY_REMINDER)
-                .setContentTitle(context.getString(text_do_intake))
-                .setDeleteIntent(pendingA)
-                .setSilent(intake.noSound)
-                .setSmallIcon(vector_time)
-                .setStyle(
-                    BigTextStyle().bigText(
-                        context.getString(
-                            if (flag) text_intake_time else text_intake_amount_not_enough,
-                            medicine.nameAlias.ifEmpty(medicine::productName),
-                            decimalFormat(intake.amount),
-                            context.getString(DoseTypes.getTitle(medicine.doseType)),
-                            decimalFormat(medicine.prodAmount - intake.amount)
+                    .setAutoCancel(false)
+                    .setCategory(CATEGORY_REMINDER)
+                    .setContentTitle(context.getString(text_do_intake))
+                    .setDeleteIntent(pendingA)
+                    .setSilent(intake.noSound)
+                    .setSmallIcon(vector_time)
+                    .setStyle(
+                        BigTextStyle().bigText(
+                            context.getString(
+                                if (flag) text_intake_time else text_intake_amount_not_enough,
+                                medicine.nameAlias.ifEmpty(medicine::productName),
+                                decimalFormat(alarm.amount),
+                                context.getString(DoseTypes.getTitle(medicine.doseType)),
+                                decimalFormat(medicine.prodAmount - alarm.amount)
+                            )
                         )
                     )
-                )
-                .setVisibility(VISIBILITY_PUBLIC)
-                .extend(
-                    NotificationCompat.WearableExtender().apply {
-                        if (flag) { addAction(confirmAction); addAction(declineAction) }
-                        setContentIntentAvailableOffline(false)
-                    }
-                )
-                .build()
-        )
+                    .setVisibility(VISIBILITY_PUBLIC)
+                    .extend(
+                        NotificationCompat.WearableExtender().apply {
+                            if (flag) { addAction(confirmAction); addAction(declineAction) }
+                            setContentIntentAvailableOffline(false)
+                        }
+                    )
+                    .build()
+            )
+        }
 
-        if (trigger >= lastAlarm(intake.finalDate, intake.time.last())) setter.removeAlarm(alarmId)
-        else setter.resetAlarm(alarmId)
+        setter.resetOrDelete(alarmId, trigger, intake)
     }
 }

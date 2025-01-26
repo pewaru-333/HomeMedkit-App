@@ -14,10 +14,12 @@
     <string name="preference_download_images">Descargar imágenes de medicamentos</string>
     <string name="preference_check_expiration_date">Comprobar la fecha de caducidad de los medicamentos</string>
     <string name="preference_system">Sistema</string>
+    <string name="preference_permissions">Permissions</string>
     <string name="preference_language">Idioma de la aplicación</string>
     <string name="preference_app_theme">Tema de la aplicación</string>
     <string name="preference_dynamic_color">Color dinámico</string>
     <string name="preference_import_export">Importar/Exportar</string>
+    <string name="preference_fixing_notifications">Problems with notifications?</string>
     <!-- Languages -->
     <string name="lang_system">Sistema</string>
     <!-- Ordenación -->
@@ -142,6 +144,7 @@
     <string name="text_exit_app">¿Estás seguro de que deseas salir de la aplicación?</string>
     <string name="text_export_import_description">Esta es una característica experimental.\n¡Al importar, los datos actuales se eliminarán!</string>
     <string name="text_fill_field">¡Rellene este campo!</string>
+    <string name="text_fix_notifications">The application will restart and all overdue notifications will appear in the status bar. Do not use this function if everything works correctly!</string>
     <string name="text_medicine_deleted">Se ha eliminado el medicamento, es imposible cambiar el estado de ingesta</string>
     <string name="text_new_group">Nuevo grupo</string>
     <string name="text_not_saved_intake">¡La entrada no se ha guardado! ¿Quieres volver atrás?</string>
@@ -169,6 +172,7 @@
     <string name="text_amount">Importe</string>
     <string name="text_cancel">Cancelar</string>
     <string name="text_clear">Limpiar</string>
+    <string name="text_confirm">Confirm</string>
     <string name="text_daily_at">Diariamente a las 12:00</string>
     <string name="text_days_short">d.</string>
     <string name="text_delete">Borrar</string>

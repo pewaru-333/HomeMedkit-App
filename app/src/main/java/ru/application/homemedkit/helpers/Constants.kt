@@ -3,9 +3,7 @@ package ru.application.homemedkit.helpers
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import kotlinx.serialization.Serializable
-import ru.application.homemedkit.R.drawable.vector_after_food
-import ru.application.homemedkit.R.drawable.vector_before_food
-import ru.application.homemedkit.R.drawable.vector_in_food
+import ru.application.homemedkit.R
 import ru.application.homemedkit.R.drawable.vector_medicine
 import ru.application.homemedkit.R.drawable.vector_settings
 import ru.application.homemedkit.R.drawable.vector_time
@@ -49,11 +47,11 @@ import ru.application.homemedkit.R.string.dose_pcs
 import ru.application.homemedkit.R.string.dose_ratio
 import ru.application.homemedkit.R.string.dose_sach
 import ru.application.homemedkit.R.string.intake_extra_cancellable
-import ru.application.homemedkit.R.string.intake_extra_cancellable_desc
+import ru.application.homemedkit.R.string.intake_extra_desc_cancellable
+import ru.application.homemedkit.R.string.intake_extra_desc_prealarm
 import ru.application.homemedkit.R.string.intake_extra_fullscreen
 import ru.application.homemedkit.R.string.intake_extra_no_sound
 import ru.application.homemedkit.R.string.intake_extra_prealarm
-import ru.application.homemedkit.R.string.intake_extra_prealarm_desc
 import ru.application.homemedkit.R.string.intake_interval_daily
 import ru.application.homemedkit.R.string.intake_interval_other
 import ru.application.homemedkit.R.string.intake_interval_weekly
@@ -63,14 +61,11 @@ import ru.application.homemedkit.R.string.intake_period_pick
 import ru.application.homemedkit.R.string.intake_text_food_after
 import ru.application.homemedkit.R.string.intake_text_food_before
 import ru.application.homemedkit.R.string.intake_text_food_during
-import ru.application.homemedkit.R.string.lang_cs
 import ru.application.homemedkit.R.string.lang_de
 import ru.application.homemedkit.R.string.lang_en
 import ru.application.homemedkit.R.string.lang_es
 import ru.application.homemedkit.R.string.lang_it
-import ru.application.homemedkit.R.string.lang_ko
 import ru.application.homemedkit.R.string.lang_nl
-import ru.application.homemedkit.R.string.lang_pl
 import ru.application.homemedkit.R.string.lang_pt_BR
 import ru.application.homemedkit.R.string.lang_ru
 import ru.application.homemedkit.R.string.lang_system
@@ -126,6 +121,7 @@ const val CHANNEL_ID_INTAKES = "channel_intakes"
 const val CHANNEL_ID_LEGACY = "intake_notifications"
 const val CHANNEL_ID_PRE = "channel_prealarm"
 const val CIS = "cis"
+const val DATABASE_NAME = "medicines"
 const val ID = "id"
 const val KEY_APP_SYSTEM = "app_system"
 const val KEY_APP_THEME = "app_theme"
@@ -135,10 +131,12 @@ const val KEY_CONFIRM_EXIT = "confirm_exit"
 const val KEY_DOWNLOAD = "download_images"
 const val KEY_DYNAMIC_COLOR = "dynamic_color"
 const val KEY_EXP_IMP = "export_import"
+const val KEY_FIRST_LAUNCH_INTAKE = "first_launch_intake"
+const val KEY_FIXING = "fixing_alarms"
 const val KEY_KITS = "kits_group"
 const val KEY_LANGUAGE = "language"
-const val KEY_MED_COMPACT_VIEW = "med_comp_view"
 const val KEY_ORDER = "sorting_order"
+const val KEY_PERMISSIONS = "give_permissions"
 const val TAKEN_ID = "takenId"
 const val TYPE = "vector_type"
 
@@ -159,22 +157,21 @@ enum class DoseTypes(val value: String, @StringRes val title: Int) {
     RATIO("ratio", dose_ratio);
 
     companion object {
-        fun getValue(value: String) = entries.find { it.value == value }
         fun getTitle(value: String?) = entries.find { it.value == value }?.title ?: blank
     }
 }
 
-enum class FoodTypes(val value: Int, @StringRes val title: Int, @DrawableRes val icon: Int) {
-    BEFORE(0, intake_text_food_before, vector_before_food),
-    DURING(1, intake_text_food_during, vector_in_food),
-    AFTER(2, intake_text_food_after, vector_after_food)
+enum class FoodTypes(val value: Int, @StringRes val title: Int) {
+    BEFORE(0, intake_text_food_before),
+    DURING(1, intake_text_food_during),
+    AFTER(2, intake_text_food_after)
 }
 
-enum class IntakeExtras(@StringRes val title: Int, @StringRes val description: Int?) {
-    CANCELLABLE(intake_extra_cancellable, intake_extra_cancellable_desc),
-    FULLSCREEN(intake_extra_fullscreen, null),
-    NO_SOUND(intake_extra_no_sound, null),
-    PREALARM(intake_extra_prealarm, intake_extra_prealarm_desc)
+enum class IntakeExtras(@StringRes val title: Int, @StringRes val description: Int) {
+    CANCELLABLE(intake_extra_cancellable, intake_extra_desc_cancellable),
+    FULLSCREEN(intake_extra_fullscreen, R.string.intake_extra_desc_fullscreen),
+    NO_SOUND(intake_extra_no_sound, R.string.intake_extra_desc_no_sound),
+    PREALARM(intake_extra_prealarm, intake_extra_desc_prealarm)
 }
 
 enum class Intervals(val days: Int, @StringRes val title: Int) {
@@ -205,11 +202,8 @@ enum class Languages(val value: String, @StringRes val title: Int) {
     SPANISH("es", lang_es),
     PORTUGAL_BR("pt-BR", lang_pt_BR),
     DUTCH("nl", lang_nl),
-    CZECH("cs", lang_cs),
-    POLISH("pl", lang_pl),
     TURKISH("tr", lang_tr),
     VIETNAMESE("vi", lang_vi),
-    KOREAN("ko", lang_ko),
     CHINESE_CN("zh-CN", lang_zh_CN),
     CHINESE_TW("zh-TW", lang_zh_TW),
     TAMIL("ta", lang_ta)
@@ -229,6 +223,12 @@ enum class Periods(val days: Int, @StringRes val title: Int) {
     companion object {
         fun getValue(days: Int) = entries.find { it.days == days } ?: OTHER
     }
+}
+
+enum class SchemaTypes(@StringRes val title: Int, val interval: Intervals) {
+    INDEFINITELY(R.string.intake_schema_type_indefinitely, Intervals.DAILY),
+    BY_DAYS(R.string.intake_schema_type_day_picker, Intervals.WEEKLY),
+    PERSONAL(R.string.intake_schema_type_personal, Intervals.CUSTOM)
 }
 
 enum class Sorting(val value: String, @StringRes val title: Int, val type: Comparator<Medicine>) {
@@ -317,3 +317,6 @@ data class Intake(
 // ===== Settings items ===== //
 @Serializable
 object KitsManager
+
+@Serializable
+object PermissionsScreen

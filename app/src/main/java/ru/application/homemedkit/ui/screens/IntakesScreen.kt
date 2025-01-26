@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -54,7 +53,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -68,7 +66,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
-import ru.application.homemedkit.R.string.intake_card_text_from
 import ru.application.homemedkit.R.string.intake_text_by_schedule
 import ru.application.homemedkit.R.string.intake_text_date
 import ru.application.homemedkit.R.string.intake_text_in_fact
@@ -91,6 +88,7 @@ import ru.application.homemedkit.R.string.text_notification_pick_action_first
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_status
 import ru.application.homemedkit.data.dto.Intake
+import ru.application.homemedkit.data.dto.IntakeTime
 import ru.application.homemedkit.dialogs.TimePickerDialog
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DoseTypes
@@ -98,7 +96,6 @@ import ru.application.homemedkit.helpers.FORMAT_DME
 import ru.application.homemedkit.helpers.FORMAT_DMMMMY
 import ru.application.homemedkit.helpers.FORMAT_H
 import ru.application.homemedkit.helpers.Intervals
-import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.ZONE
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
@@ -190,13 +187,11 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                             .fillMaxSize()
                             .padding(horizontal = 16.dp)
                     ) { Text(stringResource(text_no_intakes_found), textAlign = TextAlign.Center) }
-                    else if (Preferences.getSimpleView()) LazyColumn(state = state.stateA)
-                    { items(list) { IntakeItem(it, navigateToIntake); HorizontalDivider() } }
-                    else LazyColumn(
-                        state = state.stateA,
-                        contentPadding = PaddingValues(4.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) { items(list) { IntakeCard(it, navigateToIntake) } }
+                    else LazyColumn(state = state.stateA) {
+                        items(list) {
+                            IntakeItem(it, navigateToIntake); HorizontalDivider()
+                        }
+                    }
                 }
 
                 1 -> LazyColumn(state = state.stateB) {
@@ -211,7 +206,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                                     title = medicine.nameAlias.ifEmpty { medicine.productName },
                                     formName = medicine.prodFormNormName,
                                     doseType = medicine.doseType,
-                                    amount = intake.amount,
+                                    amount = value.amount,
                                     image = medicine.image,
                                     trigger = value.trigger
                                 )
@@ -245,41 +240,16 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
 }
 
 @Composable
-fun IntakeCard(intake: Intake, navigateToIntake:(Long) -> Unit) {
-    val medicine = database.medicineDAO().getById(intake.medicineId)
-    val startDate = stringResource(intake_card_text_from, intake.startDate)
-    val count = intake.time.size
-    val intervalName = if (count == 1) stringResource(Intervals.getTitle(intake.interval.toString()))
-    else pluralStringResource(R.plurals.intakes_a_day, count, count)
-
-    ListItem(
-        colors = ListItemDefaults.colors(MaterialTheme.colorScheme.tertiaryContainer),
-        headlineContent = { Text("$intervalName $startDate") },
-        supportingContent = { Text(intake.time.joinToString()) },
-        leadingContent = { MedicineImage(medicine?.image ?: BLANK, Modifier.size(56.dp)) },
-        modifier = Modifier
-            .clip(MaterialTheme.shapes.medium)
-            .clickable { navigateToIntake(intake.intakeId) },
-        overlineContent = {
-            Text(
-                text = medicine?.let { it.nameAlias.ifEmpty { it.productName } } ?: BLANK,
-                softWrap = false,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = SemiBold)
-            )
-        }
-    )
-}
-
-@Composable
 fun IntakeItem(intake: Intake, navigateToIntake:(Long) -> Unit) {
     val medicine = database.medicineDAO().getById(intake.medicineId)
-    val count = intake.time.size
+    val time = database.intakeDAO().getTime(intake.intakeId).distinctBy(IntakeTime::time)
+    val count = time.size
     val intervalName = if (count == 1) stringResource(Intervals.getTitle(intake.interval.toString()))
-    else pluralStringResource(R.plurals.intakes_a_day, count, count)
+    else pluralStringResource(R.plurals.intake_times_a_day, count, count)
 
     ListItem(
         trailingContent = { Text(intervalName) },
-        supportingContent = { Text(intake.time.joinToString(), maxLines = 1) },
+        supportingContent = { Text(time.joinToString(transform = IntakeTime::time), maxLines = 1) },
         leadingContent = { MedicineImage(medicine?.image ?: BLANK, Modifier.size(40.dp)) },
         modifier = Modifier.clickable { navigateToIntake(intake.intakeId) },
         headlineContent = { Text(medicine?.let { it.nameAlias.ifEmpty { it.productName } } ?: BLANK, softWrap = false) }
@@ -363,9 +333,13 @@ private fun DialogTaken(model: IntakesViewModel) {
                         enabled = false,
                         readOnly = intake.selection == 0,
                         label = { Text(stringResource(intake_text_in_fact)) },
-                        colors = fieldColorsInverted.copy(
+                        colors = TextFieldDefaults.colors(
+                            disabledTextColor = MaterialTheme.colorScheme.onSurface,
                             disabledContainerColor = Color.Transparent,
-                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledIndicatorColor = MaterialTheme.colorScheme.outline,
                         ),
                         modifier = Modifier
                             .weight(0.5f)
@@ -426,7 +400,7 @@ private fun TextDate(timestamp: Long) = Text(
 )
 
 @Composable
-private fun MedicineItem(
+fun MedicineItem(
     title: String,
     formName: String,
     doseType: String,

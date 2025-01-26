@@ -2,7 +2,6 @@
 
 package ru.application.homemedkit.models.viewModels
 
-import android.app.AlarmManager
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.mutableStateListOf
@@ -10,13 +9,16 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,8 +28,8 @@ import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.data.model.IntakeFuture
 import ru.application.homemedkit.data.model.IntakePast
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.FORMAT_DH
 import ru.application.homemedkit.helpers.FORMAT_S
+import ru.application.homemedkit.helpers.SchemaTypes
 import ru.application.homemedkit.helpers.ZONE
 import ru.application.homemedkit.helpers.getDateTime
 import ru.application.homemedkit.models.states.IntakesState
@@ -51,42 +53,40 @@ class IntakesViewModel : ViewModel() {
 
     val intakes = combine(_state, intakeDAO.getFlow()) { query, list ->
         list.fastFilter { medicineDAO.getProductName(it.medicineId).contains(query.search, true) }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = intakeDAO.getAll()
-    )
+    }.flowOn(Dispatchers.IO)
+        .conflate()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = emptyList()
+        )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val schedule = intakes.flatMapLatest { filtered ->
         flow {
             emit(mutableListOf<Alarm>().apply {
-                filtered.forEach { (intakeId, _, _, interval, _, time, _, startDate, finalDate) ->
-                    if (time.size == 1) {
-                        var milliS = LocalDateTime.parse("$startDate ${time[0]}", FORMAT_DH)
-                            .toInstant(ZONE).toEpochMilli()
-                        val milliF = LocalDateTime.parse("$finalDate ${time[0]}", FORMAT_DH)
-                            .toInstant(ZONE).toEpochMilli()
+                filtered.forEach { intake ->
+                    database.alarmDAO().getByIntake(intake.intakeId).forEach { alarm ->
+                        var first = getDateTime(alarm.trigger).toLocalDateTime()
 
-                        while (milliS <= milliF) {
-                            add(Alarm(intakeId = intakeId, trigger = milliS))
-                            milliS += interval * AlarmManager.INTERVAL_DAY
-                        }
-                    } else {
-                        var localS = LocalDate.parse(startDate, FORMAT_S)
-                        val localF = LocalDate.parse(finalDate, FORMAT_S)
+                        val last = LocalDateTime.of(
+                            LocalDate.parse(intake.finalDate, FORMAT_S),
+                            getDateTime(alarm.trigger).toLocalTime()
+                        )
 
-                        var milliS = LocalDateTime.of(localS, time.first())
-                        val milliF = LocalDateTime.of(localF, time.last())
+                        while (!first.isAfter(last)) {
+                            add(
+                                Alarm(
+                                    intakeId = intake.intakeId,
+                                    trigger = first.toInstant(ZONE).toEpochMilli(),
+                                    amount = alarm.amount
+                                )
+                            )
 
-                        while (milliS <= milliF) {
-                            time.forEach {
-                                val millis = LocalDateTime.of(localS, it).atOffset(ZONE)
-                                    .toInstant().toEpochMilli()
-                                add(Alarm(intakeId = intakeId, trigger = millis))
-                            }
-                            localS = localS.plusDays(interval.toLong())
-                            milliS = milliS.plusDays(interval.toLong())
+                            first = first.plusDays(
+                                if (intake.schemaType == SchemaTypes.BY_DAYS) intake.schemaType.interval.days.toLong()
+                                else intake.interval.toLong()
+                            )
                         }
                     }
                 }

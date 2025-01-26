@@ -15,10 +15,12 @@
     <string name="preference_download_images">Download medication images</string>
     <string name="preference_check_expiration_date">Check the expiration date of medications</string>
     <string name="preference_system">System</string>
+    <string name="preference_permissions">Permissions</string>
     <string name="preference_language">App language</string>
     <string name="preference_app_theme">App theme</string>
     <string name="preference_dynamic_color">Dynamic color</string>
     <string name="preference_import_export">Import/Export</string>
+    <string name="preference_fixing_notifications">Problems with notifications?</string>
 
     <!-- Languages -->
     <string name="lang_system">System</string>
@@ -176,7 +178,7 @@
     <string name="text_exit_app">Are you sure you want to exit the app?</string>
     <string name="text_export_import_description">This is an experimental feature.\nIf you import, the current app data will be deleted!</string>
     <string name="text_fill_field">Fill in this field!</string>
-
+    <string name="text_fix_notifications">The application will restart and all overdue notifications will appear in the status bar. Do not use this function if everything works correctly!</string>
     <string name="text_medicine_deleted">Medication has been deleted, it is impossible to change the intake status</string>
     <string name="text_new_group">New group</string>
     <string name="text_not_saved_intake">The intake is not saved! Would you like to go back?</string>
@@ -209,6 +211,7 @@
     <string name="text_amount">Amount</string>
     <string name="text_cancel">Cancel</string>
     <string name="text_clear">Clear</string>
+    <string name="text_confirm">Confirm</string>
     <string name="text_daily_at">Daily at 12:00</string>
     <string name="text_days_short">d.</string>
     <string name="text_delete">Delete</string>

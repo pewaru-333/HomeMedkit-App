@@ -12,10 +12,13 @@ interface AlarmDAO {
     @Query("SELECT * FROM alarms")
     fun getAll(): List<Alarm>
 
-    @Query("SELECT * FROM alarms WHERE alarmId=:alarmId")
-    fun getByPK(alarmId: Long): Alarm
+    @Query("SELECT * FROM alarms WHERE alarmId = :alarmId")
+    fun getById(alarmId: Long): Alarm
 
-    @Query("UPDATE alarms SET `trigger`=:trigger WHERE alarmId=:alarmId")
+    @Query("SELECT * FROM alarms WHERE intakeId = :intakeId")
+    fun getByIntake(intakeId: Long): List<Alarm>
+
+    @Query("UPDATE alarms SET `trigger` = :trigger WHERE alarmId = :alarmId")
     fun reset(alarmId: Long, trigger: Long)
 
     // ============================== Insert ==============================

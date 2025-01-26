@@ -1,12 +1,14 @@
 package ru.application.homemedkit.receivers
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.app.AlarmManager.INTERVAL_DAY
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationCompat.CATEGORY_REMINDER
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
@@ -21,11 +23,12 @@ import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.helpers.CHANNEL_ID_EXP
 
 class ExpirationReceiver : BroadcastReceiver() {
-
-    @SuppressLint("MissingPermission")
     override fun onReceive(context: Context, intent: Intent) {
         val dao = MedicineDatabase.getInstance(context).medicineDAO()
         val medicines = dao.getAll()
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+            return
 
         if (medicines.isNotEmpty()) medicines.forEach { (id, _, _, _, expDate, _, _, _, prodAmount) ->
             if (expDate < System.currentTimeMillis() + 30 * INTERVAL_DAY && prodAmount > 0) {

@@ -15,8 +15,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 47
-        versionName = "1.6.3"
+        versionCode = 48
+        versionName = "1.7.0-beta"
     }
 
     dependenciesInfo {
@@ -50,9 +50,6 @@ android {
     }
     buildFeatures {
         compose = true
-    }
-    lint {
-        disable += "MissingTranslation" // Translation is crowd-sourced.
     }
 }
 

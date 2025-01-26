@@ -2,39 +2,64 @@ package ru.application.homemedkit.models.viewModels
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.MedicineKit
+import ru.application.homemedkit.data.model.MedicineList
 import ru.application.homemedkit.helpers.BLANK
+import ru.application.homemedkit.helpers.DoseTypes
+import ru.application.homemedkit.helpers.decimalFormat
+import ru.application.homemedkit.helpers.formName
+import ru.application.homemedkit.helpers.inCard
 import ru.application.homemedkit.models.states.MedicinesState
 
 class MedicinesViewModel : ViewModel() {
     private val _state = MutableStateFlow(MedicinesState())
     val state = _state.asStateFlow()
 
-    val medicines = combine(
-        _state,
-        database.medicineDAO().getFlow(),
-        database.kitDAO().getMedicinesKits()
-    ) { query, list, kits ->
+    private val medicineDAO = database.medicineDAO()
+    private val kitDAO = database.kitDAO()
+
+    val medicines = combine(_state, medicineDAO.getFlow(), kitDAO.getMedicinesKits()) { query, list, kits ->
         list.fastFilter { (id, _, productName, nameAlias, _, _, structure, _, _, _, phKinetics) ->
             listOf(productName, nameAlias, structure, phKinetics).any { it.contains(query.search, true) } &&
             if (query.kits.isEmpty()) true
             else id in kits.filter { it.kitId in query.kits }.map(MedicineKit::medicineId)
         }.sortedWith(query.sorting)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = database.medicineDAO().getAll()
-    )
+            .fastMap {
+                MedicineList(
+                    id = it.id,
+                    title = it.nameAlias.ifEmpty { it.productName },
+                    prodAmount = decimalFormat(it.prodAmount),
+                    doseType = DoseTypes.getTitle(it.doseType),
+                    expDateS = inCard(it.expDate),
+                    expDateL = it.expDate,
+                    formName = formName(it.prodFormNormName),
+                    image = it.image,
+                    kitTitle = kitDAO.getTitleByMedicine(it.id).joinToString().run {
+                        if (length >= 25) substring(0, 26).padEnd(29, '.') else this
+                    }
+                )
+            }
+    }.flowOn(Dispatchers.IO)
+        .conflate()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = emptyList()
+        )
 
     fun showAdding() = _state.update { it.copy(showAdding = !it.showAdding) }
     fun showExit(flag: Boolean = false) = _state.update { it.copy(showExit = flag) }

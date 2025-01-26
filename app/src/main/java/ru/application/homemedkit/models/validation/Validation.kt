@@ -1,17 +1,28 @@
 package ru.application.homemedkit.models.validation
 
-import ru.application.homemedkit.R
+import ru.application.homemedkit.R.string.text_fill_field
+import ru.application.homemedkit.data.model.IntakeAmountTime
 
 object Validation {
-    fun textNotEmpty(title: String) = if (title.isNotBlank()) ValidationResult(successful = true)
-    else ValidationResult(
-        successful = false,
-        errorMessage = R.string.text_fill_field
-    )
+    fun checkAmount(list: List<IntakeAmountTime>) = when {
+        list.all { it.amount.isNotEmpty() } -> ValidationResult(successful = true)
+        else -> ValidationResult(
+            successful = false,
+            errorMessage = text_fill_field
+        )
+    }
 
-    fun listNotEmpty(list: List<String>) = if(list.all(String::isNotBlank)) ValidationResult(successful = true)
+    fun checkTime(list: List<IntakeAmountTime>) = when {
+        list.all { it.time.isNotEmpty() } -> ValidationResult(successful = true)
+        else -> ValidationResult(
+            successful = false,
+            errorMessage = text_fill_field
+        )
+    }
+
+    fun textNotEmpty(text: String) = if (text.isNotEmpty()) ValidationResult(successful = true)
     else ValidationResult(
         successful = false,
-        errorMessage = R.string.text_fill_field
+        errorMessage = text_fill_field
     )
- }
+}

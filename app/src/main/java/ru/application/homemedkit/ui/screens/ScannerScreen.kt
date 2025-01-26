@@ -1,17 +1,8 @@
 package ru.application.homemedkit.ui.screens
 
 import android.Manifest
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.provider.Settings
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.OptIn
-import androidx.annotation.StringRes
 import androidx.camera.core.TorchState
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
@@ -21,7 +12,6 @@ import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.camera.view.TransformExperimental
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,13 +21,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -46,11 +32,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -60,49 +43,34 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
-import androidx.core.content.ContextCompat.checkSelfPermission
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
-import ru.application.homemedkit.MainActivity
-import ru.application.homemedkit.R.drawable.vector_barcode
-import ru.application.homemedkit.R.drawable.vector_camera
-import ru.application.homemedkit.R.drawable.vector_check
-import ru.application.homemedkit.R.drawable.vector_datamatrix
 import ru.application.homemedkit.R.drawable.vector_flash
-import ru.application.homemedkit.R.drawable.vector_wrong
 import ru.application.homemedkit.R.string.manual_add
 import ru.application.homemedkit.R.string.text_connection_error
 import ru.application.homemedkit.R.string.text_error_not_medicine
-import ru.application.homemedkit.R.string.text_exit
-import ru.application.homemedkit.R.string.text_explain_camera
-import ru.application.homemedkit.R.string.text_grant
-import ru.application.homemedkit.R.string.text_grant_permission
 import ru.application.homemedkit.R.string.text_no
-import ru.application.homemedkit.R.string.text_pay_attention
+import ru.application.homemedkit.R.string.text_permission_grant_full
 import ru.application.homemedkit.R.string.text_request_camera
 import ru.application.homemedkit.R.string.text_try_again
 import ru.application.homemedkit.R.string.text_yes
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DataMatrixAnalyzer
+import ru.application.homemedkit.helpers.permissions.PermissionState
+import ru.application.homemedkit.helpers.permissions.rememberPermissionState
 import ru.application.homemedkit.models.events.Response.Default
 import ru.application.homemedkit.models.events.Response.Duplicate
 import ru.application.homemedkit.models.events.Response.Error
@@ -116,26 +84,12 @@ import ru.application.homemedkit.models.viewModels.ScannerViewModel
 @Composable
 fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boolean) -> Unit) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val model = viewModel<ScannerViewModel>()
     val response by model.response.collectAsStateWithLifecycle()
 
-    var permissionGranted by remember { mutableStateOf(hasCameraPermission(context)) }
-    var showRationale by remember { mutableStateOf(shouldShowRequestPermissionRationale(context as Activity, Manifest.permission.CAMERA)) }
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    val lifecycle = lifecycleOwner.lifecycle
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-        if (it) permissionGranted = true else showRationale = true
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) permissionGranted = hasCameraPermission(context)
-        }
-        lifecycle.addObserver(observer)
-        onDispose { lifecycle.removeObserver(observer) }
-    }
+    val cameraPermission = rememberPermissionState(Manifest.permission.CAMERA)
 
     val controller = remember {
         LifecycleCameraController(context).apply {
@@ -153,7 +107,7 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
     }
 
     BackHandler(onBack = navigateUp)
-    if (permissionGranted) Box {
+    if (cameraPermission.isGranted) Box {
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = {
@@ -188,8 +142,8 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
             ) { Icon(painterResource(vector_flash), null, Modifier, Color.White) }
         }
     }
-    else if (showRationale) PermissionDialog(text_request_camera)
-    else FirstTimeScreen(navigateUp) { launcher.launch(Manifest.permission.CAMERA) }
+    else if (cameraPermission.showRationale) PermissionDialog(cameraPermission, navigateUp)
+    else PermissionsScreen(navigateUp, cameraPermission::launchRequest)
 
     when (val data = response) {
         Default -> controller.setImageAnalysisAnalyzer(
@@ -250,67 +204,6 @@ fun Snackbar(id: Int) = Dialog({}, DialogProperties(usePlatformDefaultWidth = fa
 }
 
 @Composable
-private fun FirstTimeScreen(navigateUp: () -> Unit, onGivePermission: () -> Unit) {
-    Column(
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(12.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Column(Modifier, Arrangement.spacedBy(8.dp), Alignment.CenterHorizontally) {
-            Image(painterResource(vector_camera), null, Modifier.size(64.dp))
-            Text(
-                text = stringResource(text_pay_attention),
-                style = MaterialTheme.typography.titleLarge
-            )
-            Text(
-                text = stringResource(text_explain_camera),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-        Row(Modifier.fillMaxWidth(), Arrangement.SpaceAround, Alignment.CenterVertically) {
-            Column(Modifier, Arrangement.spacedBy(12.dp), Alignment.CenterHorizontally) {
-                Image(
-                    painter = painterResource(vector_barcode),
-                    contentDescription = null,
-                    modifier = Modifier.size(128.dp),
-                    contentScale = ContentScale.Crop,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-                )
-                Image(
-                    painter = painterResource(vector_wrong),
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
-            Column(Modifier, Arrangement.spacedBy(12.dp), Alignment.CenterHorizontally) {
-                Image(
-                    painter = painterResource(vector_datamatrix),
-                    contentDescription = null,
-                    modifier = Modifier.size(128.dp),
-                    contentScale = ContentScale.Crop,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
-                )
-                Image(
-                    painter = painterResource(vector_check),
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    contentScale = ContentScale.Crop
-                )
-            }
-        }
-        Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
-            TextButton(navigateUp) { Text(stringResource(text_exit)) }
-            Button(onGivePermission) { Text(stringResource(text_grant)) }
-        }
-    }
-}
-
-@Composable
 private fun AddMedicineDialog(setDefault: () -> Unit, navigateWithCis: () -> Unit) = AlertDialog(
     onDismissRequest = setDefault,
     confirmButton = { TextButton(navigateWithCis) { Text(stringResource(text_yes)) } },
@@ -321,34 +214,21 @@ private fun AddMedicineDialog(setDefault: () -> Unit, navigateWithCis: () -> Uni
 )
 
 @Composable
-fun LoadingDialog() = Dialog({}) {
+fun LoadingDialog() = Dialog({ }) {
     Box(Modifier.fillMaxSize(), Alignment.Center)
     { CircularProgressIndicator() }
 }
 
 @Composable
-fun PermissionDialog(@StringRes id: Int, context: Context = LocalContext.current) {
-    Dialog({ Intent(context, MainActivity::class.java).also(context::startActivity) }) {
-        ElevatedCard {
-            Text(
-                text = stringResource(id),
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.bodyLarge
-            )
-            TextButton(
-                onClick = {
-                    Intent(
-                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.fromParts("package", context.packageName, null)
-                    )
-                        .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                        .also(context::startActivity)
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) { Text(stringResource(text_grant_permission)) }
+fun PermissionDialog(permission: PermissionState, onDismiss: () -> Unit) = Dialog(onDismiss) {
+    ElevatedCard {
+        Text(
+            text = stringResource(text_request_camera),
+            modifier = Modifier.padding(16.dp),
+            style = MaterialTheme.typography.bodyLarge
+        )
+        TextButton(permission::launchRequest, Modifier.fillMaxWidth()) {
+            Text(stringResource(text_permission_grant_full))
         }
     }
 }
-
-private fun hasCameraPermission(context: Context) =
-    checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
