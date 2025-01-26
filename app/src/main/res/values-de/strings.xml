@@ -181,7 +181,7 @@
     <string name="text_confirm_deletion_int">Soll diese Einnahme wirklich gelöscht werden?</string>
     <string name="preference_confirm_exit">Verlassen der App bestätigen</string>
     <string name="text_go_to">OK</string>
-    <string name="intake_text_schema_type">Schematyp</string>
+    <string name="intake_text_schema_type">Einnahmeschema</string>
     <string name="intake_schema_type_day_picker">Tagesauswahl</string>
     <string name="intake_schema_type_personal">Persönlich</string>
     <string name="text_permission_title_ignore_battery">Akkuoptimierung ignorieren</string>
@@ -205,4 +205,12 @@
     <string name="text_permission_title_full_screen">Vollbild-Benachrichtigungen</string>
     <string name="text_today">Heute</string>
     <string name="text_every_day">Jeden Tag</string>
+    <string name="intake_text_finish">Ende</string>
+    <string name="intake_text_start">Anfang</string>
+    <string name="preference_permissions">Berechtigungen</string>
+    <string name="intake_extra_desc_fullscreen">Startet eine bildschirmfüllende Benachrichtigung anstelle einer normalen Benachrichtigung auf dem Sperrbildschirm</string>
+    <string name="text_selected_of">%1$s von %2$s ausgewählt</string>
+    <string name="preference_fixing_notifications">Erhalten Sie keine Benachrichtigungen?</string>
+    <string name="text_fix_notifications">Die App wird neu gestartet und alle überfälligen Benachrichtigungen werden in der Statusleiste angezeigt. Verwenden Sie diese Funktion nicht, wenn alles korrekt funktioniert!</string>
+    <string name="text_confirm">Bestätigen</string>
 </resources>
