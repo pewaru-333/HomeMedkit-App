@@ -1,1 +1,1 @@
-Home Medkit — armazenamento de medicamentos e lembretes de ingestão.
+Kit Médico — armazenamento de medicamentos e lembretes de ingestão.

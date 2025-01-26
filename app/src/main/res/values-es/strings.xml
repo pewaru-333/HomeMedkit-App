@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
-
     <!-- Menú -->
     <string name="bottom_bar_medicines">Medicamentos</string>
     <string name="bottom_bar_intakes">Tomas</string>
     <string name="bottom_bar_settings">Ajustes</string>
-
     <!-- Preferencias -->
     <string name="preference_app_view">Aplicación</string>
     <string name="preference_kits_group">Grupos de medicamentos</string>
@@ -20,21 +18,17 @@
     <string name="preference_app_theme">Tema de la aplicación</string>
     <string name="preference_dynamic_color">Color dinámico</string>
     <string name="preference_import_export">Importar/Exportar</string>
-
     <!-- Languages -->
     <string name="lang_system">Sistema</string>
-
     <!-- Ordenación -->
     <string name="sorting_a_z">Alfabéticamente (de A a z)</string>
     <string name="sorting_z_a">Alfabéticamente (de z a A)</string>
     <string name="sorting_from_oldest">Fecha de caducidad (reciente)</string>
     <string name="sorting_from_newest">Fecha de caducidad (antigua)</string>
-
     <!-- Themes -->
     <string name="theme_system">Seguir tema del sistema</string>
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Oscuro</string>
-
     <!-- Notificaciones -->
     <string name="channel_name">Sonido de las notificaciones</string>
     <string name="channel_exp_desc">Fecha de caducidad</string>
@@ -47,11 +41,9 @@
     <string name="text_intake_prealarm_text">Medicamento: %1$s\nDosis: %2$s %3$s\nDuración: %4$s</string>
     <string name="text_intake_prealarm_title">Próxima incorporación</string>
     <string name="text_medicine_amount_not_enough">Medicación insuficiente</string>
-
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_time">Hora #%1$d</string>
-
     <!-- Medicamentos -->
     <string name="text_exp_date">Fecha de caducidad</string>
     <string name="text_indications_for_use">Indicaciones para el uso</string>
@@ -67,7 +59,6 @@
     <string name="text_medicine_status_scanned">Escaneado, sin verificar</string>
     <string name="text_medicine_status_self_added">Añadido manualmente</string>
     <string name="text_medicine_storage_conditions">Condiciones de almacenamiento</string>
-
     <!-- Medicine types -->
     <string name="type_tablets">COMPRIMIDOS</string>
     <string name="type_capsules">CÁPSULAS</string>
@@ -95,7 +86,6 @@
     <string name="type_patch">PARCHE</string>
     <string name="type_bandage">VENDAJE</string>
     <string name="type_napkins">NAPKINS</string>
-
     <!-- Medicine dose types -->
     <string name="dose_ed">ED</string>
     <string name="dose_pcs">unidades</string>
@@ -104,12 +94,10 @@
     <string name="dose_mg">mg</string>
     <string name="dose_l">l</string>
     <string name="dose_ml">ml</string>
-
     <!-- Intakes -->
     <string name="intakes_tab_list">Lista</string>
     <string name="intakes_tab_current">Actual</string>
     <string name="intakes_tab_past">Ya tomado</string>
-
     <string name="intake_text_amount">Cantidad</string>
     <string name="intake_text_by_schedule">Por horario</string>
     <string name="intake_text_date">Fecha</string>
@@ -128,28 +116,22 @@
     <string name="intake_text_time">Hora</string>
     <string name="intake_text_start">Start</string>
     <string name="intake_text_finish">Finish</string>
-
     <string name="intake_extra_fullscreen">Notificación a pantalla completa</string>
     <string name="intake_extra_no_sound">Sin sonido</string>
     <string name="intake_extra_prealarm">Próximas notificaciones</string>
-
     <string name="intake_extra_desc_cancellable">Specifies, that this notification will be canceled automatically after 10 minutes</string>
     <string name="intake_extra_desc_fullscreen">An intent to launch instead of posting the notification to the status bar on locked screen</string>
     <string name="intake_extra_desc_no_sound">Silences notification, regardless of the sounds or vibrations</string>
     <string name="intake_extra_desc_prealarm">Notificación en la barra de estado antes de los 30 minutos del tiempo de admisión</string>
-
     <string name="intake_interval_daily">diariamente</string>
     <string name="intake_interval_weekly">semanalmente</string>
     <string name="intake_interval_other">personalizado</string>
-
     <string name="intake_schema_type_indefinitely">Indefinitely</string>
     <string name="intake_schema_type_day_picker">Day picker</string>
     <string name="intake_schema_type_personal">Personal</string>
-
     <string name="intake_period_pick">elección de fechas</string>
     <string name="intake_period_other">entrada de días</string>
     <string name="intake_period_indef">indefinido</string>
-
     <!-- Diálogos -->
     <string name="manual_add">¿Quieres añadir un medicamento manualmente?</string>
     <string name="text_confirm_deletion_int">Are you sure you want to delete this intake?</string>
@@ -168,24 +150,20 @@
     <string name="text_request_camera">Para escanear la etiqueta, la aplicación debe tener permiso para usar la cámara</string>
     <string name="text_select_time">Seleccionar hora</string>
     <string name="text_try_again">¡Vuelve a escanear la etiqueta!</string>
-
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Full-screen notifications</string>
     <string name="text_permission_title_ignore_battery">Ignore battery optimization</string>
     <string name="text_permission_title_notifications">Notifications</string>
     <string name="text_permission_title_reminders">Setting reminders</string>
-
     <string name="text_explain_camera">Para escanear una etiqueta, debe darle permiso a la cámara. A continuación se muestra un ejemplo de cómo se ve la marca (solo funciona para tratamientos rusos)</string>
     <string name="text_explain_full_screen_intent">To receive a full-screen notification, you must grant the appropriate permission</string>
     <string name="text_expain_ignore_battery">Allow an app to ignore battery optimizations. If not granted, notifications can be lost!</string>
     <string name="text_explain_notifications">Allow to show all app notifications</string>
     <string name="text_explain_reminders">Allow reminders to be set at a precise time</string>
     <string name="text_explain_request_permissions">To receive intake notifications, you must give the following permissions</string>
-
     <string name="text_permission_grant">Grant</string>
     <string name="text_permission_granted">Granted</string>
     <string name="text_permission_grant_full">Otorgar permiso</string>
-
     <!-- Strings -->
     <string name="text_add">Añadir</string>
     <string name="text_amount">Importe</string>
@@ -228,7 +206,6 @@
     <string name="text_update">Actualizar</string>
     <string name="text_yes">Sí</string>
     <string name="text_dismiss">Descartar</string>
-
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="one">%d vez al día</item>

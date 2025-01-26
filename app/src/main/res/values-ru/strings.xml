@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Аптечка</string>
-
     <!-- Меню -->
     <string name="bottom_bar_medicines">Лекарства</string>
     <string name="bottom_bar_intakes">Приём</string>
     <string name="bottom_bar_settings">Настройки</string>
-
     <!-- Настройки -->
     <string name="preference_app_view">Вид приложения</string>
     <string name="preference_kits_group">Группы лекарств</string>
@@ -20,21 +18,17 @@
     <string name="preference_app_theme">Тема приложения</string>
     <string name="preference_dynamic_color">Системные цвета</string>
     <string name="preference_import_export">Импорт/Экспорт</string>
-
     <!-- Языки -->
     <string name="lang_system">Системный</string>
-
     <!-- Сортировка -->
     <string name="sorting_a_z">Названию (от А до Я)</string>
     <string name="sorting_z_a">Названию (от Я до А)</string>
     <string name="sorting_from_oldest">Сроку годности (со старых)</string>
     <string name="sorting_from_newest">Сроку годности (с новых)</string>
-
     <!-- Темы -->
     <string name="theme_system">Системная</string>
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
-
     <!-- Уведомления -->
     <string name="channel_name">Звуковые уведомления</string>
     <string name="channel_exp_desc">Окончание срока годности</string>
@@ -48,11 +42,9 @@
     <string name="text_intake_prealarm_title">Предстоящий приём</string>
     <string name="text_intake_time">Лекарство: %1$s\nДоза приёма: %2$s %3$s\nОстаток лекарства: %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Осталось недостаточно лекарства</string>
-
     <!-- "Заполнители" -->
     <string name="placeholder_dose">0,5 мг + 84 мкг</string>
     <string name="placeholder_time">Время #%1$d</string>
-
     <!-- Лекарства -->
     <string name="text_exp_date">Годен до</string>
     <string name="text_indications_for_use">Показания к применению</string>
@@ -69,7 +61,6 @@
     <string name="text_medicine_status_scanned">Не проверено</string>
     <string name="text_medicine_status_self_added">Добавлено вручную</string>
     <string name="text_medicine_storage_conditions">Условия хранения</string>
-
     <!-- Формы лекарств -->
     <string name="type_tablets">ТАБЛЕТКИ</string>
     <string name="type_capsules">КАПСУЛЫ</string>
@@ -97,7 +88,6 @@
     <string name="type_patch">ПЛАСТЫРЬ</string>
     <string name="type_bandage">БИНТ</string>
     <string name="type_napkins">САЛФЕТКИ</string>
-
     <!-- Виды доз лекарств -->
     <string name="dose_ed">ЕД</string>
     <string name="dose_pcs">шт</string>
@@ -106,12 +96,10 @@
     <string name="dose_mg">мг</string>
     <string name="dose_l">л</string>
     <string name="dose_ml">мл</string>
-
     <!-- Приём -->
     <string name="intakes_tab_list">Список</string>
     <string name="intakes_tab_current">Текущие</string>
     <string name="intakes_tab_past">Прошедшие</string>
-
     <string name="intake_text_amount">Количество</string>
     <string name="intake_text_by_schedule">По расписанию</string>
     <string name="intake_text_date">Дата</string>
@@ -130,29 +118,23 @@
     <string name="intake_text_time">Время</string>
     <string name="intake_text_start">Начало</string>
     <string name="intake_text_finish">Конец</string>
-
     <string name="intake_extra_cancellable">Исчезающее уведомление</string>
     <string name="intake_extra_fullscreen">Полноэкранное уведомление</string>
     <string name="intake_extra_no_sound">Без звука</string>
     <string name="intake_extra_prealarm">Уведомлять заранее</string>
-
     <string name="intake_extra_desc_cancellable">Устанавливает, что это уведомление будет автоматически отменено через 10 минут</string>
     <string name="intake_extra_desc_fullscreen">Запускает полноэкранное уведомление вместо обычного на заблокированном экране</string>
     <string name="intake_extra_desc_no_sound">Отключает звук оповещения, независимо от системных настроек звуков или вибраций</string>
     <string name="intake_extra_desc_prealarm">Уведомление в строке состояния за 30 минут до времени приёма</string>
-
     <string name="intake_interval_daily">ежедневно</string>
     <string name="intake_interval_weekly">еженедельно</string>
     <string name="intake_interval_other">другой</string>
-
     <string name="intake_schema_type_indefinitely">Бессрочно</string>
     <string name="intake_schema_type_day_picker">По дням</string>
     <string name="intake_schema_type_personal">Персональный</string>
-
     <string name="intake_period_pick">выбор по датам</string>
     <string name="intake_period_other">ввод дней</string>
     <string name="intake_period_indef">бессрочно</string>
-
     <!-- Диалоговые окна -->
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
     <string name="text_confirm_deletion_int">Вы подтверждаете удаление этого приёма лекарства?</string>
@@ -161,10 +143,8 @@
     <string name="text_duplicate">Лекарство уже было добавлено!</string>
     <string name="text_error_not_medicine">Это не код лекарства!</string>
     <string name="text_exit_app">Вы подтверждаете выход из приложения?</string>
-
     <string name="text_export_import_description">Это экспериментальная функция.\nПри импорте текущие данные будут удалены!</string>
     <string name="text_fill_field">Заполните это поле!</string>
-
     <string name="text_medicine_deleted">Лекарство было удалено из списка, невозможно изменить статус приёма</string>
     <string name="text_new_group">Новая группа</string>
     <string name="text_not_saved_intake">Настройки данного приёма не сохранены! Вы действительно хотите выйти?</string>
@@ -173,24 +153,20 @@
     <string name="text_request_camera">Для сканировании маркировки приложению необходимо выдать разрешение на использовании камеры</string>
     <string name="text_select_time">Выберите время</string>
     <string name="text_try_again">Попробуйте отсканировать код ещё раз!</string>
-
     <!-- Разрешения -->
     <string name="text_permission_title_full_screen">Полноэкранные уведомления</string>
     <string name="text_permission_title_ignore_battery">Игнорировать оптимизацию батареи</string>
     <string name="text_permission_title_notifications">Уведомления</string>
     <string name="text_permission_title_reminders">Установка напоминаний</string>
-
     <string name="text_explain_camera">Для сканирования маркировки необходимо выдать разрешение на использование камеры. Пример того, как выглядит маркировка, представлен ниже</string>
     <string name="text_explain_full_screen_intent">Разрешить показывать полноэкранные уведомления о приёме лекарства</string>
     <string name="text_expain_ignore_battery">Разрешить игнорировать оптимизацию батареи. Если отключено, уведомления могут быть потеряны!</string>
     <string name="text_explain_notifications">Разрешить показывать все уведомления приложения</string>
     <string name="text_explain_reminders">Разрешить устанавливать напоминания на точное время</string>
     <string name="text_explain_request_permissions">Для получения уведомлений необходимо выдать соответствующие разрешения</string>
-
     <string name="text_permission_grant">Выдать</string>
     <string name="text_permission_granted">Выдано</string>
     <string name="text_permission_grant_full">Выдать разрешение</string>
-
     <!-- Строки -->
     <string name="text_add">Добавить</string>
     <string name="text_amount">Количество</string>
@@ -233,7 +209,6 @@
     <string name="text_unspecified">Не указано</string>
     <string name="text_update">Загрузить</string>
     <string name="text_yes">Да</string>
-
     <!-- Числительные -->
     <plurals name="intake_times_a_day">
         <item quantity="one">%d раз в день</item>
