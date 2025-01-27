@@ -14,8 +14,8 @@
     </plurals>
     <string name="preference_med_compact_view">Visualização de lista compacta</string>
     <string name="preference_system">Sistema</string>
-    <string name="preference_permissions">Permissions</string>
-    <string name="text_confirm">Confirm</string>
+    <string name="preference_permissions">Permissões</string>
+    <string name="text_confirm">Confirmar</string>
     <string name="lang_system">Sistema</string>
     <string name="preference_dynamic_color">Cor dinâmica</string>
     <string name="preference_import_export">Importar/Exportar</string>
@@ -34,7 +34,7 @@
     <string name="text_intake_time">Medicamento: %1$s\nQuantidade de ingestão: %2$s %3$s\nMedicamento sobrando: %4$s %3$s</string>
     <string name="text_attention">Atenção!</string>
     <string name="text_medicine_amount_not_enough">Não há suficiente sobrando</string>
-    <string name="preference_fixing_notifications">Problems with notifications?</string>
+    <string name="preference_fixing_notifications">Problemas com notificações?</string>
     <string name="text_medicine_group">Grupo</string>
     <string name="type_paste">PASTA</string>
     <string name="type_emulsion">EMULSÃO</string>
@@ -55,7 +55,7 @@
     <string name="intakes_tab_current">Atual</string>
     <string name="intake_text_date">Data</string>
     <string name="intakes_tab_past">Passado</string>
-    <string name="text_fix_notifications">The application will restart and all overdue notifications will appear in the status bar. Do not use this function if everything works correctly!</string>
+    <string name="text_fix_notifications">O aplicativo reiniciará e todas as notificações atrasadas aparecerão na barra de status. Não use essa função se tudo estiver funcionando corretamente!</string>
     <string name="text_connection_error">Erro de conexão!</string>
     <string name="intake_text_time">Tempo</string>
     <string name="intake_text_taken">Tomado</string>
