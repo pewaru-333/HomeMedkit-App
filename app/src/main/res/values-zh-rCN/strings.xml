@@ -79,8 +79,8 @@
     <string name="type_patch">敷贴类</string>
     <string name="type_bandage">绷带</string>
     <string name="type_napkins">医用巾</string>
-    <string name="dose_ed">每天</string>
-    <string name="dose_pcs">个/副</string>
+    <string name="dose_ed">个</string>
+    <string name="dose_pcs">副</string>
     <string name="dose_sach">颗</string>
     <string name="dose_g">克</string>
     <string name="dose_mg">毫克</string>
