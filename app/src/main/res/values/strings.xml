@@ -33,8 +33,8 @@
     <string name="lang_nl" translatable="false">Nederlands</string>
     <string name="lang_tr" translatable="false">Türkçe</string>
     <string name="lang_vi" translatable="false">Tiếng việt</string>
-    <string name="lang_zh_CN" translatable="false">中文 (中國)</string>
-    <string name="lang_zh_TW" translatable="false">中文 (中華民國)</string>
+    <string name="lang_zh_CN" translatable="false">简体中文</string>
+    <string name="lang_zh_TW" translatable="false">繁体中文</string>
     <string name="lang_ta" translatable="false">தமிழ்</string>
 
     <!-- Sorting -->
