@@ -9,7 +9,7 @@
     <string name="preference_kits_group">Grupos de medicamento</string>
     <plurals name="intake_times_a_day">
         <item quantity="one">%d vez por dia</item>
-        <item quantity="many">%dM vezes por dia</item>
+        <item quantity="many">%d de vezes por dia</item>
         <item quantity="other">%d vezes por dia</item>
     </plurals>
     <string name="preference_med_compact_view">Visualização de lista compacta</string>
@@ -205,4 +205,5 @@
     <string name="text_today">Hoje</string>
     <string name="text_repeat">Repetir</string>
     <string name="app_name">Kit Médico</string>
+    <string name="intake_extra_desc_fullscreen">Uma intenção para abrir em vez de postar uma notificação à barra de status na tela de bloqueio</string>
 </resources>
