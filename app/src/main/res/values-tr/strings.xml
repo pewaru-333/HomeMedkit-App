@@ -1,96 +1,247 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Menu -->
+    <string name="app_name">Medkit</string>
+
+    <!-- Menü -->
     <string name="bottom_bar_medicines">İlaçlar</string>
     <string name="bottom_bar_intakes">Alımlar</string>
     <string name="bottom_bar_settings">Ayarlar</string>
-    <!-- Preferences -->
+
+    <!-- Tercihler -->
     <string name="preference_app_view">Uygulama görünümü</string>
     <string name="preference_kits_group">İlaç grupları</string>
     <string name="preference_sorting_type">İlaç sıralama</string>
+    <string name="preference_med_compact_view">Kompakt liste görünümü</string>
+    <string name="preference_confirm_exit">Uygulamadan çıkışı onayla</string>
     <string name="preference_download_images">İlaç görsellerini indir</string>
-    <string name="preference_check_expiration_date">İlaçların son kullanma tarihini kontrol etme</string>
+    <string name="preference_check_expiration_date">İlaçların son kullanma tarihini kontrol et</string>
     <string name="preference_system">Sistem</string>
+    <string name="preference_permissions">İzinler</string>
     <string name="preference_language">Uygulama dili</string>
     <string name="preference_app_theme">Uygulama teması</string>
     <string name="preference_dynamic_color">Dinamik renk</string>
-    <string name="preference_import_export">İçe/Dışa Aktarma</string>
-    <!-- Languages -->
-    <string name="lang_system">Sistem</string>
-    <!-- Sorting -->
-    <string name="sorting_a_z">Alfabetik (A\'dan Z\'ye)</string>
-    <string name="sorting_z_a">Alfabetik (Z\'den A\'ya)</string>
-    <string name="sorting_from_oldest">Son kullanma tarihi (en eskiden)</string>
-    <string name="sorting_from_newest">Son kullanma tarihi (en yeniden)</string>
-    <!-- Notifications -->
-    <string name="channel_name">İlaç hatırlatıcıları</string>
-    <string name="channel_intakes_desc">Sesli bildirimler</string>
+    <string name="preference_import_export">İçe/Dışa Aktar</string>
+    <string name="preference_fixing_notifications">Bildirimlerle ilgili sorun mu var?</string>
+
+    <!-- Sıralama -->
+    <string name="sorting_a_z">Alfabetik (A’dan Z’ye)</string>
+    <string name="sorting_z_a">Alfabetik (Z’den A’ya)</string>
+    <string name="sorting_from_oldest">Son kullanma tarihi (eskiden yeniye)</string>
+    <string name="sorting_from_newest">Son kullanma tarihi (yeniden eskiye)</string>
+
+    <!-- Temalar -->
+    <string name="theme_system">Sistem</string>
+    <string name="theme_light">Açık</string>
+    <string name="theme_dark">Koyu</string>
+
+    <!-- Bildirimler -->
+    <string name="channel_name">Sesli bildirimler</string>
+    <string name="channel_exp_desc">Son kullanma tarihi</string>
+    <string name="channel_intakes_desc">İlaç alımı</string>
+    <string name="channel_pre_desc">Yaklaşan ilaç alımı</string>
     <string name="text_attention">Dikkat!</string>
-    <string name="text_do_intake">Alımı yap</string>
-    <string name="text_expire_soon">%1$s\'nin son kullanma tarihi yaklaşıyor</string>
-    <string name="text_intake_time">%1$s alım zamanı\nMiktar: %2$s %3$s</string>
-    <string name="text_intake_amount_not_enough">%1$s alım zamanı, ancak miktarı reçetelenenden az! Alımı tekrar oluştur!</string>
-    <!-- Placeholders -->
+    <string name="text_do_intake">Alım</string>
+    <string name="text_expire_soon">%1$s’in son kullanma tarihi yaklaşıyor</string>
+    <string name="text_intake_amount_not_enough">%1$s alım zamanı geldi, ancak yeterli miktar yok!</string>
+    <string name="text_intake_prealarm_text">İlaç: %1$s\nAlım miktarı: %2$s %3$s\nSaat: %4$s</string>
+    <string name="text_intake_prealarm_title">Yaklaşan alım</string>
+    <string name="text_intake_time">İlaç: %1$s\nAlım miktarı: %2$s %3$s\nKalan ilaç: %4$s %3$s</string>
+    <string name="text_medicine_amount_not_enough">Yeterli miktar yok</string>
+
+    <!-- Yer tutucular -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_time">Zaman #%1$d</string>
-    <!-- Medicines -->
-    <string name="text_exp_date">Son k.t.</string>
+    <string name="placeholder_time">Saat #%1$d</string>
+
+    <!-- İlaçlar -->
+    <string name="text_exp_date">Son kullanma tarihi</string>
     <string name="text_indications_for_use">Kullanım endikasyonları</string>
     <string name="text_medicine_comment">Yorum</string>
+    <string name="text_medicine_composition">Bileşim</string>
     <string name="text_medicine_description">Açıklama</string>
+    <string name="text_medicine_display_name">Görünen adı</string>
     <string name="text_medicine_dose">Doz</string>
+    <string name="text_medicine_form">Salım formu</string>
+    <string name="text_medicine_group">Grup</string>
     <string name="text_medicine_product_name">Ürün adı</string>
-    <!-- Intakes -->
-    <string name="intakes_tab_current">Güncel</string>
+    <string name="text_medicine_recommendations">Kullanım önerileri</string>
+    <string name="text_medicine_status_checked">Tarandı, doğrulandı</string>
+    <string name="text_medicine_status_scanned">Tarandı, doğrulanmadı</string>
+    <string name="text_medicine_status_self_added">Manuel eklendi</string>
+    <string name="text_medicine_storage_conditions">Saklama koşulları</string>
+
+    <!-- İlaç türleri -->
+    <string name="type_tablets">TABLETLER</string>
+    <string name="type_capsules">KAPSÜLLER</string>
+    <string name="type_pills">HAPLAR</string>
+    <string name="type_dragee">DRAJELER</string>
+    <string name="type_granules">GRANÜLLER</string>
+    <string name="type_powder">TOZ</string>
+    <string name="type_sachet">POŞET</string>
+    <string name="type_solution">ÇÖZELTİ</string>
+    <string name="type_tincture">TENTÜR</string>
+    <string name="type_decoction">DEKOKSİYON</string>
+    <string name="type_extract">EKSTRAKT</string>
+    <string name="type_mixture">KARIŞIM</string>
+    <string name="type_syrup">ŞURUP</string>
+    <string name="type_emulsion">EMÜLSİYON</string>
+    <string name="type_suspension">SÜSPANSİYON</string>
+    <string name="type_mix">KARIŞIM</string>
+    <string name="type_ointment">MERHEM</string>
+    <string name="type_gel">JEL</string>
+    <string name="type_paste">PASTA</string>
+    <string name="type_suppository">SUPPOZİTUVAR</string>
+    <string name="type_aerosol">AEROSOL</string>
+    <string name="type_spray">SPREY</string>
+    <string name="type_drops">DAMLA</string>
+    <string name="type_patch">YAMA</string>
+    <string name="type_bandage">BANDAJ</string>
+    <string name="type_napkins">MENDİLLER</string>
+    
+    <!-- İlaç doz türleri -->
+    <string name="dose_ed">ED</string>
+    <string name="dose_pcs">adet</string>
+    <string name="dose_sach">poşet</string>
+    <string name="dose_g">g</string>
+    <string name="dose_mg">mg</string>
+    <string name="dose_l">l</string>
+    <string name="dose_ml">ml</string>
+
+    <!-- Alımlar -->
     <string name="intakes_tab_list">Liste</string>
-    <string name="intakes_tab_past">Alındı</string>
+    <string name="intakes_tab_current">Güncel</string>
+    <string name="intakes_tab_past">Geçmiş</string>
+    
     <string name="intake_text_amount">Miktar</string>
+    <string name="intake_text_by_schedule">Planlanmış</string>
+    <string name="intake_text_date">Tarih</string>
+    <string name="intake_text_extra">Ekstra</string>
     <string name="intake_text_food">Yemek &amp; İlaç</string>
     <string name="intake_text_food_after">Yemekten sonra</string>
     <string name="intake_text_food_before">Yemekten önce</string>
     <string name="intake_text_food_during">Yemek sırasında</string>
+    <string name="intake_text_in_fact">Gerçekleşen</string>
+    <string name="intake_text_in_stock">Stokta: %1$s %2$s</string>
     <string name="intake_text_interval">Aralık</string>
+    <string name="intake_text_not_taken">Alınmadı</string>
     <string name="intake_text_period">Dönem</string>
+    <string name="intake_text_quantity" translatable="false">%1$s: %2$s %3$s</string>
+    <string name="intake_text_schema_type">Şema türü</string>
+    <string name="intake_text_taken">Alındı</string>
     <string name="intake_text_time">Zaman</string>
-    <!-- Dialogs -->
+    <string name="intake_text_start">Başlangıç</string>
+    <string name="intake_text_finish">Bitiş</string>
+    
+    <string name="intake_extra_cancellable">Bildirim zaman aşımı</string>
+    <string name="intake_extra_fullscreen">Tam ekran bildirim</string>
+    <string name="intake_extra_no_sound">Sessiz</string>
+    <string name="intake_extra_prealarm">Yaklaşan bildirim</string>
+    
+    <string name="intake_extra_desc_cancellable">Bildirim 10 dakika sonra otomatik olarak iptal edilecek</string>
+    <string name="intake_extra_desc_fullscreen">Kilitli ekranda bildirim yerine bir işlem başlatılacak</string>
+    <string name="intake_extra_desc_no_sound">Bildirim sesi ve titreşimleri devre dışı bırakır</string>
+    <string name="intake_extra_desc_prealarm">Planlanan saatten 30 dakika önce hatırlatma gönderilecek</string>
+    
+    <string name="intake_interval_daily">günlük</string>
+    <string name="intake_interval_weekly">haftalık</string>
+    <string name="intake_interval_other">özel</string>
+    
+    <string name="intake_schema_type_indefinitely">Süresiz</string>
+    <string name="intake_schema_type_day_picker">Gün seçici</string>
+    <string name="intake_schema_type_personal">Kişisel</string>
+    
+    <string name="intake_period_pick">tarihe göre</string>
+    <string name="intake_period_other">gün sayısına göre</string>
+    <string name="intake_period_indef">süresiz</string>
+
+    <!-- Diyaloglar -->
     <string name="manual_add">İlacı manuel olarak eklemek ister misiniz?</string>
+    <string name="text_confirm_deletion_int">Bu alımı silmek istediğinizden emin misiniz?</string>
+    <string name="text_confirm_deletion_med">Bu ilacı silmek istediğinizden emin misiniz?</string>
     <string name="text_connection_error">Bağlantı hatası!</string>
     <string name="text_duplicate">Bu ilaç zaten eklenmiş!</string>
-    <string name="text_export_import_description">Bu deneysel bir özelliktir.\nDışa aktarırken dosya adını değiştirebilirsiniz.\nİçe aktarırken, mevcut veriler silinecek! Lütfen, işlem sonrası uygulamayı yeniden başlatın!</string>
-    <string name="text_permission_grant_full">İzin ver</string>
+    <string name="text_error_not_medicine">Bu etiket kodu bir ilaca ait değil!</string>
+    <string name="text_exit_app">Uygulamadan çıkmak istediğinizden emin misiniz?</string>
+    <string name="text_export_import_description">Bu deneysel bir özelliktir.\nEğer içe aktarırsanız, mevcut uygulama verileri silinecektir!</string>
+    <string name="text_fill_field">Bu alanı doldurun!</string>
+    <string name="text_fix_notifications">Uygulama yeniden başlatılacak ve tüm gecikmiş bildirimler durum çubuğunda görünecek. Her şey düzgün çalışıyorsa bu işlevi kullanmayın!</string>
+    <string name="text_medicine_deleted">İlaç silindi, alım durumunu değiştirmek imkansız</string>
     <string name="text_new_group">Yeni grup</string>
-    <string name="text_request_camera">Etiketi taramak için, uygulamanın kamera kullanmasına izin verilmesi gerekir</string>
-    <string name="text_select_time">Zamanı seç</string>
-    <!-- Strings -->
+    <string name="text_not_saved_intake">Alım kaydedilmedi! Geri dönmek ister misiniz?</string>
+    <string name="text_notification_pick_action_first">Bu alımı değiştirmek için önce bildirimde bir işlem seçin</string>
+    <string name="text_pay_attention">Dikkat edin!</string>
+    <string name="text_request_camera">Etiketleri taramak için kamera izni gereklidir</string>
+    <string name="text_select_time">Zaman seçin</string>
+    <string name="text_try_again">Etiketi tekrar taramayı deneyin!</string>
+    
+    <!-- İzinler -->
+    <string name="text_permission_title_full_screen">Tam ekran bildirimleri</string>
+    <string name="text_permission_title_ignore_battery">Pil optimizasyonunu yok say</string>
+    <string name="text_permission_title_notifications">Bildirimler</string>
+    <string name="text_permission_title_reminders">Hatırlatıcıları ayarla</string>
+    
+    <string name="text_explain_camera">Etiket taramak için kamerayı kullanma izni vermelisiniz. Aşağıda işaretlemenin nasıl görünmesi gerektiğine dair bir örnek gösterilmektedir (yalnızca Rus ilaçları için çalışır)</string>
+    <string name="text_explain_full_screen_intent">Alım bildirimlerinin tam ekran görüntülenmesine izin verin</string>
+    <string name="text_expain_ignore_battery">Uygulamanın pil optimizasyonlarını yok saymasına izin verin. Eğer izin verilmezse, bildirimler kaybolabilir!</string>
+    <string name="text_explain_notifications">Tüm uygulama bildirimlerinin gösterilmesine izin verin</string>
+    <string name="text_explain_reminders">Hatırlatıcıların belirli bir zamanda ayarlanmasına izin verin</string>
+    <string name="text_explain_request_permissions">Bildirim almak için aşağıdaki izinleri vermelisiniz</string>
+    
+    <string name="text_permission_grant">İzin ver</string>
+    <string name="text_permission_granted">İzin verildi</string>
+    <string name="text_permission_grant_full">İzni ver</string>
+
+    <!-- Dizeler -->
+    <string name="blank" translatable="false" />
     <string name="text_add">Ekle</string>
     <string name="text_amount">Miktar</string>
     <string name="text_cancel">İptal</string>
     <string name="text_clear">Temizle</string>
-    <string name="text_daily_at">Günlük saat 12:00</string>
+    <string name="text_confirm">Onayla</string>
+    <string name="text_daily_at">Her gün 12:00\'de</string>
     <string name="text_days_short">g.</string>
     <string name="text_delete">Sil</string>
+    <string name="text_dismiss">Kapat</string>
     <string name="text_edit">Düzenle</string>
     <string name="text_empty">Boş</string>
     <string name="text_enter_product_name">Ara</string>
     <string name="text_error">Hata!</string>
     <string name="text_every">Her\u0020</string>
+    <string name="text_every_day">Her gün</string>
+    <string name="text_exit">Çıkış</string>
     <string name="text_export">Dışa Aktar</string>
     <string name="text_finish_date">Bitiş tarihi</string>
+    <string name="text_go_to">Git</string>
+    <string name="text_grant">Yetki Ver</string>
     <string name="text_import">İçe Aktar</string>
-    <string name="text_no_data_found">İlaç bulunamadı. Ekleyin veya filtreyi değiştirin.</string>
-    <string name="text_no_intakes_found">Alım bulunamadı. İlaç bilgi kartından ekleyin veya arama değerini değiştirin.</string>
     <string name="text_no">Hayır</string>
-    <string name="text_off">Kapalı</string>
-    <string name="text_on">Açık</string>
+    <string name="text_no_data_found">İlaç bulunamadı. Ekle veya filtreyi değiştir.</string>
+    <string name="text_no_intakes_found">Doz alımı bulunamadı. Bir ilacın bilgi kartı üzerinden ekleyin veya arama değerini değiştirin.</string>
+    <string name="text_not_selected">Seçilmedi</string>
+    <string name="text_off">Devre Dışı</string>
+    <string name="text_on">Etkin</string>
+    <string name="text_same_amount">Her doz alımında aynı miktar</string>
     <string name="text_save">Kaydet</string>
+    <string name="text_selected">Seçildi</string>
+    <string name="text_selected_of">%2$s içinden %1$s seçildi</string>
     <string name="text_start_date">Başlangıç tarihi</string>
+    <string name="text_status">Durum</string>
+    <string name="text_stay">Kal</string>
     <string name="text_success">Başarılı!</string>
     <string name="text_tap_to_view">Görüntülemek için dokunun</string>
+    <string name="text_today">Bugün</string>
+    <string name="text_tomorrow">Yarın</string>
+    <string name="text_repeat">Tekrar</string>
+    <string name="text_unspecified">Belirtilmemiş</string>
+    <string name="text_update">Güncelle</string>
     <string name="text_yes">Evet</string>
-    <!-- Plurals -->
+    
+    <!-- Çoğul ifadeler -->
     <plurals name="intake_times_a_day">
+        <item quantity="zero">Günde %d kez</item>
         <item quantity="one">Günde %d kez</item>
+        <item quantity="two">Günde %d kez</item>
+        <item quantity="few">Günde %d kez</item>
+        <item quantity="many">Günde %d kez</item>
         <item quantity="other">Günde %d kez</item>
     </plurals>
-    <string name="text_intake_prealarm_text">Medication: %1$s Amount: %2$s %3$s Time: %4$s</string>
 </resources>
