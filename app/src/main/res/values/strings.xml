@@ -7,10 +7,10 @@
     <string name="bottom_bar_settings">Settings</string>
 
     <!-- Preferences -->
+    <string name="preference_basic_settings">Basic settings</string>
     <string name="preference_app_view">App view</string>
     <string name="preference_kits_group">Medication groups</string>
     <string name="preference_sorting_type">Medication sorting</string>
-    <string name="preference_med_compact_view">Compact list view</string>
     <string name="preference_confirm_exit">Confirm exit from app</string>
     <string name="preference_download_images">Download medication images</string>
     <string name="preference_check_expiration_date">Check the expiration date of medications</string>
@@ -21,21 +21,7 @@
     <string name="preference_dynamic_color">Dynamic color</string>
     <string name="preference_import_export">Import/Export</string>
     <string name="preference_fixing_notifications">Problems with notifications?</string>
-
-    <!-- Languages -->
-    <string name="lang_system">System</string>
-    <string name="lang_ru" translatable="false">Русский</string>
-    <string name="lang_en" translatable="false">English</string>
-    <string name="lang_de" translatable="false">Deutsch</string>
-    <string name="lang_it" translatable="false">Italiano</string>
-    <string name="lang_es" translatable="false">Español</string>
-    <string name="lang_pt_BR" translatable="false">Português (Brasil)</string>
-    <string name="lang_nl" translatable="false">Nederlands</string>
-    <string name="lang_tr" translatable="false">Türkçe</string>
-    <string name="lang_vi" translatable="false">Tiếng việt</string>
-    <string name="lang_zh_CN" translatable="false">简体中文</string>
-    <string name="lang_zh_TW" translatable="false">繁体中文</string>
-    <string name="lang_ta" translatable="false">தமிழ்</string>
+    <string name="preference_clear_app_cache">Clear app cache</string>
 
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabetically (A to z)</string>
@@ -170,6 +156,8 @@
 
     <!-- Dialogs -->
     <string name="manual_add">Would you like to add the medication manually?</string>
+    <string name="text_choose_from_gallery">Choose from gallery</string>
+    <string name="text_clear_app_cache_description">This action will delete the application cache, as well as no longer used medication photos</string>
     <string name="text_confirm_deletion_int">Are you sure you want to delete this intake?</string>
     <string name="text_confirm_deletion_med">Are you sure you want to delete this medication?</string>
     <string name="text_connection_error">Connection error!</string>
@@ -182,10 +170,12 @@
     <string name="text_medicine_deleted">Medication has been deleted, it is impossible to change the intake status</string>
     <string name="text_new_group">New group</string>
     <string name="text_not_saved_intake">The intake is not saved! Would you like to go back?</string>
-    <string name="text_notification_pick_action_first">In order to modify this intake, pick an action in the notification first</string>
     <string name="text_pay_attention">Pay attention!</string>
+    <string name="text_pick_icon">Pick default icon</string>
     <string name="text_request_camera">To scan labels, the camera permission is necessary</string>
     <string name="text_select_time">Select time</string>
+    <string name="text_set_image">Set image</string>
+    <string name="text_take_picture">Take picture with camera</string>
     <string name="text_try_again">Try to scan the label again!</string>
 
     <!-- Permissions -->

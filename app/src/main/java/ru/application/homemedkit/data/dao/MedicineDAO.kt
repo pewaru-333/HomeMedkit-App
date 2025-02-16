@@ -31,6 +31,9 @@ interface MedicineDAO {
     @Query("SELECT cis from medicines")
     fun getAllCis(): List<String>
 
+    @Query("SELECT image FROM medicines")
+    fun getAllImages(): List<String>
+
     @Query("UPDATE medicines SET prodAmount = prodAmount - :amount WHERE id = :id")
     fun intakeMedicine(id: Long, amount: Double)
 

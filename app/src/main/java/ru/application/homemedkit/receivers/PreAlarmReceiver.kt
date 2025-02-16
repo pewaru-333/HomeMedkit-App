@@ -15,7 +15,9 @@ import ru.application.homemedkit.R.drawable.vector_time
 import ru.application.homemedkit.R.string.text_intake_prealarm_text
 import ru.application.homemedkit.R.string.text_intake_prealarm_title
 import ru.application.homemedkit.data.MedicineDatabase.Companion.getInstance
+import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.helpers.ALARM_ID
+import ru.application.homemedkit.helpers.AlarmType
 import ru.application.homemedkit.helpers.CHANNEL_ID_PRE
 import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.FORMAT_H
@@ -31,36 +33,54 @@ class PreAlarmReceiver : BroadcastReceiver() {
         val alarm = database.alarmDAO().getById(alarmId)
         val intakeId = database.alarmDAO().getById(alarmId).intakeId
         val intake = database.intakeDAO().getById(intakeId)!!
-        val preAlarmTrigger = database.alarmDAO().getById(alarmId).trigger
-        val alarmTrigger = preAlarmTrigger + 1800000L
+        val trigger = database.alarmDAO().getById(alarmId).trigger
         val medicine = database.medicineDAO().getById(intake.medicineId)!!
 
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
-            return
-
-        NotificationManagerCompat.from(context).notify(
-            alarmId.toInt(),
-            Builder(context, CHANNEL_ID_PRE)
-                .setCategory(CATEGORY_REMINDER)
-                .setContentTitle(context.getString(text_intake_prealarm_title))
-                .setSilent(true)
-                .setSmallIcon(vector_time)
-                .setStyle(
-                    BigTextStyle().bigText(
-                        context.getString(
-                            text_intake_prealarm_text,
-                            medicine.nameAlias.ifEmpty(medicine::productName),
-                            decimalFormat(alarm.amount),
-                            context.getString(DoseTypes.getTitle(medicine.doseType)),
-                            getDateTime(alarmTrigger).format(FORMAT_H)
-                        )
-                    )
-                )
-                .setTimeoutAfter(1800000L)
-                .setVisibility(VISIBILITY_PUBLIC)
-                .build()
+        database.takenDAO().add(
+            IntakeTaken(
+                medicineId = medicine.id,
+                intakeId = intakeId,
+                alarmId = alarmId,
+                productName = medicine.productName,
+                formName = medicine.prodFormNormName,
+                amount = alarm.amount,
+                doseType = medicine.doseType,
+                image = medicine.image,
+                trigger = trigger
+            )
         )
 
-        setter.resetOrDelete(alarmId, preAlarmTrigger, intake)
+        with(NotificationManagerCompat.from(context)) {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+                return@with
+
+            if (!alarm.preAlarm)
+                return@with
+
+            notify(
+                alarmId.toInt(),
+                Builder(context, CHANNEL_ID_PRE)
+                    .setCategory(CATEGORY_REMINDER)
+                    .setContentTitle(context.getString(text_intake_prealarm_title))
+                    .setSilent(true)
+                    .setSmallIcon(vector_time)
+                    .setStyle(
+                        BigTextStyle().bigText(
+                            context.getString(
+                                text_intake_prealarm_text,
+                                medicine.nameAlias.ifEmpty(medicine::productName),
+                                decimalFormat(alarm.amount),
+                                context.getString(DoseTypes.getTitle(medicine.doseType)),
+                                getDateTime(trigger).format(FORMAT_H)
+                            )
+                        )
+                    )
+                    .setTimeoutAfter(1800000L)
+                    .setVisibility(VISIBILITY_PUBLIC)
+                    .build()
+            )
+        }
+
+        setter.resetOrDelete(alarmId, trigger, intake, AlarmType.PREALARM)
     }
 }

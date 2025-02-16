@@ -16,8 +16,6 @@
     <string name="preference_app_theme">App-Thema</string>
     <string name="preference_dynamic_color">Dynamische Farbe</string>
     <string name="preference_import_export">Importieren / Exportieren</string>
-    <!-- Languages -->
-    <string name="lang_system">System</string>
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabetisch (A bis z)</string>
     <string name="sorting_z_a">Alphabetisch (z bis A)</string>
@@ -77,7 +75,6 @@
     <string name="type_spray">SPRAY</string>
     <string name="type_drops">DROPS</string>
     <string name="text_request_camera">Um Labels zu scannen, benötigt die App Kamerazugriffs-Rechte</string>
-    <string name="text_notification_pick_action_first">Zum Ändern der Einnahme bitte zunächst eine Aktion in der Benachrichtigung wählen</string>
     <string name="text_days_short">T.</string>
     <string name="text_update">Aktualisieren</string>
     <string name="text_unspecified">Nicht angegeben</string>
@@ -101,7 +98,6 @@
     <string name="text_medicine_group">Gruppe</string>
     <string name="text_no_intakes_found">Keine Einnahmen gefunden. Erst welche über den Medikamenten-Tab hinzufügen oder Suchbegriff ändern.</string>
     <string name="intake_text_food">Mahlzeiten &amp; Medikament</string>
-    <string name="preference_med_compact_view">Kompakte Listenansicht</string>
     <string name="type_granules">GRANULAT</string>
     <string name="text_medicine_status_self_added">Manuell hinzugefügt</string>
     <string name="intake_text_amount">Menge</string>

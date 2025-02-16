@@ -1,9 +1,16 @@
 package ru.application.homemedkit.ui.screens
 
+import android.Manifest
+import android.content.Context
 import android.graphics.BitmapFactory
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.view.CameraController
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -11,12 +18,14 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,6 +37,7 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -68,12 +78,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -91,10 +103,11 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.text.HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS
 import androidx.core.text.HtmlCompat.fromHtml
@@ -103,13 +116,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
-import ru.application.homemedkit.R
+import ru.application.homemedkit.R.drawable.vector_add_photo
+import ru.application.homemedkit.R.drawable.vector_flash
 import ru.application.homemedkit.R.drawable.vector_type_unknown
 import ru.application.homemedkit.R.string.placeholder_dose
 import ru.application.homemedkit.R.string.preference_kits_group
 import ru.application.homemedkit.R.string.text_amount
 import ru.application.homemedkit.R.string.text_cancel
+import ru.application.homemedkit.R.string.text_choose_from_gallery
 import ru.application.homemedkit.R.string.text_clear
+import ru.application.homemedkit.R.string.text_confirm_deletion_med
 import ru.application.homemedkit.R.string.text_connection_error
 import ru.application.homemedkit.R.string.text_delete
 import ru.application.homemedkit.R.string.text_duplicate
@@ -120,6 +136,7 @@ import ru.application.homemedkit.R.string.text_indications_for_use
 import ru.application.homemedkit.R.string.text_medicine_comment
 import ru.application.homemedkit.R.string.text_medicine_composition
 import ru.application.homemedkit.R.string.text_medicine_description
+import ru.application.homemedkit.R.string.text_medicine_display_name
 import ru.application.homemedkit.R.string.text_medicine_dose
 import ru.application.homemedkit.R.string.text_medicine_form
 import ru.application.homemedkit.R.string.text_medicine_group
@@ -129,8 +146,11 @@ import ru.application.homemedkit.R.string.text_medicine_status_checked
 import ru.application.homemedkit.R.string.text_medicine_status_scanned
 import ru.application.homemedkit.R.string.text_medicine_status_self_added
 import ru.application.homemedkit.R.string.text_medicine_storage_conditions
+import ru.application.homemedkit.R.string.text_pick_icon
 import ru.application.homemedkit.R.string.text_save
+import ru.application.homemedkit.R.string.text_set_image
 import ru.application.homemedkit.R.string.text_status
+import ru.application.homemedkit.R.string.text_take_picture
 import ru.application.homemedkit.R.string.text_try_again
 import ru.application.homemedkit.R.string.text_unspecified
 import ru.application.homemedkit.R.string.text_update
@@ -141,12 +161,11 @@ import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.Types
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
+import ru.application.homemedkit.helpers.permissions.rememberPermissionState
 import ru.application.homemedkit.helpers.toExpDate
 import ru.application.homemedkit.models.events.MedicineEvent
-import ru.application.homemedkit.models.events.Response.Default
-import ru.application.homemedkit.models.events.Response.Loading
-import ru.application.homemedkit.models.events.Response.NoNetwork
 import ru.application.homemedkit.models.states.MedicineState
+import ru.application.homemedkit.models.states.rememberCameraState
 import ru.application.homemedkit.models.viewModels.MedicineViewModel
 import java.io.File
 import java.time.LocalDate
@@ -160,13 +179,12 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
 
     val model = viewModel<MedicineViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
-    val response by model.response.collectAsStateWithLifecycle()
 
     var show by remember { mutableStateOf(false) }
     if (show) Snackbar(text_duplicate)
     LaunchedEffect(Unit) { model.duplicate.collectLatest { show = it } }
 
-    BackHandler(onBack = navigateBack)
+    BackHandler { if (state.showTakePhoto) model.onEvent(MedicineEvent.ShowTakePhoto) else navigateBack() }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -264,10 +282,14 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
     }
 
     when {
+        state.loading -> LoadingDialog()
+        state.noNetwork -> Snackbar(text_connection_error)
+        state.codeError ->  Snackbar(text_try_again)
         state.showDialogKits -> DialogKits(state, model::onEvent)
+        state.showDialogPictureChoose -> DialogPictureChoose(state, model::onEvent)
         state.showDialogIcons -> IconPicker(model::onEvent)
         state.showDialogDelete -> DialogDelete(
-            text = R.string.text_confirm_deletion_med,
+            text = text_confirm_deletion_med,
             cancel = { model.onEvent(MedicineEvent.ShowDialogDelete) },
             confirm = {
                 model.delete(context.filesDir)
@@ -281,14 +303,8 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
                 model.onEvent(MedicineEvent.SetExpDate(month, year))
             }
         )
-    }
 
-    when (response) {
-        Default -> {}
-        Loading -> LoadingDialog()
-        is NoNetwork -> Snackbar(text_connection_error)
-
-        else -> Snackbar(text_try_again)
+        state.showTakePhoto -> CameraPhotoPreview(model::onEvent)
     }
 }
 
@@ -466,15 +482,13 @@ private fun ProductStatus(state: MedicineState) = Column {
 @Composable
 private fun ProductImage(state: MedicineState, event: (MedicineEvent) -> Unit) = MedicineImage(
     image = state.image,
-    state = state,
+    editable = !state.default,
     modifier = Modifier
         .width(128.dp)
         .fillMaxHeight()
         .border(1.dp, MaterialTheme.colorScheme.onSurface, MaterialTheme.shapes.medium)
         .padding(8.dp)
-        .clickable(!state.default && (state.image.contains(TYPE) || state.image.isEmpty())) {
-            event(MedicineEvent.ShowIconPicker)
-        }
+        .clickable(!state.default) { event(MedicineEvent.ShowDialogPictureChoose) }
 )
 
 @Composable
@@ -484,7 +498,7 @@ private fun ProductAlias(
     event: (MedicineEvent) -> Unit
 ) = Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
     Text(
-        text = stringResource(R.string.text_medicine_display_name),
+        text = stringResource(text_medicine_display_name),
         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
     )
 
@@ -727,6 +741,71 @@ private fun DialogKits(state: MedicineState, event: (MedicineEvent) -> Unit) = A
     }
 )
 
+@Composable
+private fun DialogPictureChoose(state: MedicineState, event: (MedicineEvent) -> Unit) {
+    val context = LocalContext.current
+    val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
+
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
+        it?.let {
+            val name = "${state.id}${state.productName}.jpg"
+
+            context.contentResolver.openInputStream(it)?.use { input ->
+                context.openFileOutput(name, Context.MODE_PRIVATE).use { output ->
+                    input.copyTo(output)
+                }
+            }
+
+            event(MedicineEvent.SetImage(name))
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = { event(MedicineEvent.ShowDialogPictureChoose) },
+        dismissButton = {},
+        confirmButton = {},
+        title = { Text(stringResource(text_set_image)) },
+        text = {
+            Column {
+                TextButton(
+                    onClick = {
+                        if (cameraPermissionState.isGranted) event(MedicineEvent.ShowTakePhoto)
+                        else if (cameraPermissionState.showRationale) cameraPermissionState.openSettings()
+                        else cameraPermissionState.launchRequest()
+                    }
+                ) {
+                    Text(
+                        text = stringResource(text_take_picture),
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.labelLarge.copy(fontSize = 16.sp)
+                    )
+                }
+                TextButton(
+                    onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+                ) {
+                    Text(
+                        text = stringResource(text_choose_from_gallery),
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.labelLarge.copy(fontSize = 16.sp)
+                    )
+                }
+                TextButton(
+                    onClick = { event(MedicineEvent.ShowIconPicker) }
+                ) {
+                    Text(
+                        text = stringResource(text_pick_icon),
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.labelLarge.copy(fontSize = 16.sp)
+                    )
+                }
+            }
+        }
+    )
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun IconPicker(event: (MedicineEvent) -> Unit) =
@@ -783,15 +862,15 @@ fun DialogDelete(text: Int, cancel: () -> Unit, confirm: () -> Unit) = AlertDial
 )
 
 @Composable
-fun MedicineImage(image: String, modifier: Modifier = Modifier, state: MedicineState? = null) {
+fun MedicineImage(image: String, modifier: Modifier = Modifier, editable: Boolean = false) {
     val context = LocalContext.current
     val isIcon = image.contains(TYPE)
     val noIcon = image.isEmpty()
     val icon = when {
         noIcon -> null
-        isIcon -> ContextCompat.getDrawable(context, Types.getIcon(image))?.toBitmap()?.asImageBitmap()
+        isIcon -> context.getDrawable(Types.getIcon(image))?.toBitmap()?.asImageBitmap()
         else -> File(context.filesDir, image).let {
-            if(it.exists()) BitmapFactory.decodeFile(it.absolutePath).asImageBitmap() else null
+            if (it.exists()) BitmapFactory.decodeFile(it.absolutePath).asImageBitmap() else null
         }
     }
 
@@ -801,10 +880,46 @@ fun MedicineImage(image: String, modifier: Modifier = Modifier, state: MedicineS
         modifier = modifier,
         alignment = Alignment.Center,
         contentScale = ContentScale.Fit,
-        alpha = when {
-            state?.default == true -> 1f
-            state?.default == false && (isIcon || noIcon) -> 0.4f
-            else -> 1f
-        }
+        alpha = if (editable) 0.4f else 1f
     )
+}
+
+@Composable
+private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
+    val controller = rememberCameraState(CameraController.IMAGE_CAPTURE)
+
+    Box {
+        CameraPreview(controller, Modifier.fillMaxSize())
+
+        Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+            IconButton(
+                onClick = { event(MedicineEvent.ShowTakePhoto) }
+            ) {
+                Icon(Icons.AutoMirrored.Outlined.ArrowBack, null, Modifier, Color.White)
+            }
+
+            IconButton(controller::toggleTorch) {
+                Icon(painterResource(vector_flash), null, Modifier, Color.White)
+            }
+        }
+
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .padding(bottom = 24.dp)
+                .align(Alignment.BottomCenter)
+                .size(80.dp)
+                .clip(CircleShape)
+                .background(Color.White, CircleShape)
+                .border(4.dp, Color.LightGray, CircleShape)
+                .clickable { controller.takePicture { event(MedicineEvent.SetImage(it)) } }
+        ) {
+            Icon(
+                painter = painterResource(vector_add_photo),
+                contentDescription = null,
+                modifier = Modifier.size(40.dp),
+                tint = Color.Black
+            )
+        }
+    }
 }

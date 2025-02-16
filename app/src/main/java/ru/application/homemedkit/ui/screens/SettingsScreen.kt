@@ -5,8 +5,11 @@ import android.content.Intent
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
 import android.database.sqlite.SQLiteDatabase.openDatabase
+import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION
+import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
@@ -29,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,6 +49,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -64,6 +69,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.zhanghai.compose.preference.ListPreference
+import me.zhanghai.compose.preference.Preference
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import me.zhanghai.compose.preference.SwitchPreference
 import me.zhanghai.compose.preference.listPreference
@@ -74,18 +80,24 @@ import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.preference_app_theme
 import ru.application.homemedkit.R.string.preference_app_view
+import ru.application.homemedkit.R.string.preference_basic_settings
 import ru.application.homemedkit.R.string.preference_check_expiration_date
+import ru.application.homemedkit.R.string.preference_clear_app_cache
 import ru.application.homemedkit.R.string.preference_confirm_exit
 import ru.application.homemedkit.R.string.preference_download_images
 import ru.application.homemedkit.R.string.preference_dynamic_color
+import ru.application.homemedkit.R.string.preference_fixing_notifications
 import ru.application.homemedkit.R.string.preference_import_export
 import ru.application.homemedkit.R.string.preference_kits_group
 import ru.application.homemedkit.R.string.preference_language
+import ru.application.homemedkit.R.string.preference_permissions
 import ru.application.homemedkit.R.string.preference_sorting_type
 import ru.application.homemedkit.R.string.preference_system
 import ru.application.homemedkit.R.string.text_add
 import ru.application.homemedkit.R.string.text_attention
 import ru.application.homemedkit.R.string.text_cancel
+import ru.application.homemedkit.R.string.text_clear_app_cache_description
+import ru.application.homemedkit.R.string.text_confirm
 import ru.application.homemedkit.R.string.text_daily_at
 import ru.application.homemedkit.R.string.text_exit
 import ru.application.homemedkit.R.string.text_expain_ignore_battery
@@ -95,6 +107,7 @@ import ru.application.homemedkit.R.string.text_explain_reminders
 import ru.application.homemedkit.R.string.text_explain_request_permissions
 import ru.application.homemedkit.R.string.text_export
 import ru.application.homemedkit.R.string.text_export_import_description
+import ru.application.homemedkit.R.string.text_fix_notifications
 import ru.application.homemedkit.R.string.text_import
 import ru.application.homemedkit.R.string.text_new_group
 import ru.application.homemedkit.R.string.text_off
@@ -107,12 +120,15 @@ import ru.application.homemedkit.R.string.text_permission_title_ignore_battery
 import ru.application.homemedkit.R.string.text_permission_title_notifications
 import ru.application.homemedkit.R.string.text_permission_title_reminders
 import ru.application.homemedkit.R.string.text_save
+import ru.application.homemedkit.R.string.text_success
 import ru.application.homemedkit.R.string.text_tap_to_view
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.KEY_APP_SYSTEM
 import ru.application.homemedkit.helpers.KEY_APP_THEME
 import ru.application.homemedkit.helpers.KEY_APP_VIEW
+import ru.application.homemedkit.helpers.KEY_BASIC_SETTINGS
+import ru.application.homemedkit.helpers.KEY_CLEAR_CACHE
 import ru.application.homemedkit.helpers.KEY_CONFIRM_EXIT
 import ru.application.homemedkit.helpers.KEY_DOWNLOAD
 import ru.application.homemedkit.helpers.KEY_DYNAMIC_COLOR
@@ -121,19 +137,20 @@ import ru.application.homemedkit.helpers.KEY_FIXING
 import ru.application.homemedkit.helpers.KEY_KITS
 import ru.application.homemedkit.helpers.KEY_ORDER
 import ru.application.homemedkit.helpers.KEY_PERMISSIONS
-import ru.application.homemedkit.helpers.LANGUAGES
-import ru.application.homemedkit.helpers.Languages
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.SORTING
 import ru.application.homemedkit.helpers.Sorting
 import ru.application.homemedkit.helpers.THEMES
 import ru.application.homemedkit.helpers.Themes
+import ru.application.homemedkit.helpers.getDisplayRegionName
+import ru.application.homemedkit.helpers.getLanguageList
 import ru.application.homemedkit.helpers.permissions.PermissionState
 import ru.application.homemedkit.helpers.permissions.rememberPermissionState
 import ru.application.homemedkit.helpers.showToast
 import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.ui.theme.isDynamicColorAvailable
 import java.io.File
+import java.util.Locale
 
 @Composable
 fun SettingsScreen(
@@ -144,18 +161,18 @@ fun SettingsScreen(
     val context = LocalContext.current
 
     val sorting = Sorting.entries.map { stringResource(it.title) }
-    val languages = Languages.entries.map { stringResource(it.title) }
     val themes = Themes.entries.map { stringResource(it.title) }
 
     var showExport by rememberSaveable { mutableStateOf(false) }
     var showFixing by rememberSaveable { mutableStateOf(false) }
+    var showClearing by rememberSaveable { mutableStateOf(false) }
 
     BackHandler(onBack = backClick)
     ProvidePreferenceLocals {
         LazyColumn {
             preferenceCategory(
-                key = KEY_APP_VIEW,
-                title = { Text(stringResource(preference_app_view)) },
+                key = KEY_BASIC_SETTINGS,
+                title = { Text(stringResource(preference_basic_settings)) }
             )
 
             preference(
@@ -200,30 +217,34 @@ fun SettingsScreen(
             }
 
             preferenceCategory(
-                key = KEY_APP_SYSTEM,
-                title = { Text(stringResource(preference_system)) },
+                key = KEY_APP_VIEW,
+                title = { Text(stringResource(preference_app_view)) },
                 modifier = Modifier.drawBehind {
                     drawLine(Color.LightGray, Offset(0f, 0f), Offset(size.width, 0f), 2f)
                 }
             )
 
-            preference(
-                key = KEY_PERMISSIONS,
-                title = { Text(stringResource(R.string.preference_permissions)) },
-                onClick = toPermissionsScreen,
-                summary = { Text(stringResource(text_tap_to_view)) }
-            )
+            item {
+                if (VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                    var value by remember { mutableStateOf(Preferences.getLanguage(context)) }
 
-            if (VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) item {
-                var value by remember { mutableStateOf(Preferences.getLanguage()) }
-
-                ListPreference(
-                    value = value,
-                    onValueChange = { value = it; Preferences.setLocale(context, it) },
-                    values = LANGUAGES,
+                    ListPreference(
+                        value = value,
+                        onValueChange = { value = it; Preferences.setLocale(context, it) },
+                        values = context.getLanguageList(),
+                        title = { Text(stringResource(preference_language)) },
+                        summary = { Text(Locale.forLanguageTag(value).getDisplayRegionName()) },
+                        valueToText = { AnnotatedString(Locale.forLanguageTag(it).getDisplayRegionName()) }
+                    )
+                } else Preference(
                     title = { Text(stringResource(preference_language)) },
-                    summary = { Text(localize(value, LANGUAGES, languages)) },
-                    valueToText = { localize(it, LANGUAGES, languages) }
+                    onClick = {
+                        context.startActivity(
+                            Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                        )
+                    }
                 )
             }
 
@@ -243,6 +264,21 @@ fun SettingsScreen(
                 enabled = { isDynamicColorAvailable() }
             )
 
+            preferenceCategory(
+                key = KEY_APP_SYSTEM,
+                title = { Text(stringResource(preference_system)) },
+                modifier = Modifier.drawBehind {
+                    drawLine(Color.LightGray, Offset(0f, 0f), Offset(size.width, 0f), 2f)
+                }
+            )
+
+            preference(
+                key = KEY_PERMISSIONS,
+                title = { Text(stringResource(preference_permissions)) },
+                onClick = toPermissionsScreen,
+                summary = { Text(stringResource(text_tap_to_view)) }
+            )
+
             preference(
                 key = KEY_EXP_IMP,
                 title = { Text(stringResource(preference_import_export)) },
@@ -251,14 +287,21 @@ fun SettingsScreen(
 
             preference(
                 key = KEY_FIXING,
-                title = { Text(stringResource(R.string.preference_fixing_notifications)) },
+                title = { Text(stringResource(preference_fixing_notifications)) },
                 onClick = { showFixing = true }
+            )
+
+            preference(
+                key = KEY_CLEAR_CACHE,
+                title = { Text(stringResource(preference_clear_app_cache)) },
+                onClick = { showClearing = true }
             )
         }
     }
 
     if (showExport) ExportImport { showExport = false }
     if (showFixing) DialogFixing { showFixing = false }
+    if (showClearing) DialogClearing { showClearing = false }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -266,6 +309,7 @@ fun SettingsScreen(
 fun KitsManager(back: () -> Unit) {
     val dao = database.kitDAO()
     val kits by dao.getFlow().collectAsStateWithLifecycle(emptyList())
+    var gKitId by rememberSaveable { mutableLongStateOf(0L) }
     var show by rememberSaveable { mutableStateOf(false) }
     var text by rememberSaveable { mutableStateOf(BLANK) }
 
@@ -292,8 +336,17 @@ fun KitsManager(back: () -> Unit) {
             items(kits) { (kitId, title) ->
                 ListItem(
                     headlineContent = { Text(title) },
+                    leadingContent = {
+                        IconButton(
+                            onClick = { gKitId = kitId; text = title; show = true }
+                        ) {
+                            Icon(Icons.Outlined.Edit, null)
+                        }
+                    },
                     trailingContent = {
-                        IconButton({ dao.delete(Kit(kitId)) }) {
+                        IconButton(
+                            onClick = { dao.delete(Kit(kitId)) }
+                        ) {
                             Icon(Icons.Outlined.Delete, null)
                         }
                     }
@@ -307,12 +360,17 @@ fun KitsManager(back: () -> Unit) {
         onDismissRequest = { show = false },
         confirmButton = {
             TextButton(
-                onClick = { dao.add(Kit(title = text)); text = BLANK; show = false },
-                enabled = text.isNotEmpty()
+                enabled = text.isNotEmpty(),
+                onClick = {
+                    dao.add(Kit(kitId = gKitId, title = text))
+                    text = BLANK
+                    show = false
+                    gKitId = 0L
+                },
             ) { Text(stringResource(text_save)) }
         },
         dismissButton = {
-            TextButton({ show = false; text = BLANK }) {
+            TextButton({ show = false; text = BLANK; gKitId = 0L }) {
                 Text(stringResource(text_cancel))
             }
         },
@@ -510,7 +568,7 @@ private fun DialogFixing(back: () -> Unit) {
         title = { Text(stringResource(text_attention)) },
         text = {
             Text(
-                text = stringResource(R.string.text_fix_notifications),
+                text = stringResource(text_fix_notifications),
                 style = MaterialTheme.typography.bodyLarge
             )
         },
@@ -526,7 +584,40 @@ private fun DialogFixing(back: () -> Unit) {
                     Runtime.getRuntime().exit(0)
                 }
             ) {
-                Text(stringResource(R.string.text_confirm))
+                Text(stringResource(text_confirm))
+            }
+        }
+    )
+}
+
+@Composable
+private fun DialogClearing(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val images = database.medicineDAO().getAllImages()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        dismissButton = { TextButton(onDismiss) { Text(stringResource(text_cancel)) } },
+        title = { Text(stringResource(text_attention)) },
+        text = {
+            Text(
+                text = stringResource(text_clear_app_cache_description),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    context.cacheDir.deleteRecursively()
+                    context.filesDir.listFiles()?.forEach {
+                        if (it.name !in images && it.extension == "jpg") it.deleteRecursively()
+                    }
+
+                    onDismiss()
+                    Toast.makeText(context, text_success, Toast.LENGTH_SHORT).show()
+                }
+            ) {
+                Text(stringResource(text_confirm))
             }
         }
     )

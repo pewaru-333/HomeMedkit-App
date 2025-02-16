@@ -16,9 +16,12 @@ sealed interface MedicineEvent {
     data class PickKit(val kitId: Long) : MedicineEvent
     data object ClearKit : MedicineEvent
     data class SetIcon(val icon: String) : MedicineEvent
+    data class SetImage(val image: String) : MedicineEvent
     data object ShowKitDialog : MedicineEvent
     data object ShowDatePicker : MedicineEvent
+    data object ShowDialogPictureChoose : MedicineEvent
     data object ShowIconPicker : MedicineEvent
     data object ShowDialogDelete : MedicineEvent
     data object ShowDoseMenu : MedicineEvent
+    data object ShowTakePhoto : MedicineEvent
 }

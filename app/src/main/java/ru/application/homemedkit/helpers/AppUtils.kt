@@ -2,6 +2,7 @@ package ru.application.homemedkit.helpers
 
 import android.app.AlarmManager
 import android.content.Context
+import android.content.res.XmlResourceParser
 import android.icu.math.BigDecimal
 import android.icu.text.DecimalFormat
 import android.media.AudioAttributes
@@ -19,6 +20,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import org.xmlpull.v1.XmlPullParser
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.text_error
@@ -26,7 +28,6 @@ import ru.application.homemedkit.R.string.text_success
 import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.Technical
-import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.states.TechnicalState
@@ -40,6 +41,7 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.util.Locale
 import kotlin.reflect.KClass
 
 val LOCALE @Composable get() = LocalConfiguration.current.locales[0]
@@ -122,6 +124,19 @@ else (getSystemService(Context.ALARM_SERVICE) as AlarmManager).canScheduleExactA
 
 fun Context.canUseFullScreenIntent() = NotificationManagerCompat.from(this).canUseFullScreenIntent()
 
+fun Context.getLanguageList() = mutableListOf<String>().apply {
+    resources.getXml(R.xml._generated_res_locale_config).use { xml ->
+        while (xml.eventType != XmlResourceParser.END_DOCUMENT) {
+            if (xml.eventType == XmlPullParser.START_TAG && xml.name == "locale") {
+                add(xml.getAttributeValue(0))
+            }
+            xml.next()
+        }
+    }
+}.sortedBy { Locale.forLanguageTag(it).getDisplayRegionName() }
+
+fun Locale.getDisplayRegionName(): String = getDisplayName(this).run { replaceFirstChar(Char::uppercase) }
+
 fun <T: Any> NavBackStackEntry?.isCurrentRoute(route: KClass<T>) =
     this?.destination?.hierarchy?.any { it.hasRoute(route) } == true
 
@@ -138,7 +153,9 @@ fun Medicine.toState() = MedicineState(
     adding = false,
     editing = false,
     default = true,
-    fetch = Response.Default,
+    loading = false,
+    noNetwork = false,
+    codeError = false,
     id = id,
     kits = database.kitDAO().getIdList(id).toMutableStateList(),
     cis = cis,

@@ -1,0 +1,5 @@
+— Added the feature to set your own medicine images. You can immediately take a picture or select a photo from the gallery.
+— Now you can change the intake status before its time. This will appear in the list half an hour before the notification.
+— Added the ability to change the names of drug groups.
+— Fixed a bug where in very rare cases, when scanning a drug label, it was duplicated in the list.
+— Several improvements to the app.

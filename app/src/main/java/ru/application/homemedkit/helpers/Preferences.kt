@@ -36,8 +36,15 @@ object Preferences : ViewModel() {
     fun getImageFetch() = preferences.getBoolean(KEY_DOWNLOAD, false)
     fun getCheckExpDate() = preferences.getBoolean(KEY_CHECK_EXP_DATE, false)
     fun getConfirmExit() = preferences.getBoolean(KEY_CONFIRM_EXIT, true)
-    fun getLanguage() = preferences.getString(KEY_LANGUAGE, LANGUAGES[0]) ?: LANGUAGES[0]
     fun getDynamicColors() = preferences.getBoolean(KEY_DYNAMIC_COLOR, false)
+    fun getLanguage(context: Context?) = if (context == null) Locale.ENGLISH.language
+    else preferences.getString(
+        KEY_LANGUAGE,
+        LocaleList.getAdjustedDefault()[0].language.run {
+            if (this in context.getLanguageList()) this
+            else Locale.ENGLISH.language
+        }
+    ) ?: Locale.ENGLISH.language
 
     fun isFirstLaunchIntake() = preferences.getBoolean(KEY_FIRST_LAUNCH_INTAKE, true)
     fun setFirstLaunchIntakeExit() = preferences.edit().putBoolean(KEY_FIRST_LAUNCH_INTAKE, false).apply()
@@ -55,7 +62,7 @@ object Preferences : ViewModel() {
     fun changeLanguage(context: Context?) =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) context
         else {
-            val newLocale = Locale(getLanguage())
+            val newLocale = Locale.forLanguageTag(getLanguage(context))
             Locale.setDefault(newLocale)
 
             val resources = context?.resources

@@ -16,7 +16,6 @@
     <string name="preference_dynamic_color">Colore dinamico</string>
     <string name="preference_import_export">Importa / Esporta</string>
     <!-- Languages -->
-    <string name="lang_system">System</string>
     <!-- Sorting -->
     <string name="sorting_a_z">Alfabeticamente (da A a z)</string>
     <string name="sorting_z_a">Alfabeticamente (z da A)</string>
@@ -69,7 +68,6 @@
     <string name="text_permission_grant_full">Il permesso di concessione</string>
     <string name="text_medicine_deleted">La medicina è stata cancellata, impossibile cambiare lo stato di assunzione</string>
     <string name="text_new_group">Nuovo gruppo</string>
-    <string name="text_notification_pick_action_first">Al fine di modificare l\'azione di scelta in notifica prima</string>
     <string name="text_request_camera">Per la scansione dell\'etichetta, l\'applicazione deve essere dato il permesso di utilizzare la fotocamera</string>
     <string name="text_select_time">Selezionare il tempo</string>
     <string name="text_try_again">Prova di nuovo a scansionare l\'etichetta!</string>
@@ -124,7 +122,6 @@
     <string name="theme_system">Sistema</string>
     <string name="type_tablets">COMPRESSE</string>
     <string name="type_powder">POLVERE</string>
-    <string name="preference_med_compact_view">Lista compatta delle medicine</string>
     <string name="type_granules">GRANULATI</string>
     <string name="type_dragee">CONFETTO</string>
     <string name="type_extract">ESTRATTO</string>

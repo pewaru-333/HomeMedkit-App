@@ -8,6 +8,7 @@ An application that allows you to easily and quickly register and store informat
 * The ability to add medications manually.
 * Update information about the medication if it was scanned without an internet connection.
 * Edit information about medications added manually.
+* Adding medication images.
 * Sorting of medications by expiration date.
 * Grouping of medications by categories.
 * Notifications for when to take medications.

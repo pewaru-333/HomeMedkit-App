@@ -9,6 +9,7 @@ import ru.application.homemedkit.helpers.BLANK
 data class TakenState(
     val takenId: Long = 0L,
     val medicineId: Long = 0L,
+    val alarmId: Long = 0L,
     val productName: String = BLANK,
     val amount: Double = 0.0,
     val trigger: Long = 0L,

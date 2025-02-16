@@ -1,9 +1,0 @@
-============ This update is a beta version! Upgrade with caution! ============
-=== This update is not compatible with versions up to and including 1.4.5! ===
-
-
-— Now you can adjust your medication schedule more flexibly.
-— You can set a different dose of medicine for each intake.
-— Permissions are required to make an intake appear for the first time. This screen is then available in the settings.
-— Added an item in the settings that allows you to fix notifications.
-— Fixed several minor bugs.

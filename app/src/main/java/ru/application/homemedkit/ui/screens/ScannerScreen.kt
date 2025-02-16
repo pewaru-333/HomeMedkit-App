@@ -3,13 +3,7 @@ package ru.application.homemedkit.ui.screens
 import android.Manifest
 import androidx.activity.compose.BackHandler
 import androidx.annotation.OptIn
-import androidx.camera.core.TorchState
-import androidx.camera.core.resolutionselector.AspectRatioStrategy
-import androidx.camera.core.resolutionselector.ResolutionSelector
-import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.view.CameraController
-import androidx.camera.view.LifecycleCameraController
-import androidx.camera.view.PreviewView
 import androidx.camera.view.TransformExperimental
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -37,8 +31,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -58,14 +52,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.withContext
 import ru.application.homemedkit.R.drawable.vector_barcode
 import ru.application.homemedkit.R.drawable.vector_camera
 import ru.application.homemedkit.R.drawable.vector_check
@@ -85,16 +81,11 @@ import ru.application.homemedkit.R.string.text_request_camera
 import ru.application.homemedkit.R.string.text_try_again
 import ru.application.homemedkit.R.string.text_yes
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.DataMatrixAnalyzer
 import ru.application.homemedkit.helpers.permissions.PermissionState
 import ru.application.homemedkit.helpers.permissions.rememberPermissionState
-import ru.application.homemedkit.models.events.Response.Default
-import ru.application.homemedkit.models.events.Response.Duplicate
-import ru.application.homemedkit.models.events.Response.Error
-import ru.application.homemedkit.models.events.Response.IncorrectCode
-import ru.application.homemedkit.models.events.Response.Loading
-import ru.application.homemedkit.models.events.Response.NoNetwork
-import ru.application.homemedkit.models.events.Response.Success
+import ru.application.homemedkit.models.events.Response
+import ru.application.homemedkit.models.states.rememberCameraState
+import ru.application.homemedkit.models.states.rememberImageAnalyzer
 import ru.application.homemedkit.models.viewModels.ScannerViewModel
 
 @OptIn(TransformExperimental::class)
@@ -104,36 +95,16 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val model = viewModel<ScannerViewModel>()
-    val response by model.response.collectAsStateWithLifecycle()
+    val state by model.state.collectAsStateWithLifecycle()
 
     val cameraPermission = rememberPermissionState(Manifest.permission.CAMERA)
 
-    val controller = remember {
-        LifecycleCameraController(context).apply {
-            setEnabledUseCases(CameraController.IMAGE_ANALYSIS)
-            imageAnalysisResolutionSelector = ResolutionSelector.Builder()
-                .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
-                .setResolutionStrategy(
-                    ResolutionStrategy(
-                        android.util.Size(1920, 1080),
-                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
-                    )
-                )
-                .build()
-        }
-    }
+    val analyzer = rememberImageAnalyzer { model.fetch(context.filesDir, it) }
+    val controller = rememberCameraState(CameraController.IMAGE_ANALYSIS, analyzer)
 
     BackHandler(onBack = navigateUp)
     if (cameraPermission.isGranted) Box {
-        AndroidView(
-            modifier = Modifier.fillMaxSize(),
-            factory = {
-                PreviewView(it).apply {
-                    this.controller = controller
-                    controller.bindToLifecycle(lifecycleOwner)
-                }
-            }
-        )
+        CameraPreview(controller, Modifier.fillMaxSize())
         Canvas(Modifier.fillMaxSize()) {
             val length = if (size.width > size.height) size.height * 0.5f else size.width * 0.7f
 
@@ -152,41 +123,32 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
             drawPath(frame, Color.White, style = Stroke(5f))
         }
         Row(Modifier.fillMaxWidth(), Arrangement.End, Alignment.CenterVertically) {
-            IconButton(
-                onClick = {
-                    controller.cameraControl?.enableTorch(controller.cameraInfo?.torchState?.value != TorchState.ON)
-                }
-            ) { Icon(painterResource(vector_flash), null, Modifier, Color.White) }
+            IconButton(controller::toggleTorch) {
+                Icon(painterResource(vector_flash), null, Modifier, Color.White)
+            }
         }
     }
     else if (cameraPermission.showRationale) PermissionDialog(cameraPermission, navigateUp)
     else FirstTimeScreen(navigateUp, cameraPermission::launchRequest)
 
-    when (val data = response) {
-        Default -> controller.setImageAnalysisAnalyzer(
-            Dispatchers.Main.immediate.asExecutor(),
-            DataMatrixAnalyzer { model.fetch(context.filesDir, it) }
-        )
-
-        Loading -> {
-            controller.clearImageAnalysisAnalyzer()
-            LoadingDialog()
+    LaunchedEffect(model.response, lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            withContext(Dispatchers.Main.immediate) {
+                model.response.collectLatest { response ->
+                    when (response) {
+                        is Response.Success -> navigateToMedicine(response.id, BLANK, response.duplicate)
+                    }
+                }
+            }
         }
-        is Duplicate -> navigateToMedicine(data.id, BLANK, true)
-        is Success -> navigateToMedicine(data.id, BLANK, false)
-        is NoNetwork -> {
-            controller.clearImageAnalysisAnalyzer()
-            AddMedicineDialog(model::setDefault) { navigateToMedicine(0L, data.cis, false) }
-        }
+    }
 
-        IncorrectCode -> {
-            controller.clearImageAnalysisAnalyzer()
-            Snackbar(text_error_not_medicine)
-        }
-
-        Error -> {
-            controller.clearImageAnalysisAnalyzer()
-            Snackbar(text_try_again)
+    when {
+        state.loading -> LoadingDialog()
+        state.error -> Snackbar(text_try_again)
+        state.incorrectCode -> Snackbar(text_error_not_medicine)
+        state.noNetwork -> AddMedicineDialog(model::setInitial) {
+            state.code?.let { navigateToMedicine(0L, it, false) }
         }
     }
 }

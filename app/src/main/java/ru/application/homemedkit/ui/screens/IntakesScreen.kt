@@ -57,6 +57,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
@@ -84,7 +85,6 @@ import ru.application.homemedkit.R.string.text_medicine_amount_not_enough
 import ru.application.homemedkit.R.string.text_medicine_deleted
 import ru.application.homemedkit.R.string.text_medicine_product_name
 import ru.application.homemedkit.R.string.text_no_intakes_found
-import ru.application.homemedkit.R.string.text_notification_pick_action_first
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_status
 import ru.application.homemedkit.data.dto.Intake
@@ -281,6 +281,8 @@ private fun DialogGoToDate(show: () -> Unit, scroll: (Long) -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DialogTaken(model: IntakesViewModel) {
+    val context = LocalContext.current
+
     val intake by model.takenState.collectAsStateWithLifecycle()
     val medicine = database.medicineDAO().getById(intake.medicineId)
     val items = listOf(stringResource(intake_text_not_taken), stringResource(intake_text_taken))
@@ -292,10 +294,9 @@ private fun DialogTaken(model: IntakesViewModel) {
         onDismissRequest = model::hideDialog,
         confirmButton = {
             TextButton(
-                onClick = { model.saveTaken(intake.takenId, intake.selection == 1) },
+                onClick = { model.saveTaken(context, intake.selection == 1, intake.taken) },
                 enabled = when {
                     medicine == null -> false
-                    !intake.notified -> false
                     medicine.prodAmount < intake.amount && !intake.taken -> false
                     else -> true
                 }
@@ -354,14 +355,6 @@ private fun DialogTaken(model: IntakesViewModel) {
                         modifier = Modifier.width(MinWidth),
                         readOnly = true,
                         label = { Text(stringResource(text_status)) }
-                    )
-
-                    !intake.notified -> OutlinedTextField(
-                        value = stringResource(text_notification_pick_action_first),
-                        onValueChange = {},
-                        modifier = Modifier.width(MinWidth),
-                        readOnly = true,
-                        label = { Text(items[0]) }
                     )
 
                     medicine.prodAmount < intake.amount && !intake.taken -> OutlinedTextField(

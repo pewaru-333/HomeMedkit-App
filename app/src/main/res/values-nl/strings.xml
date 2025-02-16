@@ -13,7 +13,6 @@
     <string name="placeholder_time">Tijd</string>
     <string name="text_medicine_comment">Commentaar</string>
     <string name="text_medicine_status_scanned">Scanned, ongeoorloofd</string>
-    <string name="lang_system">Systeem</string>
     <string name="type_solution">SOLITIE</string>
     <string name="bottom_bar_intakes">Inname</string>
     <string name="preference_dynamic_color">Dynamische kleur</string>
@@ -26,7 +25,6 @@
     <string name="text_medicine_amount_not_enough">Niet genoeg hoeveelheid over</string>
     <string name="text_medicine_group">Groep</string>
     <string name="text_medicine_product_name">Product naam</string>
-    <string name="preference_med_compact_view">Compacte weergave van lijsten</string>
     <string name="preference_system">Systeem</string>
     <string name="type_granules">GRANULE</string>
     <string name="preference_app_theme">App-thema</string>

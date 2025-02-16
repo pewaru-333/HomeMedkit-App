@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.MedicineKit
@@ -33,7 +34,7 @@ interface KitDAO {
     fun deleteAll(medicineId: Long)
 
     // ============================== Insert ==============================
-    @Insert
+    @Upsert
     fun add(kit: Kit): Long
 
     @Insert

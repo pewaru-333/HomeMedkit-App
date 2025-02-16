@@ -11,7 +11,6 @@
     <string name="preference_app_view">Uygulama görünümü</string>
     <string name="preference_kits_group">İlaç grupları</string>
     <string name="preference_sorting_type">İlaç sıralama</string>
-    <string name="preference_med_compact_view">Kompakt liste görünümü</string>
     <string name="preference_confirm_exit">Uygulamadan çıkışı onayla</string>
     <string name="preference_download_images">İlaç görsellerini indir</string>
     <string name="preference_check_expiration_date">İlaçların son kullanma tarihini kontrol et</string>
@@ -124,7 +123,6 @@
     <string name="intake_text_interval">Aralık</string>
     <string name="intake_text_not_taken">Alınmadı</string>
     <string name="intake_text_period">Dönem</string>
-    <string name="intake_text_quantity" translatable="false">%1$s: %2$s %3$s</string>
     <string name="intake_text_schema_type">Şema türü</string>
     <string name="intake_text_taken">Alındı</string>
     <string name="intake_text_time">Zaman</string>
@@ -167,7 +165,6 @@
     <string name="text_medicine_deleted">İlaç silindi, alım durumunu değiştirmek imkansız</string>
     <string name="text_new_group">Yeni grup</string>
     <string name="text_not_saved_intake">Alım kaydedilmedi! Geri dönmek ister misiniz?</string>
-    <string name="text_notification_pick_action_first">Bu alımı değiştirmek için önce bildirimde bir işlem seçin</string>
     <string name="text_pay_attention">Dikkat edin!</string>
     <string name="text_request_camera">Etiketleri taramak için kamera izni gereklidir</string>
     <string name="text_select_time">Zaman seçin</string>
@@ -191,7 +188,6 @@
     <string name="text_permission_grant_full">İzni ver</string>
 
     <!-- Dizeler -->
-    <string name="blank" translatable="false" />
     <string name="text_add">Ekle</string>
     <string name="text_amount">Miktar</string>
     <string name="text_cancel">İptal</string>
@@ -237,11 +233,7 @@
     
     <!-- Çoğul ifadeler -->
     <plurals name="intake_times_a_day">
-        <item quantity="zero">Günde %d kez</item>
         <item quantity="one">Günde %d kez</item>
-        <item quantity="two">Günde %d kez</item>
-        <item quantity="few">Günde %d kez</item>
-        <item quantity="many">Günde %d kez</item>
         <item quantity="other">Günde %d kez</item>
     </plurals>
 </resources>

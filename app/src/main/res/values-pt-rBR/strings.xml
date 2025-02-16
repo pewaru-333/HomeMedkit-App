@@ -12,11 +12,9 @@
         <item quantity="many">%d de vezes por dia</item>
         <item quantity="other">%d vezes por dia</item>
     </plurals>
-    <string name="preference_med_compact_view">Visualização de lista compacta</string>
     <string name="preference_system">Sistema</string>
     <string name="preference_permissions">Permissões</string>
     <string name="text_confirm">Confirmar</string>
-    <string name="lang_system">Sistema</string>
     <string name="preference_dynamic_color">Cor dinâmica</string>
     <string name="preference_import_export">Importar/Exportar</string>
     <string name="theme_light">Claro</string>
@@ -74,7 +72,6 @@
     <string name="text_select_time">Selecionar tempo</string>
     <string name="text_amount">Quantidade</string>
     <string name="text_add">Adicionar</string>
-    <string name="text_notification_pick_action_first">Para modificar esta ingestão, escolha uma ação na notificação primeiro</string>
     <string name="text_try_again">Tente fazer scan da etiqueta novamente!</string>
     <string name="text_cancel">Cancelar</string>
     <string name="text_enter_product_name">Pesquisar</string>

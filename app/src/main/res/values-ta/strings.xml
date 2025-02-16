@@ -26,7 +26,6 @@
     <string name="text_clear">தெளிவான</string>
     <string name="type_solution">நீர்மக்கூழ்</string>
     <string name="bottom_bar_intakes">உட்கொள்ளல்</string>
-    <string name="lang_system">மண்டலம்</string>
     <string name="text_off">அணைக்கப்பட்டது</string>
     <string name="intakes_tab_list">பட்டியல்</string>
     <string name="dose_ed">எட்</string>
@@ -86,7 +85,6 @@
     <string name="text_success">வெற்றிகரமாக!</string>
     <string name="intake_text_food">உணவு &amp; மெட்</string>
     <string name="text_stay">தங்க</string>
-    <string name="preference_med_compact_view">பட்டியல்களின் சிறிய பார்வை</string>
     <string name="intake_text_extra">கூடுதல்</string>
     <string name="preference_system">மண்டலம்</string>
     <string name="type_granules">துகள்கள்</string>
@@ -125,7 +123,6 @@
     <string name="type_capsules">காப்ச்யூல்கள்</string>
     <string name="intake_text_period">காலசுழற்சி</string>
     <string name="intake_extra_desc_prealarm">30 நிமிட உட்கொள்ளும் நேரத்திற்கு முன் நிலை பட்டியில் அறிவிப்பு</string>
-    <string name="text_notification_pick_action_first">முதலில் அறிவிப்பில் தேர்வு செயலை மாற்றுவதற்காக</string>
     <string name="type_syrup">சிரப்</string>
     <string name="preference_language">பயன்பாட்டு மொழி</string>
     <string name="preference_download_images">மருந்து படங்களை பதிவிறக்கவும்</string>

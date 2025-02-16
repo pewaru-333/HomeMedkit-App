@@ -7,10 +7,10 @@
     <string name="bottom_bar_settings">设置</string>
 
     <!-- Preferences -->
+    <string name="preference_basic_settings">Basic settings</string>
     <string name="preference_app_view">视图</string>
     <string name="preference_kits_group">药物分组</string>
     <string name="preference_sorting_type">药物分类</string>
-    <string name="preference_med_compact_view">列表紧凑视图</string>
     <string name="preference_confirm_exit">退出前确认</string>
     <string name="preference_download_images">下载药物图片</string>
     <string name="preference_check_expiration_date">检查药物使用期限</string>
@@ -21,9 +21,7 @@
     <string name="preference_dynamic_color">莫奈配色</string>
     <string name="preference_import_export">导入导出</string>
     <string name="preference_fixing_notifications">通知功能用不了了？</string>
-
-    <!-- Languages -->
-    <string name="lang_system">系统</string>
+    <string name="preference_clear_app_cache">Clear app cache</string>
 
     <!-- Sorting -->
     <string name="sorting_a_z">按首字母顺序 (A到Z)</string>
@@ -155,6 +153,8 @@
 
     <!-- Dialogs -->
     <string name="manual_add">要手动添加药物吗</string>
+    <string name="text_choose_from_gallery">Choose from gallery</string>
+    <string name="text_clear_app_cache_description">This action will delete the application cache, as well as no longer used medication photos</string>
     <string name="text_confirm_deletion_int">要删除这项服药吗</string>
     <string name="text_confirm_deletion_med">要删除这个药物吗</string>
     <string name="text_connection_error">连接失败</string>
@@ -167,10 +167,12 @@
     <string name="text_medicine_deleted">对应的药品已被删除. 因此无法修改用药情况</string>
     <string name="text_new_group">新组别</string>
     <string name="text_not_saved_intake">用药信息未保存，确认退出？</string>
-    <string name="text_notification_pick_action_first">要更改这一项用药，请先选择一项通知功能</string>
     <string name="text_pay_attention">注意！</string>
+    <string name="text_pick_icon">Pick default icon</string>
     <string name="text_request_camera">扫描标签码需要使用相机权限</string>
     <string name="text_select_time">选择时间</string>
+    <string name="text_set_image">Set image</string>
+    <string name="text_take_picture">Take picture with camera</string>
     <string name="text_try_again">尝试再次扫描</string>
 
     <!-- Permissions -->
@@ -191,7 +193,6 @@
     <string name="text_permission_grant_full">授予权限</string>
 
     <!-- Strings -->
-    <string name="blank" translatable="false" />
     <string name="text_add">添加</string>
     <string name="text_amount">数量</string>
     <string name="text_cancel">取消</string>
@@ -237,11 +238,6 @@
 
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
-        <item quantity="zero">一天 %d 次</item>
-        <item quantity="one">一天 %d 次</item>
-        <item quantity="two">一天 %d 次</item>
-        <item quantity="few">一天 %d 次</item>
-        <item quantity="many">一天 %d 次y</item>
         <item quantity="other">一天 %d 次</item>
     </plurals>
 </resources>

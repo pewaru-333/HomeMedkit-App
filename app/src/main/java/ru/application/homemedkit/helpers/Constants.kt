@@ -61,19 +61,6 @@ import ru.application.homemedkit.R.string.intake_period_pick
 import ru.application.homemedkit.R.string.intake_text_food_after
 import ru.application.homemedkit.R.string.intake_text_food_before
 import ru.application.homemedkit.R.string.intake_text_food_during
-import ru.application.homemedkit.R.string.lang_de
-import ru.application.homemedkit.R.string.lang_en
-import ru.application.homemedkit.R.string.lang_es
-import ru.application.homemedkit.R.string.lang_it
-import ru.application.homemedkit.R.string.lang_nl
-import ru.application.homemedkit.R.string.lang_pt_BR
-import ru.application.homemedkit.R.string.lang_ru
-import ru.application.homemedkit.R.string.lang_system
-import ru.application.homemedkit.R.string.lang_ta
-import ru.application.homemedkit.R.string.lang_tr
-import ru.application.homemedkit.R.string.lang_vi
-import ru.application.homemedkit.R.string.lang_zh_CN
-import ru.application.homemedkit.R.string.lang_zh_TW
 import ru.application.homemedkit.R.string.sorting_a_z
 import ru.application.homemedkit.R.string.sorting_from_newest
 import ru.application.homemedkit.R.string.sorting_from_oldest
@@ -126,7 +113,9 @@ const val ID = "id"
 const val KEY_APP_SYSTEM = "app_system"
 const val KEY_APP_THEME = "app_theme"
 const val KEY_APP_VIEW = "app_view"
+const val KEY_BASIC_SETTINGS = "app_basic_settings"
 const val KEY_CHECK_EXP_DATE = "check_exp_date"
+const val KEY_CLEAR_CACHE = "clear_app_cache"
 const val KEY_CONFIRM_EXIT = "confirm_exit"
 const val KEY_DOWNLOAD = "download_images"
 const val KEY_DYNAMIC_COLOR = "dynamic_color"
@@ -141,11 +130,14 @@ const val TAKEN_ID = "takenId"
 const val TYPE = "vector_type"
 
 // ========================================== Collections ==========================================
-val LANGUAGES = Languages.entries.map(Languages::value)
 val SORTING = Sorting.entries.map(Sorting::value)
 val THEMES = Themes.entries.map(Themes::value)
 
 // ============================================= Enums =============================================
+enum class AlarmType {
+    ALL, ALARM, PREALARM
+}
+
 enum class DoseTypes(val value: String, @StringRes val title: Int) {
     UNITS("ed", dose_ed),
     PIECES("pcs", dose_pcs),
@@ -191,22 +183,6 @@ enum class Intervals(val days: Int, @StringRes val title: Int) {
             blank
         }
     }
-}
-
-enum class Languages(val value: String, @StringRes val title: Int) {
-    SYSTEM("System", lang_system),
-    RUSSIAN("ru", lang_ru),
-    ENGLISH("en-US", lang_en),
-    GERMAN("de", lang_de),
-    ITALIAN("it", lang_it),
-    SPANISH("es", lang_es),
-    PORTUGAL_BR("pt-BR", lang_pt_BR),
-    DUTCH("nl", lang_nl),
-    TURKISH("tr", lang_tr),
-    VIETNAMESE("vi", lang_vi),
-    CHINESE_CN("zh-CN", lang_zh_CN),
-    CHINESE_TW("zh-TW", lang_zh_TW),
-    TAMIL("ta", lang_ta)
 }
 
 enum class Menu(val route: Any, @StringRes val title: Int, @DrawableRes val icon: Int) {

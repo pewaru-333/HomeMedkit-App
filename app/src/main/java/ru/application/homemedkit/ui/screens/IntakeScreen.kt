@@ -266,13 +266,13 @@ private fun MedicineInfo(medicine: Medicine) =
             .height(144.dp)
     ) {
         MedicineImage(
-           image = medicine.image,
+            image = medicine.image,
             modifier = Modifier
                 .fillMaxHeight()
                 .width(128.dp)
                 .border(1.dp, MaterialTheme.colorScheme.onSurface, MaterialTheme.shapes.medium)
                 .padding(8.dp)
-            )
+        )
         Column(Modifier.verticalScroll(rememberScrollState()), Arrangement.SpaceAround) {
             Column {
                 Text(
@@ -649,7 +649,7 @@ private fun Food(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCar
     )
     ListItem(
         headlineContent = {
-            Row(Modifier.fillMaxWidth(), Arrangement.SpaceAround, Alignment.CenterVertically) {
+            Row(Modifier.fillMaxWidth(), Arrangement.SpaceAround, CenterVertically) {
                 FoodTypes.entries.forEach { type ->
                     FilterChip(
                         modifier = Modifier.width(100.dp),

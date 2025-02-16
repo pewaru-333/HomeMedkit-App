@@ -27,12 +27,6 @@ import ru.application.homemedkit.helpers.toMedicine
 import ru.application.homemedkit.helpers.toState
 import ru.application.homemedkit.helpers.toTimestamp
 import ru.application.homemedkit.models.events.MedicineEvent
-import ru.application.homemedkit.models.events.Response
-import ru.application.homemedkit.models.events.Response.Default
-import ru.application.homemedkit.models.events.Response.Error
-import ru.application.homemedkit.models.events.Response.IncorrectCode
-import ru.application.homemedkit.models.events.Response.Loading
-import ru.application.homemedkit.models.events.Response.NoNetwork
 import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.validation.Validation
 import ru.application.homemedkit.network.Network
@@ -51,9 +45,6 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), false)
-
-    private val _response = MutableStateFlow<Response>(Default)
-    val response = _response.asStateFlow()
 
     private val _state = MutableStateFlow(MedicineState())
     val state = _state.asStateFlow()
@@ -74,7 +65,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun fetch(dir: File) = viewModelScope.launch(Dispatchers.IO) {
-        _response.emit(Loading)
+        _state.update { it.copy(loading = true) }
 
         try {
             Network.getMedicine(_state.value.cis).apply {
@@ -90,7 +81,6 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
                         dao.update(medicine)
                         _state.value = medicine.toState()
-                        _response.emit(Default)
                     } else if (bioData != null) {
                         val medicine = bioData.toBio().copy(
                             id = _state.value.id,
@@ -100,23 +90,37 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
                         dao.update(medicine)
                         _state.value = medicine.toState()
-                        _response.emit(Default)
-                    } else _response.apply {
-                        emit(IncorrectCode)
+                    } else _state.apply {
+                        update {
+                            it.copy(
+                                loading = false,
+                                codeError = true
+                            )
+                        }
                         delay(2500L)
-                        emit(Default)
+                        update { it.copy(codeError = false) }
                     }
-                } else _response.apply {
-                    emit(Error)
+                } else _state.apply {
+                    update {
+                        it.copy(
+                            loading = false,
+                            codeError = true
+                        )
+                    }
                     delay(2500L)
-                    emit(Default)
+                    update { it.copy(codeError = false) }
                 }
             }
         } catch (e: Throwable) {
-            _response.apply {
-                emit(NoNetwork(_state.value.cis))
+            _state.apply {
+                update {
+                    it.copy(
+                        loading = false,
+                        noNetwork = true
+                    )
+                }
                 delay(2500L)
-                emit(Default)
+                update { it.copy(noNetwork = false) }
             }
         }
     }
@@ -166,12 +170,41 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                 )
             }
             MedicineEvent.ClearKit -> _state.update { it.copy(kits = it.kits.apply(SnapshotStateList<Long>::clear)) }
+
             is MedicineEvent.SetIcon -> _state.update { it.copy(image = event.icon, showDialogIcons = false) }
+
+            is MedicineEvent.SetImage -> _state.update {
+                it.copy(
+                    image = event.image,
+                    showDialogPictureChoose = false,
+                    showTakePhoto = false,
+                    showDialogIcons = false
+                )
+            }
+
             MedicineEvent.ShowKitDialog -> _state.update { it.copy(showDialogKits = !it.showDialogKits) }
+
             MedicineEvent.ShowDatePicker -> _state.update { it.copy(showDialogDate = !it.showDialogDate) }
-            MedicineEvent.ShowIconPicker -> _state.update { it.copy(showDialogIcons = !it.showDialogIcons) }
+
+            MedicineEvent.ShowIconPicker -> _state.update {
+                it.copy(
+                    showDialogPictureChoose = false,
+                    showDialogIcons = !it.showDialogIcons
+                )
+            }
+
+            MedicineEvent.ShowDialogPictureChoose -> _state.update { it.copy(showDialogPictureChoose = !it.showDialogPictureChoose) }
+
             MedicineEvent.ShowDialogDelete -> _state.update { it.copy(showDialogDelete = !it.showDialogDelete) }
+
             MedicineEvent.ShowDoseMenu -> _state.update { it.copy(showMenuDose = !it.showMenuDose) }
+
+            MedicineEvent.ShowTakePhoto -> _state.update {
+                it.copy(
+                    showTakePhoto = !it.showTakePhoto,
+                    showDialogPictureChoose = false
+                )
+            }
         }
     }
 

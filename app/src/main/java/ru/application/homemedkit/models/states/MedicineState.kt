@@ -6,14 +6,15 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.Types
-import ru.application.homemedkit.models.events.Response
 import kotlin.random.Random
 
 data class MedicineState(
     val adding: Boolean = true,
     val editing: Boolean = false,
     val default: Boolean = false,
-    val fetch: Response = Response.Default,
+    val loading: Boolean = false,
+    val noNetwork: Boolean = false,
+    val codeError: Boolean = false,
     val id: Long = 0L,
     val kits: SnapshotStateList<Long> = mutableStateListOf(),
     val cis: String = BLANK,
@@ -36,6 +37,8 @@ data class MedicineState(
     val showDialogKits: Boolean = false,
     val showDialogDate: Boolean = false,
     val showDialogIcons: Boolean = false,
+    val showDialogPictureChoose: Boolean = false,
     val showDialogDelete: Boolean = false,
-    val showMenuDose: Boolean = false
+    val showMenuDose: Boolean = false,
+    val showTakePhoto: Boolean = false
 )

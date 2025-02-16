@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.IntakeTime
 import ru.application.homemedkit.data.model.IntakeAmountTime
+import ru.application.homemedkit.helpers.AlarmType
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.FORMAT_H
@@ -163,6 +164,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                             setter.setAlarm(
                                 intakeId = id,
                                 amount = pickedTime.amount.toDouble(),
+                                preAlarm = _state.value.preAlarm,
                                 trigger = first.let {
                                     var unix = it
 
@@ -173,22 +175,6 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                                     unix.toInstant(ZONE).toEpochMilli()
                                 }
                             )
-
-                            if (_state.value.preAlarm)
-                                setter.setAlarm(
-                                    intakeId = id,
-                                    amount = pickedTime.amount.toDouble(),
-                                    preAlarm = true,
-                                    trigger = first.minusMinutes(30).let {
-                                        var unix = it
-
-                                        while (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) {
-                                            unix = unix.plusDays(1)
-                                        }
-
-                                        unix.toInstant(ZONE).toEpochMilli()
-                                    }
-                                )
                         }
                         SchemaTypes.BY_DAYS -> {
                             var dayOfWeek = first
@@ -210,15 +196,9 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                                     setter.setAlarm(
                                         intakeId = id,
                                         amount = pickedTime.amount.toDouble(),
+                                        preAlarm = _state.value.preAlarm,
                                         trigger = time.toInstant(ZONE).toEpochMilli()
                                     )
-
-                                    if (_state.value.preAlarm)
-                                        setter.setAlarm(
-                                            intakeId = id,
-                                            amount = pickedTime.amount.toDouble(),
-                                            trigger = time.minusMinutes(30).toInstant(ZONE).toEpochMilli()
-                                        )
                                 }
 
                                 dayOfWeek = dayOfWeek.plusDays(1)
@@ -252,7 +232,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             )
 
             viewModelScope.launch(Dispatchers.IO) {
-                dao.getAlarms(_state.value.intakeId).forEach { setter.removeAlarm(it.alarmId) }
+                dao.getAlarms(_state.value.intakeId).forEach { setter.removeAlarm(it.alarmId, AlarmType.ALL) }
 
                 if (finalDate >= LocalDateTime.now()) {
                     dao.deleteIntakeTime(_state.value.intakeId)
@@ -277,6 +257,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                                 setter.setAlarm(
                                     intakeId = _state.value.intakeId,
                                     amount = pickedTime.amount.toDouble(),
+                                    preAlarm = _state.value.preAlarm,
                                     trigger = first.let {
                                         var unix = it
 
@@ -287,22 +268,6 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                                         unix.toInstant(ZONE).toEpochMilli()
                                     }
                                 )
-
-                                if (_state.value.preAlarm)
-                                    setter.setAlarm(
-                                        intakeId = _state.value.intakeId,
-                                        amount = pickedTime.amount.toDouble(),
-                                        preAlarm = true,
-                                        trigger = first.minusMinutes(30).let {
-                                            var unix = it
-
-                                            while (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) {
-                                                unix = unix.plusDays(1)
-                                            }
-
-                                            unix.toInstant(ZONE).toEpochMilli()
-                                        }
-                                    )
                             }
                             SchemaTypes.BY_DAYS -> {
                                 var dayOfWeek = first
@@ -324,15 +289,9 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                                         setter.setAlarm(
                                             intakeId = _state.value.intakeId,
                                             amount = pickedTime.amount.toDouble(),
+                                            preAlarm = _state.value.preAlarm,
                                             trigger = time.toInstant(ZONE).toEpochMilli()
                                         )
-
-                                        if (_state.value.preAlarm)
-                                            setter.setAlarm(
-                                                intakeId = _state.value.intakeId,
-                                                amount = pickedTime.amount.toDouble(),
-                                                trigger = time.minusMinutes(30).toInstant(ZONE).toEpochMilli()
-                                            )
                                     }
 
                                     dayOfWeek = dayOfWeek.plusDays(1)
@@ -361,7 +320,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun delete() {
-        dao.getAlarms(intakeId = _state.value.intakeId).forEach { setter.removeAlarm(it.alarmId) }
+        dao.getAlarms(intakeId = _state.value.intakeId).forEach { setter.removeAlarm(it.alarmId, AlarmType.ALL) }
 
         viewModelScope.launch(Dispatchers.IO) { dao.delete(_state.value.toIntake()) }
     }

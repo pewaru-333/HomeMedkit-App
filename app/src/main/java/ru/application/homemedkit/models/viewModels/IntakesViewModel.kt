@@ -2,11 +2,13 @@
 
 package ru.application.homemedkit.models.viewModels
 
+import android.content.Context
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.util.fastFilter
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -116,6 +118,7 @@ class IntakesViewModel : ViewModel() {
             it.copy(
                 takenId = taken.takenId,
                 medicineId = taken.medicineId,
+                alarmId = taken.alarmId,
                 productName = taken.productName,
                 amount = taken.amount,
                 trigger = taken.trigger,
@@ -164,8 +167,10 @@ class IntakesViewModel : ViewModel() {
 
     fun setFactTime() {
         val picker = _takenState.value.pickerState
-        val trigger = LocalDateTime.of(LocalDate.now(), LocalTime.of(picker.hour, picker.minute))
-            .toInstant(ZONE).toEpochMilli()
+        val trigger = LocalDateTime.of(
+            LocalDate.now(),
+            LocalTime.of(picker.hour, picker.minute)
+        ).toInstant(ZONE).toEpochMilli()
 
         _takenState.update { it.copy(inFact = trigger, showPicker = false) }
     }
@@ -174,11 +179,16 @@ class IntakesViewModel : ViewModel() {
         it.copy(selection = index, inFact = if (index == 0) 0L else System.currentTimeMillis())
     }
 
-    fun saveTaken(id: Long, taken: Boolean) {
-        takenDAO.setTaken(id, taken, if (taken) _takenState.value.inFact else 0L)
+    fun saveTaken(context: Context, takenNow: Boolean, takenOld: Boolean) {
+        NotificationManagerCompat.from(context).cancel(_takenState.value.takenId.toInt())
+        NotificationManagerCompat.from(context).cancel(_takenState.value.alarmId.toInt())
+
+        takenDAO.setTaken(_takenState.value.takenId, takenNow, if (takenNow) _takenState.value.inFact else 0L)
+        takenDAO.setNotified(_takenState.value.takenId)
+
         medicineDAO.getById(_takenState.value.medicineId)?.let {
-            if (taken) medicineDAO.intakeMedicine(it.id, _takenState.value.amount)
-            else medicineDAO.untakeMedicine(it.id, _takenState.value.amount)
+            if (takenNow && !takenOld) medicineDAO.intakeMedicine(it.id, _takenState.value.amount)
+            if (!takenNow && takenOld) medicineDAO.untakeMedicine(it.id, _takenState.value.amount)
         }
 
         _state.update { it.copy(showDialog = false) }

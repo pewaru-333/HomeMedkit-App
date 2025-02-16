@@ -15,8 +15,6 @@
     <string name="preference_app_theme">Chủ đề ứng dụng</string>
     <string name="preference_dynamic_color">Màu động</string>
     <string name="preference_import_export">Nhập/Xuất</string>
-    <!-- Languages -->
-    <string name="lang_system">Hệ thống</string>
     <!-- Sorting -->
     <string name="sorting_a_z">Theo thứ tự bảng chữ cái (A đến Z)</string>
     <string name="sorting_z_a">Theo thứ tự bảng chữ cái (Z đến A)</string>
