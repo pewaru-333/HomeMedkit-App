@@ -145,7 +145,7 @@ class MainActivity : ComponentActivity() {
                                 navigateToIntake = { navigator.navigate(Intake(medicineId = it)) }
                             )
                         }
-                        composable<Intake>{
+                        composable<Intake> {
                             IntakeScreen(navigator::popBackStack)
                         }
                     }

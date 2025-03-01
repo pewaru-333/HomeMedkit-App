@@ -1,7 +1,10 @@
 package ru.application.homemedkit.helpers
 
+import android.Manifest
 import android.app.AlarmManager
+import android.app.Notification
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.XmlResourceParser
 import android.icu.math.BigDecimal
 import android.icu.text.DecimalFormat
@@ -13,6 +16,7 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavBackStackEntry
@@ -137,6 +141,12 @@ fun Context.getLanguageList() = mutableListOf<String>().apply {
 
 fun Locale.getDisplayRegionName(): String = getDisplayName(this).run { replaceFirstChar(Char::uppercase) }
 
+fun NotificationManagerCompat.safeNotify(context: Context, code: Int, notification: Notification) {
+    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+        notify(code, notification)
+    }
+}
+
 fun <T: Any> NavBackStackEntry?.isCurrentRoute(route: KClass<T>) =
     this?.destination?.hierarchy?.any { it.hasRoute(route) } == true
 
@@ -162,6 +172,7 @@ fun Medicine.toState() = MedicineState(
     productName = productName,
     nameAlias = nameAlias,
     expDate = expDate,
+    dateOpened = packageOpenedDate,
     prodFormNormName = prodFormNormName,
     structure = structure,
     prodDNormName = prodDNormName,
@@ -171,7 +182,7 @@ fun Medicine.toState() = MedicineState(
     recommendations = recommendations,
     storageConditions = storageConditions,
     comment = comment,
-    image = image,
+    images = database.medicineDAO().getMedicineImages(id).toMutableStateList(),
     technical = TechnicalState(
         scanned = technical.scanned,
         verified = technical.verified
@@ -184,6 +195,7 @@ fun MedicineState.toMedicine() = Medicine(
     productName = productName,
     nameAlias = nameAlias,
     expDate = expDate,
+    packageOpenedDate = dateOpened,
     prodFormNormName = prodFormNormName,
     structure = structure,
     prodDNormName = prodDNormName,
@@ -193,7 +205,6 @@ fun MedicineState.toMedicine() = Medicine(
     recommendations = recommendations,
     storageConditions = storageConditions,
     comment = comment,
-    image = image,
     technical = Technical(
         scanned = cis.isNotBlank(),
         verified = technical.verified

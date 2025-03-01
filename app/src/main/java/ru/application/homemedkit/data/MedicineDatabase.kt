@@ -2,9 +2,12 @@ package ru.application.homemedkit.data
 
 import android.content.Context
 import androidx.core.database.getIntOrNull
+import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.DeleteColumn
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import ru.application.homemedkit.data.dao.AlarmDAO
@@ -13,6 +16,7 @@ import ru.application.homemedkit.data.dao.KitDAO
 import ru.application.homemedkit.data.dao.MedicineDAO
 import ru.application.homemedkit.data.dao.TakenDAO
 import ru.application.homemedkit.data.dto.Alarm
+import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.data.dto.IntakeTime
@@ -22,7 +26,7 @@ import ru.application.homemedkit.data.dto.MedicineKit
 import ru.application.homemedkit.helpers.DATABASE_NAME
 
 @Database(
-    version = 18,
+    version = 21,
     entities = [
         Medicine::class,
         Intake::class,
@@ -30,7 +34,19 @@ import ru.application.homemedkit.helpers.DATABASE_NAME
         Kit::class,
         IntakeTaken::class,
         MedicineKit::class,
-        IntakeTime::class
+        IntakeTime::class,
+        Image::class
+    ],
+    autoMigrations = [
+        AutoMigration(
+            from = 19,
+            to = 20,
+            spec = MedicineDatabase.Companion.AUTO_MIGRATION_19_20::class
+        ),
+        AutoMigration(
+            from = 20,
+            to = 21
+        )
     ]
 )
 abstract class MedicineDatabase : RoomDatabase() {
@@ -65,7 +81,8 @@ abstract class MedicineDatabase : RoomDatabase() {
                     MIGRATION_14_15,
                     MIGRATION_15_16,
                     MIGRATION_16_17,
-                    MIGRATION_17_18
+                    MIGRATION_17_18,
+                    MIGRATION_18_19
                 )
                 .allowMainThreadQueries()
                 .build()
@@ -268,5 +285,35 @@ abstract class MedicineDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE intakes_r RENAME TO intakes")
             }
         }
+
+        private val MIGRATION_18_19 = object : Migration(18, 19) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS images " +
+                            "(`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`medicineId` INTEGER NOT NULL, " +
+                            "`image` TEXT NOT NULL, " +
+                            "FOREIGN KEY (medicineId) REFERENCES medicines (id) ON UPDATE CASCADE ON DELETE CASCADE)"
+                )
+
+                val cursor = db.query("SELECT id, image FROM medicines")
+                cursor.moveToFirst()
+
+                while (!cursor.isAfterLast) {
+                    val medicineId = cursor.getLong(0)
+                    val image = cursor.getString(1)
+
+                    db.execSQL("INSERT INTO images (medicineId, image) VALUES ($medicineId, '$image')")
+
+                    cursor.moveToNext()
+                }
+            }
+        }
+
+        @DeleteColumn(
+            tableName = "medicines",
+            columnName = "image"
+        )
+        class AUTO_MIGRATION_19_20 : AutoMigrationSpec
     }
 }

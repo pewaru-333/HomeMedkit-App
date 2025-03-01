@@ -47,7 +47,7 @@ class MedicinesViewModel : ViewModel() {
                     expDateS = inCard(it.expDate),
                     expDateL = it.expDate,
                     formName = formName(it.prodFormNormName),
-                    image = it.image,
+                    image = database.medicineDAO().getMedicineImages(it.id).firstOrNull() ?: BLANK,
                     kitTitle = kitDAO.getTitleByMedicine(it.id).joinToString().run {
                         if (length >= 25) substring(0, 26).padEnd(29, '.') else this
                     }

@@ -54,6 +54,7 @@
 
     <!-- Medications -->
     <string name="text_exp_date">Exp. date</string>
+    <string name="text_package_opened_date">Package opened</string>
     <string name="text_indications_for_use">Usage indications</string>
     <string name="text_medicine_comment">Comment</string>
     <string name="text_medicine_composition">Composition</string>

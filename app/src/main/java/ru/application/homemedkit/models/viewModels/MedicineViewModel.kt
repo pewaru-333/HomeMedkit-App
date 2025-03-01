@@ -1,5 +1,9 @@
 package ru.application.homemedkit.models.viewModels
 
+import android.content.Context
+import android.net.Uri
+import android.webkit.MimeTypeMap
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -17,8 +21,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
+import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.MedicineKit
 import ru.application.homemedkit.helpers.BLANK
+import ru.application.homemedkit.helpers.FileManager
+import ru.application.homemedkit.helpers.ImageCompressor
 import ru.application.homemedkit.helpers.Medicine
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.Types
@@ -59,6 +66,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
         if (checkProductName.successful) {
             val id = dao.add(_state.value.toMedicine())
+            _state.value.images.forEach { dao.addImage(Image(medicineId = id, image = it)) }
             _state.value.kits.forEach { daoK.pinKit(MedicineKit(id, it)) }
             _state.update { it.copy(adding = false, default = true, id = id, productNameError = null) }
         } else _state.update { it.copy(productNameError = checkProductName.errorMessage) }
@@ -74,12 +82,17 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                         val medicine = drugsData.toMedicine().copy(
                             id = _state.value.id,
                             cis = _state.value.cis,
-                            comment = _state.value.comment.ifEmpty { BLANK },
+                            comment = _state.value.comment.ifEmpty { BLANK }
+                        )
+
+                        val image = Image(
+                            medicineId = _state.value.id,
                             image = if (Preferences.getImageFetch()) Network.getImage(dir, drugsData.vidalData?.images)
                             else Types.setIcon(drugsData.foiv.prodFormNormName)
                         )
 
                         dao.update(medicine)
+                        dao.updateImages(image)
                         _state.value = medicine.toState()
                     } else if (bioData != null) {
                         val medicine = bioData.toBio().copy(
@@ -129,7 +142,9 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
         val checkProductName = Validation.textNotEmpty(_state.value.productName)
 
         if (checkProductName.successful) {
+            val images = _state.value.images.map { Image(medicineId = _state.value.id, image = it) }.toTypedArray()
             dao.update(_state.value.toMedicine())
+            dao.updateImages(*images)
             daoK.deleteAll(args.id)
             _state.value.kits.forEach { daoK.pinKit(MedicineKit(args.id, it)) }
             _state.update { it.copy(adding = false, editing = false, default = true, productNameError = null) }
@@ -138,7 +153,11 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
     fun delete(dir: File) = viewModelScope.launch(Dispatchers.IO) {
         dao.delete(_state.value.toMedicine())
-    }.invokeOnCompletion { File(dir, _state.value.image).delete() }
+    }.invokeOnCompletion {
+        _state.value.images.forEach {
+            File(dir, it).deleteRecursively()
+        }
+    }
 
     fun onEvent(event: MedicineEvent) {
         when (event) {
@@ -147,6 +166,9 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             is MedicineEvent.SetNameAlias -> _state.update { it.copy(nameAlias = event.alias) }
             is MedicineEvent.SetExpDate -> _state.update {
                 it.copy(expDate = toTimestamp(event.month, event.year), showDialogDate = false)
+            }
+            is MedicineEvent.SetPackageDate -> _state.update {
+                it.copy(dateOpened = event.timestamp, showDialogPackageDate = false)
             }
             is MedicineEvent.SetFormName -> _state.update { it.copy(prodFormNormName = event.formName) }
             is MedicineEvent.SetDoseName -> _state.update { it.copy(prodDNormName = event.doseName) }
@@ -171,11 +193,15 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             }
             MedicineEvent.ClearKit -> _state.update { it.copy(kits = it.kits.apply(SnapshotStateList<Long>::clear)) }
 
-            is MedicineEvent.SetIcon -> _state.update { it.copy(image = event.icon, showDialogIcons = false) }
+            is MedicineEvent.SetIcon -> _state.update {
+                it.copy(
+                    images = mutableStateListOf(event.icon),
+                    showDialogIcons = false)
+            }
 
             is MedicineEvent.SetImage -> _state.update {
                 it.copy(
-                    image = event.image,
+                    images = event.images,
                     showDialogPictureChoose = false,
                     showTakePhoto = false,
                     showDialogIcons = false
@@ -185,6 +211,8 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             MedicineEvent.ShowKitDialog -> _state.update { it.copy(showDialogKits = !it.showDialogKits) }
 
             MedicineEvent.ShowDatePicker -> _state.update { it.copy(showDialogDate = !it.showDialogDate) }
+
+            MedicineEvent.ShowPackageDatePicker -> _state.update { it.copy(showDialogPackageDate = !it.showDialogPackageDate) }
 
             MedicineEvent.ShowIconPicker -> _state.update {
                 it.copy(
@@ -209,4 +237,43 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun setEditing() = _state.update { it.copy(editing = true, default = false) }
+
+    fun compressImage(context: Context, images: List<Uri>) {
+         viewModelScope.launch {
+            _state.update {
+                it.copy(
+                    showDialogPictureChoose = false,
+                    showTakePhoto = false,
+                    showDialogIcons = false,
+                    loading = true,
+                )
+            }
+
+            val fileManager = FileManager(context)
+            val compressor = ImageCompressor(context)
+
+            val names = mutableStateListOf<String>()
+
+            images.forEach { uri ->
+                val mimeType = context.contentResolver.getType(uri)
+                val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+                val name = "${System.currentTimeMillis()}.$extension"
+
+                val compressedImage = compressor.compressImage(uri, 300 * 1024L)
+                fileManager.saveImage(
+                    bytes = compressedImage ?: return@launch,
+                    fileName = name
+                )
+
+                names.add(name)
+            }
+
+            _state.update {
+                it.copy(
+                    images = names,
+                    loading = false
+                )
+            }
+        }
+    }
 }

@@ -62,6 +62,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
         .onStart {
             dao.getById(args.intakeId)?.let { intake ->
                 val medicine = database.medicineDAO().getById(intake.medicineId)!!
+                val images = database.medicineDAO().getMedicineImages(intake.medicineId)
 
                 _state.update { state ->
                     state.copy(
@@ -71,6 +72,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                         intakeId = intake.intakeId,
                         medicineId = intake.medicineId,
                         medicine = medicine,
+                        image = if (images.isNotEmpty()) images.first() else BLANK,
                         schemaType = intake.schemaType,
                         amountStock = medicine.prodAmount.toString(),
                         sameAmount = intake.sameAmount,
@@ -120,12 +122,14 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                 }
             } ?: _state.update { state ->
                 val medicine = database.medicineDAO().getById(args.medicineId)!!
+                val images = database.medicineDAO().getMedicineImages(medicine.id)
 
                 state.copy(
                     medicineId = medicine.id,
                     medicine = medicine,
                     amountStock = medicine.prodAmount.toString(),
-                    doseType = DoseTypes.getTitle(medicine.doseType)
+                    doseType = DoseTypes.getTitle(medicine.doseType),
+                    image = if (images.isNotEmpty()) images.first() else BLANK
                 )
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), IntakeState())
@@ -178,8 +182,12 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                         }
                         SchemaTypes.BY_DAYS -> {
                             var dayOfWeek = first
+                            val last = LocalDateTime.of(
+                                LocalDate.parse(_state.value.finalDate, FORMAT_S),
+                                LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
+                            )
 
-                            while (dayOfWeek < first.plusWeeks(1)) {
+                            while (dayOfWeek < first.plusWeeks(1) && dayOfWeek <= last) {
                                 if (dayOfWeek.dayOfWeek in _state.value.pickedDays) {
                                     val time = if (!LocalDateTime.now().isAfter(dayOfWeek)) dayOfWeek
                                     else dayOfWeek.plusWeeks(1)
@@ -271,8 +279,12 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                             }
                             SchemaTypes.BY_DAYS -> {
                                 var dayOfWeek = first
+                                val last = LocalDateTime.of(
+                                    LocalDate.parse(_state.value.finalDate, FORMAT_S),
+                                    LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
+                                )
 
-                                while (dayOfWeek < first.plusWeeks(1)) {
+                                while (dayOfWeek < first.plusWeeks(1) && dayOfWeek <= last) {
                                     if (dayOfWeek.dayOfWeek in _state.value.pickedDays) {
                                         val time = if (!LocalDateTime.now().isAfter(dayOfWeek)) dayOfWeek
                                         else dayOfWeek.plusWeeks(1)

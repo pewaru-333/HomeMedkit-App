@@ -69,7 +69,7 @@ class Permission(private val context: Context, private val permission: String) :
     internal var launcher: ActivityResultLauncher<String>? = null
 
     private fun hasPermission(): Boolean {
-        val granted = when(permission) {
+        val granted = when (permission) {
             SCHEDULE_EXACT_ALARM -> context.canScheduleExactAlarms()
             USE_FULL_SCREEN_INTENT -> context.canUseFullScreenIntent()
             REQUEST_IGNORE_BATTERY_OPTIMIZATIONS -> context.isIgnoringBatteryOptimizations()

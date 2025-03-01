@@ -1,0 +1,5 @@
+— Added the ability to select multiple images of medicines from the gallery.
+— Added the entry "Package opening date" to the information about the medicine.
+— Added the ability to delete items from the list of past intakes.
+— Fixed an issue where items in the list of past intakes were sometimes duplicated.
+— Fixed a bug that sometimes caused the appointment schedule to go beyond the specified period.

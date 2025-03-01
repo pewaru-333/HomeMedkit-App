@@ -3,10 +3,12 @@ package ru.application.homemedkit.ui.screens
 import android.Manifest
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.camera.view.CameraController
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -31,8 +33,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
@@ -72,6 +77,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -116,6 +122,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
+import ru.application.homemedkit.R
 import ru.application.homemedkit.R.drawable.vector_add_photo
 import ru.application.homemedkit.R.drawable.vector_flash
 import ru.application.homemedkit.R.drawable.vector_type_unknown
@@ -138,7 +145,6 @@ import ru.application.homemedkit.R.string.text_medicine_composition
 import ru.application.homemedkit.R.string.text_medicine_description
 import ru.application.homemedkit.R.string.text_medicine_display_name
 import ru.application.homemedkit.R.string.text_medicine_dose
-import ru.application.homemedkit.R.string.text_medicine_form
 import ru.application.homemedkit.R.string.text_medicine_group
 import ru.application.homemedkit.R.string.text_medicine_product_name
 import ru.application.homemedkit.R.string.text_medicine_recommendations
@@ -154,13 +160,13 @@ import ru.application.homemedkit.R.string.text_take_picture
 import ru.application.homemedkit.R.string.text_try_again
 import ru.application.homemedkit.R.string.text_unspecified
 import ru.application.homemedkit.R.string.text_update
+import ru.application.homemedkit.dialogs.DatePicker
 import ru.application.homemedkit.dialogs.MonthYear
 import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.FORMAT_DMMMMY
 import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.Types
 import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.permissions.rememberPermissionState
 import ru.application.homemedkit.helpers.toExpDate
 import ru.application.homemedkit.models.events.MedicineEvent
@@ -286,7 +292,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
         state.noNetwork -> Snackbar(text_connection_error)
         state.codeError ->  Snackbar(text_try_again)
         state.showDialogKits -> DialogKits(state, model::onEvent)
-        state.showDialogPictureChoose -> DialogPictureChoose(state, model::onEvent)
+        state.showDialogPictureChoose -> DialogPictureChoose(model::onEvent, model::compressImage)
         state.showDialogIcons -> IconPicker(model::onEvent)
         state.showDialogDelete -> DialogDelete(
             text = text_confirm_deletion_med,
@@ -302,6 +308,11 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
             confirm = { month, year ->
                 model.onEvent(MedicineEvent.SetExpDate(month, year))
             }
+        )
+
+        state.showDialogPackageDate -> DatePicker(
+            onDismiss = { model.onEvent(MedicineEvent.ShowPackageDatePicker) },
+            onSelect = { model.onEvent(MedicineEvent.SetPackageDate(it)) }
         )
 
         state.showTakePhoto -> CameraPhotoPreview(model::onEvent)
@@ -320,9 +331,9 @@ private fun ProductBrief(
         .verticalScroll(rememberScrollState())
 ) {
     ProductName(state, focusManager, event)
-    if (state.default || state.technical.verified) ProductForm(state)
     ProductKit(state, event)
     ProductExp(state, event)
+    ProductOpened(state, event)
     if (state.default) ProductStatus(state)
 }
 
@@ -381,14 +392,31 @@ private fun ProductName(
 }
 
 @Composable
-private fun ProductForm(state: MedicineState) = Column {
-    Text(
-        text = stringResource(text_medicine_form),
-        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
-    )
-    Text(
-        text = formName(state.prodFormNormName).ifEmpty { stringResource(text_unspecified) },
-        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+private fun ProductOpened(state: MedicineState, event: (MedicineEvent) -> Unit) = Column {
+    if (state.default) {
+        Text(
+            text = stringResource(R.string.text_package_opened_date),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
+        )
+        Text(
+            text = toExpDate(state.dateOpened).ifEmpty { stringResource(text_unspecified) },
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+        )
+    } else OutlinedTextField(
+        value = toExpDate(state.dateOpened),
+        onValueChange = {},
+        readOnly = true,
+        label = { Text(stringResource(R.string.text_package_opened_date)) },
+        placeholder = { Text(LocalDate.now().minusDays(33).format(FORMAT_DMMMMY)) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    awaitFirstDown(pass = PointerEventPass.Initial)
+                    val up = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                    up?.let { event(MedicineEvent.ShowPackageDatePicker) }
+                }
+            }
     )
 }
 
@@ -480,16 +508,47 @@ private fun ProductStatus(state: MedicineState) = Column {
 }
 
 @Composable
-private fun ProductImage(state: MedicineState, event: (MedicineEvent) -> Unit) = MedicineImage(
-    image = state.image,
-    editable = !state.default,
-    modifier = Modifier
-        .width(128.dp)
-        .fillMaxHeight()
-        .border(1.dp, MaterialTheme.colorScheme.onSurface, MaterialTheme.shapes.medium)
-        .padding(8.dp)
-        .clickable(!state.default) { event(MedicineEvent.ShowDialogPictureChoose) }
-)
+private fun ProductImage(state: MedicineState, event: (MedicineEvent) -> Unit) {
+    val pagerState = rememberPagerState(pageCount = state.images::count)
+
+    Box(
+        modifier = Modifier
+            .width(128.dp)
+            .fillMaxHeight()
+            .border(1.dp, MaterialTheme.colorScheme.onSurface, MaterialTheme.shapes.medium)
+            .clickable(!state.default) { event(MedicineEvent.ShowDialogPictureChoose) }
+    ) {
+        HorizontalPager(pagerState, Modifier.fillMaxSize()) {
+            MedicineImage(
+                image = state.images[it],
+                editable = !state.default,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(8.dp)
+            )
+        }
+        if (pagerState.pageCount > 1) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 8.dp)
+            ) {
+                repeat(pagerState.pageCount) { index ->
+                    Box(
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .clip(CircleShape)
+                            .background(if (pagerState.currentPage == index) Color.DarkGray else Color.LightGray)
+                            .size(12.dp)
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 private fun ProductAlias(
@@ -742,22 +801,14 @@ private fun DialogKits(state: MedicineState, event: (MedicineEvent) -> Unit) = A
 )
 
 @Composable
-private fun DialogPictureChoose(state: MedicineState, event: (MedicineEvent) -> Unit) {
+private fun DialogPictureChoose(event: (MedicineEvent) -> Unit, onPicked: (Context, List<Uri>) -> Unit) {
     val context = LocalContext.current
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
-        it?.let {
-            val name = "${state.id}${state.productName}.jpg"
+    val picker = rememberLauncherForActivityResult(PickMultipleVisualMedia(5)) { items ->
+        if (items.isEmpty() || items.size > 5) return@rememberLauncherForActivityResult
 
-            context.contentResolver.openInputStream(it)?.use { input ->
-                context.openFileOutput(name, Context.MODE_PRIVATE).use { output ->
-                    input.copyTo(output)
-                }
-            }
-
-            event(MedicineEvent.SetImage(name))
-        }
+        onPicked(context, items)
     }
 
     AlertDialog(
@@ -782,7 +833,7 @@ private fun DialogPictureChoose(state: MedicineState, event: (MedicineEvent) -> 
                     )
                 }
                 TextButton(
-                    onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+                    onClick = { picker.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) }
                 ) {
                     Text(
                         text = stringResource(text_choose_from_gallery),
@@ -864,13 +915,11 @@ fun DialogDelete(text: Int, cancel: () -> Unit, confirm: () -> Unit) = AlertDial
 @Composable
 fun MedicineImage(image: String, modifier: Modifier = Modifier, editable: Boolean = false) {
     val context = LocalContext.current
-    val isIcon = image.contains(TYPE)
-    val noIcon = image.isEmpty()
     val icon = when {
-        noIcon -> null
-        isIcon -> context.getDrawable(Types.getIcon(image))?.toBitmap()?.asImageBitmap()
-        else -> File(context.filesDir, image).let {
-            if (it.exists()) BitmapFactory.decodeFile(it.absolutePath).asImageBitmap() else null
+        image.isEmpty() -> null
+        image.contains(TYPE) -> context.getDrawable(Types.getIcon(image))?.toBitmap()?.asImageBitmap()
+        else -> File(context.filesDir, image).run {
+            if (exists()) BitmapFactory.decodeFile(absolutePath).asImageBitmap() else null
         }
     }
 
@@ -912,7 +961,15 @@ private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
                 .clip(CircleShape)
                 .background(Color.White, CircleShape)
                 .border(4.dp, Color.LightGray, CircleShape)
-                .clickable { controller.takePicture { event(MedicineEvent.SetImage(it)) } }
+                .clickable {
+                    controller.takePicture {
+                        event(
+                            MedicineEvent.SetImage(
+                                mutableStateListOf(it)
+                            )
+                        )
+                    }
+                }
         ) {
             Icon(
                 painter = painterResource(vector_add_photo),

@@ -34,6 +34,7 @@
 * Возможность добавления лекарства вручную.
 * Обновление информации о лекарстве, если оно было отсканировано без подключения к интернету.
 * Редактирование информации о лекарствах, добавленных вручную.
+* Добавление изображений лекарств.
 * Сортировка лекарств по срокам годности.
 * Группировка лекарств по категориям.
 * Звуковое уведомление о необходимости приема лекарства.
@@ -53,6 +54,7 @@ It is a reliable and convenient assistant that will help you monitor your health
 * The ability to add medications manually.
 * Update information about the medication if it was scanned without an internet connection.
 * Edit information about medications added manually.
+* Adding medications images.
 * Sorting of medications by expiration date.
 * Grouping of medications by categories.
 * Notifications for when to take medications.

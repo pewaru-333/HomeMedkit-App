@@ -47,6 +47,7 @@
     <string name="placeholder_time">Hora #%1$d</string>
     <!-- Medicamentos -->
     <string name="text_exp_date">Fecha de caducidad</string>
+    <string name="text_package_opened_date">Package opened</string>
     <string name="text_indications_for_use">Indicaciones para el uso</string>
     <string name="text_medicine_comment">Comentarios</string>
     <string name="text_medicine_composition">Composición</string>

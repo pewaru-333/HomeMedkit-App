@@ -25,6 +25,7 @@ data class IntakeState(
     val intakeId: Long = 0L,
     val medicineId: Long = 0L,
     val medicine: Medicine = Medicine(),
+    val image: String = BLANK,
     val schemaType: SchemaTypes = SchemaTypes.BY_DAYS,
     val amountStock: String = BLANK,
     @StringRes val amountError: Int? = null,

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
+import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.Types
 import ru.application.homemedkit.helpers.toBio
@@ -41,19 +42,28 @@ class ScannerViewModel : ViewModel() {
             Network.getMedicine(code).apply {
                 if (codeFounded) {
                     if (drugsData != null) {
-                        val medicine = drugsData.toMedicine().copy(
-                            cis = this.code,
+                        val medicine = drugsData.toMedicine().copy(cis = this.code)
+                        val id = dao.add(medicine)
+                        val image = Image(
+                            medicineId = id,
                             image = if (Preferences.getImageFetch()) Network.getImage(dir, drugsData.vidalData?.images)
                             else Types.setIcon(drugsData.foiv.prodFormNormName)
                         )
-                        _response.send(Response.Success(dao.add(medicine)))
+
+                        dao.addImage(image)
+
+                        _response.send(Response.Success(id))
                     } else if (bioData != null) {
-                        val medicine = bioData.toBio().copy(
-                            cis = this.code,
+                        val medicine = bioData.toBio().copy(cis = this.code)
+                        val id = dao.add(medicine)
+                        val image = Image(
+                            medicineId = id,
                             image = Types.setIcon(bioData.productProperty.releaseForm.orEmpty())
                         )
 
-                        _response.send(Response.Success(dao.add(medicine)))
+                        dao.addImage(image)
+
+                        _response.send(Response.Success(id))
                     } else showIncorrectCodeError()
                 } else showGeneralError()
             }

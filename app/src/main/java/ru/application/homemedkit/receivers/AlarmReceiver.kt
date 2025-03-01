@@ -1,6 +1,5 @@
 package ru.application.homemedkit.receivers
 
-import android.Manifest
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.PendingIntent.getActivity
@@ -8,8 +7,6 @@ import android.app.PendingIntent.getBroadcast
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BigTextStyle
 import androidx.core.app.NotificationCompat.Builder
@@ -17,6 +14,7 @@ import androidx.core.app.NotificationCompat.CATEGORY_REMINDER
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
 import ru.application.homemedkit.IntakeDialogActivity
+import ru.application.homemedkit.R.drawable.ic_launcher_foreground
 import ru.application.homemedkit.R.drawable.vector_time
 import ru.application.homemedkit.R.string.intake_text_not_taken
 import ru.application.homemedkit.R.string.intake_text_taken
@@ -33,36 +31,39 @@ import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.TAKEN_ID
 import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.decimalFormat
+import ru.application.homemedkit.helpers.safeNotify
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val database = getInstance(context)
-        val setter = AlarmSetter(context)
-
-        val medicineDAO = database.medicineDAO()
-        val intakeDAO = database.intakeDAO()
-        val alarmDAO = database.alarmDAO()
 
         val alarmId = intent.getLongExtra(ALARM_ID, 0L)
-        val alarm = alarmDAO.getById(alarmId)
-        val intakeId = alarmDAO.getById(alarmId).intakeId
-        val intake = intakeDAO.getById(intakeId)!!
-        val medicineId = intake.medicineId
 
-        val medicine = medicineDAO.getById(medicineId)!!
-        val trigger = alarmDAO.getById(alarmId).trigger
+        val alarm = database.alarmDAO().getById(alarmId) ?: return
+        val intake = database.intakeDAO().getById(alarm.intakeId) ?: return
+        val medicine = database.medicineDAO().getById(intake.medicineId) ?: return
+        val taken = database.takenDAO().getByAlarmId(alarmId) ?: return
+
+        val takenId = taken.takenId
         val flag = medicine.prodAmount >= alarm.amount
 
-        val taken = database.takenDAO().getByAlarmId(alarmId)
-        val takenId = taken.takenId
-
         val action = Intent(context, ActionReceiver::class.java).apply {
-            putExtra(ID, medicineId)
+            putExtra(ID, intake.medicineId)
             putExtra(TAKEN_ID, takenId)
             putExtra(BLANK, alarm.amount)
         }
-        val pendingA = getBroadcast(context, takenId.toInt(), action, FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
-        val pendingB = getBroadcast(context, takenId.toInt(), action.setAction(TYPE), FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
+        val pendingA = getBroadcast(
+            context,
+            takenId.toInt(),
+            action,
+            FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
+        )
+        val pendingB = getBroadcast(
+            context,
+            takenId.toInt(),
+            action.setAction(TYPE),
+            FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
+        )
 
         val confirmAction = NotificationCompat.Action.Builder(
             vector_time, context.getString(intake_text_taken), pendingB
@@ -72,14 +73,9 @@ class AlarmReceiver : BroadcastReceiver() {
             vector_time, context.getString(intake_text_not_taken), pendingA
         ).build()
 
-        with(NotificationManagerCompat.from(context)) {
-            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
-                return@with
-
-            if (taken.notified)
-                return@with
-
-            notify(
+        if (!taken.notified) with(NotificationManagerCompat.from(context)) {
+            safeNotify(
+                context,
                 takenId.toInt(),
                 Builder(context, CHANNEL_ID_INTAKES).apply {
                     if (flag) {
@@ -93,7 +89,7 @@ class AlarmReceiver : BroadcastReceiver() {
                                 takenId.toInt(),
                                 Intent(context, IntakeDialogActivity::class.java).apply {
                                     setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                    putExtra(ID, medicineId)
+                                    putExtra(ID, intake.medicineId)
                                     putExtra(TAKEN_ID, takenId)
                                     putExtra(BLANK, alarm.amount)
                                 },
@@ -107,7 +103,7 @@ class AlarmReceiver : BroadcastReceiver() {
                     .setContentTitle(context.getString(text_do_intake))
                     .setDeleteIntent(pendingA)
                     .setSilent(intake.noSound)
-                    .setSmallIcon(vector_time)
+                    .setSmallIcon(ic_launcher_foreground)
                     .setStyle(
                         BigTextStyle().bigText(
                             context.getString(
@@ -122,7 +118,10 @@ class AlarmReceiver : BroadcastReceiver() {
                     .setVisibility(VISIBILITY_PUBLIC)
                     .extend(
                         NotificationCompat.WearableExtender().apply {
-                            if (flag) { addAction(confirmAction); addAction(declineAction) }
+                            if (flag) {
+                                addAction(confirmAction)
+                                addAction(declineAction)
+                            }
                             setContentIntentAvailableOffline(false)
                         }
                     )
@@ -130,6 +129,6 @@ class AlarmReceiver : BroadcastReceiver() {
             )
         }
 
-        setter.resetOrDelete(alarmId, trigger, intake, AlarmType.ALARM)
+        AlarmSetter(context).resetOrDelete(alarmId, alarm.trigger, intake, AlarmType.ALARM)
     }
 }

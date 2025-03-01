@@ -55,6 +55,7 @@
 
     <!-- Лекарства -->
     <string name="text_exp_date">Годен до</string>
+    <string name="text_package_opened_date">Вскрытие упаковки</string>
     <string name="text_indications_for_use">Показания к применению</string>
     <string name="text_medicine_comment">Комментарий</string>
     <string name="text_medicine_composition">Состав</string>
@@ -138,7 +139,7 @@
 
     <string name="intake_extra_desc_cancellable">Устанавливает, что это уведомление будет автоматически отменено через 10 минут</string>
     <string name="intake_extra_desc_fullscreen">Запускает полноэкранное уведомление вместо обычного на заблокированном экране</string>
-    <string name="intake_extra_desc_no_sound">Отключает звук оповещения, независимо от системных настроек звуков или вибраций</string>
+    <string name="intake_extra_desc_no_sound">Отключает звук оповещения независимо от системных настроек звуков или вибраций</string>
     <string name="intake_extra_desc_prealarm">Уведомление в строке состояния за 30 минут до времени приёма</string>
 
     <string name="intake_interval_daily">ежедневно</string>

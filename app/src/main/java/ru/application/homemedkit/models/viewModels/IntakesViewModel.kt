@@ -132,6 +132,19 @@ class IntakesViewModel : ViewModel() {
         _state.update { it.copy(showDialog = true) }
     }
 
+    fun showDialogDelete(id: Long = 0L) {
+        _takenState.update { it.copy(takenId = id) }
+        _state.update { it.copy(showDialogDelete = !it.showDialogDelete) }
+    }
+
+    fun deleteTaken() {
+        viewModelScope.launch(Dispatchers.IO) {
+            takenDAO.delete(IntakeTaken(_takenState.value.takenId))
+        }
+
+        _state.update { it.copy(showDialogDelete = !it.showDialogDelete) }
+    }
+
     fun pickTab(tab: Int) = _state.update { it.copy(tab = tab) }
     fun hideDialog() = _state.update { it.copy(showDialog = false) }
     fun showPicker(flag: Boolean = false) = _takenState.update { it.copy(showPicker = flag) }

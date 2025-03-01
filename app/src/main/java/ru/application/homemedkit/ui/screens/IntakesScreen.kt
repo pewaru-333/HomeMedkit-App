@@ -1,8 +1,10 @@
 package ru.application.homemedkit.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -189,7 +191,9 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                     ) { Text(stringResource(text_no_intakes_found), textAlign = TextAlign.Center) }
                     else LazyColumn(state = state.stateA) {
                         items(list) {
-                            IntakeItem(it, navigateToIntake); HorizontalDivider()
+                            val image = database.medicineDAO().getMedicineImages(it.medicineId).firstOrNull() ?: BLANK
+
+                            IntakeItem(it, image, navigateToIntake); HorizontalDivider()
                         }
                     }
                 }
@@ -200,6 +204,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                         itemsIndexed(future.intakes) { index, value ->
                             val intake = database.intakeDAO().getById(value.intakeId)
                             val medicine = database.medicineDAO().getById(intake?.medicineId ?: 0L)
+                            val images = database.medicineDAO().getMedicineImages(intake?.medicineId ?: 0L)
 
                             if (intake != null && medicine != null)
                                 MedicineItem(
@@ -207,7 +212,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                                     formName = medicine.prodFormNormName,
                                     doseType = medicine.doseType,
                                     amount = value.amount,
-                                    image = medicine.image,
+                                    image = if (images.isNotEmpty()) images.first() else BLANK,
                                     trigger = value.trigger
                                 )
                             if (index < future.intakes.lastIndex) HorizontalDivider()
@@ -218,7 +223,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                 2 -> LazyColumn(state = state.stateC) {
                     taken.forEach { past ->
                         item { TextDate(past.date) }
-                        itemsIndexed(past.intakes.reversed()) { index, value->
+                        itemsIndexed(past.intakes.reversed()) { index, value ->
                             MedicineItem(
                                 title = value.productName,
                                 formName = value.formName,
@@ -226,8 +231,12 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                                 amount = value.amount,
                                 image = value.image,
                                 trigger = value.trigger,
-                                taken = value.taken
-                            ) { model.showDialog(value) }
+                                taken = value.taken,
+                                showDialog = { model.showDialog(value) },
+                                showDialogDelete = {
+                                   if (!value.taken) model.showDialogDelete(value.takenId)
+                                }
+                            )
                             if (index < past.intakes.lastIndex) HorizontalDivider()
                         }
                     }
@@ -235,12 +244,13 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
             }
 
             if (state.showDialogDate) DialogGoToDate(model::showDialogDate, model::scrollToClosest)
+            if (state.showDialogDelete) DialogDeleteTaken(model::showDialogDelete, model::deleteTaken)
         }
     }
 }
 
 @Composable
-fun IntakeItem(intake: Intake, navigateToIntake:(Long) -> Unit) {
+fun IntakeItem(intake: Intake, image: String, navigateToIntake:(Long) -> Unit) {
     val medicine = database.medicineDAO().getById(intake.medicineId)
     val time = database.intakeDAO().getTime(intake.intakeId).distinctBy(IntakeTime::time)
     val count = time.size
@@ -250,7 +260,7 @@ fun IntakeItem(intake: Intake, navigateToIntake:(Long) -> Unit) {
     ListItem(
         trailingContent = { Text(intervalName) },
         supportingContent = { Text(time.joinToString(transform = IntakeTime::time), maxLines = 1) },
-        leadingContent = { MedicineImage(medicine?.image ?: BLANK, Modifier.size(40.dp)) },
+        leadingContent = { MedicineImage(image, Modifier.size(40.dp)) },
         modifier = Modifier.clickable { navigateToIntake(intake.intakeId) },
         headlineContent = { Text(medicine?.let { it.nameAlias.ifEmpty { it.productName } } ?: BLANK, softWrap = false) }
     )
@@ -381,6 +391,15 @@ private fun DialogTaken(model: IntakesViewModel) {
 }
 
 @Composable
+private fun DialogDeleteTaken(onDismiss: () -> Unit, onDelete: () -> Unit) = AlertDialog(
+    onDismissRequest = onDismiss,
+    dismissButton = { TextButton(onDismiss) { Text(stringResource(text_cancel)) } },
+    confirmButton = { TextButton(onDelete) { Text(stringResource(R.string.text_confirm)) } },
+    text = { Text(stringResource(R.string.text_confirm_deletion_int)) },
+    title = { Text(stringResource(R.string.text_attention)) }
+)
+
+@Composable
 private fun TextDate(timestamp: Long) = Text(
     style = MaterialTheme.typography.titleLarge.copy(fontWeight = SemiBold),
     text = LocalDate.ofEpochDay(timestamp).let {
@@ -392,6 +411,7 @@ private fun TextDate(timestamp: Long) = Text(
         .padding(12.dp, 24.dp)
 )
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MedicineItem(
     title: String,
@@ -401,11 +421,15 @@ fun MedicineItem(
     image: String,
     trigger: Long,
     taken: Boolean = true,
-    showDialog: (() -> Unit)? = null
+    showDialog: (() -> Unit)? = null,
+    showDialogDelete: (() -> Unit)? = null
 ) = ListItem(
     headlineContent = { Text(text = title, maxLines = 1, softWrap = false) },
     leadingContent = { MedicineImage(image, Modifier.size(40.dp)) },
-    modifier = Modifier.clickable { showDialog?.invoke() },
+    modifier = Modifier.combinedClickable(
+        onClick = { showDialog?.invoke() },
+        onLongClick = { showDialogDelete?.invoke() }
+    ),
     supportingContent = {
         Text(
             text = stringResource(

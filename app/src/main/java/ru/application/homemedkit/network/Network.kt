@@ -2,8 +2,7 @@ package ru.application.homemedkit.network
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.android.AndroidClientEngine
-import io.ktor.client.engine.android.AndroidEngineConfig
+import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
@@ -21,7 +20,7 @@ import ru.application.homemedkit.network.models.MainModel
 import java.io.File
 
 object Network {
-    private val ktor = HttpClient(AndroidClientEngine(AndroidEngineConfig())) {
+    private val ktor = HttpClient(Android) {
         defaultRequest { url("https://mobile.api.crpt.ru/") }
         install(ContentNegotiation) {
             json(

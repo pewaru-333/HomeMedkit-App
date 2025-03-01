@@ -209,7 +209,7 @@ fun IntakeScreen(navigateBack: () -> Unit) {
             contentPadding = PaddingValues(8.dp, values.calculateTopPadding(), 8.dp, 8.dp),
             modifier = Modifier.padding(top = 16.dp)
         ) {
-            item { MedicineInfo(state.medicine) }
+            item { MedicineInfo(state.medicine, state.image) }
 
             item { SchemaType(state, model::onEvent) }
 
@@ -258,7 +258,7 @@ fun IntakeScreen(navigateBack: () -> Unit) {
 }
 
 @Composable
-private fun MedicineInfo(medicine: Medicine) =
+private fun MedicineInfo(medicine: Medicine, image: String) =
     Row(
         horizontalArrangement = spacedBy(12.dp),
         modifier = Modifier
@@ -266,7 +266,7 @@ private fun MedicineInfo(medicine: Medicine) =
             .height(144.dp)
     ) {
         MedicineImage(
-            image = medicine.image,
+            image = image,
             modifier = Modifier
                 .fillMaxHeight()
                 .width(128.dp)
@@ -517,7 +517,7 @@ private fun Interval(state: IntakeState, event: (IntakeEvent) -> Unit) =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
-    OutlinedCard(Modifier.animateContentSize()){
+    OutlinedCard(Modifier.animateContentSize()) {
         Row(Modifier.fillMaxWidth(), Arrangement.Start, CenterVertically) {
             ExposedDropdownMenuBox(state.showPeriodTypePicker, {}, Modifier.weight(1f)) {
                 ListItem(

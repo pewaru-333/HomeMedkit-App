@@ -9,12 +9,10 @@ import ru.application.homemedkit.data.MedicineDatabase
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == ACTION_BOOT_COMPLETED) {
-            val database = MedicineDatabase.getInstance(context)
-            val taken = database.takenDAO().getAll()
-            val setter = AlarmSetter(context)
+            val takenDAO = MedicineDatabase.getInstance(context).takenDAO()
 
-            setter.resetAll()
-            if (taken.isNotEmpty()) taken.forEach { database.takenDAO().setNotified(it.takenId) }
+            AlarmSetter(context).resetAll()
+            takenDAO.getAll().forEach { takenDAO.setNotified(it.takenId) }
         }
     }
 }

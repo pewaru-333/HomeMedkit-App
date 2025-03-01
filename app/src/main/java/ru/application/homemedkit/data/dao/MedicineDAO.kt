@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.Medicine
 
 @Dao
@@ -31,8 +32,11 @@ interface MedicineDAO {
     @Query("SELECT cis from medicines")
     fun getAllCis(): List<String>
 
-    @Query("SELECT image FROM medicines")
+    @Query("SELECT image FROM images")
     fun getAllImages(): List<String>
+
+    @Query("SELECT image FROM images WHERE medicineId = :medicineId")
+    fun getMedicineImages(medicineId: Long): List<String>
 
     @Query("UPDATE medicines SET prodAmount = prodAmount - :amount WHERE id = :id")
     fun intakeMedicine(id: Long, amount: Double)
@@ -44,11 +48,23 @@ interface MedicineDAO {
     @Insert
     suspend fun add(medicine: Medicine): Long
 
+    @Insert
+    suspend fun addImage(image: Image)
+
     // ============================== Update ==============================
     @Update
     suspend fun update(medicine: Medicine)
 
+    @Transaction
+    suspend fun updateImages(vararg images: Image) {
+        deleteImages(images.first().medicineId)
+        images.forEach { addImage(it) }
+    }
+
     // ============================== Delete ==============================
     @Delete
     suspend fun delete(medicine: Medicine)
+
+    @Query("DELETE FROM images WHERE medicineId = :medicineId")
+    suspend fun deleteImages(medicineId: Long)
 }

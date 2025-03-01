@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION
 import android.provider.Settings
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -609,8 +610,11 @@ private fun DialogClearing(onDismiss: () -> Unit) {
             TextButton(
                 onClick = {
                     context.cacheDir.deleteRecursively()
-                    context.filesDir.listFiles()?.forEach {
-                        if (it.name !in images && it.extension == "jpg") it.deleteRecursively()
+                    context.filesDir.listFiles()?.forEach { file ->
+                        MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)?.let {
+                            if (file.name !in images && it.startsWith("image/"))
+                                file.deleteRecursively()
+                        }
                     }
 
                     onDismiss()

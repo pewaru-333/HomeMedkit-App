@@ -11,6 +11,7 @@ import android.content.Intent
 import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.Intake
+import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.helpers.ALARM_ID
 import ru.application.homemedkit.helpers.AlarmType
 import ru.application.homemedkit.helpers.FORMAT_S
@@ -54,12 +55,14 @@ class AlarmSetter(private val context: Context) {
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
 
-        if (context.canScheduleExactAlarms()) {
-            manager.setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
-            manager.setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
-        } else {
-            manager.setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
-            manager.setAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
+        with(manager) {
+            if (context.canScheduleExactAlarms()) {
+                setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
+                setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
+            } else {
+                setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
+                setAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
+            }
         }
     }
 
@@ -78,7 +81,7 @@ class AlarmSetter(private val context: Context) {
     }
 
     fun removeAlarm(alarmId: Long, type: AlarmType) {
-        val alarm = database.alarmDAO().getById(alarmId)
+        val alarm = database.alarmDAO().getById(alarmId) ?: return
 
         val pendingA = getBroadcast(
             context,
@@ -94,76 +97,74 @@ class AlarmSetter(private val context: Context) {
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
 
-        when (type) {
-            AlarmType.ALARM -> manager.cancel(pendingB)
-            AlarmType.PREALARM -> manager.cancel(pendingA)
-            AlarmType.ALL -> {
-                manager.cancel(pendingA)
-                manager.cancel(pendingB)
+        with(manager) {
+            when (type) {
+                AlarmType.ALARM -> cancel(pendingB)
+                AlarmType.PREALARM -> cancel(pendingA)
+                AlarmType.ALL -> {
+                    cancel(pendingA)
+                    cancel(pendingB)
+                }
             }
         }
 
         if (type == AlarmType.ALARM || type == AlarmType.ALL) database.alarmDAO().delete(alarm)
     }
 
-    fun resetAll() = database.alarmDAO().getAll().forEach { (alarmId, _, trigger, _, _) ->
-        if (context.canScheduleExactAlarms()) {
-            manager.setExactAndAllowWhileIdle(
-                RTC_WAKEUP, trigger, getBroadcast(
-                    context,
-                    alarmId.toInt(),
-                    alarmIntent.putExtra(ALARM_ID, alarmId),
-                    FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-                )
+    fun resetAll() {
+        val takenAlarmIdList = database.takenDAO().getAll().map(IntakeTaken::alarmId)
+
+        database.alarmDAO().getAll().forEach {
+            val preTrigger = it.trigger - 1800000L
+
+            val pendingA = getBroadcast(
+                context,
+                it.alarmId.toInt(),
+                alarmIntent.putExtra(ALARM_ID, it.alarmId),
+                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
             )
 
-            manager.setExactAndAllowWhileIdle(
-                RTC_WAKEUP, trigger - 1800000L, getBroadcast(
-                    context,
-                    alarmId.toInt(),
-                    preAlarmIntent.putExtra(ALARM_ID, alarmId),
-                    FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-                )
-            )
-        } else {
-            manager.setAndAllowWhileIdle(
-                RTC_WAKEUP, trigger, getBroadcast(
-                    context,
-                    alarmId.toInt(),
-                    alarmIntent.putExtra(ALARM_ID, alarmId),
-                    FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-                )
+            val pendingB = getBroadcast(
+                context,
+                it.alarmId.toInt(),
+                preAlarmIntent.putExtra(ALARM_ID, it.alarmId),
+                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
             )
 
-            manager.setAndAllowWhileIdle(
-                RTC_WAKEUP, trigger - 1800000L, getBroadcast(
-                    context,
-                    alarmId.toInt(),
-                    preAlarmIntent.putExtra(ALARM_ID, alarmId),
-                    FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-                )
-            )
+            with(manager) {
+                if (context.canScheduleExactAlarms()) {
+                    setExactAndAllowWhileIdle(RTC_WAKEUP, it.trigger, pendingA)
+                    if (it.alarmId !in takenAlarmIdList)
+                        setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingB)
+                } else {
+                    setAndAllowWhileIdle(RTC_WAKEUP, it.trigger, pendingA)
+                    if (it.alarmId !in takenAlarmIdList)
+                        setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingB)
+                }
+            }
         }
     }
 
     fun cancelAll() = database.alarmDAO().getAll().forEach {
-        manager.cancel(
-            getBroadcast(
-                context,
-                it.alarmId.toInt(),
-                alarmIntent.putExtra(ALARM_ID, it.alarmId),
-                FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
+        with(manager) {
+            cancel(
+                getBroadcast(
+                    context,
+                    it.alarmId.toInt(),
+                    alarmIntent.putExtra(ALARM_ID, it.alarmId),
+                    FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
+                )
             )
-        )
 
-        manager.cancel(
-            getBroadcast(
-                context,
-                it.alarmId.toInt(),
-                preAlarmIntent.putExtra(ALARM_ID, it.alarmId),
-                FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
+            cancel(
+                getBroadcast(
+                    context,
+                    it.alarmId.toInt(),
+                    preAlarmIntent.putExtra(ALARM_ID, it.alarmId),
+                    FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
+                )
             )
-        )
+        }
     }
 
     fun checkExpiration(check: Boolean) {
@@ -174,14 +175,16 @@ class AlarmSetter(private val context: Context) {
             FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
         )
 
-        if (check)
-            if (context.canScheduleExactAlarms()) manager.setExactAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
-            else manager.setAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
-        else manager.cancel(broadcast)
+        with(manager) {
+            if (check)
+                if (context.canScheduleExactAlarms()) setExactAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
+                else setAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
+            else cancel(broadcast)
+        }
     }
 
     private fun resetAlarm(alarmId: Long, interval: Int, type: AlarmType) {
-        val alarm = database.alarmDAO().getById(alarmId)
+        val alarm = database.alarmDAO().getById(alarmId) ?: return
         val trigger = alarm.trigger + AlarmManager.INTERVAL_DAY * interval
         val preTrigger = trigger - 1800000L
 
@@ -199,19 +202,21 @@ class AlarmSetter(private val context: Context) {
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
 
-        if (context.canScheduleExactAlarms()) when (type) {
-            AlarmType.ALARM -> manager.setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
-            AlarmType.PREALARM -> manager.setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
-            AlarmType.ALL -> {
-                manager.setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
-                manager.setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
-            }
-        } else when (type) {
-            AlarmType.ALARM -> manager.setAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
-            AlarmType.PREALARM -> manager.setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
-            AlarmType.ALL -> {
-                manager.setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
-                manager.setAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
+        with(manager) {
+            if (context.canScheduleExactAlarms()) when (type) {
+                AlarmType.ALARM -> setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
+                AlarmType.PREALARM -> setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
+                AlarmType.ALL -> {
+                    setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
+                    setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
+                }
+            } else when (type) {
+                AlarmType.ALARM -> setAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
+                AlarmType.PREALARM -> setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
+                AlarmType.ALL -> {
+                    setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
+                    setAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
+                }
             }
         }
 

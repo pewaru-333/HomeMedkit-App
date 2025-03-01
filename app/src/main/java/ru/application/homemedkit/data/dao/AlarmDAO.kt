@@ -13,7 +13,7 @@ interface AlarmDAO {
     fun getAll(): List<Alarm>
 
     @Query("SELECT * FROM alarms WHERE alarmId = :alarmId")
-    fun getById(alarmId: Long): Alarm
+    fun getById(alarmId: Long): Alarm?
 
     @Query("SELECT * FROM alarms WHERE intakeId = :intakeId")
     fun getByIntake(intakeId: Long): List<Alarm>

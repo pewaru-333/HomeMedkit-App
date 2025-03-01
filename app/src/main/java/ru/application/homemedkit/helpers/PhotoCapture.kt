@@ -7,6 +7,8 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.core.net.toUri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import java.io.File
 
 class PhotoCapture(val context: Context, val onSave: (String) -> Unit) : ImageCapture.OnImageCapturedCallback() {
@@ -30,8 +32,10 @@ class PhotoCapture(val context: Context, val onSave: (String) -> Unit) : ImageCa
         val name = "${System.currentTimeMillis()}_product.jpg"
         val file = File(context.filesDir, name)
 
-        context.contentResolver.openOutputStream(file.toUri())?.let {
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, it)
+        runBlocking(Dispatchers.Default) {
+            context.contentResolver.openOutputStream(file.toUri())?.use {
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 10, it)
+            }
         }
 
         onSave(name)
