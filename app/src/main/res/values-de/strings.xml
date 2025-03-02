@@ -209,4 +209,8 @@
     <string name="preference_fixing_notifications">Erhalten Sie keine Benachrichtigungen?</string>
     <string name="text_fix_notifications">Die App wird neu gestartet und alle überfälligen Benachrichtigungen werden in der Statusleiste angezeigt. Verwenden Sie diese Funktion nicht, wenn alles korrekt funktioniert!</string>
     <string name="text_confirm">Bestätigen</string>
+    <string name="text_choose_from_gallery">Aus der Galerie auswählen</string>
+    <string name="text_clear_app_cache_description">Hierdurch werden der Anwendungs-Cache und nicht länger genutzte Fotos von Medikamenten gelöscht.</string>
+    <string name="preference_clear_app_cache">App-Cache löschen</string>
+    <string name="text_package_opened_date">Packung geöffnet</string>
 </resources>
