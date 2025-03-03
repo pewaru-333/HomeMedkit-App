@@ -1,0 +1,20 @@
+Home Medkit
+
+Aplikasi yang memungkinkan Anda untuk dengan mudah dan cepat mendaftarkan dan menyimpan informasi tentang obat yang diminum.
+
+<b>Fitur</b>
+
+* Penambahan obat secara otomatis dengan memindai label.
+* Kemampuan untuk menambahkan obat secara manual.
+* Memperbarui informasi tentang obat jika dipindai tanpa koneksi internet.
+* Mengedit informasi tentang obat yang ditambahkan secara manual.
+* Menambahkan gambar obat.
+* Menyortir obat berdasarkan tanggal kedaluwarsa.
+* Pengelompokan obat berdasarkan kategori.
+* Pemberitahuan kapan harus minum obat.
+* Tampilan obat terdekat yang harus diminum.
+* Pengingat tanggal kadaluarsa obat.
+* Ekspor dan impor basis data ke perangkat lain.
+
+Dengannya, Anda dapat melacak tanggal kedaluwarsa obat, membuat jadwal untuk asupannya, dan menerima pemberitahuan tentangnya.
+Ini adalah asisten yang andal dan nyaman yang akan membantu Anda memantau kesehatan Anda.
