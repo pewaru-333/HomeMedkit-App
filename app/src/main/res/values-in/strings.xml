@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="preference_check_expiration_date">Mengecek tanggal kadaluarsa dari obat-obatan</string>
+    <string name="channel_exp_desc">Tanggal kadaluarsa</string>
+    <string name="channel_intakes_desc">Asupan obat-obatan</string>
+    <string name="channel_name">Suara notifikasi</string>
+    <string name="bottom_bar_settings">Pengaturan</string>
+    <string name="theme_system">Sistem</string>
+    <string name="theme_light">Terang</string>
+    <string name="preference_basic_settings">Pengaturan Basic</string>
+    <string name="sorting_from_newest">Tanggal Kadaluarsa (dari paling terbaru)</string>
+    <string name="app_name">Obat-obatan</string>
+    <string name="preference_download_images">Mengunduh gambar obat obatan</string>
+    <string name="preference_dynamic_color">Gambar dinamis</string>
+    <string name="preference_fixing_notifications">Gangguan dengan notifikasi?</string>
+    <string name="sorting_z_a">Menurut abjad (z sampai A)</string>
+    <string name="bottom_bar_intakes">Konsumsi</string>
+    <string name="preference_app_view">Tampilan Applikasi</string>
+    <string name="preference_confirm_exit">Konfirmasi keluar dari applikasi</string>
+    <string name="preference_system">Sistem</string>
+    <string name="preference_app_theme">Tema Applikasi</string>
+    <string name="preference_clear_app_cache">Bersihkan Cache Applikasi</string>
+    <string name="sorting_a_z">Menurut abjad (A sampai z)</string>
+    <string name="sorting_from_oldest">Tanggal Kadaluarsa (dari paling terlama)</string>
+    <string name="bottom_bar_medicines">Pengobatan</string>
+    <string name="preference_kits_group">Grup Obat-obatan</string>
+    <string name="preference_sorting_type">Penyortiran obat-obatan</string>
+    <string name="preference_permissions">Perizinan</string>
+    <string name="preference_language">Bahasa applikasi</string>
+    <string name="preference_import_export">Impor/Ekspor</string>
+    <string name="theme_dark">Gelap</string>
+</resources>

@@ -169,7 +169,7 @@
     <string name="text_pay_attention">Achtung!</string>
     <string name="text_grant">Erlauben</string>
     <string name="text_not_saved_intake">Die Einnahme wurde nicht gespeichert! Möchten Sie zurückgehen?</string>
-    <string name="text_exit">Beenden</string>
+    <string name="text_exit">Verlassen</string>
     <string name="text_confirm_deletion_med">Soll dieses Medikament wirklich gelöscht werden?</string>
     <string name="intake_extra_desc_cancellable">Benachrichtigung wird automatisch nach 10 Minuten verworfen</string>
     <string name="intake_extra_cancellable">Verschwindende Benachrichtigung</string>
@@ -190,7 +190,7 @@
     <string name="intake_schema_type_indefinitely">Unendlich</string>
     <string name="text_not_selected">Nicht ausgewählt</string>
     <string name="intake_text_in_stock">Vorrätig: %1$s %2$s</string>
-    <string name="text_explain_reminders">Gestatte Benachrichtigungen zum präzisen Zeitpunkt</string>
+    <string name="text_explain_reminders">Erlaubt Benachrichtigungen zu präzisen Zeitpunkten</string>
     <string name="text_permission_title_notifications">Benachrichtigungen</string>
     <string name="text_explain_request_permissions">Um Benachrichtigungen anzuzeigen, müssen folgende Erlaubnisse gewährt werden</string>
     <string name="intake_extra_desc_no_sound">Schaltet die Benachrichtigung stumm, unabhängig von den Einstellungen für Systemton oder Vibration</string>
@@ -209,4 +209,12 @@
     <string name="preference_fixing_notifications">Erhalten Sie keine Benachrichtigungen?</string>
     <string name="text_fix_notifications">Die App wird neu gestartet und alle überfälligen Benachrichtigungen werden in der Statusleiste angezeigt. Verwenden Sie diese Funktion nicht, wenn alles korrekt funktioniert!</string>
     <string name="text_confirm">Bestätigen</string>
+    <string name="text_choose_from_gallery">Aus der Galerie auswählen</string>
+    <string name="text_clear_app_cache_description">Hierdurch werden der Anwendungs-Cache und nicht länger genutzte Fotos von Medikamenten gelöscht.</string>
+    <string name="preference_clear_app_cache">App-Cache löschen</string>
+    <string name="text_package_opened_date">Packung geöffnet</string>
+    <string name="preference_basic_settings">Grundeinstellungen</string>
+    <string name="text_set_image">Bild wählen</string>
+    <string name="text_take_picture">Foto mit der Kamera aufnehmen</string>
+    <string name="text_pick_icon">Aus den Icons wählen</string>
 </resources>
