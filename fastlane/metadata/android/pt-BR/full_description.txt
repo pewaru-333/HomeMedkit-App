@@ -1,4 +1,4 @@
-Kit Médico
+Kit Médico Residencial
 
 Um aplicativo que permite que você registre e armazene informações sobre os medicamentos tomados facilmente.
 
@@ -8,6 +8,7 @@ Um aplicativo que permite que você registre e armazene informações sobre os m
 * Adicionar medicamentos manualmente.
 * Atualizar informações do medicamento se foi escaneado sem uma conexão à internet.
 * Editar informações sobre medicamentos adicionados manualmente.
+* Adicionar fotos de medicamentos.
 * Ordenar medicamentos pela data de validade.
 * Agrupar medicamentos por categorias.
 * Notificações de quanto tomar um medicamento.

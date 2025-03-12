@@ -70,7 +70,7 @@
     <string name="text_request_camera">Para fazer scan de etiquetas, a permissão de câmera é necessária</string>
     <string name="text_new_group">Novo grupo</string>
     <string name="text_select_time">Selecionar tempo</string>
-    <string name="text_amount">Quantidade</string>
+    <string name="text_amount">Quantia</string>
     <string name="text_add">Adicionar</string>
     <string name="text_try_again">Tente fazer scan da etiqueta novamente!</string>
     <string name="text_cancel">Cancelar</string>
@@ -132,7 +132,7 @@
     <string name="intake_period_other">por número de dias</string>
     <string name="intake_interval_weekly">semanalmente</string>
     <string name="intake_period_pick">por data</string>
-    <string name="dose_l">l</string>
+    <string name="dose_l">L</string>
     <string name="dose_ed">ED</string>
     <string name="dose_ml">ml</string>
     <string name="dose_g">g</string>
@@ -158,8 +158,8 @@
     <string name="type_sachet">SACHÉ</string>
     <string name="type_bandage">BANDAGEM</string>
     <string name="type_patch">CURATIVO</string>
-    <string name="dose_sach">sach</string>
-    <string name="text_explain_camera">Para fazer scan da etiqueta, você precisa conceder a permissão de câmera. Um exemplo de como a etiqueta deve se parecer está representado abaixo (só funciona com medicamentos russos).</string>
+    <string name="dose_sach">saché</string>
+    <string name="text_explain_camera">Para ler uma etiqueta, você precisa conceder a permissão de câmera. Um exemplo de como a etiqueta deve se parecer está representado abaixo (só funciona com medicamentos russos)</string>
     <string name="text_fill_field">Preencha este campo!</string>
     <string name="text_pay_attention">Preste atenção!</string>
     <string name="text_stay">Ficar</string>
@@ -198,9 +198,17 @@
     <string name="text_expain_ignore_battery">Permita que um app ignore as otimizações de bateria. Se não concedido, as notificações podem serem perdidas!</string>
     <string name="text_permission_grant">Permitir</string>
     <string name="text_not_selected">Não selecionado</string>
-    <string name="text_same_amount">A mesma quantidade cada ingestão</string>
+    <string name="text_same_amount">A mesma quantia cada ingestão</string>
     <string name="text_today">Hoje</string>
     <string name="text_repeat">Repetir</string>
     <string name="app_name">Kit Médico</string>
     <string name="intake_extra_desc_fullscreen">Uma intenção para abrir em vez de postar uma notificação à barra de status na tela de bloqueio</string>
+    <string name="preference_basic_settings">Configurações básicas</string>
+    <string name="preference_clear_app_cache">Limpar cache do app</string>
+    <string name="text_package_opened_date">Caixa aberta</string>
+    <string name="text_choose_from_gallery">Escolher da galeria</string>
+    <string name="text_clear_app_cache_description">Essa ação limpará a cache do aplicativo, como também fotos de medicamento que não são mais usadas</string>
+    <string name="text_pick_icon">Escolher ícone padrão</string>
+    <string name="text_set_image">Definir imagem</string>
+    <string name="text_take_picture">Tirar foto com a câmera</string>
 </resources>
