@@ -68,7 +68,7 @@
     <string name="text_medicine_deleted">O medicamento foi excluído, é impossível mudar o status de ingestão</string>
     <string name="text_permission_grant_full">Conceder permissão</string>
     <string name="text_request_camera">Para fazer scan de etiquetas, a permissão de câmera é necessária</string>
-    <string name="text_new_group">Novo grupo</string>
+    <string name="text_kit_title">Novo grupo</string>
     <string name="text_select_time">Selecionar tempo</string>
     <string name="text_amount">Quantia</string>
     <string name="text_add">Adicionar</string>

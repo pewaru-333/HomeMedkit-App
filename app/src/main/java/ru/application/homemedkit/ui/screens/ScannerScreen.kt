@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -28,10 +27,12 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,15 +54,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.withContext
 import ru.application.homemedkit.R.drawable.vector_barcode
 import ru.application.homemedkit.R.drawable.vector_camera
 import ru.application.homemedkit.R.drawable.vector_check
@@ -91,19 +86,32 @@ import ru.application.homemedkit.models.viewModels.ScannerViewModel
 @OptIn(TransformExperimental::class)
 @Composable
 fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boolean) -> Unit) {
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val filesDir = LocalContext.current.filesDir
 
     val model = viewModel<ScannerViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
+    val response by model.response.collectAsStateWithLifecycle(
+        initialValue = null,
+        context = Dispatchers.Main.immediate
+    )
 
     val cameraPermission = rememberPermissionState(Manifest.permission.CAMERA)
 
-    val analyzer = rememberImageAnalyzer { model.fetch(context.filesDir, it) }
+    val analyzer = rememberImageAnalyzer { model.fetch(filesDir, it) }
     val controller = rememberCameraState(CameraController.IMAGE_ANALYSIS, analyzer)
 
     BackHandler(onBack = navigateUp)
-    if (cameraPermission.isGranted) Box {
+    if (cameraPermission.isGranted) Scaffold(
+        snackbarHost = {
+            SnackbarHost(state.snackbarHostState) {
+                Snackbar(
+                    snackbarData = it,
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
+        }
+    ) {
         CameraPreview(controller, Modifier.fillMaxSize())
         Canvas(Modifier.fillMaxSize()) {
             val length = if (size.width > size.height) size.height * 0.5f else size.width * 0.7f
@@ -123,7 +131,7 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
             drawPath(frame, Color.White, style = Stroke(5f))
         }
         Row(Modifier.fillMaxWidth(), Arrangement.End, Alignment.CenterVertically) {
-            IconButton(controller::toggleTorch) {
+            IconButton(controller::toggleTorch, Modifier.padding(it)) {
                 Icon(painterResource(vector_flash), null, Modifier, Color.White)
             }
         }
@@ -131,53 +139,16 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
     else if (cameraPermission.showRationale) PermissionDialog(cameraPermission, navigateUp)
     else FirstTimeScreen(navigateUp, cameraPermission::launchRequest)
 
-    LaunchedEffect(model.response, lifecycleOwner) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            withContext(Dispatchers.Main.immediate) {
-                model.response.collectLatest { response ->
-                    when (response) {
-                        is Response.Success -> navigateToMedicine(response.id, BLANK, response.duplicate)
-                    }
-                }
-            }
-        }
-    }
 
-    when {
-        state.loading -> LoadingDialog()
-        state.error -> Snackbar(text_try_again)
-        state.incorrectCode -> Snackbar(text_error_not_medicine)
-        state.noNetwork -> AddMedicineDialog(model::setInitial) {
-            state.code?.let { navigateToMedicine(0L, it, false) }
-        }
-    }
-}
-
-@Composable
-fun Snackbar(id: Int) = Dialog({}, DialogProperties(usePlatformDefaultWidth = false)) {
-    Box(
-        contentAlignment = Alignment.BottomCenter,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .background(Color.Transparent),
-    ) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .background(
-                    MaterialTheme.colorScheme.errorContainer,
-                    MaterialTheme.shapes.extraSmall
-                )
-        ) {
-            Text(
-                text = stringResource(id),
-                modifier = Modifier.padding(start = 16.dp),
-                color = MaterialTheme.colorScheme.onErrorContainer,
-                style = MaterialTheme.typography.bodyMedium
-            )
+    when (val value = response) {
+        null -> Unit
+        Response.Duplicate -> Unit
+        Response.Loading -> LoadingDialog()
+        Response.IncorrectCode -> model.showSnackbar(stringResource(text_error_not_medicine))
+        Response.UnknownError -> model.showSnackbar(stringResource(text_try_again))
+        is Response.Success -> navigateToMedicine(value.id, BLANK, value.duplicate)
+        is Response.NetworkError -> AddMedicineDialog(model::setInitial) {
+            value.code?.let { navigateToMedicine(0L, it, false) }
         }
     }
 }
@@ -248,15 +219,22 @@ private fun AddMedicineDialog(setDefault: () -> Unit, navigateWithCis: () -> Uni
     confirmButton = { TextButton(navigateWithCis) { Text(stringResource(text_yes)) } },
     dismissButton = { TextButton(setDefault) { Text(stringResource(text_no)) } },
     title = { Text(stringResource(text_connection_error)) },
-    text = { Text(stringResource(manual_add)) },
-    icon = { Icon(Icons.Outlined.Info, null) }
+    icon = { Icon(Icons.Outlined.Info, null) },
+    text = {
+        Text(
+            text = stringResource(manual_add),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
 )
 
 @Composable
-fun LoadingDialog() = Dialog({ }) {
-    Box(Modifier.fillMaxSize(), Alignment.Center)
-    { CircularProgressIndicator() }
-}
+fun LoadingDialog() = Box(
+    contentAlignment = Alignment.Center,
+    modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Black.copy(alpha = 0.45f))
+) { CircularProgressIndicator() }
 
 @Composable
 fun PermissionDialog(permission: PermissionState, onDismiss: () -> Unit) = Dialog(onDismiss) {

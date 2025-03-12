@@ -1,22 +1,19 @@
 package ru.application.homemedkit.data.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
-import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.Medicine
 
 @Dao
-interface MedicineDAO {
+interface MedicineDAO : BaseDAO<Medicine> {
     // ============================== Queries ==============================
     @Query("SELECT * FROM medicines")
     fun getAll(): List<Medicine>
 
-    @Transaction
     @Query("SELECT * FROM medicines")
     fun getFlow(): Flow<List<Medicine>>
 
@@ -46,15 +43,9 @@ interface MedicineDAO {
 
     // ============================== Insert ==============================
     @Insert
-    suspend fun add(medicine: Medicine): Long
-
-    @Insert
     suspend fun addImage(image: Image)
 
     // ============================== Update ==============================
-    @Update
-    suspend fun update(medicine: Medicine)
-
     @Transaction
     suspend fun updateImages(vararg images: Image) {
         deleteImages(images.first().medicineId)
@@ -62,9 +53,6 @@ interface MedicineDAO {
     }
 
     // ============================== Delete ==============================
-    @Delete
-    suspend fun delete(medicine: Medicine)
-
     @Query("DELETE FROM images WHERE medicineId = :medicineId")
     suspend fun deleteImages(medicineId: Long)
 }

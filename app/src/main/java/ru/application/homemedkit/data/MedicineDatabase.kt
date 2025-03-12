@@ -10,6 +10,8 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import ru.application.homemedkit.data.dao.AlarmDAO
 import ru.application.homemedkit.data.dao.IntakeDAO
 import ru.application.homemedkit.data.dao.KitDAO
@@ -61,8 +63,8 @@ abstract class MedicineDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: MedicineDatabase? = null
 
-        fun getInstance(context: Context): MedicineDatabase = INSTANCE ?: synchronized(this) {
-            val instance = Room.databaseBuilder(
+        fun getInstance(context: Context) = INSTANCE ?: synchronized(this) {
+            Room.databaseBuilder(
                 context.applicationContext,
                 MedicineDatabase::class.java,
                 DATABASE_NAME
@@ -84,10 +86,11 @@ abstract class MedicineDatabase : RoomDatabase() {
                     MIGRATION_17_18,
                     MIGRATION_18_19
                 )
+                .setQueryExecutor(Dispatchers.IO.asExecutor())
+                .setTransactionExecutor(Dispatchers.IO.asExecutor())
                 .allowMainThreadQueries()
                 .build()
-            INSTANCE = instance
-            instance
+                .also { INSTANCE = it }
         }
 
         private val MIGRATION_1_4 = object : Migration(1, 4) {

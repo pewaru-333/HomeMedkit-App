@@ -168,8 +168,8 @@
     <string name="text_export_import_description">This is an experimental feature.\nIf you import, the current app data will be deleted!</string>
     <string name="text_fill_field">Fill in this field!</string>
     <string name="text_fix_notifications">The application will restart and all overdue notifications will appear in the status bar. Do not use this function if everything works correctly!</string>
+    <string name="text_kit_title">Kit title</string>
     <string name="text_medicine_deleted">Medication has been deleted, it is impossible to change the intake status</string>
-    <string name="text_new_group">New group</string>
     <string name="text_not_saved_intake">The intake is not saved! Would you like to go back?</string>
     <string name="text_pay_attention">Pay attention!</string>
     <string name="text_pick_icon">Pick default icon</string>

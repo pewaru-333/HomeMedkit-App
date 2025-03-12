@@ -14,10 +14,10 @@ import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.helpers.ALARM_ID
 import ru.application.homemedkit.helpers.AlarmType
-import ru.application.homemedkit.helpers.FORMAT_S
+import ru.application.homemedkit.helpers.FORMAT_DD_MM_YYYY
 import ru.application.homemedkit.helpers.SchemaTypes
-import ru.application.homemedkit.helpers.canScheduleExactAlarms
 import ru.application.homemedkit.helpers.expirationCheckTime
+import ru.application.homemedkit.helpers.extensions.canScheduleExactAlarms
 import ru.application.homemedkit.helpers.getDateTime
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -26,11 +26,11 @@ class AlarmSetter(private val context: Context) {
     private val manager = context.getSystemService(AlarmManager::class.java)
     private val database = MedicineDatabase.getInstance(context)
 
-    private val alarmIntent = Intent(context, AlarmReceiver::class.java)
-    private val preAlarmIntent = Intent(context, PreAlarmReceiver::class.java)
+    private val alarmIntent = Intent(context, AlarmReceiver::class.java).addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+    private val preAlarmIntent = Intent(context, PreAlarmReceiver::class.java).addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
 
-    fun setAlarm(intakeId: Long, trigger: Long, amount: Double, preAlarm: Boolean) {
-        val alarmId = database.alarmDAO().add(
+    suspend fun setAlarm(intakeId: Long, trigger: Long, amount: Double, preAlarm: Boolean) {
+        val alarmId = database.alarmDAO().insert(
             Alarm(
                 intakeId = intakeId,
                 trigger = trigger,
@@ -66,21 +66,21 @@ class AlarmSetter(private val context: Context) {
         }
     }
 
-    fun resetOrDelete(alarmId: Long, trigger: Long, intake: Intake, type: AlarmType) {
+    suspend fun resetOrDelete(alarmId: Long, trigger: Long, intake: Intake, type: AlarmType) {
         val interval = if (intake.schemaType == SchemaTypes.PERSONAL) intake.interval
         else intake.schemaType.interval.days
 
         val nextTrigger = getDateTime(trigger).plusDays(interval.toLong()).toLocalDateTime()
         val lastTrigger = LocalDateTime.of(
-            LocalDate.parse(intake.finalDate, FORMAT_S),
+            LocalDate.parse(intake.finalDate, FORMAT_DD_MM_YYYY),
             getDateTime(trigger).toLocalTime()
         )
 
-        if (nextTrigger >= lastTrigger) removeAlarm(alarmId, type)
+        if (nextTrigger > lastTrigger) removeAlarm(alarmId, type)
         else resetAlarm(alarmId, interval, type)
     }
 
-    fun removeAlarm(alarmId: Long, type: AlarmType) {
+    suspend fun removeAlarm(alarmId: Long, type: AlarmType) {
         val alarm = database.alarmDAO().getById(alarmId) ?: return
 
         val pendingA = getBroadcast(
@@ -171,7 +171,7 @@ class AlarmSetter(private val context: Context) {
         val broadcast = getBroadcast(
             context,
             81000,
-            Intent(context, ExpirationReceiver::class.java),
+            Intent(context, ExpirationReceiver::class.java).addFlags(Intent.FLAG_RECEIVER_FOREGROUND),
             FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
         )
 

@@ -165,7 +165,7 @@
     <string name="text_fill_field">请在此栏输入内容</string>
     <string name="text_fix_notifications">软件会重启并且所有的往期提醒均会出现在通知栏. 没事别开这个功能</string>
     <string name="text_medicine_deleted">对应的药品已被删除. 因此无法修改用药情况</string>
-    <string name="text_new_group">新组别</string>
+    <string name="text_kit_title">新组别</string>
     <string name="text_not_saved_intake">用药信息未保存，确认退出？</string>
     <string name="text_pay_attention">注意！</string>
     <string name="text_pick_icon">Pick default icon</string>

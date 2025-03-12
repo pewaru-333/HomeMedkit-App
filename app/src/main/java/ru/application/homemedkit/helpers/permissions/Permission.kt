@@ -29,9 +29,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import ru.application.homemedkit.helpers.canScheduleExactAlarms
-import ru.application.homemedkit.helpers.canUseFullScreenIntent
-import ru.application.homemedkit.helpers.isIgnoringBatteryOptimizations
+import ru.application.homemedkit.helpers.extensions.canScheduleExactAlarms
+import ru.application.homemedkit.helpers.extensions.canUseFullScreenIntent
+import ru.application.homemedkit.helpers.extensions.isIgnoringBatteryOptimizations
 
 @Stable
 class Permission(private val context: Context, private val permission: String) : PermissionState {

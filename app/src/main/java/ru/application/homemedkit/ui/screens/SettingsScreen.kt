@@ -53,6 +53,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -69,6 +70,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import me.zhanghai.compose.preference.ListPreference
 import me.zhanghai.compose.preference.Preference
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
@@ -110,7 +112,7 @@ import ru.application.homemedkit.R.string.text_export
 import ru.application.homemedkit.R.string.text_export_import_description
 import ru.application.homemedkit.R.string.text_fix_notifications
 import ru.application.homemedkit.R.string.text_import
-import ru.application.homemedkit.R.string.text_new_group
+import ru.application.homemedkit.R.string.text_kit_title
 import ru.application.homemedkit.R.string.text_off
 import ru.application.homemedkit.R.string.text_on
 import ru.application.homemedkit.R.string.text_pay_attention
@@ -143,11 +145,11 @@ import ru.application.homemedkit.helpers.SORTING
 import ru.application.homemedkit.helpers.Sorting
 import ru.application.homemedkit.helpers.THEMES
 import ru.application.homemedkit.helpers.Themes
-import ru.application.homemedkit.helpers.getDisplayRegionName
-import ru.application.homemedkit.helpers.getLanguageList
+import ru.application.homemedkit.helpers.extensions.getDisplayRegionName
+import ru.application.homemedkit.helpers.extensions.getLanguageList
+import ru.application.homemedkit.helpers.extensions.showToast
 import ru.application.homemedkit.helpers.permissions.PermissionState
 import ru.application.homemedkit.helpers.permissions.rememberPermissionState
-import ru.application.homemedkit.helpers.showToast
 import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.ui.theme.isDynamicColorAvailable
 import java.io.File
@@ -308,6 +310,7 @@ fun SettingsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KitsManager(back: () -> Unit) {
+    val scope = rememberCoroutineScope()
     val dao = database.kitDAO()
     val kits by dao.getFlow().collectAsStateWithLifecycle(emptyList())
     var gKitId by rememberSaveable { mutableLongStateOf(0L) }
@@ -346,7 +349,7 @@ fun KitsManager(back: () -> Unit) {
                     },
                     trailingContent = {
                         IconButton(
-                            onClick = { dao.delete(Kit(kitId)) }
+                            onClick = { scope.launch { dao.delete(Kit(kitId)) } }
                         ) {
                             Icon(Icons.Outlined.Delete, null)
                         }
@@ -363,10 +366,16 @@ fun KitsManager(back: () -> Unit) {
             TextButton(
                 enabled = text.isNotEmpty(),
                 onClick = {
-                    dao.add(Kit(kitId = gKitId, title = text))
+                    val kit = Kit(
+                        kitId = gKitId,
+                        title = text
+                    )
+
                     text = BLANK
                     show = false
                     gKitId = 0L
+
+                    scope.launch { dao.upsert(kit) }
                 },
             ) { Text(stringResource(text_save)) }
         },
@@ -375,7 +384,7 @@ fun KitsManager(back: () -> Unit) {
                 Text(stringResource(text_cancel))
             }
         },
-        title = { Text(stringResource(text_new_group)) },
+        title = { Text(stringResource(text_kit_title)) },
         text = {
             OutlinedTextField(
                 value = text,
@@ -536,9 +545,9 @@ private fun ExportImport(onDismiss: () -> Unit) {
                         ).putExtra(KEY_EXP_IMP, true)
                     )
                     Runtime.getRuntime().exit(0)
-                } else showToast(false, context)
-            } catch (e: Throwable) {
-                showToast(false, context)
+                } else context.showToast(R.string.text_error)
+            } catch (_: Throwable) {
+                context.showToast(R.string.text_error)
             } finally {
                 tempFile.delete()
             }

@@ -148,7 +148,7 @@
     <string name="text_fill_field">¡Rellene este campo!</string>
     <string name="text_fix_notifications">The application will restart and all overdue notifications will appear in the status bar. Do not use this function if everything works correctly!</string>
     <string name="text_medicine_deleted">Se ha eliminado el medicamento, es imposible cambiar el estado de ingesta</string>
-    <string name="text_new_group">Nuevo grupo</string>
+    <string name="text_kit_title">Nuevo grupo</string>
     <string name="text_not_saved_intake">¡La entrada no se ha guardado! ¿Quieres volver atrás?</string>
     <string name="text_pay_attention">¡Prestar atención!</string>
     <string name="text_pick_icon">Pick default icon</string>

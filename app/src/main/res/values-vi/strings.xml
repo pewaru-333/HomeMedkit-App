@@ -56,7 +56,7 @@
     <string name="text_duplicate">Thuốc này đã được thêm vào!</string>
     <string name="text_export_import_description">Đây là một tính năng thử nghiệm.\nKhi xuất, bạn có thể thay đổi tên tệp.\nKhi nhập, dữ liệu hiện tại sẽ bị xóa! Xin vui lòng khởi chạy lại ứng dụng sau đó!</string>
     <string name="text_permission_grant_full">Cấp quyền</string>
-    <string name="text_new_group">Nhóm mới</string>
+    <string name="text_kit_title">Nhóm mới</string>
     <string name="text_request_camera">Để quét nhãn, ứng dụng phải được cấp quyền sử dụng máy ảnh</string>
     <string name="text_select_time">Chọn thời gian</string>
     <!-- Strings -->

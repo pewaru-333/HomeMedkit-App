@@ -1,6 +1,7 @@
 package ru.application.homemedkit.models.states
 
 import androidx.annotation.StringRes
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import ru.application.homemedkit.helpers.BLANK
@@ -12,9 +13,6 @@ data class MedicineState(
     val adding: Boolean = true,
     val editing: Boolean = false,
     val default: Boolean = false,
-    val loading: Boolean = false,
-    val noNetwork: Boolean = false,
-    val codeError: Boolean = false,
     val id: Long = 0L,
     val kits: SnapshotStateList<Long> = mutableStateListOf(),
     val cis: String = BLANK,
@@ -35,6 +33,7 @@ data class MedicineState(
     val comment: String = BLANK,
     val images: SnapshotStateList<String> = mutableStateListOf(Types.entries[Random.nextInt(0, Types.entries.size)].value),
     val technical: TechnicalState = TechnicalState(),
+    val snackbarHostState: SnackbarHostState = SnackbarHostState(),
     val showDialogKits: Boolean = false,
     val showDialogDate: Boolean = false,
     val showDialogPackageDate: Boolean = false,

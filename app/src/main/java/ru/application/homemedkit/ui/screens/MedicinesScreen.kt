@@ -194,7 +194,7 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
             ) { Text(stringResource(text_no_data_found), textAlign = TextAlign.Center) }
             else LazyColumn(Modifier, state.listState, values) {
                 items(list, MedicineList::id) {
-                    MedicineItem(it, navigateToMedicine); HorizontalDivider()
+                    MedicineItem(it, Modifier.animateItem(), navigateToMedicine); HorizontalDivider()
                 }
             }
         }
@@ -208,11 +208,11 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
 }
 
 @Composable
-private fun MedicineItem(medicine: MedicineList, navigateToMedicine: (Long) -> Unit) =
+private fun MedicineItem(medicine: MedicineList, modifier: Modifier, navigateToMedicine: (Long) -> Unit) =
     ListItem(
         headlineContent = { Text(medicine.title) },
         leadingContent = { MedicineImage(medicine.image, Modifier.size(56.dp)) },
-        modifier = Modifier.clickable { navigateToMedicine(medicine.id) },
+        modifier = modifier.clickable { navigateToMedicine(medicine.id) },
         overlineContent = {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
                 Text(medicine.formName); Text(medicine.kitTitle)

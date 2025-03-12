@@ -67,7 +67,7 @@
     <string name="text_export_import_description">Questa è una caratteristica sperimentale. \nQuando si esporta, è possibile modificare il nome del file. \nQuando l\'importazione, i dati attuali verranno cancellati! Si prega di rilanciare app dopo di esso!</string>
     <string name="text_permission_grant_full">Il permesso di concessione</string>
     <string name="text_medicine_deleted">La medicina è stata cancellata, impossibile cambiare lo stato di assunzione</string>
-    <string name="text_new_group">Nuovo gruppo</string>
+    <string name="text_kit_title">Nuovo gruppo</string>
     <string name="text_request_camera">Per la scansione dell\'etichetta, l\'applicazione deve essere dato il permesso di utilizzare la fotocamera</string>
     <string name="text_select_time">Selezionare il tempo</string>
     <string name="text_try_again">Prova di nuovo a scansionare l\'etichetta!</string>

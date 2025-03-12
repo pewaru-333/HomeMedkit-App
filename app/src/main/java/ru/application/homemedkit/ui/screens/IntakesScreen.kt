@@ -62,7 +62,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight.Companion.SemiBold
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -94,9 +94,9 @@ import ru.application.homemedkit.data.dto.IntakeTime
 import ru.application.homemedkit.dialogs.TimePickerDialog
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DoseTypes
-import ru.application.homemedkit.helpers.FORMAT_DME
-import ru.application.homemedkit.helpers.FORMAT_DMMMMY
-import ru.application.homemedkit.helpers.FORMAT_H
+import ru.application.homemedkit.helpers.FORMAT_D_MMMM_E
+import ru.application.homemedkit.helpers.FORMAT_H_MM
+import ru.application.homemedkit.helpers.FORMAT_LONG
 import ru.application.homemedkit.helpers.Intervals
 import ru.application.homemedkit.helpers.ZONE
 import ru.application.homemedkit.helpers.decimalFormat
@@ -208,6 +208,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
 
                             if (intake != null && medicine != null)
                                 MedicineItem(
+                                    modifier = Modifier.animateItem(),
                                     title = medicine.nameAlias.ifEmpty { medicine.productName },
                                     formName = medicine.prodFormNormName,
                                     doseType = medicine.doseType,
@@ -223,8 +224,9 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                 2 -> LazyColumn(state = state.stateC) {
                     taken.forEach { past ->
                         item { TextDate(past.date) }
-                        itemsIndexed(past.intakes.reversed()) { index, value ->
+                        itemsIndexed(past.intakes.reversed(), key = {_, item -> item.takenId}) { index, value ->
                             MedicineItem(
+                                modifier = Modifier.animateItem(),
                                 title = value.productName,
                                 formName = value.formName,
                                 doseType = value.doseType,
@@ -324,21 +326,21 @@ private fun DialogTaken(model: IntakesViewModel) {
                     label = { Text(stringResource(text_medicine_product_name)) }
                 )
                 OutlinedTextField(
-                    value = getDateTime(intake.trigger).format(FORMAT_DMMMMY),
+                    value = getDateTime(intake.trigger).format(FORMAT_LONG),
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(intake_text_date)) }
                 )
                 Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
-                        value = getDateTime(intake.trigger).format(FORMAT_H),
+                        value = getDateTime(intake.trigger).format(FORMAT_H_MM),
                         modifier = Modifier.weight(0.5f),
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(stringResource(intake_text_by_schedule)) }
                     )
                     OutlinedTextField(
-                        value = if (intake.selection == 1) getDateTime(intake.inFact).format(FORMAT_H)
+                        value = if (intake.selection == 1) getDateTime(intake.inFact).format(FORMAT_H_MM)
                         else stringResource(intake_text_not_taken),
                         onValueChange = {},
                         enabled = false,
@@ -395,15 +397,20 @@ private fun DialogDeleteTaken(onDismiss: () -> Unit, onDelete: () -> Unit) = Ale
     onDismissRequest = onDismiss,
     dismissButton = { TextButton(onDismiss) { Text(stringResource(text_cancel)) } },
     confirmButton = { TextButton(onDelete) { Text(stringResource(R.string.text_confirm)) } },
-    text = { Text(stringResource(R.string.text_confirm_deletion_int)) },
-    title = { Text(stringResource(R.string.text_attention)) }
+    title = { Text(stringResource(R.string.text_attention)) },
+    text = {
+        Text(
+            text = stringResource(R.string.text_confirm_deletion_int),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
 )
 
 @Composable
 private fun TextDate(timestamp: Long) = Text(
-    style = MaterialTheme.typography.titleLarge.copy(fontWeight = SemiBold),
-    text = LocalDate.ofEpochDay(timestamp).let {
-        it.format(if (it.year == LocalDate.now().year) FORMAT_DME else FORMAT_DMMMMY)
+    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.W500),
+    text = LocalDate.ofEpochDay(timestamp).run {
+        format(if (LocalDate.now().year == year) FORMAT_D_MMMM_E else FORMAT_LONG)
     },
     modifier = Modifier
         .fillMaxWidth()
@@ -414,6 +421,7 @@ private fun TextDate(timestamp: Long) = Text(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MedicineItem(
+    modifier: Modifier,
     title: String,
     formName: String,
     doseType: String,
@@ -426,7 +434,7 @@ fun MedicineItem(
 ) = ListItem(
     headlineContent = { Text(text = title, maxLines = 1, softWrap = false) },
     leadingContent = { MedicineImage(image, Modifier.size(40.dp)) },
-    modifier = Modifier.combinedClickable(
+    modifier = modifier.combinedClickable(
         onClick = { showDialog?.invoke() },
         onLongClick = { showDialogDelete?.invoke() }
     ),
@@ -441,7 +449,7 @@ fun MedicineItem(
     },
     trailingContent = {
         Text(
-            text = LocalDateTime.ofInstant(Instant.ofEpochMilli(trigger), ZONE).format(FORMAT_H),
+            text = LocalDateTime.ofInstant(Instant.ofEpochMilli(trigger), ZONE).format(FORMAT_H_MM),
             style = MaterialTheme.typography.labelLarge
         )
     },

@@ -13,17 +13,16 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
 import ru.application.homemedkit.MainActivity
-import ru.application.homemedkit.R.drawable.vector_time
+import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.text_attention
 import ru.application.homemedkit.R.string.text_expire_soon
 import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.helpers.CHANNEL_ID_EXP
-import ru.application.homemedkit.helpers.safeNotify
+import ru.application.homemedkit.helpers.extensions.safeNotify
 
 class ExpirationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val dao = MedicineDatabase.getInstance(context).medicineDAO()
-        val medicines = dao.getAll()
+        val medicines = MedicineDatabase.getInstance(context).medicineDAO().getAll()
 
         medicines.forEach {
             if (it.expDate < System.currentTimeMillis() + 30 * INTERVAL_DAY && it.prodAmount > 0) {
@@ -34,15 +33,23 @@ class ExpirationReceiver : BroadcastReceiver() {
                         .setAutoCancel(true)
                         .setCategory(CATEGORY_REMINDER)
                         .setContentIntent(TaskStackBuilder.create(context).run {
-                            addNextIntentWithParentStack(Intent(context, MainActivity::class.java).apply {
-                                action = Intent.ACTION_VIEW
-                                data = "app://medicines/${it.id}".toUri()
-                            })
+                            addNextIntentWithParentStack(
+                                Intent(context, MainActivity::class.java).apply {
+                                    action = Intent.ACTION_VIEW
+                                    data = "app://medicines/${it.id}".toUri()
+                                }
+                            )
                             getPendingIntent(it.id.toInt(), FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
                         })
-                        .setContentText(context.getString(text_expire_soon, dao.getProductName(it.id)))
+                        .setContentText(
+                            context.getString(
+                                text_expire_soon,
+                                MedicineDatabase.getInstance(context).medicineDAO()
+                                    .getProductName(it.id)
+                            )
+                        )
                         .setContentTitle(context.getString(text_attention))
-                        .setSmallIcon(vector_time)
+                        .setSmallIcon(R.drawable.ic_launcher_notification)
                         .setVisibility(VISIBILITY_PUBLIC)
                         .build()
                 )

@@ -31,7 +31,7 @@ class CameraState(val context: Context) {
         .setResolutionStrategy(resolution)
         .build()
 
-    private val hasFlashUnit = controller.cameraInfo?.hasFlashUnit() ?: true
+    private val hasFlashUnit = controller.cameraInfo?.hasFlashUnit() != false
 
     fun setUseCases(useCases: Int) = with(controller) { setEnabledUseCases(useCases) }
 

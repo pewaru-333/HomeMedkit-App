@@ -6,6 +6,7 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.LocaleList
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.stateIn
+import ru.application.homemedkit.helpers.extensions.getSelectedLanguage
 import ru.application.homemedkit.receivers.AlarmSetter
 import java.util.Locale
 
@@ -33,28 +35,23 @@ object Preferences : ViewModel() {
     }
 
     fun getSortingOrder() = preferences.getString(KEY_ORDER, SORTING[0]) ?: SORTING[0]
-    fun getImageFetch() = preferences.getBoolean(KEY_DOWNLOAD, false)
+    fun getImageFetch() = preferences.getBoolean(KEY_DOWNLOAD, true)
     fun getCheckExpDate() = preferences.getBoolean(KEY_CHECK_EXP_DATE, false)
     fun getConfirmExit() = preferences.getBoolean(KEY_CONFIRM_EXIT, true)
     fun getDynamicColors() = preferences.getBoolean(KEY_DYNAMIC_COLOR, false)
     fun getLanguage(context: Context?) = if (context == null) Locale.ENGLISH.language
-    else preferences.getString(
-        KEY_LANGUAGE,
-        LocaleList.getAdjustedDefault()[0].language.run {
-            if (this in context.getLanguageList()) this
-            else Locale.ENGLISH.language
-        }
-    ) ?: Locale.ENGLISH.language
+    else preferences.getString(KEY_LANGUAGE, context.getSelectedLanguage()) ?: Locale.ENGLISH.language
 
     fun isFirstLaunchIntake() = preferences.getBoolean(KEY_FIRST_LAUNCH_INTAKE, true)
-    fun setFirstLaunchIntakeExit() = preferences.edit().putBoolean(KEY_FIRST_LAUNCH_INTAKE, false).apply()
+    fun setFirstLaunchIntakeExit() = preferences.edit { putBoolean(KEY_FIRST_LAUNCH_INTAKE, false) }
 
     fun setCheckExpDate(context: Context, check: Boolean) =
         AlarmSetter(context).checkExpiration(check)
-            .also { preferences.edit().putBoolean(KEY_CHECK_EXP_DATE, check).apply() }
+            .also { preferences.edit { putBoolean(KEY_CHECK_EXP_DATE, check) } }
 
-    fun setLocale(context: Context, locale: String) = preferences.edit()
-        .putString(KEY_LANGUAGE, locale).apply().also {
+    fun setLocale(context: Context, locale: String) = preferences.edit {
+        putString(KEY_LANGUAGE, locale)
+    }.also {
             changeLanguage(context)
             (context as Activity).recreate()
         }

@@ -2,7 +2,6 @@ package ru.application.homemedkit.helpers
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import kotlinx.serialization.Serializable
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.drawable.vector_medicine
 import ru.application.homemedkit.R.drawable.vector_settings
@@ -99,13 +98,20 @@ import ru.application.homemedkit.helpers.DoseTypes.GRAMS
 import ru.application.homemedkit.helpers.DoseTypes.MILLIGRAMS
 import ru.application.homemedkit.helpers.DoseTypes.MILLILITERS
 import ru.application.homemedkit.helpers.DoseTypes.PIECES
+import ru.application.homemedkit.helpers.DoseTypes.entries
+import ru.application.homemedkit.helpers.Intervals.entries
+import ru.application.homemedkit.helpers.Periods.entries
+import ru.application.homemedkit.helpers.Types.entries
+import ru.application.homemedkit.ui.navigation.Screen
+import ru.application.homemedkit.ui.navigation.Screen.Intakes
+import ru.application.homemedkit.ui.navigation.Screen.Medicines
+import ru.application.homemedkit.ui.navigation.Screen.Settings
 
 // ============================================ Strings ============================================
 const val ALARM_ID = "alarmId"
 const val BLANK = ""
 const val CHANNEL_ID_EXP = "channel_expiration"
 const val CHANNEL_ID_INTAKES = "channel_intakes"
-const val CHANNEL_ID_LEGACY = "intake_notifications"
 const val CHANNEL_ID_PRE = "channel_prealarm"
 const val CIS = "cis"
 const val DATABASE_NAME = "medicines"
@@ -179,13 +185,13 @@ enum class Intervals(val days: Int, @StringRes val title: Int) {
                 7 -> WEEKLY.title
                 else -> CUSTOM.title
             }
-        } catch (e: NumberFormatException) {
+        } catch (_: NumberFormatException) {
             blank
         }
     }
 }
 
-enum class Menu(val route: Any, @StringRes val title: Int, @DrawableRes val icon: Int) {
+enum class Menu(val route: Screen, @StringRes val title: Int, @DrawableRes val icon: Int) {
     MEDICINES(Medicines, bottom_bar_medicines, vector_medicine),
     INTAKES(Intakes, bottom_bar_intakes, vector_time),
     SETTINGS(Settings, bottom_bar_settings, vector_settings)
@@ -262,37 +268,3 @@ enum class Types(
         }?.doseType?.value ?: BLANK
     }
 }
-
-// ============================================ Screens ============================================
-
-@Serializable
-object Medicines
-
-@Serializable
-object Intakes
-
-@Serializable
-object Settings
-
-@Serializable
-object Scanner
-
-@Serializable
-data class Medicine(
-    val id: Long = 0L,
-    val cis: String = BLANK,
-    val duplicate: Boolean = false
-)
-
-@Serializable
-data class Intake(
-    val intakeId: Long = 0L,
-    val medicineId: Long = 0L
-)
-
-// ===== Settings items ===== //
-@Serializable
-object KitsManager
-
-@Serializable
-object PermissionsScreen

@@ -69,6 +69,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -79,6 +81,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -92,6 +95,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -114,15 +118,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.text.HtmlCompat.FROM_HTML_OPTION_USE_CSS_COLORS
 import androidx.core.text.HtmlCompat.fromHtml
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.application.homemedkit.HomeMeds.Companion.database
-import ru.application.homemedkit.R
 import ru.application.homemedkit.R.drawable.vector_add_photo
 import ru.application.homemedkit.R.drawable.vector_flash
 import ru.application.homemedkit.R.drawable.vector_type_unknown
@@ -138,6 +141,7 @@ import ru.application.homemedkit.R.string.text_delete
 import ru.application.homemedkit.R.string.text_duplicate
 import ru.application.homemedkit.R.string.text_edit
 import ru.application.homemedkit.R.string.text_empty
+import ru.application.homemedkit.R.string.text_error_not_medicine
 import ru.application.homemedkit.R.string.text_exp_date
 import ru.application.homemedkit.R.string.text_indications_for_use
 import ru.application.homemedkit.R.string.text_medicine_comment
@@ -152,6 +156,7 @@ import ru.application.homemedkit.R.string.text_medicine_status_checked
 import ru.application.homemedkit.R.string.text_medicine_status_scanned
 import ru.application.homemedkit.R.string.text_medicine_status_self_added
 import ru.application.homemedkit.R.string.text_medicine_storage_conditions
+import ru.application.homemedkit.R.string.text_package_opened_date
 import ru.application.homemedkit.R.string.text_pick_icon
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_set_image
@@ -160,16 +165,18 @@ import ru.application.homemedkit.R.string.text_take_picture
 import ru.application.homemedkit.R.string.text_try_again
 import ru.application.homemedkit.R.string.text_unspecified
 import ru.application.homemedkit.R.string.text_update
+import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.dialogs.DatePicker
 import ru.application.homemedkit.dialogs.MonthYear
 import ru.application.homemedkit.helpers.DoseTypes
-import ru.application.homemedkit.helpers.FORMAT_DMMMMY
+import ru.application.homemedkit.helpers.FORMAT_LONG
 import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.Types
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.permissions.rememberPermissionState
 import ru.application.homemedkit.helpers.toExpDate
 import ru.application.homemedkit.models.events.MedicineEvent
+import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.states.rememberCameraState
 import ru.application.homemedkit.models.viewModels.MedicineViewModel
@@ -180,15 +187,15 @@ import java.time.LocalDate
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
-    val context = LocalContext.current
+    val filesDir = LocalContext.current.filesDir
     val focusManager = LocalFocusManager.current
 
     val model = viewModel<MedicineViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
-
-    var show by remember { mutableStateOf(false) }
-    if (show) Snackbar(text_duplicate)
-    LaunchedEffect(Unit) { model.duplicate.collectLatest { show = it } }
+    val response by model.response.collectAsStateWithLifecycle(
+        initialValue = null,
+        context = Dispatchers.Main.immediate
+    )
 
     BackHandler { if (state.showTakePhoto) model.onEvent(MedicineEvent.ShowTakePhoto) else navigateBack() }
     Scaffold(
@@ -251,12 +258,21 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
                 )
             )
         },
+        snackbarHost = {
+            SnackbarHost(state.snackbarHostState) {
+                Snackbar(
+                    snackbarData = it,
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
+        },
         floatingActionButton = {
             if (state.technical.scanned && !state.technical.verified)
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(text_update)) },
                     icon = { Icon(Icons.Outlined.Refresh, null) },
-                    onClick = { model.fetch(context.filesDir) }
+                    onClick = { model.fetch(filesDir) }
                 )
         }
     ) { values ->
@@ -287,10 +303,17 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
         }
     }
 
+    when (response) {
+        null -> Unit
+        Response.Loading -> LoadingDialog()
+        Response.Duplicate -> model.showSnackbar(stringResource(text_duplicate))
+        Response.IncorrectCode -> model.showSnackbar(stringResource(text_error_not_medicine))
+        Response.UnknownError -> model.showSnackbar(stringResource(text_try_again))
+        is Response.Success -> Unit
+        is Response.NetworkError -> model.showSnackbar(stringResource(text_connection_error))
+    }
+
     when {
-        state.loading -> LoadingDialog()
-        state.noNetwork -> Snackbar(text_connection_error)
-        state.codeError ->  Snackbar(text_try_again)
         state.showDialogKits -> DialogKits(state, model::onEvent)
         state.showDialogPictureChoose -> DialogPictureChoose(model::onEvent, model::compressImage)
         state.showDialogIcons -> IconPicker(model::onEvent)
@@ -298,7 +321,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
             text = text_confirm_deletion_med,
             cancel = { model.onEvent(MedicineEvent.ShowDialogDelete) },
             confirm = {
-                model.delete(context.filesDir)
+                model.delete(filesDir)
                 navigateBack()
             }
         )
@@ -395,7 +418,7 @@ private fun ProductName(
 private fun ProductOpened(state: MedicineState, event: (MedicineEvent) -> Unit) = Column {
     if (state.default) {
         Text(
-            text = stringResource(R.string.text_package_opened_date),
+            text = stringResource(text_package_opened_date),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
         )
         Text(
@@ -406,8 +429,8 @@ private fun ProductOpened(state: MedicineState, event: (MedicineEvent) -> Unit) 
         value = toExpDate(state.dateOpened),
         onValueChange = {},
         readOnly = true,
-        label = { Text(stringResource(R.string.text_package_opened_date)) },
-        placeholder = { Text(LocalDate.now().minusDays(33).format(FORMAT_DMMMMY)) },
+        label = { Text(stringResource(text_package_opened_date)) },
+        placeholder = { Text(LocalDate.now().minusDays(33).format(FORMAT_LONG)) },
         modifier = Modifier
             .fillMaxWidth()
             .pointerInput(Unit) {
@@ -472,7 +495,7 @@ private fun ProductExp(state: MedicineState, event: (MedicineEvent) -> Unit) = C
             onValueChange = {},
             readOnly = true,
             label = { Text(stringResource(text_exp_date)) },
-            placeholder = { Text(LocalDate.now().plusDays(555).format(FORMAT_DMMMMY)) },
+            placeholder = { Text(LocalDate.now().plusDays(555).format(FORMAT_LONG)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .pointerInput(Unit) {
@@ -776,7 +799,7 @@ private fun DialogKits(state: MedicineState, event: (MedicineEvent) -> Unit) = A
     },
     text = {
         LazyColumn {
-            items(database.kitDAO().getAll()) { (kitId, title) ->
+            items(database.kitDAO().getAll().sortedBy(Kit::title)) { (kitId, title) ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
@@ -915,21 +938,29 @@ fun DialogDelete(text: Int, cancel: () -> Unit, confirm: () -> Unit) = AlertDial
 @Composable
 fun MedicineImage(image: String, modifier: Modifier = Modifier, editable: Boolean = false) {
     val context = LocalContext.current
-    val icon = when {
-        image.isEmpty() -> null
-        image.contains(TYPE) -> context.getDrawable(Types.getIcon(image))?.toBitmap()?.asImageBitmap()
-        else -> File(context.filesDir, image).run {
-            if (exists()) BitmapFactory.decodeFile(absolutePath).asImageBitmap() else null
+
+    val test by produceState<Any?>(null, image) {
+        value = if (image.contains(TYPE)) Types.getIcon(image)
+        else withContext(Dispatchers.Default) {
+            try {
+                BitmapFactory.decodeFile(File(context.filesDir, image).absolutePath).asImageBitmap()
+            } catch (_: Throwable) {
+                null
+            }
         }
     }
 
     Image(
-        painter = icon?.let { BitmapPainter(it) } ?: painterResource(vector_type_unknown),
         contentDescription = null,
         modifier = modifier,
         alignment = Alignment.Center,
         contentScale = ContentScale.Fit,
-        alpha = if (editable) 0.4f else 1f
+        alpha = if (editable) 0.4f else 1f,
+        painter = when (test) {
+            is Int -> painterResource(test as Int)
+            is ImageBitmap -> BitmapPainter(test as ImageBitmap)
+            else -> painterResource(vector_type_unknown)
+        }
     )
 }
 

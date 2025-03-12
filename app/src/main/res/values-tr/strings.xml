@@ -163,7 +163,7 @@
     <string name="text_fill_field">Bu alanı doldurun!</string>
     <string name="text_fix_notifications">Uygulama yeniden başlatılacak ve tüm gecikmiş bildirimler durum çubuğunda görünecek. Her şey düzgün çalışıyorsa bu işlevi kullanmayın!</string>
     <string name="text_medicine_deleted">İlaç silindi, alım durumunu değiştirmek imkansız</string>
-    <string name="text_new_group">Yeni grup</string>
+    <string name="text_kit_title">Yeni grup</string>
     <string name="text_not_saved_intake">Alım kaydedilmedi! Geri dönmek ister misiniz?</string>
     <string name="text_pay_attention">Dikkat edin!</string>
     <string name="text_request_camera">Etiketleri taramak için kamera izni gereklidir</string>

@@ -18,14 +18,14 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_finish_date
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_start_date
-import ru.application.homemedkit.helpers.FORMAT_S
-import ru.application.homemedkit.helpers.LOCALE
+import ru.application.homemedkit.helpers.FORMAT_DD_MM_YYYY
 import ru.application.homemedkit.helpers.ZONE
 import ru.application.homemedkit.helpers.getDateTime
 import java.time.LocalDate
@@ -42,13 +42,13 @@ fun DateRangePicker(
 ) {
     val initialStart = startDate.let {
         if (it.isNotEmpty()) LocalDateTime.of(
-            LocalDate.parse(it, FORMAT_S), LocalTime.of(12, 0, 0)
+            LocalDate.parse(it, FORMAT_DD_MM_YYYY), LocalTime.of(12, 0, 0)
         ).toInstant(ZONE).toEpochMilli() else null
     }
 
     val initialFinal = finalDate.let {
         if (it.isNotEmpty()) LocalDateTime.of(
-            LocalDate.parse(it, FORMAT_S), LocalTime.of(12, 0, 0)
+            LocalDate.parse(it, FORMAT_DD_MM_YYYY), LocalTime.of(12, 0, 0)
         ).toInstant(ZONE).toEpochMilli() else null
     }
 
@@ -99,10 +99,10 @@ fun DateRangePicker(
                     verticalAlignment = CenterVertically
                 ) {
                     val formattedStart = DatePickerDefaults.dateFormatter()
-                        .formatDate(state.selectedStartDateMillis, LOCALE)
+                        .formatDate(state.selectedStartDateMillis, Locale.current.platformLocale)
 
                     val formattedFinal = DatePickerDefaults.dateFormatter()
-                        .formatDate(state.selectedEndDateMillis, LOCALE)
+                        .formatDate(state.selectedEndDateMillis, Locale.current.platformLocale)
 
                     Text(
                         text = formattedStart ?: stringResource(text_start_date),

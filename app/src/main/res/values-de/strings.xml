@@ -42,7 +42,7 @@
     <string name="intake_text_food_during">Während dem Essen</string>
     <!-- Dialogs -->
     <string name="text_permission_grant_full">Berechtigung gewähren</string>
-    <string name="text_new_group">Neue Gruppe</string>
+    <string name="text_kit_title">Neue Gruppe</string>
     <string name="text_select_time">Zeit auswählen</string>
     <string name="text_connection_error">Verbindungsfehler!</string>
     <string name="text_error">Fehler!</string>

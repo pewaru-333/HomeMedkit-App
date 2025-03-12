@@ -5,7 +5,6 @@ import android.view.WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +26,6 @@ import ru.application.homemedkit.ui.theme.AppTheme
 
 class IntakeDialogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        theme.applyStyle(android.R.style.Theme_Wallpaper_NoTitleBar_Fullscreen, true)
         super.onCreate(savedInstanceState)
 
         window.addFlags(FLAG_KEEP_SCREEN_ON or FLAG_ALLOW_LOCK_WHILE_SCREEN_ON)
@@ -39,9 +37,8 @@ class IntakeDialogActivity : ComponentActivity() {
         val takenId = intent.getLongExtra(TAKEN_ID, 0L)
         val amount = intent.getDoubleExtra(BLANK, 0.0)
 
-        val medicine = database.medicineDAO().getById(medicineId)!!
+        val medicine = database.medicineDAO().getById(medicineId) ?: return
 
-        enableEdgeToEdge()
         setContent {
             AppTheme {
                 AlertDialog(

@@ -9,7 +9,8 @@ import ru.application.homemedkit.helpers.CHANNEL_ID_EXP
 import ru.application.homemedkit.helpers.CHANNEL_ID_INTAKES
 import ru.application.homemedkit.helpers.CHANNEL_ID_PRE
 import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.createNotificationChannel
+import ru.application.homemedkit.helpers.extensions.createNotificationChannel
+
 
 class HomeMeds : Application() {
 
@@ -26,6 +27,6 @@ class HomeMeds : Application() {
             CHANNEL_ID_INTAKES to channel_intakes_desc,
             CHANNEL_ID_PRE to channel_pre_desc,
             CHANNEL_ID_EXP to channel_exp_desc
-        ).forEach { (t, u) -> createNotificationChannel(this, t, u) }
+        ).forEach { (id, name) -> createNotificationChannel(id, name) }
     }
 }

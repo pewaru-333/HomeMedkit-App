@@ -15,8 +15,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 50
-        versionName = "1.7.2"
+        versionCode = 51
+        versionName = "1.7.3"
     }
 
     dependenciesInfo {
@@ -59,29 +59,20 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.material3)
 
-    // ==================== BOMs ====================
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(platform(libs.kotlin.bom))
-
     // ==================== Room ====================
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
 
     // ==================== Network ====================
-    implementation(libs.ktor.client.android)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.bundles.ktor)
 
     // ==================== Navigation ====================
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
 
     // ==================== Scanner ====================
-    implementation(libs.androidx.camera.camera2)
-    implementation(libs.androidx.camera.lifecycle)
-    implementation(libs.androidx.camera.view)
+    implementation(libs.bundles.camera)
     implementation(libs.zxing)
 
     // ==================== Settings ====================

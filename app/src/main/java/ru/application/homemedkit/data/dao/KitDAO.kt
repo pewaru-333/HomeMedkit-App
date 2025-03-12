@@ -1,16 +1,14 @@
 package ru.application.homemedkit.data.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.MedicineKit
 
 @Dao
-interface KitDAO {
+interface KitDAO : BaseDAO<Kit> {
     // ============================== Queries ==============================
     @Query("SELECT * FROM kits")
     fun getAll(): List<Kit>
@@ -34,13 +32,6 @@ interface KitDAO {
     fun deleteAll(medicineId: Long)
 
     // ============================== Insert ==============================
-    @Upsert
-    fun add(kit: Kit): Long
-
     @Insert
-    fun pinKit(kit: MedicineKit): Long
-
-    // ============================== Delete ==============================
-    @Delete
-    fun delete(kit: Kit)
+    fun pinKit(vararg kit: MedicineKit)
 }

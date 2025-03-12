@@ -48,7 +48,7 @@
     <!-- Dialogs -->
     <string name="text_connection_error">连接错误！</string>
     <string name="text_permission_grant_full">授予權限</string>
-    <string name="text_new_group">新群組</string>
+    <string name="text_kit_title">新群組</string>
     <string name="text_request_camera">要掃描標籤，應用程式必須獲得使用相機的權限</string>
     <string name="text_select_time">選擇時間</string>
     <!-- Strings -->

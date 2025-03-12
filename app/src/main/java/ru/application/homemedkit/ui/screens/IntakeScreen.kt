@@ -80,6 +80,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -115,11 +116,10 @@ import ru.application.homemedkit.dialogs.TimePickerDialog
 import ru.application.homemedkit.helpers.FoodTypes
 import ru.application.homemedkit.helpers.IntakeExtras
 import ru.application.homemedkit.helpers.Intervals
-import ru.application.homemedkit.helpers.LOCALE
 import ru.application.homemedkit.helpers.Periods
 import ru.application.homemedkit.helpers.SchemaTypes
-import ru.application.homemedkit.helpers.canUseFullScreenIntent
 import ru.application.homemedkit.helpers.decimalFormat
+import ru.application.homemedkit.helpers.extensions.canUseFullScreenIntent
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.toExpDate
 import ru.application.homemedkit.models.events.IntakeEvent
@@ -128,7 +128,6 @@ import ru.application.homemedkit.models.viewModels.IntakeViewModel
 import ru.application.homemedkit.receivers.AlarmSetter
 import java.time.DayOfWeek
 import java.time.format.TextStyle
-import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -343,50 +342,51 @@ private fun SchemaType(state: IntakeState, event: (IntakeEvent) -> Unit) = Outli
 }
 
 @Composable
-private fun DaysPicker(state: IntakeState, event: (IntakeEvent) -> Unit, locale: Locale = LOCALE) =
-    OutlinedCard {
-        ListItem(
-            headlineContent = { Text(stringResource(R.string.text_repeat)) },
-            supportingContent = {
-                Text(
-                    if (state.pickedDays.size == DayOfWeek.entries.size) stringResource(R.string.text_every_day)
-                    else state.pickedDays.joinToString { it.getDisplayName(TextStyle.SHORT, locale) }
-                )
-            },
-        )
-        Row(
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(ListItemDefaults.containerColor)
-                .padding(vertical = 8.dp)
-        ) {
-            DayOfWeek.entries.forEach { day ->
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .border(1.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
-                        .background(
-                            if (day !in state.pickedDays) MaterialTheme.colorScheme.surface
-                            else MaterialTheme.colorScheme.tertiaryContainer
-                        )
-                        .clickable(
-                            enabled = !state.default,
-                            onClick = { event(IntakeEvent.SetPickedDay(day)) }
-                        )
-                ) {
-                    Text(
-                        text = day.getDisplayName(TextStyle.NARROW, locale),
-                        color = if (day !in state.pickedDays) MaterialTheme.colorScheme.onSurface
-                        else MaterialTheme.colorScheme.onTertiaryContainer
-                    )
+private fun DaysPicker(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCard {
+    ListItem(
+        headlineContent = { Text(stringResource(R.string.text_repeat)) },
+        supportingContent = {
+            Text(
+                if (state.pickedDays.size == DayOfWeek.entries.size) stringResource(R.string.text_every_day)
+                else state.pickedDays.joinToString {
+                    it.getDisplayName(TextStyle.SHORT, Locale.current.platformLocale)
                 }
+            )
+        },
+    )
+    Row(
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(ListItemDefaults.containerColor)
+            .padding(vertical = 8.dp)
+    ) {
+        DayOfWeek.entries.forEach { day ->
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                    .background(
+                        if (day !in state.pickedDays) MaterialTheme.colorScheme.surface
+                        else MaterialTheme.colorScheme.tertiaryContainer
+                    )
+                    .clickable(
+                        enabled = !state.default,
+                        onClick = { event(IntakeEvent.SetPickedDay(day)) }
+                    )
+            ) {
+                Text(
+                    text = day.getDisplayName(TextStyle.NARROW, Locale.current.platformLocale),
+                    color = if (day !in state.pickedDays) MaterialTheme.colorScheme.onSurface
+                    else MaterialTheme.colorScheme.onTertiaryContainer
+                )
             }
         }
     }
+}
 
 @Composable
 private fun Amount(state: IntakeState, event: (IntakeEvent) -> Unit) =

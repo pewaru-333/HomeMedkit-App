@@ -11,10 +11,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -26,17 +24,16 @@ import ru.application.homemedkit.data.dto.MedicineKit
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.FileManager
 import ru.application.homemedkit.helpers.ImageCompressor
-import ru.application.homemedkit.helpers.Medicine
-import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.Types
-import ru.application.homemedkit.helpers.toBio
+import ru.application.homemedkit.helpers.getMedicineImages
 import ru.application.homemedkit.helpers.toMedicine
 import ru.application.homemedkit.helpers.toState
 import ru.application.homemedkit.helpers.toTimestamp
 import ru.application.homemedkit.models.events.MedicineEvent
+import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.validation.Validation
 import ru.application.homemedkit.network.Network
+import ru.application.homemedkit.ui.navigation.Screen.Medicine
 import java.io.File
 
 class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
@@ -44,118 +41,133 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     private val daoK = database.kitDAO()
     private val args = saved.toRoute<Medicine>()
 
-    private val _duplicate = Channel<Boolean>()
-    val duplicate = _duplicate.receiveAsFlow()
-        .onStart {
-            if (args.duplicate) {
-                emit(true); delay(2000L); emit(false)
-            }
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), false)
+    private val _response = Channel<Response?>()
+    val response = _response.receiveAsFlow()
 
     private val _state = MutableStateFlow(MedicineState())
-    val state = _state.asStateFlow()
+    val state = _state
         .onStart {
             dao.getById(args.id)?.let { _state.value = it.toState() }
             if (args.id == 0L) _state.update { it.copy(cis = args.cis) }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MedicineState())
 
-    fun add() = viewModelScope.launch(Dispatchers.IO) {
-        val checkProductName = Validation.textNotEmpty(_state.value.productName)
-
-        if (checkProductName.successful) {
-            val id = dao.add(_state.value.toMedicine())
-            _state.value.images.forEach { dao.addImage(Image(medicineId = id, image = it)) }
-            _state.value.kits.forEach { daoK.pinKit(MedicineKit(id, it)) }
-            _state.update { it.copy(adding = false, default = true, id = id, productNameError = null) }
-        } else _state.update { it.copy(productNameError = checkProductName.errorMessage) }
+    init {
+        if (args.duplicate) viewModelScope.launch {
+            _response.send(Response.Duplicate)
+        }
     }
 
-    fun fetch(dir: File) = viewModelScope.launch(Dispatchers.IO) {
-        _state.update { it.copy(loading = true) }
+    fun add() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val checkProductName = Validation.textNotEmpty(_state.value.productName)
 
-        try {
-            Network.getMedicine(_state.value.cis).apply {
-                if (codeFounded && checkResult) {
-                    if (drugsData != null) {
-                        val medicine = drugsData.toMedicine().copy(
-                            id = _state.value.id,
-                            cis = _state.value.cis,
-                            comment = _state.value.comment.ifEmpty { BLANK }
-                        )
+            if (checkProductName.successful) {
+                val id = dao.insert(_state.value.toMedicine())
+                val kits = _state.value.kits.map { MedicineKit(id, it) }.toTypedArray()
+                val images = _state.value.images.map { image ->
+                    Image(
+                        medicineId = id,
+                        image = image
+                    )
+                }.toTypedArray()
 
-                        val image = Image(
-                            medicineId = _state.value.id,
-                            image = if (Preferences.getImageFetch()) Network.getImage(dir, drugsData.vidalData?.images)
-                            else Types.setIcon(drugsData.foiv.prodFormNormName)
-                        )
+                daoK.pinKit(*kits)
+                dao.updateImages(*images)
 
-                        dao.update(medicine)
-                        dao.updateImages(image)
-                        _state.value = medicine.toState()
-                    } else if (bioData != null) {
-                        val medicine = bioData.toBio().copy(
-                            id = _state.value.id,
-                            cis = _state.value.cis,
-                            comment = _state.value.comment.ifEmpty { BLANK }
-                        )
-
-                        dao.update(medicine)
-                        _state.value = medicine.toState()
-                    } else _state.apply {
-                        update {
-                            it.copy(
-                                loading = false,
-                                codeError = true
-                            )
-                        }
-                        delay(2500L)
-                        update { it.copy(codeError = false) }
-                    }
-                } else _state.apply {
-                    update {
-                        it.copy(
-                            loading = false,
-                            codeError = true
-                        )
-                    }
-                    delay(2500L)
-                    update { it.copy(codeError = false) }
-                }
-            }
-        } catch (e: Throwable) {
-            _state.apply {
-                update {
+                _state.update {
                     it.copy(
-                        loading = false,
-                        noNetwork = true
+                        adding = false,
+                        default = true,
+                        id = id,
+                        productNameError = null
                     )
                 }
-                delay(2500L)
-                update { it.copy(noNetwork = false) }
+            } else _state.update { it.copy(productNameError = checkProductName.errorMessage) }
+        }
+    }
+
+    fun fetch(dir: File) {
+         viewModelScope.launch {
+             _response.send(Response.Loading)
+
+            try {
+                Network.getMedicine(_state.value.cis).run {
+                    if (codeFounded && checkResult) {
+                        if (drugsData != null) {
+                            val medicine = drugsData.toMedicine().copy(
+                                id = _state.value.id,
+                                cis = _state.value.cis,
+                                comment = _state.value.comment.ifEmpty { BLANK }
+                            )
+                            val images = getMedicineImages(
+                                medicineId = _state.value.id,
+                                form = drugsData.foiv.prodFormNormName,
+                                directory = dir,
+                                urls = drugsData.vidalData?.images
+                            )
+
+                            dao.updateImages(*images)
+                            dao.update(medicine)
+                            _state.value = medicine.toState()
+                            _response.send(null)
+                        } else if (bioData != null) {
+                            val medicine = bioData.toMedicine().copy(
+                                id = _state.value.id,
+                                cis = _state.value.cis,
+                                comment = _state.value.comment.ifEmpty { BLANK }
+                            )
+
+                            dao.update(medicine)
+                            _state.value = medicine.toState()
+                            _response.send(null)
+                        } else _response.send(Response.IncorrectCode)
+                    } else _response.send(Response.UnknownError)
+                }
+            } catch (_: Throwable) {
+                _response.send(Response.NetworkError())
             }
         }
     }
 
-    fun update() = viewModelScope.launch(Dispatchers.IO) {
-        val checkProductName = Validation.textNotEmpty(_state.value.productName)
+    fun update() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val checkProductName = Validation.textNotEmpty(_state.value.productName)
 
-        if (checkProductName.successful) {
-            val images = _state.value.images.map { Image(medicineId = _state.value.id, image = it) }.toTypedArray()
-            dao.update(_state.value.toMedicine())
-            dao.updateImages(*images)
-            daoK.deleteAll(args.id)
-            _state.value.kits.forEach { daoK.pinKit(MedicineKit(args.id, it)) }
-            _state.update { it.copy(adding = false, editing = false, default = true, productNameError = null) }
-        } else _state.update { it.copy(productNameError = checkProductName.errorMessage) }
+            if (checkProductName.successful) {
+                val kits = _state.value.kits.map { MedicineKit(_state.value.id, it) }.toTypedArray()
+                val images = _state.value.images.map {
+                    Image(
+                        medicineId = _state.value.id,
+                        image = it
+                    )
+                }.toTypedArray()
+
+                daoK.deleteAll(_state.value.id)
+                daoK.pinKit(*kits)
+                dao.updateImages(*images)
+
+                dao.update(_state.value.toMedicine())
+
+                _state.update {
+                    it.copy(
+                        adding = false,
+                        editing = false,
+                        default = true,
+                        productNameError = null
+                    )
+                }
+            } else _state.update { it.copy(productNameError = checkProductName.errorMessage) }
+        }
     }
 
-    fun delete(dir: File) = viewModelScope.launch(Dispatchers.IO) {
-        dao.delete(_state.value.toMedicine())
-    }.invokeOnCompletion {
-        _state.value.images.forEach {
-            File(dir, it).deleteRecursively()
+    fun delete(dir: File) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.delete(_state.value.toMedicine())
+        }.invokeOnCompletion {
+            _state.value.images.forEach {
+                File(dir, it).deleteRecursively()
+            }
         }
     }
 
@@ -236,18 +248,30 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
         }
     }
 
-    fun setEditing() = _state.update { it.copy(editing = true, default = false) }
+    fun setEditing() = _state.update {
+        it.copy(
+            editing = true,
+            default = false
+        )
+    }
+
+    fun showSnackbar(message: String) {
+        viewModelScope.launch {
+            _state.value.snackbarHostState.showSnackbar(message)
+        }
+    }
 
     fun compressImage(context: Context, images: List<Uri>) {
-         viewModelScope.launch {
+        viewModelScope.launch {
             _state.update {
                 it.copy(
                     showDialogPictureChoose = false,
                     showTakePhoto = false,
-                    showDialogIcons = false,
-                    loading = true,
+                    showDialogIcons = false
                 )
             }
+
+            _response.send(Response.Loading)
 
             val fileManager = FileManager(context)
             val compressor = ImageCompressor(context)
@@ -270,10 +294,11 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
             _state.update {
                 it.copy(
-                    images = names,
-                    loading = false
+                    images = names
                 )
             }
+
+            _response.send(null)
         }
     }
 }

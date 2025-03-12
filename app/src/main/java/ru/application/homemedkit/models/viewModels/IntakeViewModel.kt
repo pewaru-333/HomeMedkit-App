@@ -14,7 +14,6 @@ import androidx.navigation.toRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -25,9 +24,8 @@ import ru.application.homemedkit.data.model.IntakeAmountTime
 import ru.application.homemedkit.helpers.AlarmType
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.DoseTypes
-import ru.application.homemedkit.helpers.FORMAT_H
-import ru.application.homemedkit.helpers.FORMAT_S
-import ru.application.homemedkit.helpers.Intake
+import ru.application.homemedkit.helpers.FORMAT_DD_MM_YYYY
+import ru.application.homemedkit.helpers.FORMAT_H_MM
 import ru.application.homemedkit.helpers.IntakeExtras
 import ru.application.homemedkit.helpers.Intervals
 import ru.application.homemedkit.helpers.Intervals.CUSTOM
@@ -46,6 +44,7 @@ import ru.application.homemedkit.models.events.IntakeEvent
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.validation.Validation
 import ru.application.homemedkit.receivers.AlarmSetter
+import ru.application.homemedkit.ui.navigation.Screen.Intake
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -58,7 +57,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
     private val args = saved.toRoute<Intake>()
 
     private val _state = MutableStateFlow(IntakeState())
-    val state = _state.asStateFlow()
+    val state = _state
         .onStart {
             dao.getById(args.intakeId)?.let { intake ->
                 val medicine = database.medicineDAO().getById(intake.medicineId)!!
@@ -84,7 +83,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                         foodType = intake.foodType,
                         pickedTime = SnapshotStateList<IntakeAmountTime>().apply {
                             dao.getTime(intake.intakeId).distinctBy(IntakeTime::time).forEach { intakeTime ->
-                                val localTime = LocalTime.parse(intakeTime.time, FORMAT_H)
+                                val localTime = LocalTime.parse(intakeTime.time, FORMAT_H_MM)
                                 val hour = localTime.hour
                                 val min = localTime.minute
 
@@ -120,17 +119,19 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                         }
                     )
                 }
-            } ?: _state.update { state ->
+            } ?: run {
                 val medicine = database.medicineDAO().getById(args.medicineId)!!
                 val images = database.medicineDAO().getMedicineImages(medicine.id)
 
-                state.copy(
-                    medicineId = medicine.id,
-                    medicine = medicine,
-                    amountStock = medicine.prodAmount.toString(),
-                    doseType = DoseTypes.getTitle(medicine.doseType),
-                    image = if (images.isNotEmpty()) images.first() else BLANK
-                )
+                _state.update { state ->
+                    state.copy(
+                        medicineId = medicine.id,
+                        medicine = medicine,
+                        amountStock = medicine.prodAmount.toString(),
+                        doseType = DoseTypes.getTitle(medicine.doseType),
+                        image = if (images.isNotEmpty()) images.first() else BLANK
+                    )
+                }
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), IntakeState())
 
@@ -146,12 +147,12 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
     fun add() {
         if (validate()) {
             viewModelScope.launch(Dispatchers.IO) {
-                val id = dao.add(_state.value.toIntake())
+                val id = dao.insert(_state.value.toIntake())
 
                 _state.value.pickedTime.forEach { pickedTime ->
                     val first = LocalDateTime.of(
-                        LocalDate.parse(_state.value.startDate, FORMAT_S),
-                        LocalTime.parse(pickedTime.time, FORMAT_H)
+                        LocalDate.parse(_state.value.startDate, FORMAT_DD_MM_YYYY),
+                        LocalTime.parse(pickedTime.time, FORMAT_H_MM)
                     )
 
                     when(_state.value.schemaType) {
@@ -183,7 +184,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                         SchemaTypes.BY_DAYS -> {
                             var dayOfWeek = first
                             val last = LocalDateTime.of(
-                                LocalDate.parse(_state.value.finalDate, FORMAT_S),
+                                LocalDate.parse(_state.value.finalDate, FORMAT_DD_MM_YYYY),
                                 LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
                             )
 
@@ -235,8 +236,8 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
     fun update() {
         if (validate()) {
             val finalDate = LocalDateTime.of(
-                LocalDate.parse(_state.value.finalDate, FORMAT_S),
-                LocalTime.parse(_state.value.pickedTime.last().time, FORMAT_H)
+                LocalDate.parse(_state.value.finalDate, FORMAT_DD_MM_YYYY),
+                LocalTime.parse(_state.value.pickedTime.last().time, FORMAT_H_MM)
             )
 
             viewModelScope.launch(Dispatchers.IO) {
@@ -247,8 +248,8 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
 
                     _state.value.pickedTime.forEach { pickedTime ->
                         val first = LocalDateTime.of(
-                            LocalDate.parse(_state.value.startDate, FORMAT_S),
-                            LocalTime.parse(pickedTime.time, FORMAT_H)
+                            LocalDate.parse(_state.value.startDate, FORMAT_DD_MM_YYYY),
+                            LocalTime.parse(pickedTime.time, FORMAT_H_MM)
                         )
 
                         when(_state.value.schemaType) {
@@ -280,7 +281,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                             SchemaTypes.BY_DAYS -> {
                                 var dayOfWeek = first
                                 val last = LocalDateTime.of(
-                                    LocalDate.parse(_state.value.finalDate, FORMAT_S),
+                                    LocalDate.parse(_state.value.finalDate, FORMAT_DD_MM_YYYY),
                                     LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
                                 )
 
@@ -331,10 +332,12 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
         }
     }
 
-    fun delete() {
-        dao.getAlarms(intakeId = _state.value.intakeId).forEach { setter.removeAlarm(it.alarmId, AlarmType.ALL) }
+    fun delete() = viewModelScope.launch(Dispatchers.IO) {
+        dao.getAlarms(intakeId = _state.value.intakeId).forEach {
+            setter.removeAlarm(it.alarmId, AlarmType.ALL)
+        }
 
-        viewModelScope.launch(Dispatchers.IO) { dao.delete(_state.value.toIntake()) }
+        dao.delete(_state.value.toIntake())
     }
 
     fun onEvent(event: IntakeEvent) {
@@ -414,8 +417,8 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                     }
                     INDEFINITE -> _state.update {
                         it.copy(
-                            startDate = LocalDate.now().format(FORMAT_S),
-                            finalDate = LocalDate.now().plusDays(period.days.toLong()).format(FORMAT_S),
+                            startDate = LocalDate.now().format(FORMAT_DD_MM_YYYY),
+                            finalDate = LocalDate.now().plusDays(period.days.toLong()).format(FORMAT_DD_MM_YYYY),
                             period = period.days.toString(),
                             periodType = period,
                             showPeriodTypePicker = false
@@ -428,16 +431,16 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                 }
                 else if (period.isDigitsOnly() && period.length <= 3) _state.update {
                     it.copy(
-                        startDate = LocalDate.now().format(FORMAT_S),
-                        finalDate = LocalDate.now().plusDays(period.toLong() - 1).format(FORMAT_S),
+                        startDate = LocalDate.now().format(FORMAT_DD_MM_YYYY),
+                        finalDate = LocalDate.now().plusDays(period.toLong() - 1).format(FORMAT_DD_MM_YYYY),
                         period = period
                     )
                 }
 
                 is Pair<*, *> -> if (period.first != null && period.second != null) _state.update {
                     it.copy(
-                        startDate = getDateTime(period.first as Long).format(FORMAT_S),
-                        finalDate = getDateTime(period.second as Long).format(FORMAT_S),
+                        startDate = getDateTime(period.first as Long).format(FORMAT_DD_MM_YYYY),
+                        finalDate = getDateTime(period.second as Long).format(FORMAT_DD_MM_YYYY),
                         period = PICK.days.toString()
                     )
                 }
@@ -489,8 +492,8 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             is IntakeEvent.SetSchemaType -> when (event.type) {
                 SchemaTypes.INDEFINITELY -> _state.update {
                     it.copy(
-                        startDate = LocalDate.now().format(FORMAT_S),
-                        finalDate = LocalDate.now().plusDays(INDEFINITE.days.toLong()).format(FORMAT_S),
+                        startDate = LocalDate.now().format(FORMAT_DD_MM_YYYY),
+                        finalDate = LocalDate.now().plusDays(INDEFINITE.days.toLong()).format(FORMAT_DD_MM_YYYY),
                         interval = DAILY.days.toString(),
                         period = INDEFINITE.days.toString(),
                         pickedDays = DayOfWeek.entries.toMutableStateList(),
@@ -534,7 +537,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             is IntakeEvent.SetPickedTime -> {
                 val index = _state.value.timePickerIndex
                 val picker = _state.value.pickedTime[index].picker
-                val time = LocalTime.of(picker.hour, picker.minute).format(FORMAT_H)
+                val time = LocalTime.of(picker.hour, picker.minute).format(FORMAT_H_MM)
 
                 _state.update {
                     it.copy(

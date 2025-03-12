@@ -1,20 +1,16 @@
 package ru.application.homemedkit.data.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.data.dto.IntakeTime
 
 @Dao
-interface IntakeDAO {
+interface IntakeDAO : BaseDAO<Intake> {
     // ============================== Queries ==============================
-    @Transaction
     @Query("SELECT * FROM intakes")
     fun getFlow(): Flow<List<Intake>>
 
@@ -29,19 +25,9 @@ interface IntakeDAO {
 
     // ============================== Insert ==============================
     @Insert
-    suspend fun add(intake: Intake): Long
-
-    @Insert
     suspend fun addIntakeTime(intakeTime: IntakeTime): Long
 
-    // ============================== Update ==============================
-    @Update
-    suspend fun update(intake: Intake)
-
     // ============================== Delete ==============================
-    @Delete
-    suspend fun delete(intake: Intake)
-
     @Query("DELETE FROM intake_time WHERE intakeId = :intakeId")
     suspend fun deleteIntakeTime(intakeId: Long)
 }

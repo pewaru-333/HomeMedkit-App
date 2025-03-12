@@ -13,8 +13,9 @@ import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationCompat.CATEGORY_REMINDER
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
+import kotlinx.coroutines.Dispatchers
 import ru.application.homemedkit.IntakeDialogActivity
-import ru.application.homemedkit.R.drawable.ic_launcher_foreground
+import ru.application.homemedkit.R
 import ru.application.homemedkit.R.drawable.vector_time
 import ru.application.homemedkit.R.string.intake_text_not_taken
 import ru.application.homemedkit.R.string.intake_text_taken
@@ -31,7 +32,8 @@ import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.TAKEN_ID
 import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.safeNotify
+import ru.application.homemedkit.helpers.extensions.goAsync
+import ru.application.homemedkit.helpers.extensions.safeNotify
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -103,7 +105,7 @@ class AlarmReceiver : BroadcastReceiver() {
                     .setContentTitle(context.getString(text_do_intake))
                     .setDeleteIntent(pendingA)
                     .setSilent(intake.noSound)
-                    .setSmallIcon(ic_launcher_foreground)
+                    .setSmallIcon(R.drawable.ic_launcher_notification)
                     .setStyle(
                         BigTextStyle().bigText(
                             context.getString(
@@ -129,6 +131,8 @@ class AlarmReceiver : BroadcastReceiver() {
             )
         }
 
-        AlarmSetter(context).resetOrDelete(alarmId, alarm.trigger, intake, AlarmType.ALARM)
+        goAsync(Dispatchers.IO) {
+            AlarmSetter(context).resetOrDelete(alarmId, alarm.trigger, intake, AlarmType.ALARM)
+        }
     }
 }

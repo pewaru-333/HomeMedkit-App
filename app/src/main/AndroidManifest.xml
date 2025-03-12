@@ -26,7 +26,8 @@
         tools:targetApi="35">
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -48,6 +49,7 @@
             android:name=".IntakeDialogActivity"
             android:showForAllUsers="true"
             android:showWhenLocked="true"
+            android:theme="@android:style/Theme.Wallpaper.NoTitleBar.Fullscreen"
             android:turnScreenOn="true" />
 
         <receiver

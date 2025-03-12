@@ -8,7 +8,8 @@ import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationCompat.CATEGORY_REMINDER
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
-import ru.application.homemedkit.R.drawable.ic_launcher_foreground
+import kotlinx.coroutines.Dispatchers
+import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.text_intake_prealarm_text
 import ru.application.homemedkit.R.string.text_intake_prealarm_title
 import ru.application.homemedkit.data.MedicineDatabase.Companion.getInstance
@@ -18,10 +19,11 @@ import ru.application.homemedkit.helpers.AlarmType
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CHANNEL_ID_PRE
 import ru.application.homemedkit.helpers.DoseTypes
-import ru.application.homemedkit.helpers.FORMAT_H
+import ru.application.homemedkit.helpers.FORMAT_H_MM
 import ru.application.homemedkit.helpers.decimalFormat
+import ru.application.homemedkit.helpers.extensions.goAsync
+import ru.application.homemedkit.helpers.extensions.safeNotify
 import ru.application.homemedkit.helpers.getDateTime
-import ru.application.homemedkit.helpers.safeNotify
 
 class PreAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -34,19 +36,23 @@ class PreAlarmReceiver : BroadcastReceiver() {
         val medicine = database.medicineDAO().getById(intake.medicineId) ?: return
         val image = database.medicineDAO().getMedicineImages(medicine.id).firstOrNull() ?: BLANK
 
-        database.takenDAO().add(
-            IntakeTaken(
-                medicineId = medicine.id,
-                intakeId = alarm.intakeId,
-                alarmId = alarmId,
-                productName = medicine.productName,
-                formName = medicine.prodFormNormName,
-                amount = alarm.amount,
-                doseType = medicine.doseType,
-                image = image,
-                trigger = alarm.trigger
+        goAsync(Dispatchers.IO) {
+            database.takenDAO().insert(
+                IntakeTaken(
+                    medicineId = medicine.id,
+                    intakeId = alarm.intakeId,
+                    alarmId = alarmId,
+                    productName = medicine.productName,
+                    formName = medicine.prodFormNormName,
+                    amount = alarm.amount,
+                    doseType = medicine.doseType,
+                    image = image,
+                    trigger = alarm.trigger
+                )
             )
-        )
+
+            AlarmSetter(context).resetOrDelete(alarmId, alarm.trigger, intake, AlarmType.PREALARM)
+        }
 
         if (alarm.preAlarm) with(NotificationManagerCompat.from(context)) {
             safeNotify(
@@ -56,7 +62,7 @@ class PreAlarmReceiver : BroadcastReceiver() {
                     .setCategory(CATEGORY_REMINDER)
                     .setContentTitle(context.getString(text_intake_prealarm_title))
                     .setSilent(true)
-                    .setSmallIcon(ic_launcher_foreground)
+                    .setSmallIcon(R.drawable.ic_launcher_notification)
                     .setStyle(
                         BigTextStyle().bigText(
                             context.getString(
@@ -64,7 +70,7 @@ class PreAlarmReceiver : BroadcastReceiver() {
                                 medicine.nameAlias.ifEmpty(medicine::productName),
                                 decimalFormat(alarm.amount),
                                 context.getString(DoseTypes.getTitle(medicine.doseType)),
-                                getDateTime(alarm.trigger).format(FORMAT_H)
+                                getDateTime(alarm.trigger).format(FORMAT_H_MM)
                             )
                         )
                     )
@@ -73,7 +79,5 @@ class PreAlarmReceiver : BroadcastReceiver() {
                     .build()
             )
         }
-
-        AlarmSetter(context).resetOrDelete(alarmId, alarm.trigger, intake, AlarmType.PREALARM)
     }
 }
