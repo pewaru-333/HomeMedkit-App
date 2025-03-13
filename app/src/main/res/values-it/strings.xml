@@ -117,7 +117,7 @@
     <string name="type_suspension">SUSPENSION</string>
     <string name="type_ointment">UNGUENTO</string>
     <string name="theme_light">Leggero</string>
-    <string name="type_solution">SOLUTION</string>
+    <string name="type_solution">SOLUZIONE</string>
     <string name="theme_dark">Scuro</string>
     <string name="theme_system">Sistema</string>
     <string name="type_tablets">COMPRESSE</string>
@@ -159,4 +159,10 @@
     <string name="text_error_not_medicine">Questo codice etichetta non è del medicinale!</string>
     <string name="text_medicine_composition">Composizione</string>
     <string name="text_medicine_storage_conditions">Modalità di conservazione</string>
+    <string name="app_name">Medkit</string>
+    <string name="preference_basic_settings">Impostazioni di base</string>
+    <string name="preference_permissions">Autorizzazioni</string>
+    <string name="preference_fixing_notifications">Problemi con le notifiche?</string>
+    <string name="preference_clear_app_cache">Pulisci la cache dell\'app</string>
+    <string name="text_package_opened_date">Confezione aperta</string>
 </resources>
