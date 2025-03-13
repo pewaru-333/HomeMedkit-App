@@ -1,5 +1,0 @@
-- Menambahkan kemampuan untuk memilih beberapa gambar obat dari galeri.
-- Menambahkan entri “Tanggal pembukaan paket” ke informasi tentang obat.
-- Menambahkan kemampuan untuk menghapus item dari daftar asupan sebelumnya.
-- Memperbaiki masalah di mana item dalam daftar asupan sebelumnya terkadang terduplikasi.
-- Memperbaiki bug yang terkadang menyebabkan jadwal janji temu melampaui periode yang ditentukan.
