@@ -77,4 +77,8 @@
     <string name="intake_text_date">Date</string>
     <string name="intake_text_extra">Extra</string>
     <string name="intake_text_food">Alimentation et médicaments</string>
+    <string name="intake_text_food_after">Après le repas</string>
+    <string name="intake_text_food_before">Avant le repas</string>
+    <string name="intake_text_food_during">Pendant le repas</string>
+    <string name="intake_text_in_fact">Effectif effectif</string>
 </resources>
