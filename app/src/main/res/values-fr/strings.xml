@@ -47,7 +47,7 @@
     <string name="type_tincture">TEINTURE</string>
     <string name="type_decoction">DÉCOCTION</string>
     <string name="type_extract">EXTRAIT</string>
-    <string name="type_syrup">SYRUP</string>
+    <string name="type_syrup">SIROP</string>
     <string name="type_mixture">MIXTURE</string>
     <string name="type_emulsion">EMULSION</string>
 </resources>
