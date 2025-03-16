@@ -42,4 +42,7 @@
     <string name="type_pills">PILULES</string>
     <string name="type_granules">GRANULES</string>
     <string name="type_powder">POWDER</string>
+    <string name="type_sachet">SACHET</string>
+    <string name="type_solution">SOLUTION</string>
+    <string name="type_tincture">TINCTURE</string>
 </resources>
