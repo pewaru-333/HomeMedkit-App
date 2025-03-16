@@ -58,4 +58,5 @@
     <string name="type_suppository">SUPPOSITOIRE</string>
     <string name="type_aerosol">AÉROSOL</string>
     <string name="type_spray">SPRAY</string>
+    <string name="type_drops">DROPS</string>
 </resources>
