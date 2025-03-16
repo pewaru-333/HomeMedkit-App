@@ -46,4 +46,5 @@
     <string name="type_solution">SOLUTION</string>
     <string name="type_tincture">TEINTURE</string>
     <string name="type_decoction">DÉCOCTION</string>
+    <string name="type_extract">EXTRACT</string>
 </resources>
