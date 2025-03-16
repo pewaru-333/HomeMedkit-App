@@ -61,5 +61,5 @@
     <string name="type_drops">GOUTTES</string>
     <string name="type_bandage">PANSEMENT</string>
     <string name="type_patch">PATCH</string>
-    <string name="type_napkins">NAPKINS</string>
+    <string name="type_napkins">SERVIETTES</string>
 </resources>
