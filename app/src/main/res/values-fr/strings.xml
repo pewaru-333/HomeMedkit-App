@@ -64,4 +64,11 @@
     <string name="type_napkins">SERVIETTES</string>
     <string name="dose_ed">ED</string>
     <string name="dose_pcs">pcs</string>
+    <string name="dose_ml">ml</string>
+    <string name="intakes_tab_current">Current</string>
+    <string name="intakes_tab_list">Liste</string>
+    <string name="dose_sach">sach</string>
+    <string name="dose_g">g</string>
+    <string name="dose_mg">mg</string>
+    <string name="dose_l">l</string>
 </resources>
