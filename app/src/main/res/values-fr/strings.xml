@@ -55,5 +55,5 @@
     <string name="type_ointment">ONGUENT</string>
     <string name="type_paste">PÂTE</string>
     <string name="type_gel">GEL</string>
-    <string name="type_suppository">SUPPOSITORY</string>
+    <string name="type_suppository">SUPPOSITOIRE</string>
 </resources>
