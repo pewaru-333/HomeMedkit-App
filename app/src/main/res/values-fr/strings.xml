@@ -80,6 +80,6 @@
     <string name="intake_text_food_after">Après le repas</string>
     <string name="intake_text_food_before">Avant le repas</string>
     <string name="intake_text_food_during">Pendant le repas</string>
-    <string name="intake_text_in_fact">Effectif effectif</string>
+    <string name="intake_text_in_fact">Effectif</string>
     <string name="intake_text_in_stock">En stock: %1$s %2$s</string>
 </resources>
