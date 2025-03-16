@@ -45,4 +45,5 @@
     <string name="type_sachet">SACHET</string>
     <string name="type_solution">SOLUTION</string>
     <string name="type_tincture">TEINTURE</string>
+    <string name="type_decoction">DECOCTION</string>
 </resources>
