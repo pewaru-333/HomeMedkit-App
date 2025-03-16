@@ -40,4 +40,6 @@
     <string name="theme_dark">Sombre</string>
     <string name="type_dragee">DRAGÉE</string>
     <string name="type_pills">PILULES</string>
+    <string name="type_granules">GRANULES</string>
+    <string name="type_powder">POWDER</string>
 </resources>
