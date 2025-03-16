@@ -71,4 +71,5 @@
     <string name="dose_g">g</string>
     <string name="dose_mg">mg</string>
     <string name="dose_l">l</string>
+    <string name="intakes_tab_past">Past</string>
 </resources>
