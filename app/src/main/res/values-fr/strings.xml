@@ -58,7 +58,7 @@
     <string name="type_suppository">SUPPOSITOIRE</string>
     <string name="type_aerosol">AÉROSOL</string>
     <string name="type_spray">PULVÉRISATION</string>
-    <string name="type_drops">DROPS</string>
+    <string name="type_drops">GOUTTES</string>
     <string name="type_bandage">BANDAGE</string>
     <string name="type_patch">PATCH</string>
 </resources>
