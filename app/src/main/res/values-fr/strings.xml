@@ -72,4 +72,9 @@
     <string name="dose_mg">mg</string>
     <string name="dose_l">l</string>
     <string name="intakes_tab_past">Past</string>
+    <string name="intake_text_amount">Quantité</string>
+    <string name="intake_text_by_schedule">Annexe</string>
+    <string name="intake_text_date">Date</string>
+    <string name="intake_text_extra">Extra</string>
+    <string name="intake_text_food">Alimentation &amp; Med</string>
 </resources>
