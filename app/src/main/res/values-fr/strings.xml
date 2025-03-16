@@ -53,6 +53,6 @@
     <string name="type_suspension">SUSPENSION</string>
     <string name="type_mix">MÉLANGE</string>
     <string name="type_ointment">ONGUENT</string>
-    <string name="type_paste">PASTE</string>
+    <string name="type_paste">PÂTE</string>
     <string name="type_gel">GEL</string>
 </resources>
