@@ -51,5 +51,5 @@
     <string name="type_mixture">MIXTURE</string>
     <string name="type_emulsion">ÉMULSION</string>
     <string name="type_suspension">SUSPENSION</string>
-    <string name="type_mix">MIX</string>
+    <string name="type_mix">MÉLANGE</string>
 </resources>
