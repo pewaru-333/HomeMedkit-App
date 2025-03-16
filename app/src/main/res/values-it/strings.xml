@@ -51,7 +51,7 @@
     <string name="intakes_tab_past">Preso</string>
     <string name="intake_text_amount">Quantità</string>
     <string name="intake_text_date">Data</string>
-    <string name="intake_text_food">Cibo e Medicine</string>
+    <string name="intake_text_food">Cibo e medicine</string>
     <string name="intake_text_food_after">Dopo pasto</string>
     <string name="intake_text_food_before">Prima del pasto</string>
     <string name="intake_text_food_during">Durante il pasto</string>
