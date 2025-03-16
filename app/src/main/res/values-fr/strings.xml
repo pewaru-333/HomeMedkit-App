@@ -52,4 +52,5 @@
     <string name="type_emulsion">ÉMULSION</string>
     <string name="type_suspension">SUSPENSION</string>
     <string name="type_mix">MÉLANGE</string>
+    <string name="type_ointment">OINTMENT</string>
 </resources>
