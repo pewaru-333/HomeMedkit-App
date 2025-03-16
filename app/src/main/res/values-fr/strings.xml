@@ -76,5 +76,5 @@
     <string name="intake_text_by_schedule">Annexe</string>
     <string name="intake_text_date">Date</string>
     <string name="intake_text_extra">Extra</string>
-    <string name="intake_text_food">Alimentation &amp; Med</string>
+    <string name="intake_text_food">Alimentation et médicaments</string>
 </resources>
