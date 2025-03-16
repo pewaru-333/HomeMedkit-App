@@ -50,4 +50,6 @@
     <string name="type_syrup">SIROP</string>
     <string name="type_mixture">MIXTURE</string>
     <string name="type_emulsion">ÉMULSION</string>
+    <string name="type_suspension">SUSPENSION</string>
+    <string name="type_mix">MIX</string>
 </resources>
