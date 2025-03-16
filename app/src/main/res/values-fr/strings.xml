@@ -38,6 +38,6 @@
     <string name="preference_dynamic_color">Couleur dynamique</string>
     <string name="sorting_z_a">Alphabetically (z to A)</string>
     <string name="theme_dark">Sombre</string>
-    <string name="type_dragee">DRAGEE</string>
+    <string name="type_dragee">DRAGÉE</string>
     <string name="type_pills">PILULES</string>
 </resources>
