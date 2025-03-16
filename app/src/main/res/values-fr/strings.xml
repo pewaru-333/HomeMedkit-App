@@ -63,7 +63,7 @@
     <string name="type_patch">PATCH</string>
     <string name="type_napkins">SERVIETTES</string>
     <string name="dose_ed">ED</string>
-    <string name="dose_pcs">pcs</string>
+    <string name="dose_pcs">unité(s)</string>
     <string name="dose_ml">ml</string>
     <string name="intakes_tab_current">Current</string>
     <string name="intakes_tab_list">Liste</string>
