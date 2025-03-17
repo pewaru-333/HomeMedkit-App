@@ -97,7 +97,7 @@
     <string name="type_powder">PULVER</string>
     <string name="text_medicine_group">Gruppe</string>
     <string name="text_no_intakes_found">Keine Einnahmen gefunden. Erst welche über den Medikamenten-Tab hinzufügen oder Suchbegriff ändern.</string>
-    <string name="intake_text_food">Mahlzeiten &amp; Medikament</string>
+    <string name="intake_text_food">Mahlzeiten und Medikament</string>
     <string name="type_granules">GRANULAT</string>
     <string name="text_medicine_status_self_added">Manuell hinzugefügt</string>
     <string name="intake_text_amount">Menge</string>
