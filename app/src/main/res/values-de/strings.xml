@@ -6,9 +6,9 @@
     <string name="bottom_bar_intakes">Einnahmen</string>
     <string name="bottom_bar_settings">Einstellung</string>
     <!-- Preferences -->
-    <string name="preference_app_view">App-Ansicht</string>
+    <string name="preference_app_view">App-Aussehen</string>
     <string name="preference_kits_group">Medikamenten-Gruppen</string>
-    <string name="preference_sorting_type">Medikamentensortierung</string>
+    <string name="preference_sorting_type">Anordnung der Medikamente</string>
     <string name="preference_download_images">Bilder der Medikamente herunterladen</string>
     <string name="preference_check_expiration_date">Verfallsdatum der Medikamente prüfen</string>
     <string name="preference_system">System</string>
@@ -32,7 +32,7 @@
     <string name="text_medicine_dose">Dosis</string>
     <string name="text_medicine_product_name">Produktname</string>
     <!-- Intakes -->
-    <string name="intakes_tab_current">Aktuell</string>
+    <string name="intakes_tab_current">Anstehend</string>
     <string name="intakes_tab_list">Liste</string>
     <string name="intake_text_interval">Intervall</string>
     <string name="intake_text_period">Zeitraum</string>
@@ -42,7 +42,7 @@
     <string name="intake_text_food_during">Während dem Essen</string>
     <!-- Dialogs -->
     <string name="text_permission_grant_full">Berechtigung gewähren</string>
-    <string name="text_kit_title">Neue Gruppe</string>
+    <string name="text_kit_title">Name der Gruppe</string>
     <string name="text_select_time">Zeit auswählen</string>
     <string name="text_connection_error">Verbindungsfehler!</string>
     <string name="text_error">Fehler!</string>
@@ -73,9 +73,9 @@
     <string name="type_aerosol">AEROSOL</string>
     <string name="type_gel">GEL</string>
     <string name="type_spray">SPRAY</string>
-    <string name="type_drops">DROPS</string>
+    <string name="type_drops">TROPFEN</string>
     <string name="text_request_camera">Um Labels zu scannen, benötigt die App Kamerazugriffs-Rechte</string>
-    <string name="text_days_short">T.</string>
+    <string name="text_days_short">Tg.</string>
     <string name="text_update">Aktualisieren</string>
     <string name="text_unspecified">Nicht angegeben</string>
     <string name="theme_light">Hell</string>
@@ -136,10 +136,10 @@
     <string name="intake_period_other">nach Anzahl der Tage</string>
     <string name="intake_interval_weekly">wöchentlich</string>
     <string name="intake_period_pick">nach Datum</string>
-    <string name="dose_ed">EINH.</string>
+    <string name="dose_ed">Einh.</string>
     <string name="dose_g">g</string>
     <string name="dose_pcs">St.</string>
-    <string name="dose_l">l</string>
+    <string name="dose_l">L</string>
     <string name="dose_ml">ml</string>
     <string name="dose_mg">mg</string>
     <string name="text_intake_prealarm_text">Medikament: %1$s\nMenge: %2$s %3$s\nZeit: %4$s</string>
@@ -147,7 +147,7 @@
     <string name="intake_text_in_fact">Tatsächlich</string>
     <string name="intake_text_by_schedule">Nach Zeitplan</string>
     <string name="intake_text_extra">Zusätzlich</string>
-    <string name="intake_extra_prealarm">Bevorstehende Benachrichtigung</string>
+    <string name="intake_extra_prealarm">Vorab benachrichtigen</string>
     <string name="intake_extra_desc_prealarm">Benachrichtigung erscheint 30 Minuten vor der regulären Einnahmezeit</string>
     <string name="text_intake_prealarm_title">Bevorstehende Einnahme</string>
     <string name="intake_extra_no_sound">Ohne Ton</string>
@@ -179,7 +179,7 @@
     <string name="text_go_to">OK</string>
     <string name="intake_text_schema_type">Einnahmeschema</string>
     <string name="intake_schema_type_day_picker">Tagesauswahl</string>
-    <string name="intake_schema_type_personal">Persönlich</string>
+    <string name="intake_schema_type_personal">Individuell</string>
     <string name="text_permission_title_ignore_battery">Akkuoptimierung ignorieren</string>
     <string name="text_explain_full_screen_intent">Anzeige von Einnahme-Benachrichtigungen im Vollbildmodus zulassen</string>
     <string name="text_explain_notifications">Sämtliche App-Benachrichtigungen zulassen</string>
