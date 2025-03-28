@@ -13,7 +13,6 @@ import androidx.core.app.NotificationCompat.Builder
 import androidx.core.app.NotificationCompat.CATEGORY_REMINDER
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
-import kotlinx.coroutines.Dispatchers
 import ru.application.homemedkit.IntakeDialogActivity
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.drawable.vector_time
@@ -24,35 +23,30 @@ import ru.application.homemedkit.R.string.text_intake_amount_not_enough
 import ru.application.homemedkit.R.string.text_intake_time
 import ru.application.homemedkit.data.MedicineDatabase.Companion.getInstance
 import ru.application.homemedkit.helpers.ALARM_ID
-import ru.application.homemedkit.helpers.AlarmType
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CHANNEL_ID_INTAKES
-import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.TAKEN_ID
 import ru.application.homemedkit.helpers.TYPE
 import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.extensions.goAsync
 import ru.application.homemedkit.helpers.extensions.safeNotify
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val database = getInstance(context)
 
-        val alarmId = intent.getLongExtra(ALARM_ID, 0L)
+        val takenId = intent.getLongExtra(ALARM_ID, 0L)
 
-        val alarm = database.alarmDAO().getById(alarmId) ?: return
-        val intake = database.intakeDAO().getById(alarm.intakeId) ?: return
+        val taken = database.takenDAO().getById(takenId) ?: return
+        val intake = database.intakeDAO().getById(taken.intakeId) ?: return
         val medicine = database.medicineDAO().getById(intake.medicineId) ?: return
-        val taken = database.takenDAO().getByAlarmId(alarmId) ?: return
 
-        val takenId = taken.takenId
-        val flag = medicine.prodAmount >= alarm.amount
+        val flag = medicine.prodAmount >= taken.amount
 
         val action = Intent(context, ActionReceiver::class.java).apply {
             putExtra(ID, intake.medicineId)
             putExtra(TAKEN_ID, takenId)
-            putExtra(BLANK, alarm.amount)
+            putExtra(BLANK, taken.amount)
         }
         val pendingA = getBroadcast(
             context,
@@ -75,6 +69,8 @@ class AlarmReceiver : BroadcastReceiver() {
             vector_time, context.getString(intake_text_not_taken), pendingA
         ).build()
 
+        AlarmSetter(context).setPreAlarm(intake.intakeId)
+
         if (!taken.notified) with(NotificationManagerCompat.from(context)) {
             safeNotify(
                 context,
@@ -93,7 +89,7 @@ class AlarmReceiver : BroadcastReceiver() {
                                     setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                     putExtra(ID, intake.medicineId)
                                     putExtra(TAKEN_ID, takenId)
-                                    putExtra(BLANK, alarm.amount)
+                                    putExtra(BLANK, taken.amount)
                                 },
                                 FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
                             ), true
@@ -111,9 +107,9 @@ class AlarmReceiver : BroadcastReceiver() {
                             context.getString(
                                 if (flag) text_intake_time else text_intake_amount_not_enough,
                                 medicine.nameAlias.ifEmpty(medicine::productName),
-                                decimalFormat(alarm.amount),
-                                context.getString(DoseTypes.getTitle(medicine.doseType)),
-                                decimalFormat(medicine.prodAmount - alarm.amount)
+                                decimalFormat(taken.amount),
+                                context.getString(medicine.doseType.title),
+                                decimalFormat(medicine.prodAmount - taken.amount)
                             )
                         )
                     )
@@ -129,10 +125,6 @@ class AlarmReceiver : BroadcastReceiver() {
                     )
                     .build()
             )
-        }
-
-        goAsync(Dispatchers.IO) {
-            AlarmSetter(context).resetOrDelete(alarmId, alarm.trigger, intake, AlarmType.ALARM)
         }
     }
 }

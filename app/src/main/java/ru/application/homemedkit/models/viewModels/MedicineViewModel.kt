@@ -185,7 +185,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             is MedicineEvent.SetFormName -> _state.update { it.copy(prodFormNormName = event.formName) }
             is MedicineEvent.SetDoseName -> _state.update { it.copy(prodDNormName = event.doseName) }
             is MedicineEvent.SetDoseType -> _state.update {
-                it.copy(doseType = event.type.value, doseTypeE = event.type, showMenuDose = false)
+                it.copy(doseType = event.type, showMenuDose = false)
             }
             is MedicineEvent.SetAmount -> when {
                 event.amount.isNotEmpty() -> {

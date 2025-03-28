@@ -11,11 +11,11 @@ import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.model.IntakeAmountTime
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.IntakeExtras
-import ru.application.homemedkit.helpers.Intervals
-import ru.application.homemedkit.helpers.Periods
+import ru.application.homemedkit.helpers.enums.IntakeExtras
+import ru.application.homemedkit.helpers.enums.Intervals
+import ru.application.homemedkit.helpers.enums.Periods
 import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.SchemaTypes
+import ru.application.homemedkit.helpers.enums.SchemaTypes
 import java.time.DayOfWeek
 
 data class IntakeState(
@@ -60,5 +60,5 @@ data class IntakeState(
     val showDialogDescription: Boolean = false,
     val showDialogDelete: Boolean = false,
     val showDialogDataLoss: Boolean = false,
-    val isFirstLaunch: Boolean = Preferences.isFirstLaunchIntake()
+    val isFirstLaunch: Boolean = Preferences.isFirstLaunch
 )

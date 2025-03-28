@@ -9,6 +9,9 @@ interface BaseDAO<T> {
     @Insert
     suspend fun insert(item: T): Long
 
+    @Insert
+    suspend fun insert(items: Iterable<T>)
+
     @Update
     suspend fun update(item: T)
 
@@ -17,4 +20,7 @@ interface BaseDAO<T> {
 
     @Delete
     suspend fun delete(item: T)
+
+    @Delete
+    suspend fun delete(items: Iterable<T>)
 }

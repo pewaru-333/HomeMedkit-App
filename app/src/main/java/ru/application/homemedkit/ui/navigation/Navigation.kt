@@ -4,6 +4,9 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,7 +20,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
-import ru.application.homemedkit.helpers.Menu
+import ru.application.homemedkit.helpers.enums.Menu
 import ru.application.homemedkit.helpers.extensions.isCurrentRoute
 import ru.application.homemedkit.helpers.extensions.toBottomBarItem
 import ru.application.homemedkit.ui.navigation.Screen.Intake
@@ -39,7 +42,7 @@ import ru.application.homemedkit.ui.screens.SettingsScreen
 
 @Composable
 fun Navigation(navigator: NavHostController, modifier: Modifier) {
-    NavHost(navigator, Medicines, modifier) {
+    NavHost(navigator, Medicines, modifier.consumeWindowInsets(WindowInsets.systemBars)) {
         // Bottom menu items //
         composable<Medicines> {
             MedicinesScreen(

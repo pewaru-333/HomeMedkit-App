@@ -1,8 +1,8 @@
 package ru.application.homemedkit.models.events
 
 import androidx.annotation.StringRes
-import ru.application.homemedkit.helpers.IntakeExtras
-import ru.application.homemedkit.helpers.SchemaTypes
+import ru.application.homemedkit.helpers.enums.IntakeExtras
+import ru.application.homemedkit.helpers.enums.SchemaTypes
 import java.time.DayOfWeek
 
 sealed interface IntakeEvent {

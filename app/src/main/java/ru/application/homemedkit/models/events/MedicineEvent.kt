@@ -1,7 +1,7 @@
 package ru.application.homemedkit.models.events
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import ru.application.homemedkit.helpers.DoseTypes
+import ru.application.homemedkit.helpers.enums.DoseTypes
 
 sealed interface MedicineEvent {
     data class SetCis(val cis: String) : MedicineEvent

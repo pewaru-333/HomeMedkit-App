@@ -3,6 +3,7 @@ package ru.application.homemedkit.data.dto
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import ru.application.homemedkit.helpers.BLANK
+import ru.application.homemedkit.helpers.enums.DoseTypes
 
 @Entity(tableName = "intakes_taken")
 data class IntakeTaken(
@@ -14,7 +15,7 @@ data class IntakeTaken(
     val productName: String = BLANK,
     val formName: String = BLANK,
     val amount: Double = 0.0,
-    val doseType: String = BLANK,
+    val doseType: DoseTypes = DoseTypes.UNKNOWN,
     val image: String = BLANK,
     val trigger: Long = 0L,
     val inFact: Long = 0L,

@@ -168,11 +168,11 @@ import ru.application.homemedkit.R.string.text_update
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.dialogs.DatePicker
 import ru.application.homemedkit.dialogs.MonthYear
-import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.FORMAT_LONG
 import ru.application.homemedkit.helpers.TYPE
-import ru.application.homemedkit.helpers.Types
 import ru.application.homemedkit.helpers.decimalFormat
+import ru.application.homemedkit.helpers.enums.DoseTypes
+import ru.application.homemedkit.helpers.enums.Types
 import ru.application.homemedkit.helpers.permissions.rememberPermissionState
 import ru.application.homemedkit.helpers.toExpDate
 import ru.application.homemedkit.models.events.MedicineEvent
@@ -663,8 +663,7 @@ private fun ProductNormName(state: MedicineState, event: (MedicineEvent) -> Unit
             )
 
             if (state.default) Text(
-                "${decimalFormat(state.prodAmount)} " +
-                        stringResource(DoseTypes.getTitle(state.doseType))
+                "${decimalFormat(state.prodAmount)} " + stringResource(state.doseType.title)
             )
             else OutlinedTextField(
                 value = state.prodAmount,
@@ -690,7 +689,7 @@ private fun ProductNormName(state: MedicineState, event: (MedicineEvent) -> Unit
                                 .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                                 .fillMaxWidth()
                         ) {
-                            Text(stringResource(DoseTypes.getTitle(state.doseType)))
+                            Text(stringResource(state.doseType.title))
                             ExposedDropdownMenuDefaults.TrailingIcon(state.showMenuDose)
                         }
                         ExposedDropdownMenu(

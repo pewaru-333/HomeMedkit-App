@@ -25,9 +25,6 @@ interface KitDAO : BaseDAO<Kit> {
     @Query("SELECT title FROM kits WHERE kitId = :kitId")
     fun getTitle(kitId: Long): String
 
-    @Query("SELECT title FROM kits WHERE kitId IN (SELECT kitId from medicines_kits WHERE medicineId = :medicineId)")
-    fun getTitleByMedicine(medicineId: Long): List<String>
-
     @Query("DELETE FROM medicines_kits WHERE medicineId = :medicineId")
     fun deleteAll(medicineId: Long)
 

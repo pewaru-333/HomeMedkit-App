@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Image
-import ru.application.homemedkit.helpers.Types
+import ru.application.homemedkit.helpers.enums.Types
 import ru.application.homemedkit.helpers.getMedicineImages
 import ru.application.homemedkit.helpers.toMedicine
 import ru.application.homemedkit.models.events.Response

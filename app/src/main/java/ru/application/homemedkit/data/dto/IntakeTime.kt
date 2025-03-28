@@ -22,6 +22,5 @@ data class IntakeTime(
     val id: Long = 0L,
     val intakeId: Long = 0L,
     val time: String = BLANK,
-    val amount: Double = 0.0,
-    val firstTrigger: Long = 0L
+    val amount: Double = 0.0
 )

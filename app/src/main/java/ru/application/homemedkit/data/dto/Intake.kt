@@ -5,7 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.PrimaryKey
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.SchemaTypes
+import ru.application.homemedkit.helpers.enums.SchemaTypes
 
 @Entity(
     tableName = "intakes",

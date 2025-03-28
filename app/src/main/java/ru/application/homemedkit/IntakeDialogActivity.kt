@@ -17,7 +17,6 @@ import ru.application.homemedkit.R.string.text_do_intake
 import ru.application.homemedkit.R.string.text_intake_time
 import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.ID
 import ru.application.homemedkit.helpers.TAKEN_ID
 import ru.application.homemedkit.helpers.decimalFormat
@@ -75,7 +74,7 @@ class IntakeDialogActivity : ComponentActivity() {
                                 text_intake_time,
                                 medicine.nameAlias.ifEmpty(medicine::productName),
                                 decimalFormat(amount),
-                                stringResource(DoseTypes.getTitle(medicine.doseType)),
+                                stringResource(medicine.doseType.title),
                                 decimalFormat(medicine.prodAmount.minus(amount))
                             )
                         )

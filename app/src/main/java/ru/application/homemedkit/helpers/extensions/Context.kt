@@ -3,10 +3,12 @@ package ru.application.homemedkit.helpers.extensions
 import android.app.AlarmManager
 import android.content.Context
 import android.content.Context.*
+import android.content.Intent
 import android.content.res.XmlResourceParser
 import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
+import android.os.Bundle
 import android.os.PowerManager
 import android.widget.Toast
 import androidx.annotation.StringRes
@@ -35,6 +37,14 @@ fun Context.getLanguageList() = mutableListOf<String>().apply {
         }
     }
 }.sortedBy { Locale.forLanguageTag(it).getDisplayRegionName() }
+
+fun Context.restartApplication(extras: Bundle.() -> Unit = {}) {
+    packageManager.getLaunchIntentForPackage(packageName)?.component?.let {
+        startActivity(Intent.makeMainActivity(it).putExtras(Bundle().apply(extras)))
+    }
+
+    Runtime.getRuntime().exit(0)
+}
 
 fun Context.getSelectedLanguage() = LocaleManagerCompat.getSystemLocales(this)
     .getFirstMatch(getLanguageList().toTypedArray())?.language ?: Locale.ENGLISH.language

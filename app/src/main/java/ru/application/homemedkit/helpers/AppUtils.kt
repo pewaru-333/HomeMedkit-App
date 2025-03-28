@@ -9,6 +9,7 @@ import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.Technical
+import ru.application.homemedkit.helpers.enums.Types
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.states.TechnicalState
@@ -89,7 +90,7 @@ suspend fun getMedicineImages(
 ): Array<Image> {
     val imageList = mutableListOf<String>()
 
-    if (Preferences.getImageFetch()) {
+    if (Preferences.imageFetch) {
         val images = Network.getImage(directory, urls)
         imageList.addAll(images)
     }

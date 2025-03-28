@@ -113,12 +113,12 @@ import ru.application.homemedkit.R.string.text_unspecified
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.dialogs.DateRangePicker
 import ru.application.homemedkit.dialogs.TimePickerDialog
-import ru.application.homemedkit.helpers.FoodTypes
-import ru.application.homemedkit.helpers.IntakeExtras
-import ru.application.homemedkit.helpers.Intervals
-import ru.application.homemedkit.helpers.Periods
-import ru.application.homemedkit.helpers.SchemaTypes
 import ru.application.homemedkit.helpers.decimalFormat
+import ru.application.homemedkit.helpers.enums.FoodTypes
+import ru.application.homemedkit.helpers.enums.IntakeExtras
+import ru.application.homemedkit.helpers.enums.Intervals
+import ru.application.homemedkit.helpers.enums.Periods
+import ru.application.homemedkit.helpers.enums.SchemaTypes
 import ru.application.homemedkit.helpers.extensions.canUseFullScreenIntent
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.toExpDate

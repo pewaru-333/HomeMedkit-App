@@ -75,7 +75,6 @@ import me.zhanghai.compose.preference.ListPreference
 import me.zhanghai.compose.preference.Preference
 import me.zhanghai.compose.preference.ProvidePreferenceLocals
 import me.zhanghai.compose.preference.SwitchPreference
-import me.zhanghai.compose.preference.listPreference
 import me.zhanghai.compose.preference.preference
 import me.zhanghai.compose.preference.preferenceCategory
 import me.zhanghai.compose.preference.switchPreference
@@ -128,7 +127,6 @@ import ru.application.homemedkit.R.string.text_tap_to_view
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.KEY_APP_SYSTEM
-import ru.application.homemedkit.helpers.KEY_APP_THEME
 import ru.application.homemedkit.helpers.KEY_APP_VIEW
 import ru.application.homemedkit.helpers.KEY_BASIC_SETTINGS
 import ru.application.homemedkit.helpers.KEY_CLEAR_CACHE
@@ -138,15 +136,13 @@ import ru.application.homemedkit.helpers.KEY_DYNAMIC_COLOR
 import ru.application.homemedkit.helpers.KEY_EXP_IMP
 import ru.application.homemedkit.helpers.KEY_FIXING
 import ru.application.homemedkit.helpers.KEY_KITS
-import ru.application.homemedkit.helpers.KEY_ORDER
 import ru.application.homemedkit.helpers.KEY_PERMISSIONS
 import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.SORTING
-import ru.application.homemedkit.helpers.Sorting
-import ru.application.homemedkit.helpers.THEMES
-import ru.application.homemedkit.helpers.Themes
+import ru.application.homemedkit.helpers.enums.Sorting
+import ru.application.homemedkit.helpers.enums.Themes
 import ru.application.homemedkit.helpers.extensions.getDisplayRegionName
 import ru.application.homemedkit.helpers.extensions.getLanguageList
+import ru.application.homemedkit.helpers.extensions.restartApplication
 import ru.application.homemedkit.helpers.extensions.showToast
 import ru.application.homemedkit.helpers.permissions.PermissionState
 import ru.application.homemedkit.helpers.permissions.rememberPermissionState
@@ -162,9 +158,6 @@ fun SettingsScreen(
     toPermissionsScreen: () -> Unit
 ) {
     val context = LocalContext.current
-
-    val sorting = Sorting.entries.map { stringResource(it.title) }
-    val themes = Themes.entries.map { stringResource(it.title) }
 
     var showExport by rememberSaveable { mutableStateOf(false) }
     var showFixing by rememberSaveable { mutableStateOf(false) }
@@ -185,14 +178,18 @@ fun SettingsScreen(
                 summary = { Text(stringResource(text_tap_to_view)) }
             )
 
-            listPreference(
-                key = KEY_ORDER,
-                defaultValue = SORTING[0],
-                values = SORTING,
-                title = { Text(stringResource(preference_sorting_type)) },
-                summary = { Text(localize(it, SORTING, sorting)) },
-                valueToText = { localize(it, SORTING, sorting) }
-            )
+            item {
+                var value by remember { mutableStateOf(Preferences.sortingOrder) }
+
+                ListPreference<Sorting>(
+                    value = value,
+                    onValueChange = { value = it; Preferences.sortingOrder = it },
+                    values = Sorting.entries,
+                    title = { Text(stringResource(preference_sorting_type)) },
+                    summary = { Text(stringResource(value.title)) },
+                    valueToText = { AnnotatedString(context.getString(it.title)) }
+                )
+            }
 
             switchPreference(
                 key = KEY_CONFIRM_EXIT,
@@ -209,7 +206,7 @@ fun SettingsScreen(
             )
 
             item {
-                var value by remember { mutableStateOf(Preferences.getCheckExpDate()) }
+                var value by remember { mutableStateOf(Preferences.checkExpiration) }
 
                 SwitchPreference(
                     value = value,
@@ -251,14 +248,18 @@ fun SettingsScreen(
                 )
             }
 
-            listPreference(
-                key = KEY_APP_THEME,
-                defaultValue = THEMES[0],
-                values = THEMES,
-                title = { Text(stringResource(preference_app_theme)) },
-                summary = { Text(localize(it, THEMES, themes)) },
-                valueToText = { localize(it, THEMES, themes) }
-            )
+            item {
+                val value by Preferences.theme.collectAsStateWithLifecycle()
+
+                ListPreference<Themes>(
+                    value = value,
+                    onValueChange = Preferences::setTheme,
+                    values = Themes.entries,
+                    title = { Text(stringResource(preference_app_theme)) },
+                    summary = { Text(stringResource(value.title)) },
+                    valueToText = { AnnotatedString(context.getString(it.title)) }
+                )
+            }
 
             switchPreference(
                 key = KEY_DYNAMIC_COLOR,
@@ -505,12 +506,9 @@ private fun ExportImport(onDismiss: () -> Unit) {
             context.contentResolver.openOutputStream(uriN).use { output ->
                 output?.let { path.inputStream().copyTo(it) }
             }
-            context.startActivity(
-                Intent.makeRestartActivityTask(
-                    context.packageManager.getLaunchIntentForPackage(context.packageName)!!.component
-                ).putExtra(KEY_EXP_IMP, true)
-            )
-            Runtime.getRuntime().exit(0)
+            context.restartApplication {
+               putBoolean(KEY_EXP_IMP, true)
+            }
         }
     }
 
@@ -539,12 +537,9 @@ private fun ExportImport(onDismiss: () -> Unit) {
                         path.outputStream().use { output -> input?.copyTo(output) }
                     }
 
-                    context.startActivity(
-                        Intent.makeRestartActivityTask(
-                            context.packageManager.getLaunchIntentForPackage(context.packageName)!!.component
-                        ).putExtra(KEY_EXP_IMP, true)
-                    )
-                    Runtime.getRuntime().exit(0)
+                    context.restartApplication {
+                        putBoolean(KEY_EXP_IMP, true)
+                    }
                 } else context.showToast(R.string.text_error)
             } catch (_: Throwable) {
                 context.showToast(R.string.text_error)
@@ -586,12 +581,7 @@ private fun DialogFixing(back: () -> Unit) {
             TextButton(
                 onClick = {
                     AlarmSetter(context).resetAll()
-                    context.startActivity(
-                        Intent.makeRestartActivityTask(
-                            context.packageManager.getLaunchIntentForPackage(context.packageName)!!.component
-                        )
-                    )
-                    Runtime.getRuntime().exit(0)
+                    context.restartApplication()
                 }
             ) {
                 Text(stringResource(text_confirm))
@@ -635,9 +625,3 @@ private fun DialogClearing(onDismiss: () -> Unit) {
         }
     )
 }
-
-private fun localize(name: String, values: List<String>, array: List<String>) =
-    when (val index = values.indexOf(name)) {
-        -1 -> AnnotatedString(BLANK)
-        else -> AnnotatedString(array[index])
-    }

@@ -10,17 +10,9 @@ import android.content.Context
 import android.content.Intent
 import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.data.dto.Alarm
-import ru.application.homemedkit.data.dto.Intake
-import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.helpers.ALARM_ID
-import ru.application.homemedkit.helpers.AlarmType
-import ru.application.homemedkit.helpers.FORMAT_DD_MM_YYYY
-import ru.application.homemedkit.helpers.SchemaTypes
 import ru.application.homemedkit.helpers.expirationCheckTime
 import ru.application.homemedkit.helpers.extensions.canScheduleExactAlarms
-import ru.application.homemedkit.helpers.getDateTime
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 class AlarmSetter(private val context: Context) {
     private val manager = context.getSystemService(AlarmManager::class.java)
@@ -29,121 +21,71 @@ class AlarmSetter(private val context: Context) {
     private val alarmIntent = Intent(context, AlarmReceiver::class.java).addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
     private val preAlarmIntent = Intent(context, PreAlarmReceiver::class.java).addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
 
-    suspend fun setAlarm(intakeId: Long, trigger: Long, amount: Double, preAlarm: Boolean) {
-        val alarmId = database.alarmDAO().insert(
-            Alarm(
-                intakeId = intakeId,
-                trigger = trigger,
-                amount = amount,
-                preAlarm = preAlarm
-            )
-        )
-
-        val preTrigger = trigger - 1800000L
-
-        val pendingA = getBroadcast(
+    fun setAlarm(takenId: Long, trigger: Long) {
+        val pending = getBroadcast(
             context,
-            alarmId.toInt(),
-            preAlarmIntent.putExtra(ALARM_ID, alarmId),
-            FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-        )
-
-        val pendingB = getBroadcast(
-            context,
-            alarmId.toInt(),
-            alarmIntent.putExtra(ALARM_ID, alarmId),
+            takenId.toInt(),
+            alarmIntent.putExtra(ALARM_ID, takenId),
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
 
         with(manager) {
             if (context.canScheduleExactAlarms()) {
-                setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
-                setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
+                setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pending)
             } else {
-                setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
-                setAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
+                setAndAllowWhileIdle(RTC_WAKEUP, trigger, pending)
             }
         }
     }
 
-    suspend fun resetOrDelete(alarmId: Long, trigger: Long, intake: Intake, type: AlarmType) {
-        val interval = if (intake.schemaType == SchemaTypes.PERSONAL) intake.interval
-        else intake.schemaType.interval.days
+    fun setPreAlarm(intakeId: Long) {
+        val alarm = database.alarmDAO().getNextByIntakeId(intakeId) ?: return
+        val preTrigger = alarm.trigger - 1800000L
 
-        val nextTrigger = getDateTime(trigger).plusDays(interval.toLong()).toLocalDateTime()
-        val lastTrigger = LocalDateTime.of(
-            LocalDate.parse(intake.finalDate, FORMAT_DD_MM_YYYY),
-            getDateTime(trigger).toLocalTime()
+        val pending = getBroadcast(
+            context,
+            alarm.alarmId.toInt(),
+            preAlarmIntent.putExtra(ALARM_ID, alarm.alarmId),
+            FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
 
-        if (nextTrigger > lastTrigger) removeAlarm(alarmId, type)
-        else resetAlarm(alarmId, interval, type)
+        with(manager) {
+            if (context.canScheduleExactAlarms()) {
+                setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pending)
+            } else {
+                setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pending)
+            }
+        }
     }
 
-    suspend fun removeAlarm(alarmId: Long, type: AlarmType) {
-        val alarm = database.alarmDAO().getById(alarmId) ?: return
+    fun removeAlarm(intakeId: Long) {
+        val nextAlarm = database.alarmDAO().getNextByIntakeId(intakeId) ?: return
 
         val pendingA = getBroadcast(
             context,
-            alarmId.toInt(),
-            preAlarmIntent.putExtra(ALARM_ID, alarmId),
+            nextAlarm.alarmId.toInt(),
+            preAlarmIntent.putExtra(ALARM_ID, nextAlarm.alarmId),
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
 
         val pendingB = getBroadcast(
             context,
-            alarmId.toInt(),
-            alarmIntent.putExtra(ALARM_ID, alarmId),
+            nextAlarm.alarmId.toInt(),
+            alarmIntent.putExtra(ALARM_ID, nextAlarm.alarmId),
             FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
         )
 
         with(manager) {
-            when (type) {
-                AlarmType.ALARM -> cancel(pendingB)
-                AlarmType.PREALARM -> cancel(pendingA)
-                AlarmType.ALL -> {
-                    cancel(pendingA)
-                    cancel(pendingB)
-                }
-            }
-        }
-
-        if (type == AlarmType.ALARM || type == AlarmType.ALL) database.alarmDAO().delete(alarm)
-    }
-
-    fun resetAll() {
-        val takenAlarmIdList = database.takenDAO().getAll().map(IntakeTaken::alarmId)
-
-        database.alarmDAO().getAll().forEach {
-            val preTrigger = it.trigger - 1800000L
-
-            val pendingA = getBroadcast(
-                context,
-                it.alarmId.toInt(),
-                alarmIntent.putExtra(ALARM_ID, it.alarmId),
-                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-            )
-
-            val pendingB = getBroadcast(
-                context,
-                it.alarmId.toInt(),
-                preAlarmIntent.putExtra(ALARM_ID, it.alarmId),
-                FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-            )
-
-            with(manager) {
-                if (context.canScheduleExactAlarms()) {
-                    setExactAndAllowWhileIdle(RTC_WAKEUP, it.trigger, pendingA)
-                    if (it.alarmId !in takenAlarmIdList)
-                        setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingB)
-                } else {
-                    setAndAllowWhileIdle(RTC_WAKEUP, it.trigger, pendingA)
-                    if (it.alarmId !in takenAlarmIdList)
-                        setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingB)
-                }
-            }
+            cancel(pendingA)
+            cancel(pendingB)
         }
     }
+
+    fun resetAll() = database.alarmDAO().getAll()
+        .filter { it.trigger < System.currentTimeMillis() }
+        .sortedBy(Alarm::trigger)
+        .mapNotNull(Alarm::intakeId)
+        .forEach(::setPreAlarm)
 
     fun cancelAll() = database.alarmDAO().getAll().forEach {
         with(manager) {
@@ -151,7 +93,7 @@ class AlarmSetter(private val context: Context) {
                 getBroadcast(
                     context,
                     it.alarmId.toInt(),
-                    alarmIntent.putExtra(ALARM_ID, it.alarmId),
+                    preAlarmIntent.putExtra(ALARM_ID, it.alarmId),
                     FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
                 )
             )
@@ -160,7 +102,7 @@ class AlarmSetter(private val context: Context) {
                 getBroadcast(
                     context,
                     it.alarmId.toInt(),
-                    preAlarmIntent.putExtra(ALARM_ID, it.alarmId),
+                    alarmIntent.putExtra(ALARM_ID, it.alarmId),
                     FLAG_CANCEL_CURRENT or FLAG_IMMUTABLE
                 )
             )
@@ -176,50 +118,15 @@ class AlarmSetter(private val context: Context) {
         )
 
         with(manager) {
-            if (check)
-                if (context.canScheduleExactAlarms()) setExactAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
-                else setAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
-            else cancel(broadcast)
-        }
-    }
-
-    private fun resetAlarm(alarmId: Long, interval: Int, type: AlarmType) {
-        val alarm = database.alarmDAO().getById(alarmId) ?: return
-        val trigger = alarm.trigger + AlarmManager.INTERVAL_DAY * interval
-        val preTrigger = trigger - 1800000L
-
-        val pendingA = getBroadcast(
-            context,
-            alarmId.toInt(),
-            preAlarmIntent.putExtra(ALARM_ID, alarmId),
-            FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-        )
-
-        val pendingB = getBroadcast(
-            context,
-            alarmId.toInt(),
-            alarmIntent.putExtra(ALARM_ID, alarmId),
-            FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE
-        )
-
-        with(manager) {
-            if (context.canScheduleExactAlarms()) when (type) {
-                AlarmType.ALARM -> setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
-                AlarmType.PREALARM -> setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
-                AlarmType.ALL -> {
-                    setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
-                    setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
+            if (check) {
+                if (context.canScheduleExactAlarms()) {
+                    setExactAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
+                } else {
+                    setAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
                 }
-            } else when (type) {
-                AlarmType.ALARM -> setAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
-                AlarmType.PREALARM -> setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
-                AlarmType.ALL -> {
-                    setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pendingA)
-                    setAndAllowWhileIdle(RTC_WAKEUP, trigger, pendingB)
-                }
+            } else {
+                cancel(broadcast)
             }
         }
-
-        if (type == AlarmType.ALARM) database.alarmDAO().reset(alarmId, trigger)
     }
 }

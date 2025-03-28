@@ -5,6 +5,7 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import ru.application.homemedkit.helpers.BLANK
+import ru.application.homemedkit.helpers.enums.DoseTypes
 
 @Entity(tableName = "medicines")
 data class Medicine(
@@ -20,7 +21,7 @@ data class Medicine(
     val structure: String = BLANK,
     val prodDNormName: String = BLANK,
     val prodAmount: Double = -1.0,
-    val doseType: String = BLANK,
+    val doseType: DoseTypes = DoseTypes.UNKNOWN,
     val phKinetics: String = BLANK,
     val recommendations: String = BLANK,
     val storageConditions: String = BLANK,

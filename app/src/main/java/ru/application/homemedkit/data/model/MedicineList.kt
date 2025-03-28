@@ -8,6 +8,5 @@ data class MedicineList(
     val expDateS: String,
     val expDateL: Long,
     val formName: String,
-    val kitTitle: String,
     val image: String
 )

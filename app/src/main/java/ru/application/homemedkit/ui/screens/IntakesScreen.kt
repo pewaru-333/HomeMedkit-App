@@ -60,25 +60,19 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.intake_text_by_schedule
 import ru.application.homemedkit.R.string.intake_text_date
 import ru.application.homemedkit.R.string.intake_text_in_fact
 import ru.application.homemedkit.R.string.intake_text_not_taken
-import ru.application.homemedkit.R.string.intake_text_quantity
 import ru.application.homemedkit.R.string.intake_text_taken
-import ru.application.homemedkit.R.string.intakes_tab_current
-import ru.application.homemedkit.R.string.intakes_tab_list
-import ru.application.homemedkit.R.string.intakes_tab_past
-import ru.application.homemedkit.R.string.text_amount
 import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_edit
 import ru.application.homemedkit.R.string.text_enter_product_name
@@ -86,26 +80,17 @@ import ru.application.homemedkit.R.string.text_go_to
 import ru.application.homemedkit.R.string.text_medicine_amount_not_enough
 import ru.application.homemedkit.R.string.text_medicine_deleted
 import ru.application.homemedkit.R.string.text_medicine_product_name
-import ru.application.homemedkit.R.string.text_no_intakes_found
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_status
-import ru.application.homemedkit.data.dto.Intake
-import ru.application.homemedkit.data.dto.IntakeTime
+import ru.application.homemedkit.data.model.Intake
+import ru.application.homemedkit.data.model.IntakeModel
+import ru.application.homemedkit.data.model.ScheduleModel
+import ru.application.homemedkit.data.model.TakenModel
 import ru.application.homemedkit.dialogs.TimePickerDialog
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.DoseTypes
-import ru.application.homemedkit.helpers.FORMAT_D_MMMM_E
-import ru.application.homemedkit.helpers.FORMAT_H_MM
-import ru.application.homemedkit.helpers.FORMAT_LONG
-import ru.application.homemedkit.helpers.Intervals
-import ru.application.homemedkit.helpers.ZONE
-import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.formName
-import ru.application.homemedkit.helpers.getDateTime
+import ru.application.homemedkit.helpers.enums.IntakeTabs
+import ru.application.homemedkit.models.events.TakenEvent
+import ru.application.homemedkit.models.states.TakenState
 import ru.application.homemedkit.models.viewModels.IntakesViewModel
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -116,7 +101,6 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
     val schedule by model.schedule.collectAsStateWithLifecycle()
     val taken by model.taken.collectAsStateWithLifecycle()
 
-    if (state.showDialog) DialogTaken(model)
     BackHandler(onBack = backClick)
     Scaffold(
         topBar = {
@@ -147,7 +131,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                     drawLine(Color.LightGray, Offset(0f, size.height), Offset(size.width, size.height), 4f)
                 },
                 actions = {
-                    if (state.tab != 0) IconButton(model::showDialogDate) {
+                    if (state.tab != IntakeTabs.LIST) IconButton(model::showDialogDate) {
                         Icon(Icons.Outlined.DateRange, null)
                     }
                 }
@@ -159,15 +143,15 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
         var style by remember { mutableStateOf(initial) }
         var draw by remember { mutableStateOf(false) }
 
-        Column(Modifier.padding(top = values.calculateTopPadding())) {
-            TabRow(state.tab) {
-                listOf(intakes_tab_list, intakes_tab_current, intakes_tab_past).forEachIndexed { index, tab ->
+        Column(Modifier.padding(values)) {
+            TabRow(state.tab.ordinal) {
+                IntakeTabs.entries.forEach { tab ->
                     Tab(
-                        selected = state.tab == index,
-                        onClick = { model.pickTab(index) },
+                        selected = state.tab.ordinal == tab.ordinal,
+                        onClick = { model.pickTab(tab) },
                         text = {
                             Text(
-                                text = stringResource(tab),
+                                text = stringResource(tab.title),
                                 softWrap = false,
                                 modifier = Modifier.drawWithContent { if (draw) drawContent() },
                                 style = style,
@@ -182,89 +166,114 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
             }
 
             when (state.tab) {
-                0 -> intakes.let { list ->
-                    if (list.isEmpty()) Box(
+                IntakeTabs.LIST -> if (intakes.isEmpty())
+                    Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 16.dp)
-                    ) { Text(stringResource(text_no_intakes_found), textAlign = TextAlign.Center) }
-                    else LazyColumn(state = state.stateA) {
-                        items(list) {
-                            val image = database.medicineDAO().getMedicineImages(it.medicineId).firstOrNull() ?: BLANK
-
-                            IntakeItem(it, image, navigateToIntake); HorizontalDivider()
-                        }
+                    ) {
+                        Text(
+                            text = stringResource(R.string.text_no_intakes_found),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                else LazyColumn(state = state.stateA) {
+                    items(intakes, Intake::intakeId) {
+                        ItemIntake(it, Modifier.animateItem(), navigateToIntake)
+                        HorizontalDivider()
                     }
                 }
 
-                1 -> LazyColumn(state = state.stateB) {
-                    schedule.forEach { future ->
-                        item { TextDate(future.date) }
-                        itemsIndexed(future.intakes) { index, value ->
-                            val intake = database.intakeDAO().getById(value.intakeId)
-                            val medicine = database.medicineDAO().getById(intake?.medicineId ?: 0L)
-                            val images = database.medicineDAO().getMedicineImages(intake?.medicineId ?: 0L)
 
-                            if (intake != null && medicine != null)
-                                MedicineItem(
-                                    modifier = Modifier.animateItem(),
-                                    title = medicine.nameAlias.ifEmpty { medicine.productName },
-                                    formName = medicine.prodFormNormName,
-                                    doseType = medicine.doseType,
-                                    amount = value.amount,
-                                    image = if (images.isNotEmpty()) images.first() else BLANK,
-                                    trigger = value.trigger
-                                )
-                            if (index < future.intakes.lastIndex) HorizontalDivider()
+                IntakeTabs.CURRENT -> LazyColumn(state = state.stateB) {
+                    schedule.forEach {
+                        item {
+                            TextDate(it.date)
                         }
-                    }
-                }
 
-                2 -> LazyColumn(state = state.stateC) {
-                    taken.forEach { past ->
-                        item { TextDate(past.date) }
-                        itemsIndexed(past.intakes.reversed(), key = {_, item -> item.takenId}) { index, value ->
-                            MedicineItem(
-                                modifier = Modifier.animateItem(),
-                                title = value.productName,
-                                formName = value.formName,
-                                doseType = value.doseType,
-                                amount = value.amount,
-                                image = value.image,
-                                trigger = value.trigger,
-                                taken = value.taken,
-                                showDialog = { model.showDialog(value) },
-                                showDialogDelete = {
-                                   if (!value.taken) model.showDialogDelete(value.takenId)
-                                }
+                        itemsIndexed(
+                            items = it.intakes,
+                            key = { _, item -> item.id },
+                            contentType = { _, item -> ScheduleModel::class }
+                        ) { index, item ->
+                            ItemSchedule(
+                                item = item,
+                                modifier = Modifier.animateItem()
                             )
-                            if (index < past.intakes.lastIndex) HorizontalDivider()
+
+                            if (index < it.intakes.lastIndex) HorizontalDivider()
+                        }
+                    }
+                }
+
+                IntakeTabs.PAST -> LazyColumn(state = state.stateC) {
+                    taken.forEach {
+                        item {
+                            TextDate(it.date)
+                        }
+
+                        itemsIndexed(
+                            items = it.intakes.reversed(),
+                            key = { _, item -> item.id },
+                            contentType = { _, item -> TakenModel::class }
+                        ) { index, item ->
+                            ItemSchedule(
+                                item = item,
+                                modifier = Modifier.animateItem(),
+                                showDialog = model::showDialog,
+                                showDialogDelete = model::showDialogDelete
+                            )
+
+                            if (index < it.intakes.lastIndex) HorizontalDivider()
                         }
                     }
                 }
             }
+        }
 
-            if (state.showDialogDate) DialogGoToDate(model::showDialogDate, model::scrollToClosest)
-            if (state.showDialogDelete) DialogDeleteTaken(model::showDialogDelete, model::deleteTaken)
+        when {
+            state.showDialogDelete -> DialogDeleteTaken(model::showDialogDelete, model::deleteTaken)
+            state.showDialogDate -> DialogGoToDate(model::showDialogDate, model::scrollToClosest)
+            state.showDialog -> {
+                val takenState by model.takenState.collectAsStateWithLifecycle()
+                DialogTaken(takenState, model::onTakenEvent)
+            }
         }
     }
 }
 
 @Composable
-fun IntakeItem(intake: Intake, image: String, navigateToIntake:(Long) -> Unit) {
-    val medicine = database.medicineDAO().getById(intake.medicineId)
-    val time = database.intakeDAO().getTime(intake.intakeId).distinctBy(IntakeTime::time)
-    val count = time.size
-    val intervalName = if (count == 1) stringResource(Intervals.getTitle(intake.interval.toString()))
-    else pluralStringResource(R.plurals.intake_times_a_day, count, count)
-
+fun ItemIntake(intake: Intake, modifier: Modifier, navigateToIntake: (Long) -> Unit) {
     ListItem(
-        trailingContent = { Text(intervalName) },
-        supportingContent = { Text(time.joinToString(transform = IntakeTime::time), maxLines = 1) },
-        leadingContent = { MedicineImage(image, Modifier.size(40.dp)) },
-        modifier = Modifier.clickable { navigateToIntake(intake.intakeId) },
-        headlineContent = { Text(medicine?.let { it.nameAlias.ifEmpty { it.productName } } ?: BLANK, softWrap = false) }
+        headlineContent = {
+            Text(
+                text = intake.title,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
+            )
+        },
+        leadingContent = {
+            MedicineImage(
+                image = intake.image,
+                modifier = Modifier.size(40.dp)
+            )
+        },
+        supportingContent = {
+            Text(
+                text = intake.time,
+                maxLines = 1
+            )
+        },
+        trailingContent = {
+            Text(
+                text = intake.interval.asString()
+            )
+        },
+        modifier = modifier.clickable {
+            navigateToIntake(intake.intakeId)
+        }
     )
 }
 
@@ -292,32 +301,54 @@ private fun DialogGoToDate(show: () -> Unit, scroll: (Long) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DialogTaken(model: IntakesViewModel) {
+private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
     val context = LocalContext.current
-
-    val intake by model.takenState.collectAsStateWithLifecycle()
-    val medicine = database.medicineDAO().getById(intake.medicineId)
     val items = listOf(stringResource(intake_text_not_taken), stringResource(intake_text_taken))
 
-    if (intake.showPicker) TimePickerDialog(model::showPicker, model::setFactTime)
-    { TimePicker(intake.pickerState) }
+    if (intake.showPicker)
+        TimePickerDialog(
+            onCancel = { onEvent(TakenEvent.ShowTimePicker(false)) },
+            onConfirm = { onEvent(TakenEvent.SetFactTime) }
+        ) {
+            TimePicker(intake.pickerState)
+        }
 
     AlertDialog(
-        onDismissRequest = model::hideDialog,
+        onDismissRequest = { onEvent(TakenEvent.HideDialog) },
+        title = {
+            Text(
+                text = stringResource(text_edit),
+                modifier = Modifier.width(MinWidth)
+            )
+        },
         confirmButton = {
             TextButton(
-                onClick = { model.saveTaken(context, intake.selection == 1, intake.taken) },
+                onClick = { onEvent(TakenEvent.SaveTaken(context)) },
                 enabled = when {
-                    medicine == null -> false
-                    medicine.prodAmount < intake.amount && !intake.taken -> false
+                    intake.medicine == null -> false
+                    intake.medicine.prodAmount < intake.amount && !intake.taken -> false
                     else -> true
                 }
-            ) { Text(stringResource(text_save)) }
+            ) {
+                Text(
+                    text = stringResource(text_save)
+                )
+            }
         },
-        dismissButton = { TextButton(model::hideDialog) { Text(stringResource(text_cancel)) } },
-        title = { Text(stringResource(text_edit), Modifier.width(MinWidth)) },
+        dismissButton = {
+            TextButton(
+                onClick = { onEvent(TakenEvent.HideDialog) }
+            ) {
+                Text(
+                    text = stringResource(text_cancel)
+                )
+            }
+        },
         text = {
-            Column(Modifier.verticalScroll(rememberScrollState()), Arrangement.spacedBy(8.dp)) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 OutlinedTextField(
                     value = intake.productName,
                     onValueChange = {},
@@ -326,22 +357,21 @@ private fun DialogTaken(model: IntakesViewModel) {
                     label = { Text(stringResource(text_medicine_product_name)) }
                 )
                 OutlinedTextField(
-                    value = getDateTime(intake.trigger).format(FORMAT_LONG),
+                    value = intake.date,
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(intake_text_date)) }
                 )
                 Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
-                        value = getDateTime(intake.trigger).format(FORMAT_H_MM),
+                        value = intake.scheduled,
                         modifier = Modifier.weight(0.5f),
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(stringResource(intake_text_by_schedule)) }
                     )
                     OutlinedTextField(
-                        value = if (intake.selection == 1) getDateTime(intake.inFact).format(FORMAT_H_MM)
-                        else stringResource(intake_text_not_taken),
+                        value = intake.actual.asString(),
                         onValueChange = {},
                         enabled = false,
                         readOnly = intake.selection == 0,
@@ -356,12 +386,14 @@ private fun DialogTaken(model: IntakesViewModel) {
                         ),
                         modifier = Modifier
                             .weight(0.5f)
-                            .clickable(intake.selection == 1) { model.showPicker(true) }
+                            .clickable(intake.selection == 1) {
+                                onEvent(TakenEvent.ShowTimePicker(true))
+                            }
                     )
                 }
 
                 when {
-                    medicine == null -> OutlinedTextField(
+                    intake.medicine == null -> OutlinedTextField(
                         value = stringResource(text_medicine_deleted),
                         onValueChange = {},
                         modifier = Modifier.width(MinWidth),
@@ -369,7 +401,7 @@ private fun DialogTaken(model: IntakesViewModel) {
                         label = { Text(stringResource(text_status)) }
                     )
 
-                    medicine.prodAmount < intake.amount && !intake.taken -> OutlinedTextField(
+                    intake.medicine.prodAmount < intake.amount && !intake.taken -> OutlinedTextField(
                         value = stringResource(text_medicine_amount_not_enough),
                         onValueChange = {},
                         modifier = Modifier.width(MinWidth),
@@ -381,8 +413,8 @@ private fun DialogTaken(model: IntakesViewModel) {
                         items.forEachIndexed { index, label ->
                             SegmentedButton(
                                 selected = index == intake.selection,
-                                onClick = { model.setSelection(index) },
-                                shape = MaterialTheme.shapes.extraSmall
+                                shape = MaterialTheme.shapes.extraSmall,
+                                onClick = { onEvent(TakenEvent.SetSelection(index)) },
                             ) { Text(label) }
                         }
                     }
@@ -407,11 +439,9 @@ private fun DialogDeleteTaken(onDismiss: () -> Unit, onDelete: () -> Unit) = Ale
 )
 
 @Composable
-private fun TextDate(timestamp: Long) = Text(
+private fun TextDate(date: String) = Text(
+    text = date,
     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.W500),
-    text = LocalDate.ofEpochDay(timestamp).run {
-        format(if (LocalDate.now().year == year) FORMAT_D_MMMM_E else FORMAT_LONG)
-    },
     modifier = Modifier
         .fillMaxWidth()
         .background(MaterialTheme.colorScheme.background)
@@ -420,41 +450,44 @@ private fun TextDate(timestamp: Long) = Text(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MedicineItem(
+fun ItemSchedule(
+    item: IntakeModel,
     modifier: Modifier,
-    title: String,
-    formName: String,
-    doseType: String,
-    amount: Double,
-    image: String,
-    trigger: Long,
-    taken: Boolean = true,
-    showDialog: (() -> Unit)? = null,
-    showDialogDelete: (() -> Unit)? = null
-) = ListItem(
-    headlineContent = { Text(text = title, maxLines = 1, softWrap = false) },
-    leadingContent = { MedicineImage(image, Modifier.size(40.dp)) },
-    modifier = modifier.combinedClickable(
-        onClick = { showDialog?.invoke() },
-        onLongClick = { showDialogDelete?.invoke() }
-    ),
-    supportingContent = {
-        Text(
-            text = stringResource(
-                intake_text_quantity,
-                formName.let { if (it.isEmpty()) stringResource(text_amount) else formName(it) },
-                decimalFormat(amount), stringResource(DoseTypes.getTitle(doseType)),
+    showDialog: ((Long) -> Unit)? = null,
+    showDialogDelete: ((Long) -> Unit)? = null
+) {
+    ListItem(
+        headlineContent = {
+            Text(
+                text = item.title,
+                softWrap = false,
+                maxLines = 1
             )
+        },
+        leadingContent = {
+            MedicineImage(
+                image = item.image,
+                modifier = Modifier.size(40.dp)
+            )
+        },
+        modifier = modifier.combinedClickable(
+            onClick = { showDialog?.invoke(item.id) },
+            onLongClick = { if (!item.taken) showDialogDelete?.invoke(item.id) }
+        ),
+        supportingContent = {
+            Text(
+                text = item.doseAmount.asString()
+            )
+        },
+        trailingContent = {
+            Text(
+                text = item.time,
+                style = MaterialTheme.typography.labelLarge
+            )
+        },
+        colors = ListItemDefaults.colors(
+            if (item.taken) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+            else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.65f)
         )
-    },
-    trailingContent = {
-        Text(
-            text = LocalDateTime.ofInstant(Instant.ofEpochMilli(trigger), ZONE).format(FORMAT_H_MM),
-            style = MaterialTheme.typography.labelLarge
-        )
-    },
-    colors = ListItemDefaults.colors(
-        if (taken) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
-        else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.65f)
     )
-)
+}

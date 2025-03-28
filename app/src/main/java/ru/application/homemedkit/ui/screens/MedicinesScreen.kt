@@ -75,7 +75,7 @@ import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_yes
 import ru.application.homemedkit.data.model.MedicineList
 import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.Sorting
+import ru.application.homemedkit.helpers.enums.Sorting
 import ru.application.homemedkit.models.states.MedicinesState
 import ru.application.homemedkit.models.viewModels.MedicinesViewModel
 
@@ -100,12 +100,12 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text(stringResource(text_enter_product_name)) },
                         leadingIcon = { Icon(Icons.Outlined.Search, null) },
+                        singleLine = true,
                         trailingIcon = {
                             if (state.search.isNotEmpty())
                                 IconButton(model::clearSearch)
                                 { Icon(Icons.Outlined.Clear, null) }
                         },
-                        singleLine = true,
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = MaterialTheme.colorScheme.surface,
                             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -186,23 +186,30 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
         }
     ) { values ->
         medicines.let { list ->
-            if (list.isEmpty()) Box(
+            if (list.isNotEmpty())
+                LazyColumn(Modifier, state.listState, values) {
+                    items(list, MedicineList::id) {
+                        MedicineItem(it, Modifier.animateItem(), navigateToMedicine)
+                        HorizontalDivider()
+                    }
+                }
+            else Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp)
-            ) { Text(stringResource(text_no_data_found), textAlign = TextAlign.Center) }
-            else LazyColumn(Modifier, state.listState, values) {
-                items(list, MedicineList::id) {
-                    MedicineItem(it, Modifier.animateItem(), navigateToMedicine); HorizontalDivider()
-                }
+            ) {
+                Text(
+                    text = stringResource(text_no_data_found),
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
 
     when {
         state.showFilter -> DialogKits(model, state)
-        state.showExit -> if (!Preferences.getConfirmExit()) activity.finishAndRemoveTask()
+        state.showExit -> if (!Preferences.confirmExit) activity.finishAndRemoveTask()
         else DialogExit(model::showExit, activity::finishAndRemoveTask)
     }
 }
@@ -210,17 +217,14 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
 @Composable
 private fun MedicineItem(medicine: MedicineList, modifier: Modifier, navigateToMedicine: (Long) -> Unit) =
     ListItem(
+        modifier = modifier.clickable { navigateToMedicine(medicine.id) },
         headlineContent = { Text(medicine.title) },
         leadingContent = { MedicineImage(medicine.image, Modifier.size(56.dp)) },
-        modifier = modifier.clickable { navigateToMedicine(medicine.id) },
-        overlineContent = {
-            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                Text(medicine.formName); Text(medicine.kitTitle)
-            }
-        },
+        overlineContent = { Text(medicine.formName) },
         supportingContent = {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                Text(medicine.expDateS); Text("${medicine.prodAmount} ${stringResource(medicine.doseType)}")
+                Text(medicine.expDateS)
+                Text("${medicine.prodAmount} ${stringResource(medicine.doseType)}")
             }
         },
         colors = ListItemDefaults.colors(

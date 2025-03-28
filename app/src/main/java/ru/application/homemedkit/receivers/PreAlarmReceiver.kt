@@ -15,10 +15,8 @@ import ru.application.homemedkit.R.string.text_intake_prealarm_title
 import ru.application.homemedkit.data.MedicineDatabase.Companion.getInstance
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.helpers.ALARM_ID
-import ru.application.homemedkit.helpers.AlarmType
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.CHANNEL_ID_PRE
-import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.FORMAT_H_MM
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.extensions.goAsync
@@ -37,7 +35,9 @@ class PreAlarmReceiver : BroadcastReceiver() {
         val image = database.medicineDAO().getMedicineImages(medicine.id).firstOrNull() ?: BLANK
 
         goAsync(Dispatchers.IO) {
-            database.takenDAO().insert(
+            database.alarmDAO().delete(alarm)
+
+            val takenId = database.takenDAO().insert(
                 IntakeTaken(
                     medicineId = medicine.id,
                     intakeId = alarm.intakeId,
@@ -51,7 +51,7 @@ class PreAlarmReceiver : BroadcastReceiver() {
                 )
             )
 
-            AlarmSetter(context).resetOrDelete(alarmId, alarm.trigger, intake, AlarmType.PREALARM)
+            AlarmSetter(context).setAlarm(takenId, alarm.trigger)
         }
 
         if (alarm.preAlarm) with(NotificationManagerCompat.from(context)) {
@@ -69,7 +69,7 @@ class PreAlarmReceiver : BroadcastReceiver() {
                                 text_intake_prealarm_text,
                                 medicine.nameAlias.ifEmpty(medicine::productName),
                                 decimalFormat(alarm.amount),
-                                context.getString(DoseTypes.getTitle(medicine.doseType)),
+                                context.getString(medicine.doseType.title),
                                 getDateTime(alarm.trigger).format(FORMAT_H_MM)
                             )
                         )

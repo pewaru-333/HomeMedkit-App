@@ -1,1 +1,0 @@
-— This update aims to improve the stability of the application and fix several minor issues.

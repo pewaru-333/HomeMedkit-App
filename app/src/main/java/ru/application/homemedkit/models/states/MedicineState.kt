@@ -5,8 +5,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.DoseTypes
-import ru.application.homemedkit.helpers.Types
+import ru.application.homemedkit.helpers.enums.DoseTypes
+import ru.application.homemedkit.helpers.enums.Types
 import kotlin.random.Random
 
 data class MedicineState(
@@ -25,8 +25,7 @@ data class MedicineState(
     val structure: String = BLANK,
     val prodDNormName: String = BLANK,
     val prodAmount: String = BLANK,
-    val doseType: String = BLANK,
-    val doseTypeE: DoseTypes? = null,
+    val doseType: DoseTypes = DoseTypes.UNKNOWN,
     val phKinetics: String = BLANK,
     val recommendations: String = BLANK,
     val storageConditions: String = BLANK,

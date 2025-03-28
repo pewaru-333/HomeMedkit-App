@@ -7,15 +7,18 @@ import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.Medicine
+import ru.application.homemedkit.data.model.MedicineMain
 
 @Dao
 interface MedicineDAO : BaseDAO<Medicine> {
     // ============================== Queries ==============================
+    @Transaction
     @Query("SELECT * FROM medicines")
     fun getAll(): List<Medicine>
 
+    @Transaction
     @Query("SELECT * FROM medicines")
-    fun getFlow(): Flow<List<Medicine>>
+    fun getFlow(): Flow<List<MedicineMain>>
 
     @Query("SELECT productName FROM medicines WHERE id = :medicineId")
     fun getProductName(medicineId: Long): String

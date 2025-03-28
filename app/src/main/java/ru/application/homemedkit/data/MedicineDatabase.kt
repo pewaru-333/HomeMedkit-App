@@ -14,26 +14,36 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import ru.application.homemedkit.data.dao.AlarmDAO
 import ru.application.homemedkit.data.dao.IntakeDAO
+import ru.application.homemedkit.data.dao.IntakeDayDAO
 import ru.application.homemedkit.data.dao.KitDAO
 import ru.application.homemedkit.data.dao.MedicineDAO
 import ru.application.homemedkit.data.dao.TakenDAO
 import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.Intake
+import ru.application.homemedkit.data.dto.IntakeDay
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.data.dto.IntakeTime
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.MedicineKit
 import ru.application.homemedkit.helpers.DATABASE_NAME
+import ru.application.homemedkit.helpers.FORMAT_DD_MM_YYYY
+import ru.application.homemedkit.helpers.ZONE
+import ru.application.homemedkit.helpers.enums.SchemaTypes
+import ru.application.homemedkit.helpers.getDateTime
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Database(
-    version = 21,
+    version = 30,
     entities = [
         Medicine::class,
         Intake::class,
         Alarm::class,
         Kit::class,
+        IntakeDay::class,
         IntakeTaken::class,
         MedicineKit::class,
         IntakeTime::class,
@@ -48,6 +58,11 @@ import ru.application.homemedkit.helpers.DATABASE_NAME
         AutoMigration(
             from = 20,
             to = 21
+        ),
+        AutoMigration(
+            from = 27,
+            to = 28,
+            spec = MedicineDatabase.Companion.AutoMigrationFrom27To28::class
         )
     ]
 )
@@ -56,6 +71,7 @@ abstract class MedicineDatabase : RoomDatabase() {
     abstract fun medicineDAO(): MedicineDAO
     abstract fun intakeDAO(): IntakeDAO
     abstract fun alarmDAO(): AlarmDAO
+    abstract fun intakeDayDAO(): IntakeDayDAO
     abstract fun kitDAO(): KitDAO
     abstract fun takenDAO(): TakenDAO
 
@@ -70,13 +86,7 @@ abstract class MedicineDatabase : RoomDatabase() {
                 DATABASE_NAME
             )
                 .addMigrations(
-                    MIGRATION_1_4,
-                    MIGRATION_4_6,
-                    MIGRATION_6_7,
-                    MIGRATION_7_8,
-                    MIGRATION_8_9,
-                    MIGRATION_9_10,
-                    MIGRATION_10_11,
+                    MIGRATION_1_11,
                     MIGRATION_11_12,
                     MIGRATION_12_13,
                     MIGRATION_13_14,
@@ -84,7 +94,12 @@ abstract class MedicineDatabase : RoomDatabase() {
                     MIGRATION_15_16,
                     MIGRATION_16_17,
                     MIGRATION_17_18,
-                    MIGRATION_18_19
+                    MIGRATION_18_19,
+                    MIGRATION_21_22,
+                    MIGRATION_22_26,
+                    MIGRATION_26_27,
+                    MIGRATION_28_29,
+                    MIGRATION_29_30
                 )
                 .setQueryExecutor(Dispatchers.IO.asExecutor())
                 .setTransactionExecutor(Dispatchers.IO.asExecutor())
@@ -93,46 +108,8 @@ abstract class MedicineDatabase : RoomDatabase() {
                 .also { INSTANCE = it }
         }
 
-        private val MIGRATION_1_4 = object : Migration(1, 4) {
+        private val MIGRATION_1_11 = object : Migration(1, 11) {
             override fun migrate(db: SupportSQLiteDatabase) = Unit
-        }
-
-        private val MIGRATION_4_6 = object : Migration(4, 6) {
-            override fun migrate(db: SupportSQLiteDatabase) = Unit
-        }
-
-        private val MIGRATION_6_7 = object : Migration(6, 7) {
-            override fun migrate(db: SupportSQLiteDatabase) = Unit
-        }
-
-        private val MIGRATION_7_8 = object : Migration(7, 8) {
-            override fun migrate(db: SupportSQLiteDatabase) = Unit
-        }
-
-        private val MIGRATION_8_9 = object : Migration(8, 9) {
-            override fun migrate(db: SupportSQLiteDatabase) = Unit
-        }
-
-        private val MIGRATION_9_10 = object : Migration(9, 10) {
-            override fun migrate(db: SupportSQLiteDatabase) = Unit
-        }
-
-        private val MIGRATION_10_11 = object : Migration(10, 11) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("UPDATE medicines SET doseType = 'ed' WHERE doseType = 'ЕД'")
-                db.execSQL("UPDATE medicines SET doseType = 'pcs' WHERE doseType = 'шт'")
-                db.execSQL("UPDATE medicines SET doseType = 'g' WHERE doseType = 'г'")
-                db.execSQL("UPDATE medicines SET doseType = 'mg' WHERE doseType = 'мг'")
-                db.execSQL("UPDATE medicines SET doseType = 'l' WHERE doseType = 'л'")
-                db.execSQL("UPDATE medicines SET doseType = 'ml' WHERE doseType = 'мл'")
-
-                db.execSQL("UPDATE intakes_taken SET doseType = 'ed' WHERE doseType = 'ЕД'")
-                db.execSQL("UPDATE intakes_taken SET doseType = 'pcs' WHERE doseType = 'шт'")
-                db.execSQL("UPDATE intakes_taken SET doseType = 'g' WHERE doseType = 'г'")
-                db.execSQL("UPDATE intakes_taken SET doseType = 'mg' WHERE doseType = 'мг'")
-                db.execSQL("UPDATE intakes_taken SET doseType = 'l' WHERE doseType = 'л'")
-                db.execSQL("UPDATE intakes_taken SET doseType = 'ml' WHERE doseType = 'мл'")
-            }
         }
 
         private val MIGRATION_11_12 = object : Migration(11, 12) {
@@ -180,11 +157,12 @@ abstract class MedicineDatabase : RoomDatabase() {
 
         private val MIGRATION_16_17 = object : Migration(16, 17) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("CREATE TABLE IF NOT EXISTS medicines_kits " +
-                        "(`medicineId` INTEGER NOT NULL, `kitId` INTEGER NOT NULL, " +
-                        "PRIMARY KEY (medicineId, kitId)" +
-                        "FOREIGN KEY (medicineId) REFERENCES medicines (id) ON UPDATE CASCADE ON DELETE CASCADE, " +
-                        "FOREIGN KEY (kitId) REFERENCES kits (kitId) ON UPDATE CASCADE ON DELETE CASCADE)"
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS medicines_kits " +
+                            "(`medicineId` INTEGER NOT NULL, `kitId` INTEGER NOT NULL, " +
+                            "PRIMARY KEY (medicineId, kitId)" +
+                            "FOREIGN KEY (medicineId) REFERENCES medicines (id) ON UPDATE CASCADE ON DELETE CASCADE, " +
+                            "FOREIGN KEY (kitId) REFERENCES kits (kitId) ON UPDATE CASCADE ON DELETE CASCADE)"
                 )
 
                 val cursor = db.query("SELECT id, kitId FROM MEDICINES")
@@ -213,13 +191,15 @@ abstract class MedicineDatabase : RoomDatabase() {
                             "`image` TEXT NOT NULL DEFAULT '', " +
                             "`scanned` INTEGER NOT NULL, `verified` INTEGER NOT NULL)"
                 )
-                db.execSQL("INSERT INTO medicines_r " +
-                        "(id, cis, productName, expDate, prodFormNormName, structure, " +
-                        "recommendations, storageConditions, prodDNormName, prodAmount, " +
-                        "doseType, phKinetics, comment, image, scanned, verified) " +
-                        "SELECT id, cis, productName, expDate, prodFormNormName, structure, " +
-                        "recommendations, storageConditions, prodDNormName, prodAmount, doseType, " +
-                        "phKinetics, comment, image, scanned, verified FROM medicines")
+                db.execSQL(
+                    "INSERT INTO medicines_r " +
+                            "(id, cis, productName, expDate, prodFormNormName, structure, " +
+                            "recommendations, storageConditions, prodDNormName, prodAmount, " +
+                            "doseType, phKinetics, comment, image, scanned, verified) " +
+                            "SELECT id, cis, productName, expDate, prodFormNormName, structure, " +
+                            "recommendations, storageConditions, prodDNormName, prodAmount, doseType, " +
+                            "phKinetics, comment, image, scanned, verified FROM medicines"
+                )
                 db.execSQL("DROP TABLE medicines")
                 db.execSQL("ALTER TABLE medicines_r RENAME TO medicines")
 
@@ -313,10 +293,355 @@ abstract class MedicineDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_21_22 = object : Migration(21, 22) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE medicines_r (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`cis` TEXT NOT NULL, `productName` TEXT NOT NULL, `nameAlias` TEXT NOT NULL, " +
+                            "`expDate` INTEGER NOT NULL, `packageOpenedDate` INTEGER NOT NULL DEFAULT -1, `prodFormNormName` TEXT NOT NULL, " +
+                            "`structure` TEXT NOT NULL DEFAULT '', `recommendations` TEXT NOT NULL DEFAULT '', " +
+                            "`storageConditions` TEXT NOT NULL DEFAULT '', " +
+                            "`prodDNormName` TEXT NOT NULL, `prodAmount` REAL NOT NULL, " +
+                            "`doseType` TEXT DEFAULT NULL, " +
+                            "`phKinetics` TEXT NOT NULL, `comment` TEXT NOT NULL, " +
+                            "`scanned` INTEGER NOT NULL, `verified` INTEGER NOT NULL)"
+                )
+
+                db.execSQL(
+                    "CREATE TABLE intakes_taken_r (`takenId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`medicineId` INTEGER NOT NULL, `intakeId` INTEGER NOT NULL, " +
+                            "`alarmId` INTEGER NOT NULL, `productName` TEXT NOT NULL, " +
+                            "`formName` TEXT NOT NULL, `amount` REAL NOT NULL, " +
+                            "`doseType` TEXT DEFAULT NULL, `image` TEXT NOT NULL, " +
+                            "`trigger` INTEGER NOT NULL, `inFact` INTEGER NOT NULL, " +
+                            "`taken` INTEGER NOT NULL, `notified` INTEGER NOT NULL)"
+                )
+
+                db.execSQL(
+                    "INSERT INTO medicines_r (`id`,`cis`,`productName`,`nameAlias`,`expDate`," +
+                            "`packageOpenedDate`,`prodFormNormName`,`structure`,`recommendations`," +
+                            "`storageConditions`, `prodDNormName`,`prodAmount`,`doseType`,`phKinetics`," +
+                            "`comment`,`scanned`,`verified`) SELECT `id`,`cis`,`productName`,`nameAlias`,`expDate`," +
+                            "`packageOpenedDate`,`prodFormNormName`,`structure`,`recommendations`," +
+                            "`storageConditions`, `prodDNormName`,`prodAmount`,`doseType`,`phKinetics`," +
+                            "`comment`,`scanned`,`verified` FROM medicines"
+                )
+
+
+                db.execSQL(
+                    "INSERT INTO intakes_taken_r (`takenId`,`medicineId`,`intakeId`,`alarmId`," +
+                            "`productName`,`formName`,`amount`,`doseType`,`image`,`trigger`,`inFact`," +
+                            "`taken`,`notified`) SELECT `takenId`,`medicineId`,`intakeId`,`alarmId`," +
+                            "`productName`,`formName`,`amount`,`doseType`,`image`,`trigger`,`inFact`," +
+                            "`taken`,`notified` FROM intakes_taken"
+                )
+
+                var cursor = db.query("SELECT id, doseType FROM medicines_r")
+                cursor.moveToFirst()
+
+                while (!cursor.isAfterLast) {
+                    val id = cursor.getLong(0)
+                    val doseTypeOld = cursor.getString(1)
+
+                    val doseType = when (doseTypeOld) {
+                        "ed" -> "UNITS"
+                        "pcs" -> "PIECES"
+                        "sach" -> "SACHETS"
+                        "g" -> "GRAMS"
+                        "mg" -> "MILLIGRAMS"
+                        "l" -> "LITERS"
+                        "ml" -> "MILLILITERS"
+                        "ratio" -> "RATIO"
+                        else -> null
+                    }
+
+                    db.execSQL("UPDATE medicines_r SET doseType = '$doseType' WHERE id = $id")
+
+                    cursor.moveToNext()
+                }
+
+                cursor = db.query("SELECT takenId, doseType FROM intakes_taken_r")
+                cursor.moveToFirst()
+
+                while (!cursor.isAfterLast) {
+                    val id = cursor.getLong(0)
+                    val doseTypeOld = cursor.getString(1)
+
+                    val doseType = when (doseTypeOld) {
+                        "ed" -> "UNITS"
+                        "pcs" -> "PIECES"
+                        "sach" -> "SACHETS"
+                        "g" -> "GRAMS"
+                        "mg" -> "MILLIGRAMS"
+                        "l" -> "LITERS"
+                        "ml" -> "MILLILITERS"
+                        "ratio" -> "RATIO"
+                        else -> null
+                    }
+
+                    db.execSQL("UPDATE intakes_taken_r SET doseType = '$doseType' WHERE takenId = $id")
+
+                    cursor.moveToNext()
+                }
+
+                db.execSQL("DROP TABLE medicines")
+                db.execSQL("ALTER TABLE medicines_r RENAME TO medicines")
+
+                db.execSQL("DROP TABLE intakes_taken")
+                db.execSQL("ALTER TABLE intakes_taken_r RENAME TO intakes_taken")
+            }
+        }
+
+        private val MIGRATION_22_26 = object : Migration(22, 26) {
+            override fun migrate(db: SupportSQLiteDatabase) = Unit
+        }
+
+        private val MIGRATION_26_27 = object : Migration(26, 27) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE medicines_r (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`cis` TEXT NOT NULL, `productName` TEXT NOT NULL, `nameAlias` TEXT NOT NULL, " +
+                            "`expDate` INTEGER NOT NULL, `packageOpenedDate` INTEGER NOT NULL DEFAULT -1, `prodFormNormName` TEXT NOT NULL, " +
+                            "`structure` TEXT NOT NULL DEFAULT '', `recommendations` TEXT NOT NULL DEFAULT '', " +
+                            "`storageConditions` TEXT NOT NULL DEFAULT '', " +
+                            "`prodDNormName` TEXT NOT NULL, `prodAmount` REAL NOT NULL, " +
+                            "`doseType` TEXT NOT NULL, " +
+                            "`phKinetics` TEXT NOT NULL, `comment` TEXT NOT NULL, " +
+                            "`scanned` INTEGER NOT NULL, `verified` INTEGER NOT NULL)"
+                )
+
+                db.execSQL(
+                    "CREATE TABLE intakes_taken_r (`takenId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`medicineId` INTEGER NOT NULL, `intakeId` INTEGER NOT NULL, " +
+                            "`alarmId` INTEGER NOT NULL, `productName` TEXT NOT NULL, " +
+                            "`formName` TEXT NOT NULL, `amount` REAL NOT NULL, " +
+                            "`doseType` TEXT NOT NULL, `image` TEXT NOT NULL, " +
+                            "`trigger` INTEGER NOT NULL, `inFact` INTEGER NOT NULL, " +
+                            "`taken` INTEGER NOT NULL, `notified` INTEGER NOT NULL)"
+                )
+
+                db.execSQL(
+                    "INSERT INTO medicines_r (`id`,`cis`,`productName`,`nameAlias`,`expDate`," +
+                            "`packageOpenedDate`,`prodFormNormName`,`structure`,`recommendations`," +
+                            "`storageConditions`, `prodDNormName`,`prodAmount`,`doseType`,`phKinetics`," +
+                            "`comment`,`scanned`,`verified`) SELECT `id`,`cis`,`productName`,`nameAlias`,`expDate`," +
+                            "`packageOpenedDate`,`prodFormNormName`,`structure`,`recommendations`," +
+                            "`storageConditions`, `prodDNormName`,`prodAmount`,`doseType`,`phKinetics`," +
+                            "`comment`,`scanned`,`verified` FROM medicines"
+                )
+
+                db.execSQL(
+                    "INSERT INTO intakes_taken_r (`takenId`,`medicineId`,`intakeId`,`alarmId`," +
+                            "`productName`,`formName`,`amount`,`doseType`,`image`,`trigger`,`inFact`," +
+                            "`taken`,`notified`) SELECT `takenId`,`medicineId`,`intakeId`,`alarmId`," +
+                            "`productName`,`formName`,`amount`,`doseType`,`image`,`trigger`,`inFact`," +
+                            "`taken`,`notified` FROM intakes_taken"
+                )
+
+
+                db.execSQL("UPDATE medicines_r SET doseType = 'UNKNOWN' WHERE doseType = 'null'")
+                db.execSQL("UPDATE intakes_taken_r SET doseType = 'UNKNOWN' WHERE doseType = 'null'")
+
+                db.execSQL("DROP TABLE medicines")
+                db.execSQL("ALTER TABLE medicines_r RENAME TO medicines")
+
+                db.execSQL("DROP TABLE intakes_taken")
+                db.execSQL("ALTER TABLE intakes_taken_r RENAME TO intakes_taken")
+            }
+        }
+
         @DeleteColumn(
             tableName = "medicines",
             columnName = "image"
         )
         class AUTO_MIGRATION_19_20 : AutoMigrationSpec
+
+        class AutoMigrationFrom27To28 : AutoMigrationSpec {
+            override fun onPostMigrate(db: SupportSQLiteDatabase) {
+                val cursor =
+                    db.query("SELECT intakeId, finalDate, schemaType, interval FROM intakes")
+                cursor.moveToFirst()
+
+                while (!cursor.isAfterLast) {
+                    val intakeId = cursor.getLong(0)
+                    val finalDate = cursor.getString(1)
+                    val schemaType = cursor.getString(2)
+                    val interval = cursor.getInt(3)
+
+                    val alarmCursor =
+                        db.query("SELECT alarmId, trigger FROM alarms WHERE intakeId = $intakeId")
+                    alarmCursor.moveToFirst()
+
+                    while (!alarmCursor.isAfterLast) {
+                        val alarmId = alarmCursor.getLong(0)
+                        val trigger = alarmCursor.getLong(1)
+
+                        var first = getDateTime(trigger).toLocalDateTime()
+
+                        val last = LocalDateTime.of(
+                            LocalDate.parse(finalDate, FORMAT_DD_MM_YYYY),
+                            getDateTime(trigger).toLocalTime()
+                        )
+
+                        while (!first.isAfter(last)) {
+                            db.execSQL(
+                                "INSERT INTO intake_schedule (`alarmId`, `trigger`) " +
+                                        "VALUES ($alarmId, ${first.toInstant(ZONE).toEpochMilli()})"
+                            )
+
+                            first = first.plusDays(
+                                if (SchemaTypes.valueOf(schemaType) == SchemaTypes.BY_DAYS) SchemaTypes.valueOf(
+                                    schemaType
+                                ).interval.days.toLong()
+                                else interval.toLong()
+                            )
+                        }
+
+
+                        alarmCursor.moveToNext()
+                    }
+
+                    cursor.moveToNext()
+                }
+            }
+        }
+
+        private val MIGRATION_28_29 = object : Migration(28, 29) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE intake_days (`intakeId` INTEGER NOT NULL, `day` TEXT NOT NULL, " +
+                            "PRIMARY KEY (intakeId, day) " +
+                            "FOREIGN KEY (intakeId) REFERENCES intakes (intakeId) ON UPDATE CASCADE ON DELETE CASCADE)"
+                )
+
+                var intakeCursor = db.query("SELECT intakeId FROM intakes")
+                intakeCursor.moveToNext()
+
+                while (!intakeCursor.isAfterLast) {
+                    val intakeId = intakeCursor.getLong(0)
+
+                    DayOfWeek.entries.forEach {
+                        db.execSQL("INSERT INTO intake_days (`intakeId`, `day`) VALUES ($intakeId, '$it')")
+                    }
+
+                    intakeCursor.moveToNext()
+                }
+
+                db.execSQL("UPDATE intakes SET period = 1825 WHERE period = 38500")
+
+                intakeCursor =
+                    db.query("SELECT intakeId, finalDate, schemaType, interval FROM intakes")
+                intakeCursor.moveToNext()
+
+                while (!intakeCursor.isAfterLast) {
+                    val intakeId = intakeCursor.getLong(0)
+                    val finalDate = intakeCursor.getString(1)
+                    val schemaType = intakeCursor.getString(2)
+                    val interval = intakeCursor.getInt(3)
+
+                    val alarmCursor = db.query(
+                        "SELECT alarmId, intakeId, trigger, amount, preAlarm " +
+                                "FROM alarms " +
+                                "WHERE intakeId = $intakeId"
+                    )
+                    alarmCursor.moveToFirst()
+
+                    while (!alarmCursor.isAfterLast) {
+                        val alarmId = alarmCursor.getLong(0)
+                        val intakeId = alarmCursor.getLong(1)
+                        val trigger = alarmCursor.getLong(2)
+                        val amount = alarmCursor.getDouble(3)
+                        val preAlarm = alarmCursor.getInt(4)
+
+                        var first = getDateTime(trigger).toLocalDateTime()
+
+                        first = first.let {
+                            var unix = it
+
+                            while (unix.toInstant(ZONE)
+                                    .toEpochMilli() < System.currentTimeMillis()
+                            ) {
+                                unix = unix.plusDays(1)
+                            }
+
+                            unix
+                        }
+
+                        val last = LocalDateTime.of(
+                            LocalDate.parse(finalDate, FORMAT_DD_MM_YYYY),
+                            getDateTime(trigger).toLocalTime()
+                        )
+
+                        while (!first.isAfter(last) && first < LocalDateTime.of(2030, 1, 1, 0, 0)) {
+                            db.execSQL(
+                                "INSERT INTO alarms (`intakeId`, `trigger`, `amount`, `preAlarm`) " +
+                                        "VALUES ($intakeId, ${
+                                            first.toInstant(ZONE).toEpochMilli()
+                                        }, $amount, $preAlarm)"
+                            )
+
+
+                            first = first.plusDays(
+                                if (SchemaTypes.valueOf(schemaType) == SchemaTypes.BY_DAYS) SchemaTypes.valueOf(
+                                    schemaType
+                                ).interval.days.toLong()
+                                else interval.toLong()
+                            )
+                        }
+
+                        db.execSQL("DELETE FROM alarms WHERE alarmId = $alarmId")
+                        alarmCursor.moveToNext()
+                    }
+
+                    intakeCursor.moveToNext()
+                }
+
+                db.execSQL("DROP TABLE IF EXISTS intake_schedule")
+
+                db.execSQL(
+                    "CREATE TABLE time_r (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "`intakeId` INTEGER NOT NULL, `time` TEXT NOT NULL, `amount` REAL NOT NULL, " +
+                            "FOREIGN KEY (intakeId) REFERENCES intakes (intakeId) ON UPDATE CASCADE ON DELETE CASCADE)"
+                )
+
+                val timeCursor = db.query("SELECT intakeId, time, amount FROM intake_time")
+                timeCursor.moveToFirst()
+
+                while (!timeCursor.isAfterLast) {
+                    val intakeId = timeCursor.getLong(0)
+                    val time = timeCursor.getString(1)
+                    val amount = timeCursor.getDouble(2)
+
+                    db.execSQL(
+                        "INSERT INTO time_r (`intakeId`, `time`, `amount`) " +
+                                "VALUES ($intakeId, '$time', $amount)"
+                    )
+
+                    timeCursor.moveToNext()
+                }
+
+                db.execSQL("DROP TABLE intake_time")
+                db.execSQL("ALTER TABLE time_r RENAME TO intake_time")
+            }
+        }
+
+        private val MIGRATION_29_30 = object : Migration(29, 30) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                val cursor = db.query("SELECT intakeId, finalDate FROM intakes")
+                cursor.moveToFirst()
+
+                while (!cursor.isAfterLast) {
+                    val intakeId = cursor.getLong(0)
+                    val finalDate = cursor.getString(1)
+                    val parsed = LocalDate.parse(finalDate, FORMAT_DD_MM_YYYY)
+
+                    if (parsed.year > 2030) {
+                        db.execSQL("UPDATE intakes SET finalDate = '31.12.2029' WHERE intakeId = $intakeId")
+                    }
+
+                    cursor.moveToNext()
+                }
+            }
+        }
     }
 }

@@ -1,0 +1,3 @@
+— This is a major technical update aimed at improving the stability of the application. The first launch after it can be long.
+
+===== Please export the database first, and after updating, reassign all intakes =====

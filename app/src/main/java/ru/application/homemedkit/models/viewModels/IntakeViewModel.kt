@@ -19,25 +19,25 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
+import ru.application.homemedkit.data.dto.Alarm
+import ru.application.homemedkit.data.dto.IntakeDay
 import ru.application.homemedkit.data.dto.IntakeTime
 import ru.application.homemedkit.data.model.IntakeAmountTime
-import ru.application.homemedkit.helpers.AlarmType
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.FORMAT_DD_MM_YYYY
 import ru.application.homemedkit.helpers.FORMAT_H_MM
-import ru.application.homemedkit.helpers.IntakeExtras
-import ru.application.homemedkit.helpers.Intervals
-import ru.application.homemedkit.helpers.Intervals.CUSTOM
-import ru.application.homemedkit.helpers.Intervals.DAILY
-import ru.application.homemedkit.helpers.Intervals.WEEKLY
-import ru.application.homemedkit.helpers.Periods
-import ru.application.homemedkit.helpers.Periods.INDEFINITE
-import ru.application.homemedkit.helpers.Periods.OTHER
-import ru.application.homemedkit.helpers.Periods.PICK
 import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.SchemaTypes
 import ru.application.homemedkit.helpers.ZONE
+import ru.application.homemedkit.helpers.enums.IntakeExtras
+import ru.application.homemedkit.helpers.enums.Intervals
+import ru.application.homemedkit.helpers.enums.Intervals.CUSTOM
+import ru.application.homemedkit.helpers.enums.Intervals.DAILY
+import ru.application.homemedkit.helpers.enums.Intervals.WEEKLY
+import ru.application.homemedkit.helpers.enums.Periods
+import ru.application.homemedkit.helpers.enums.Periods.INDEFINITE
+import ru.application.homemedkit.helpers.enums.Periods.OTHER
+import ru.application.homemedkit.helpers.enums.Periods.PICK
+import ru.application.homemedkit.helpers.enums.SchemaTypes
 import ru.application.homemedkit.helpers.getDateTime
 import ru.application.homemedkit.helpers.toIntake
 import ru.application.homemedkit.models.events.IntakeEvent
@@ -75,7 +75,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                         schemaType = intake.schemaType,
                         amountStock = medicine.prodAmount.toString(),
                         sameAmount = intake.sameAmount,
-                        doseType = DoseTypes.getTitle(medicine.doseType),
+                        doseType = medicine.doseType.title,
                         interval = intake.interval.toString(),
                         intervalType = Intervals.getValue(intake.interval),
                         period = intake.period.toString(),
@@ -96,15 +96,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                                 )
                             }
                         },
-                        pickedDays = SnapshotStateList<DayOfWeek>().apply {
-                            dao.getTime(intake.intakeId).forEach { intakeTime ->
-                                val time = getDateTime(intakeTime.firstTrigger)
-
-                                if (time.dayOfWeek !in this) add(time.dayOfWeek)
-                            }
-
-                            sort()
-                        },
+                        pickedDays = database.intakeDayDAO().getByIntakeId(intake.intakeId).sorted().toMutableStateList(),
                         startDate = intake.startDate,
                         finalDate = intake.finalDate,
                         fullScreen = intake.fullScreen,
@@ -128,7 +120,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                         medicineId = medicine.id,
                         medicine = medicine,
                         amountStock = medicine.prodAmount.toString(),
-                        doseType = DoseTypes.getTitle(medicine.doseType),
+                        doseType = medicine.doseType.title,
                         image = if (images.isNotEmpty()) images.first() else BLANK
                     )
                 }
@@ -140,87 +132,74 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun setExitFirstLaunch() {
-        Preferences.setFirstLaunchIntakeExit()
+        Preferences.isFirstLaunch = false
         _state.update { it.copy(isFirstLaunch = false) }
     }
 
     fun add() {
         if (validate()) {
             viewModelScope.launch(Dispatchers.IO) {
-                val id = dao.insert(_state.value.toIntake())
+                val intakeId = dao.insert(_state.value.toIntake())
+
+                val days = _state.value.pickedDays.map { IntakeDay(intakeId, it) }
+                database.intakeDayDAO().insert(days)
+
+                val scheduled = mutableListOf<Alarm>()
 
                 _state.value.pickedTime.forEach { pickedTime ->
-                    val first = LocalDateTime.of(
+                    var initial = LocalDateTime.of(
                         LocalDate.parse(_state.value.startDate, FORMAT_DD_MM_YYYY),
-                        LocalTime.parse(pickedTime.time, FORMAT_H_MM)
+                        LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
                     )
 
-                    when(_state.value.schemaType) {
-                        SchemaTypes.INDEFINITELY, SchemaTypes.PERSONAL -> {
-                            dao.addIntakeTime(
-                                IntakeTime(
-                                    intakeId = id,
-                                    time = pickedTime.time,
+                    val finish = LocalDateTime.of(
+                        LocalDate.parse(_state.value.finalDate, FORMAT_DD_MM_YYYY),
+                        LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
+                    )
+
+                    initial = initial.let {
+                        var unix = it
+
+                        while (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) {
+                            unix = unix.plusDays(1)
+                        }
+
+                        unix
+                    }
+
+                    dao.addIntakeTime(
+                        IntakeTime(
+                            intakeId = intakeId,
+                            time = pickedTime.time,
+                            amount = pickedTime.amount.toDouble()
+                        )
+                    )
+
+                    while (!initial.isAfter(finish)) {
+                        if (initial.dayOfWeek in _state.value.pickedDays) {
+                            scheduled.add(
+                                Alarm(
+                                    intakeId = intakeId,
+                                    trigger = initial.toInstant(ZONE).toEpochMilli(),
                                     amount = pickedTime.amount.toDouble(),
-                                    firstTrigger = first.toInstant(ZONE).toEpochMilli()
+                                    preAlarm = _state.value.preAlarm
                                 )
                             )
-
-                            setter.setAlarm(
-                                intakeId = id,
-                                amount = pickedTime.amount.toDouble(),
-                                preAlarm = _state.value.preAlarm,
-                                trigger = first.let {
-                                    var unix = it
-
-                                    while (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) {
-                                        unix = unix.plusDays(1)
-                                    }
-
-                                    unix.toInstant(ZONE).toEpochMilli()
-                                }
-                            )
                         }
-                        SchemaTypes.BY_DAYS -> {
-                            var dayOfWeek = first
-                            val last = LocalDateTime.of(
-                                LocalDate.parse(_state.value.finalDate, FORMAT_DD_MM_YYYY),
-                                LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
-                            )
 
-                            while (dayOfWeek < first.plusWeeks(1) && dayOfWeek <= last) {
-                                if (dayOfWeek.dayOfWeek in _state.value.pickedDays) {
-                                    val time = if (!LocalDateTime.now().isAfter(dayOfWeek)) dayOfWeek
-                                    else dayOfWeek.plusWeeks(1)
-
-                                    dao.addIntakeTime(
-                                        IntakeTime(
-                                            intakeId = id,
-                                            time = pickedTime.time,
-                                            amount = pickedTime.amount.toDouble(),
-                                            firstTrigger = time.toInstant(ZONE).toEpochMilli()
-                                        )
-                                    )
-
-                                    setter.setAlarm(
-                                        intakeId = id,
-                                        amount = pickedTime.amount.toDouble(),
-                                        preAlarm = _state.value.preAlarm,
-                                        trigger = time.toInstant(ZONE).toEpochMilli()
-                                    )
-                                }
-
-                                dayOfWeek = dayOfWeek.plusDays(1)
-                            }
-                        }
+                        initial = initial.plusDays(_state.value.interval.toLong())
                     }
                 }
 
+                scheduled.sortedBy(Alarm::trigger)
+                database.alarmDAO().insert(scheduled)
+                setter.setPreAlarm(intakeId)
+
                 _state.update {
                     it.copy(
+                        intakeId = intakeId,
                         adding = false,
                         default = true,
-                        intakeId = id,
                         amountError = null,
                         intervalError = null,
                         periodError = null,
@@ -241,77 +220,68 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             )
 
             viewModelScope.launch(Dispatchers.IO) {
-                dao.getAlarms(_state.value.intakeId).forEach { setter.removeAlarm(it.alarmId, AlarmType.ALL) }
+                setter.removeAlarm(_state.value.intakeId)
+                database.alarmDAO().deleteByIntakeId(_state.value.intakeId)
+
+                database.intakeDayDAO().deleteByIntakeId(_state.value.intakeId)
+
+                val days = _state.value.pickedDays.map { IntakeDay(_state.value.intakeId, it) }
+                database.intakeDayDAO().insert(days)
+
+
 
                 if (finalDate >= LocalDateTime.now()) {
                     dao.deleteIntakeTime(_state.value.intakeId)
 
+                    val scheduled = mutableListOf<Alarm>()
+
                     _state.value.pickedTime.forEach { pickedTime ->
-                        val first = LocalDateTime.of(
+                        var initial = LocalDateTime.of(
                             LocalDate.parse(_state.value.startDate, FORMAT_DD_MM_YYYY),
-                            LocalTime.parse(pickedTime.time, FORMAT_H_MM)
+                            LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
                         )
 
-                        when(_state.value.schemaType) {
-                            SchemaTypes.INDEFINITELY, SchemaTypes.PERSONAL -> {
-                                dao.addIntakeTime(
-                                    IntakeTime(
+                        val finish = LocalDateTime.of(
+                            LocalDate.parse(_state.value.finalDate, FORMAT_DD_MM_YYYY),
+                            LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
+                        )
+
+                        initial = initial.let {
+                            var unix = it
+
+                            while (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) {
+                                unix = unix.plusDays(1)
+                            }
+
+                            unix
+                        }
+
+                        dao.addIntakeTime(
+                            IntakeTime(
+                                intakeId = _state.value.intakeId,
+                                time = pickedTime.time,
+                                amount = pickedTime.amount.toDouble()
+                            )
+                        )
+
+                        while (!initial.isAfter(finish)) {
+                            if (initial.dayOfWeek in _state.value.pickedDays) {
+                                scheduled.add(
+                                    Alarm(
                                         intakeId = _state.value.intakeId,
-                                        time = pickedTime.time,
+                                        trigger = initial.toInstant(ZONE).toEpochMilli(),
                                         amount = pickedTime.amount.toDouble(),
-                                        firstTrigger = first.toInstant(ZONE).toEpochMilli()
+                                        preAlarm = _state.value.preAlarm
                                     )
                                 )
-
-                                setter.setAlarm(
-                                    intakeId = _state.value.intakeId,
-                                    amount = pickedTime.amount.toDouble(),
-                                    preAlarm = _state.value.preAlarm,
-                                    trigger = first.let {
-                                        var unix = it
-
-                                        while (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) {
-                                            unix = unix.plusDays(1)
-                                        }
-
-                                        unix.toInstant(ZONE).toEpochMilli()
-                                    }
-                                )
                             }
-                            SchemaTypes.BY_DAYS -> {
-                                var dayOfWeek = first
-                                val last = LocalDateTime.of(
-                                    LocalDate.parse(_state.value.finalDate, FORMAT_DD_MM_YYYY),
-                                    LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
-                                )
 
-                                while (dayOfWeek < first.plusWeeks(1) && dayOfWeek <= last) {
-                                    if (dayOfWeek.dayOfWeek in _state.value.pickedDays) {
-                                        val time = if (!LocalDateTime.now().isAfter(dayOfWeek)) dayOfWeek
-                                        else dayOfWeek.plusWeeks(1)
-
-                                        dao.addIntakeTime(
-                                            IntakeTime(
-                                                intakeId = _state.value.intakeId,
-                                                time = pickedTime.time,
-                                                amount = pickedTime.amount.toDouble(),
-                                                firstTrigger = time.toInstant(ZONE).toEpochMilli()
-                                            )
-                                        )
-
-                                        setter.setAlarm(
-                                            intakeId = _state.value.intakeId,
-                                            amount = pickedTime.amount.toDouble(),
-                                            preAlarm = _state.value.preAlarm,
-                                            trigger = time.toInstant(ZONE).toEpochMilli()
-                                        )
-                                    }
-
-                                    dayOfWeek = dayOfWeek.plusDays(1)
-                                }
-                            }
+                            initial = initial.plusDays(_state.value.interval.toLong())
                         }
                     }
+
+                    database.alarmDAO().insert(scheduled)
+                    setter.setPreAlarm(_state.value.intakeId)
                 }
 
                 dao.update(_state.value.toIntake())
@@ -332,12 +302,13 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
         }
     }
 
-    fun delete() = viewModelScope.launch(Dispatchers.IO) {
-        dao.getAlarms(intakeId = _state.value.intakeId).forEach {
-            setter.removeAlarm(it.alarmId, AlarmType.ALL)
+    fun delete() {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.getAlarms(_state.value.intakeId).forEach { setter.removeAlarm(it.alarmId) }
         }
-
-        dao.delete(_state.value.toIntake())
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.delete(_state.value.toIntake())
+        }
     }
 
     fun onEvent(event: IntakeEvent) {
@@ -490,16 +461,18 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             }
 
             is IntakeEvent.SetSchemaType -> when (event.type) {
-                SchemaTypes.INDEFINITELY -> _state.update {
-                    it.copy(
-                        startDate = LocalDate.now().format(FORMAT_DD_MM_YYYY),
-                        finalDate = LocalDate.now().plusDays(INDEFINITE.days.toLong()).format(FORMAT_DD_MM_YYYY),
-                        interval = DAILY.days.toString(),
-                        period = INDEFINITE.days.toString(),
-                        pickedDays = DayOfWeek.entries.toMutableStateList(),
-                        schemaType = event.type,
-                        showSchemaTypePicker = false
-                    )
+                SchemaTypes.INDEFINITELY -> {
+                    _state.update {
+                        it.copy(
+                            startDate = LocalDate.now().format(FORMAT_DD_MM_YYYY),
+                            finalDate = LocalDate.now().plusDays(INDEFINITE.days.toLong()).format(FORMAT_DD_MM_YYYY),
+                            interval = DAILY.days.toString(),
+                            period = INDEFINITE.days.toString(),
+                            pickedDays = DayOfWeek.entries.toMutableStateList(),
+                            schemaType = event.type,
+                            showSchemaTypePicker = false
+                        )
+                    }
                 }
 
                 SchemaTypes.BY_DAYS -> _state.update {

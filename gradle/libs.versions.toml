@@ -1,7 +1,7 @@
 [versions]
 camera2 = "1.4.1"
 composeLifecycle = "2.8.7"
-composeNavigation = "2.8.8"
+composeNavigation = "2.8.9"
 googleKsp = "2.1.10-1.0.31"
 gradle = "8.9.0"
 kotlin = "2.1.10"

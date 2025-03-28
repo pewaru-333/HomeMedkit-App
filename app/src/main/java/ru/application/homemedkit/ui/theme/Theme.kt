@@ -18,7 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.THEMES
+import ru.application.homemedkit.helpers.enums.Themes
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -104,8 +104,8 @@ fun AppTheme(content: @Composable () -> Unit) {
     val dynamicColor by Preferences.dynamicColors.collectAsStateWithLifecycle()
 
     val darkTheme = when (darkState) {
-        THEMES[1] -> false
-        THEMES[2] -> true
+        Themes.LIGHT -> false
+        Themes.DARK -> true
         else -> isSystemInDarkTheme()
     }
 
@@ -117,11 +117,12 @@ fun AppTheme(content: @Composable () -> Unit) {
         else -> lightScheme
     }
 
-    DisposableEffect(activity, darkTheme, dynamicColor) {
+    DisposableEffect(darkTheme) {
         activity.enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.light(
-                scrim = Color.TRANSPARENT,
+            statusBarStyle = SystemBarStyle.auto(
+                lightScrim = Color.TRANSPARENT,
                 darkScrim = Color.TRANSPARENT,
+                detectDarkMode = { darkTheme }
             ),
             navigationBarStyle = SystemBarStyle.auto(
                 lightScrim = argb(0xe6, 0xFF, 0xFF, 0xFF),

@@ -1,20 +1,22 @@
 package ru.application.homemedkit.models.viewModels
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import ru.application.homemedkit.HomeMeds.Companion.database
-import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.MedicineKit
 import ru.application.homemedkit.data.model.MedicineList
+import ru.application.homemedkit.data.model.MedicineMain
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.DoseTypes
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.inCard
@@ -38,21 +40,19 @@ class MedicinesViewModel : ViewModel() {
                     id = it.id,
                     title = it.nameAlias.ifEmpty(it::productName),
                     prodAmount = decimalFormat(it.prodAmount),
-                    doseType = DoseTypes.getTitle(it.doseType),
+                    doseType = it.doseType.title,
                     expDateS = inCard(it.expDate),
                     expDateL = it.expDate,
                     formName = formName(it.prodFormNormName),
-                    image = database.medicineDAO().getMedicineImages(it.id).firstOrNull() ?: BLANK,
-                    kitTitle = kitDAO.getTitleByMedicine(it.id).joinToString().run {
-                        if (length >= 25) substring(0, 26).padEnd(29, '.') else this
-                    }
+                    image =  it.image.firstOrNull() ?: BLANK
                 )
             }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = emptyList()
-    )
+    }.flowOn(Dispatchers.IO)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = mutableStateListOf()
+        )
 
     fun showAdding() = _state.update { it.copy(showAdding = !it.showAdding) }
     fun showExit(flag: Boolean = false) = _state.update { it.copy(showExit = flag) }
@@ -61,7 +61,7 @@ class MedicinesViewModel : ViewModel() {
     fun clearSearch() = _state.update { it.copy(search = BLANK) }
 
     fun showSort() = _state.update { it.copy(showSort = !it.showSort) }
-    fun setSorting(sorting: Comparator<Medicine>) = _state.update { it.copy(sorting = sorting) }
+    fun setSorting(sorting: Comparator<MedicineMain>) = _state.update { it.copy(sorting = sorting) }
 
     fun showFilter() = _state.update { it.copy(showFilter = !it.showFilter) }
     fun clearFilter() = _state.update { it.copy(kits = it.kits.apply(SnapshotStateList<Long>::clear)) }
