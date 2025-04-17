@@ -146,7 +146,7 @@
     <string name="text_dismiss">Schließen</string>
     <string name="intake_text_in_fact">Tatsächlich</string>
     <string name="intake_text_by_schedule">Nach Zeitplan</string>
-    <string name="intake_text_extra">Zusätzlich</string>
+    <string name="intake_text_extra">Weitere Benachrichtigungsoptionen</string>
     <string name="intake_extra_prealarm">Vorab benachrichtigen</string>
     <string name="intake_extra_desc_prealarm">Benachrichtigung erscheint 30 Minuten vor der regulären Einnahmezeit</string>
     <string name="text_intake_prealarm_title">Bevorstehende Einnahme</string>
@@ -204,7 +204,7 @@
     <string name="intake_text_finish">Ende</string>
     <string name="intake_text_start">Anfang</string>
     <string name="preference_permissions">Berechtigungen</string>
-    <string name="intake_extra_desc_fullscreen">Startet eine bildschirmfüllende Benachrichtigung anstelle einer normalen Benachrichtigung auf dem Sperrbildschirm</string>
+    <string name="intake_extra_desc_fullscreen">Hierdurch wird auf dem Sperrbildschirm eine bildschirmfüllende Benachrichtigung anstelle einer normalen ausgelöst</string>
     <string name="text_selected_of">%1$s von %2$s ausgewählt</string>
     <string name="preference_fixing_notifications">Erhalten Sie keine Benachrichtigungen?</string>
     <string name="text_fix_notifications">Die App wird neu gestartet und alle überfälligen Benachrichtigungen werden in der Statusleiste angezeigt. Verwenden Sie diese Funktion nicht, wenn alles korrekt funktioniert!</string>
