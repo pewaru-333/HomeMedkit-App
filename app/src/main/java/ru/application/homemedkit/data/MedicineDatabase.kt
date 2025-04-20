@@ -37,7 +37,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Database(
-    version = 30,
+    version = 31,
     entities = [
         Medicine::class,
         Intake::class,
@@ -99,7 +99,8 @@ abstract class MedicineDatabase : RoomDatabase() {
                     MIGRATION_22_26,
                     MIGRATION_26_27,
                     MIGRATION_28_29,
-                    MIGRATION_29_30
+                    MIGRATION_29_30,
+                    MIGRATION_30_31
                 )
                 .setQueryExecutor(Dispatchers.IO.asExecutor())
                 .setTransactionExecutor(Dispatchers.IO.asExecutor())
@@ -638,6 +639,23 @@ abstract class MedicineDatabase : RoomDatabase() {
                     if (parsed.year > 2030) {
                         db.execSQL("UPDATE intakes SET finalDate = '31.12.2029' WHERE intakeId = $intakeId")
                     }
+
+                    cursor.moveToNext()
+                }
+            }
+        }
+
+        private val MIGRATION_30_31 = object : Migration(30, 31) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE kits ADD COLUMN position INTEGER NOT NULL DEFAULT 1")
+
+                val cursor = db.query("SELECT kitId FROM kits")
+                cursor.moveToFirst()
+
+                while (!cursor.isAfterLast) {
+                    val kitId = cursor.getLong(0)
+
+                    db.execSQL("UPDATE kits SET position = $kitId WHERE kitId = $kitId")
 
                     cursor.moveToNext()
                 }

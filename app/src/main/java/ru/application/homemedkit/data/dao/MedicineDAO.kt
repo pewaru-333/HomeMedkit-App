@@ -7,6 +7,7 @@ import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.Medicine
+import ru.application.homemedkit.data.model.MedicineFull
 import ru.application.homemedkit.data.model.MedicineMain
 
 @Dao
@@ -20,14 +21,11 @@ interface MedicineDAO : BaseDAO<Medicine> {
     @Query("SELECT * FROM medicines")
     fun getFlow(): Flow<List<MedicineMain>>
 
-    @Query("SELECT productName FROM medicines WHERE id = :medicineId")
-    fun getProductName(medicineId: Long): String
-
     @Query("SELECT id FROM medicines where cis = :cis")
     fun getIdByCis(cis: String): Long
 
     @Query("SELECT * FROM medicines WHERE id = :id ")
-    fun getById(id: Long): Medicine?
+    fun getById(id: Long): MedicineFull?
 
     @Query("SELECT cis from medicines")
     fun getAllCis(): List<String>
@@ -48,11 +46,14 @@ interface MedicineDAO : BaseDAO<Medicine> {
     @Insert
     suspend fun addImage(image: Image)
 
+    @Insert
+    suspend fun addImage(image: Iterable<Image>)
+
     // ============================== Update ==============================
     @Transaction
-    suspend fun updateImages(vararg images: Image) {
+    suspend fun updateImages(images: Iterable<Image>) {
         deleteImages(images.first().medicineId)
-        images.forEach { addImage(it) }
+        addImage(images)
     }
 
     // ============================== Delete ==============================

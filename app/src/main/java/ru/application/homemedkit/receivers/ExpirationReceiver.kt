@@ -42,11 +42,7 @@ class ExpirationReceiver : BroadcastReceiver() {
                             getPendingIntent(it.id.toInt(), FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
                         })
                         .setContentText(
-                            context.getString(
-                                text_expire_soon,
-                                MedicineDatabase.getInstance(context).medicineDAO()
-                                    .getProductName(it.id)
-                            )
+                            context.getString(text_expire_soon, it.nameAlias.ifEmpty(it::productName))
                         )
                         .setContentTitle(context.getString(text_attention))
                         .setSmallIcon(R.drawable.ic_launcher_notification)

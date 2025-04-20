@@ -5,6 +5,7 @@ package ru.application.homemedkit.models.viewModels
 import android.content.Context
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
+import androidx.compose.ui.text.intl.Locale
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,6 +29,7 @@ import ru.application.homemedkit.data.model.IntakeSchedule
 import ru.application.homemedkit.data.model.ScheduleModel
 import ru.application.homemedkit.data.model.TakenModel
 import ru.application.homemedkit.helpers.BLANK
+import ru.application.homemedkit.helpers.FORMAT_DD_MM_YYYY
 import ru.application.homemedkit.helpers.FORMAT_D_MMMM_E
 import ru.application.homemedkit.helpers.FORMAT_H_MM
 import ru.application.homemedkit.helpers.FORMAT_LONG
@@ -35,15 +37,16 @@ import ru.application.homemedkit.helpers.ResourceText
 import ru.application.homemedkit.helpers.ZONE
 import ru.application.homemedkit.helpers.decimalFormat
 import ru.application.homemedkit.helpers.enums.IntakeTabs
-import ru.application.homemedkit.helpers.enums.Intervals
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.getDateTime
 import ru.application.homemedkit.models.events.TakenEvent
 import ru.application.homemedkit.models.states.IntakesState
 import ru.application.homemedkit.models.states.TakenState
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.format.TextStyle
 import kotlin.math.abs
 
 class IntakesViewModel : ViewModel() {
@@ -93,11 +96,23 @@ class IntakesViewModel : ViewModel() {
                     intakeId = it.intakeId,
                     title = it.nameAlias.ifEmpty(it::productName),
                     image = it.image.firstOrNull() ?: BLANK,
-                    time = it.time.joinToString(),
+                    time = it.time.sortedBy { LocalTime.parse(it, FORMAT_H_MM) }.joinToString(),
+                    days = it.days.sorted().run {
+                        when {
+                            size == DayOfWeek.entries.size -> ResourceText.StringResource(R.string.text_every_day)
+                            equals(DayOfWeek.entries.drop(5)) -> ResourceText.StringResource(R.string.text_weekend)
+                            equals(DayOfWeek.entries.dropLast(2)) -> ResourceText.StringResource(R.string.text_weekdays)
+                            else -> ResourceText.StaticString(
+                                joinToString {
+                                    it.getDisplayName(TextStyle.SHORT, Locale.current.platformLocale)
+                                }
+                            )
+                        }
+                    },
                     interval = it.time.run {
-                        if (size == 1) ResourceText.StringResource(Intervals.getTitle(it.interval.toString()))
-                        else ResourceText.PluralStringResource(R.plurals.intake_times_a_day, size, size)
-                    }
+                        ResourceText.PluralStringResource(R.plurals.intake_times_a_day, size, size)
+                    },
+                    active = LocalDate.parse(it.finalDate, FORMAT_DD_MM_YYYY) >= LocalDate.now()
                 )
             }
     }.flowOn(Dispatchers.IO)

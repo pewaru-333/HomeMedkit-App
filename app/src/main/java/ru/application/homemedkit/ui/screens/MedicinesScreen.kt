@@ -61,7 +61,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R.drawable.vector_filter
 import ru.application.homemedkit.R.drawable.vector_scanner
 import ru.application.homemedkit.R.drawable.vector_sort
@@ -73,6 +72,7 @@ import ru.application.homemedkit.R.string.text_no
 import ru.application.homemedkit.R.string.text_no_data_found
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_yes
+import ru.application.homemedkit.data.model.KitMedicines
 import ru.application.homemedkit.data.model.MedicineList
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.enums.Sorting
@@ -87,6 +87,7 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
     val model = viewModel<MedicinesViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
     val medicines by model.medicines.collectAsStateWithLifecycle()
+    val kits by model.kits.collectAsStateWithLifecycle()
     val offset by remember { derivedStateOf { state.listState.firstVisibleItemScrollOffset } }
 
     BackHandler { model.showExit(true) }
@@ -208,7 +209,14 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
     }
 
     when {
-        state.showFilter -> DialogKits(model, state)
+        state.showFilter -> DialogKits(
+            kits = kits,
+            state = state,
+            pick = model::pickFilter,
+            show = model::showFilter,
+            clear = model::clearFilter
+        )
+
         state.showExit -> if (!Preferences.confirmExit) activity.finishAndRemoveTask()
         else DialogExit(model::showExit, activity::finishAndRemoveTask)
     }
@@ -234,27 +242,34 @@ private fun MedicineItem(medicine: MedicineList, modifier: Modifier, navigateToM
     )
 
 @Composable
-private fun DialogKits(model: MedicinesViewModel, state: MedicinesState) = AlertDialog(
-    onDismissRequest = model::showFilter,
-    confirmButton = { TextButton(model::showFilter) { Text(stringResource(text_save)) } },
-    dismissButton = { TextButton(model::clearFilter) { Text(stringResource(text_clear)) } },
+private fun DialogKits(
+    kits: List<KitMedicines>,
+    state: MedicinesState,
+    pick: (KitMedicines) -> Unit,
+    show: () -> Unit,
+    clear: () -> Unit
+) = AlertDialog(
+    onDismissRequest = show,
+    confirmButton = { TextButton(show) { Text(stringResource(text_save)) } },
+    dismissButton = { TextButton(clear) { Text(stringResource(text_clear)) } },
     title = { Text(stringResource(preference_kits_group)) },
     text = {
         LazyColumn {
-            items(database.kitDAO().getAll()) { (kitId, title) ->
+            items(kits) { kit ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
+                        .fillMaxWidth()
                         .height(56.dp)
                         .toggleable(
-                            value = kitId in state.kits,
-                            onValueChange = { model.pickFilter(kitId) },
+                            value = kit in state.kits,
+                            onValueChange = { pick(kit) },
                             role = Role.Checkbox
                         )
                 ) {
-                    Checkbox(kitId in state.kits, null)
+                    Checkbox(kit in state.kits, null)
                     Text(
-                        text = title,
+                        text = kit.title,
                         modifier = Modifier.padding(start = 16.dp),
                         style = MaterialTheme.typography.bodyLarge
                     )

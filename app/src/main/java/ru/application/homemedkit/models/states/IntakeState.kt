@@ -10,6 +10,7 @@ import androidx.compose.runtime.toMutableStateList
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.model.IntakeAmountTime
+import ru.application.homemedkit.data.model.MedicineIntake
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.enums.IntakeExtras
 import ru.application.homemedkit.helpers.enums.Intervals
@@ -24,7 +25,7 @@ data class IntakeState(
     val default: Boolean = false,
     val intakeId: Long = 0L,
     val medicineId: Long = 0L,
-    val medicine: Medicine = Medicine(),
+    val medicine: MedicineIntake = MedicineIntake(),
     val image: String = BLANK,
     val schemaType: SchemaTypes = SchemaTypes.BY_DAYS,
     val amountStock: String = BLANK,

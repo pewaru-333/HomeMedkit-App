@@ -10,14 +10,5 @@ enum class Intervals(val days: Int, @StringRes val title: Int) {
 
     companion object {
         fun getValue(days: Int) = entries.find { it.days == days } ?: CUSTOM
-        fun getTitle(days: String) = try {
-            when (days.toInt()) {
-                1 -> DAILY.title
-                7 -> WEEKLY.title
-                else -> CUSTOM.title
-            }
-        } catch (_: NumberFormatException) {
-            R.string.blank
-        }
     }
 }

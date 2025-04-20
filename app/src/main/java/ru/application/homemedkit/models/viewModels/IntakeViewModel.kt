@@ -4,7 +4,6 @@ package ru.application.homemedkit.models.viewModels
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.SavedStateHandle
@@ -38,8 +37,10 @@ import ru.application.homemedkit.helpers.enums.Periods.INDEFINITE
 import ru.application.homemedkit.helpers.enums.Periods.OTHER
 import ru.application.homemedkit.helpers.enums.Periods.PICK
 import ru.application.homemedkit.helpers.enums.SchemaTypes
+import ru.application.homemedkit.helpers.extensions.toIntake
+import ru.application.homemedkit.helpers.extensions.toMedicineIntake
+import ru.application.homemedkit.helpers.extensions.toState
 import ru.application.homemedkit.helpers.getDateTime
-import ru.application.homemedkit.helpers.toIntake
 import ru.application.homemedkit.models.events.IntakeEvent
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.validation.Validation
@@ -59,73 +60,20 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
     private val _state = MutableStateFlow(IntakeState())
     val state = _state
         .onStart {
-            dao.getById(args.intakeId)?.let { intake ->
-                val medicine = database.medicineDAO().getById(intake.medicineId)!!
-                val images = database.medicineDAO().getMedicineImages(intake.medicineId)
-
-                _state.update { state ->
-                    state.copy(
-                        adding = false,
-                        editing = false,
-                        default = true,
-                        intakeId = intake.intakeId,
-                        medicineId = intake.medicineId,
-                        medicine = medicine,
-                        image = if (images.isNotEmpty()) images.first() else BLANK,
-                        schemaType = intake.schemaType,
-                        amountStock = medicine.prodAmount.toString(),
-                        sameAmount = intake.sameAmount,
-                        doseType = medicine.doseType.title,
-                        interval = intake.interval.toString(),
-                        intervalType = Intervals.getValue(intake.interval),
-                        period = intake.period.toString(),
-                        periodType = Periods.getValue(intake.period),
-                        foodType = intake.foodType,
-                        pickedTime = SnapshotStateList<IntakeAmountTime>().apply {
-                            dao.getTime(intake.intakeId).distinctBy(IntakeTime::time).forEach { intakeTime ->
-                                val localTime = LocalTime.parse(intakeTime.time, FORMAT_H_MM)
-                                val hour = localTime.hour
-                                val min = localTime.minute
-
-                                add(
-                                    IntakeAmountTime(
-                                        amount = intakeTime.amount.toString(),
-                                        time = intakeTime.time,
-                                        picker = TimePickerState(hour, min, true)
-                                    )
-                                )
-                            }
-                        },
-                        pickedDays = database.intakeDayDAO().getByIntakeId(intake.intakeId).sorted().toMutableStateList(),
-                        startDate = intake.startDate,
-                        finalDate = intake.finalDate,
-                        fullScreen = intake.fullScreen,
-                        noSound = intake.noSound,
-                        preAlarm = intake.preAlarm,
-                        cancellable = intake.cancellable,
-                        selectedExtras = SnapshotStateList<IntakeExtras>().apply {
-                            if (intake.cancellable) add(IntakeExtras.CANCELLABLE)
-                            if (intake.fullScreen) add(IntakeExtras.FULLSCREEN)
-                            if (intake.noSound) add(IntakeExtras.NO_SOUND)
-                            if (intake.preAlarm) add(IntakeExtras.PREALARM)
-                        }
-                    )
-                }
-            } ?: run {
-                val medicine = database.medicineDAO().getById(args.medicineId)!!
-                val images = database.medicineDAO().getMedicineImages(medicine.id)
-
-                _state.update { state ->
-                    state.copy(
-                        medicineId = medicine.id,
-                        medicine = medicine,
-                        amountStock = medicine.prodAmount.toString(),
-                        doseType = medicine.doseType.title,
-                        image = if (images.isNotEmpty()) images.first() else BLANK
-                    )
+            dao.getById(args.intakeId)?.let { _state.value = it.toState() } ?: run {
+                database.medicineDAO().getById(args.medicineId)?.let { medicine ->
+                    _state.update { state ->
+                        state.copy(
+                            medicineId = medicine.id,
+                            medicine = medicine.toMedicineIntake(),
+                            amountStock = medicine.prodAmount.toString(),
+                            doseType = medicine.doseType.title,
+                            image = medicine.images.firstOrNull() ?: BLANK
+                        )
+                    }
                 }
             }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), IntakeState())
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), IntakeState())
 
     fun setAlarmSetter(alarmSetter: AlarmSetter) {
         setter = alarmSetter

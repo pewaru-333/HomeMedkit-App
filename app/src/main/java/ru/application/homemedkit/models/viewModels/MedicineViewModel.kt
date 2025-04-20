@@ -5,6 +5,7 @@ import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -21,12 +24,14 @@ import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.MedicineKit
+import ru.application.homemedkit.data.model.KitModel
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.FileManager
 import ru.application.homemedkit.helpers.ImageCompressor
+import ru.application.homemedkit.helpers.extensions.toMedicine
+import ru.application.homemedkit.helpers.extensions.toState
 import ru.application.homemedkit.helpers.getMedicineImages
-import ru.application.homemedkit.helpers.toMedicine
-import ru.application.homemedkit.helpers.toState
+import ru.application.homemedkit.helpers.toExpDate
 import ru.application.homemedkit.helpers.toTimestamp
 import ru.application.homemedkit.models.events.MedicineEvent
 import ru.application.homemedkit.models.events.Response
@@ -50,7 +55,12 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             dao.getById(args.id)?.let { _state.value = it.toState() }
             if (args.id == 0L) _state.update { it.copy(cis = args.cis) }
         }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MedicineState())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MedicineState())
+
+    val kits = database.kitDAO().getMedicineKits()
+        .flowOn(Dispatchers.IO)
+        .map { list -> list.sortedBy(KitModel::position) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     init {
         if (args.duplicate) viewModelScope.launch {
@@ -64,16 +74,16 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
             if (checkProductName.successful) {
                 val id = dao.insert(_state.value.toMedicine())
-                val kits = _state.value.kits.map { MedicineKit(id, it) }.toTypedArray()
+                val kits = _state.value.kits.map { MedicineKit(id, it.kitId) }
                 val images = _state.value.images.map { image ->
                     Image(
                         medicineId = id,
                         image = image
                     )
-                }.toTypedArray()
+                }
 
-                daoK.pinKit(*kits)
-                dao.updateImages(*images)
+                daoK.pinKit(kits)
+                dao.updateImages(images)
 
                 _state.update {
                     it.copy(
@@ -88,7 +98,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun fetch(dir: File) {
-         viewModelScope.launch {
+         viewModelScope.launch(Dispatchers.IO) {
              _response.send(Response.Loading)
 
             try {
@@ -107,9 +117,9 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                                 urls = drugsData.vidalData?.images
                             )
 
-                            dao.updateImages(*images)
+                            dao.updateImages(images)
                             dao.update(medicine)
-                            _state.value = medicine.toState()
+                            dao.getById(args.id)?.let { _state.value = it.toState() }
                             _response.send(null)
                         } else if (bioData != null) {
                             val medicine = bioData.toMedicine().copy(
@@ -119,7 +129,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                             )
 
                             dao.update(medicine)
-                            _state.value = medicine.toState()
+                            dao.getById(args.id)?.let { _state.value = it.toState() }
                             _response.send(null)
                         } else _response.send(Response.IncorrectCode)
                     } else _response.send(Response.UnknownError)
@@ -135,17 +145,17 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             val checkProductName = Validation.textNotEmpty(_state.value.productName)
 
             if (checkProductName.successful) {
-                val kits = _state.value.kits.map { MedicineKit(_state.value.id, it) }.toTypedArray()
+                val kits = _state.value.kits.map { MedicineKit(_state.value.id, it.kitId) }
                 val images = _state.value.images.map {
                     Image(
                         medicineId = _state.value.id,
                         image = it
                     )
-                }.toTypedArray()
+                }
 
                 daoK.deleteAll(_state.value.id)
-                daoK.pinKit(*kits)
-                dao.updateImages(*images)
+                daoK.pinKit(kits)
+                dao.updateImages(images)
 
                 dao.update(_state.value.toMedicine())
 
@@ -165,8 +175,10 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             dao.delete(_state.value.toMedicine())
         }.invokeOnCompletion {
-            _state.value.images.forEach {
-                File(dir, it).deleteRecursively()
+            viewModelScope.launch(Dispatchers.IO) {
+                _state.value.images.forEach {
+                    File(dir, it).delete()
+                }
             }
         }
     }
@@ -177,10 +189,18 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             is MedicineEvent.SetProductName -> _state.update { it.copy(productName = event.productName) }
             is MedicineEvent.SetNameAlias -> _state.update { it.copy(nameAlias = event.alias) }
             is MedicineEvent.SetExpDate -> _state.update {
-                it.copy(expDate = toTimestamp(event.month, event.year), showDialogDate = false)
+                it.copy(
+                    expDate = toTimestamp(event.month, event.year),
+                    expDateString = toExpDate(toTimestamp(event.month, event.year)),
+                    showDialogDate = false
+                )
             }
             is MedicineEvent.SetPackageDate -> _state.update {
-                it.copy(dateOpened = event.timestamp, showDialogPackageDate = false)
+                it.copy(
+                    dateOpened = event.timestamp,
+                    dateOpenedString = toExpDate(event.timestamp),
+                    showDialogPackageDate = false
+                )
             }
             is MedicineEvent.SetFormName -> _state.update { it.copy(prodFormNormName = event.formName) }
             is MedicineEvent.SetDoseName -> _state.update { it.copy(prodDNormName = event.doseName) }
@@ -199,17 +219,19 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             is MedicineEvent.PickKit -> _state.update {
                 it.copy(
                     kits = it.kits.apply {
-                        if (event.kitId in this) remove(event.kitId) else add(event.kitId)
+                        if (event.kit in this) remove(event.kit) else add(event.kit)
                     }
                 )
             }
-            MedicineEvent.ClearKit -> _state.update { it.copy(kits = it.kits.apply(SnapshotStateList<Long>::clear)) }
+            MedicineEvent.ClearKit -> _state.update { it.copy(kits = it.kits.apply(SnapshotStateList<KitModel>::clear)) }
 
             is MedicineEvent.SetIcon -> _state.update {
                 it.copy(
                     images = mutableStateListOf(event.icon),
                     showDialogIcons = false)
             }
+
+            is MedicineEvent.SetFullImage -> _state.update { it.copy(fullImage = event.index) }
 
             is MedicineEvent.SetImage -> _state.update {
                 it.copy(
@@ -234,6 +256,13 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             }
 
             MedicineEvent.ShowDialogPictureChoose -> _state.update { it.copy(showDialogPictureChoose = !it.showDialogPictureChoose) }
+
+            is MedicineEvent.ShowDialogFullImage -> _state.update {
+                it.copy(
+                    showDialogFullImage = !it.showDialogFullImage,
+                    fullImage = event.index
+                )
+            }
 
             MedicineEvent.ShowDialogDelete -> _state.update { it.copy(showDialogDelete = !it.showDialogDelete) }
 
@@ -276,7 +305,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             val fileManager = FileManager(context)
             val compressor = ImageCompressor(context)
 
-            val names = mutableStateListOf<String>()
+            val names = mutableListOf<String>()
 
             images.forEach { uri ->
                 val mimeType = context.contentResolver.getType(uri)
@@ -294,7 +323,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
             _state.update {
                 it.copy(
-                    images = names
+                    images = names.toMutableStateList()
                 )
             }
 

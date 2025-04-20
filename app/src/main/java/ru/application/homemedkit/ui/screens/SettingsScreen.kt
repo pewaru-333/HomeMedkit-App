@@ -25,15 +25,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,8 +50,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -70,6 +71,8 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.zhanghai.compose.preference.ListPreference
 import me.zhanghai.compose.preference.Preference
@@ -125,6 +128,9 @@ import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_success
 import ru.application.homemedkit.R.string.text_tap_to_view
 import ru.application.homemedkit.data.dto.Kit
+import ru.application.homemedkit.dialogs.dragHandle
+import ru.application.homemedkit.dialogs.draggableItems
+import ru.application.homemedkit.dialogs.rememberDraggableListState
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.KEY_APP_SYSTEM
 import ru.application.homemedkit.helpers.KEY_APP_VIEW
@@ -303,9 +309,11 @@ fun SettingsScreen(
         }
     }
 
-    if (showExport) ExportImport { showExport = false }
-    if (showFixing) DialogFixing { showFixing = false }
-    if (showClearing) DialogClearing { showClearing = false }
+    when {
+        showExport -> ExportImport { showExport = false }
+        showFixing -> DialogFixing { showFixing = false }
+        showClearing -> DialogClearing { showClearing = false }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -313,10 +321,24 @@ fun SettingsScreen(
 fun KitsManager(back: () -> Unit) {
     val scope = rememberCoroutineScope()
     val dao = database.kitDAO()
-    val kits by dao.getFlow().collectAsStateWithLifecycle(emptyList())
-    var gKitId by rememberSaveable { mutableLongStateOf(0L) }
+
+    var list by remember { mutableStateOf(listOf<Kit>()) }
+    var ordering by rememberSaveable { mutableStateOf(false) }
     var show by rememberSaveable { mutableStateOf(false) }
-    var text by rememberSaveable { mutableStateOf(BLANK) }
+    var kit by remember { mutableStateOf(Kit()) }
+
+    LaunchedEffect(Unit) {
+        dao.getFlow().collectLatest {
+            list = it.sortedBy(Kit::position)
+            kit = Kit(position = list.size.toLong())
+        }
+    }
+
+    val draggableState = rememberDraggableListState(
+        onMove = { fromIndex, toIndex ->
+            list = list.toMutableList().apply { add(toIndex, removeAt(fromIndex)) }
+        }
+    )
 
     Scaffold(
         topBar = {
@@ -326,70 +348,112 @@ fun KitsManager(back: () -> Unit) {
                     IconButton(back) {
                         Icon(Icons.AutoMirrored.Outlined.ArrowBack, null)
                     }
+                },
+                actions = {
+                    if (!ordering) {
+                        IconButton(
+                            onClick = { ordering = true }
+                        ) {
+                            Icon(painterResource(R.drawable.vector_sort), null)
+                        }
+                    } else {
+                        IconButton(
+                            onClick = {
+                                list = list.mapIndexed { index, kit ->
+                                    Kit(
+                                        kitId = kit.kitId,
+                                        title = kit.title,
+                                        position = index.toLong()
+                                    )
+                                }
+
+                                scope.launch(Dispatchers.IO) {
+                                    dao.updatePositions(list)
+                                }
+
+                                ordering = false
+                            }
+                        ) {
+                            Icon(Icons.Outlined.Check, null)
+                        }
+                    }
                 }
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
+            if (!ordering) ExtendedFloatingActionButton(
                 text = { Text(stringResource(text_add)) },
                 icon = { Icon(Icons.Outlined.Add, null) },
                 onClick = { show = true },
             )
         }
     ) { values ->
-        LazyColumn(Modifier.padding(values)) {
-            items(kits) { (kitId, title) ->
+        LazyColumn(Modifier.fillMaxSize(), draggableState.listState, values) {
+            draggableItems(draggableState, list, Kit::kitId) { item, _ ->
                 ListItem(
-                    headlineContent = { Text(title) },
-                    leadingContent = {
-                        IconButton(
-                            onClick = { gKitId = kitId; text = title; show = true }
-                        ) {
-                            Icon(Icons.Outlined.Edit, null)
+                    headlineContent = { Text(item.title) },
+                    leadingContent = ordering.let {
+                        {
+                            if (!it) IconButton(
+                                onClick = {
+                                    kit = Kit(item.kitId, item.title, item.position)
+                                    show = true
+                                }
+                            ) {
+                                Icon(Icons.Outlined.Edit, null)
+                            }
                         }
                     },
                     trailingContent = {
-                        IconButton(
-                            onClick = { scope.launch { dao.delete(Kit(kitId)) } }
-                        ) {
-                            Icon(Icons.Outlined.Delete, null)
+                        if (!ordering) {
+                            IconButton(
+                                onClick = { scope.launch(Dispatchers.IO) { dao.delete(item) } }
+                            ) {
+                                Icon(Icons.Outlined.Delete, null)
+                            }
+                        } else {
+                            Icon(
+                                imageVector = Icons.Outlined.Menu,
+                                contentDescription = null,
+                                modifier = Modifier.dragHandle(draggableState, item.kitId)
+                            )
                         }
                     }
                 )
-                HorizontalDivider()
+
+                if (item.position > 0L) HorizontalDivider()
             }
         }
     }
 
     if (show) AlertDialog(
+        title = { Text(stringResource(text_kit_title)) },
         onDismissRequest = { show = false },
         confirmButton = {
             TextButton(
-                enabled = text.isNotEmpty(),
+                enabled = kit.title.isNotBlank(),
                 onClick = {
-                    val kit = Kit(
-                        kitId = gKitId,
-                        title = text
-                    )
-
-                    text = BLANK
+                    scope.launch(Dispatchers.IO) { dao.upsert(kit) }
                     show = false
-                    gKitId = 0L
-
-                    scope.launch { dao.upsert(kit) }
                 },
-            ) { Text(stringResource(text_save)) }
+            ) {
+                Text(stringResource(text_save))
+            }
         },
         dismissButton = {
-            TextButton({ show = false; text = BLANK; gKitId = 0L }) {
+            TextButton(
+                onClick = {
+                    show = false
+                    kit = Kit(position = list.size.toLong())
+                }
+            ) {
                 Text(stringResource(text_cancel))
             }
         },
-        title = { Text(stringResource(text_kit_title)) },
         text = {
             OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
+                value = kit.title,
+                onValueChange = { kit = kit.copy(title = it) },
                 keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
             )
         }

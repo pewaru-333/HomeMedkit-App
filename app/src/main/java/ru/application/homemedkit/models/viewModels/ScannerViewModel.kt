@@ -14,8 +14,8 @@ import kotlinx.coroutines.withContext
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.helpers.enums.Types
+import ru.application.homemedkit.helpers.extensions.toMedicine
 import ru.application.homemedkit.helpers.getMedicineImages
-import ru.application.homemedkit.helpers.toMedicine
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.states.ScannerState
 import ru.application.homemedkit.network.Network
@@ -63,7 +63,7 @@ class ScannerViewModel : ViewModel() {
                                 urls = it.vidalData?.images
                             )
 
-                            dao.updateImages(*images)
+                            dao.updateImages(images)
 
                             _response.send(Response.Success(id))
 

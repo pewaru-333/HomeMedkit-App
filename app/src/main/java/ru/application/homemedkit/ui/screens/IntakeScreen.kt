@@ -110,7 +110,7 @@ import ru.application.homemedkit.R.string.text_medicine_product_name
 import ru.application.homemedkit.R.string.text_not_saved_intake
 import ru.application.homemedkit.R.string.text_stay
 import ru.application.homemedkit.R.string.text_unspecified
-import ru.application.homemedkit.data.dto.Medicine
+import ru.application.homemedkit.data.model.MedicineIntake
 import ru.application.homemedkit.dialogs.DateRangePicker
 import ru.application.homemedkit.dialogs.TimePickerDialog
 import ru.application.homemedkit.helpers.decimalFormat
@@ -257,7 +257,7 @@ fun IntakeScreen(navigateBack: () -> Unit) {
 }
 
 @Composable
-private fun MedicineInfo(medicine: Medicine, image: String) =
+private fun MedicineInfo(medicine: MedicineIntake, image: String) =
     Row(
         horizontalArrangement = spacedBy(12.dp),
         modifier = Modifier
@@ -280,7 +280,7 @@ private fun MedicineInfo(medicine: Medicine, image: String) =
                 )
 
                 Text(
-                    text = medicine.nameAlias.ifEmpty { medicine.productName },
+                    text = medicine.nameAlias.ifEmpty(medicine::productName),
                     softWrap = false,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W600),
                     modifier = Modifier

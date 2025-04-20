@@ -15,8 +15,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 35
-        versionCode = 52
-        versionName = "1.7.7"
+        versionCode = 53
+        versionName = "1.7.8"
     }
 
     dependenciesInfo {
@@ -77,4 +77,7 @@ dependencies {
 
     // ==================== Settings ====================
     implementation(libs.material.preferences)
+
+    // ==================== Coil ====================
+    implementation(libs.coil.compose)
 }

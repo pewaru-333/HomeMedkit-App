@@ -8,5 +8,6 @@ import ru.application.homemedkit.helpers.BLANK
 data class Kit(
     @PrimaryKey(autoGenerate = true)
     val kitId: Long = 0L,
-    val title: String = BLANK
+    val title: String = BLANK,
+    val position: Long = 0L
 )

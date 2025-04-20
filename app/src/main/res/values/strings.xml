@@ -225,6 +225,7 @@
     <string name="text_not_selected">Not selected</string>
     <string name="text_off">Disabled</string>
     <string name="text_on">Enabled</string>
+    <string name="text_repeat">Repeat</string>
     <string name="text_same_amount">Same amount on every intake</string>
     <string name="text_save">Save</string>
     <string name="text_selected">Selected</string>
@@ -236,9 +237,10 @@
     <string name="text_tap_to_view">Tap to view</string>
     <string name="text_today">Today</string>
     <string name="text_tomorrow">Tomorrow</string>
-    <string name="text_repeat">Repeat</string>
     <string name="text_unspecified">Unspecified</string>
     <string name="text_update">Update</string>
+    <string name="text_weekdays">Weekdays</string>
+    <string name="text_weekend">Weekend</string>
     <string name="text_yes">Yes</string>
 
     <!-- Plurals -->

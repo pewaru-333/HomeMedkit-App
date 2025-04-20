@@ -1,15 +1,16 @@
 [versions]
-camera2 = "1.4.1"
+camera2 = "1.4.2"
+coilCompose = "3.1.0"
 composeLifecycle = "2.8.7"
 composeNavigation = "2.8.9"
-googleKsp = "2.1.10-1.0.31"
-gradle = "8.9.0"
-kotlin = "2.1.10"
-kotlinxSerializationJson = "1.8.0"
-ktor = "3.1.1"
-material3 = "1.3.1"
+googleKsp = "2.1.20-1.0.32"
+gradle = "8.9.1"
+kotlin = "2.1.20"
+kotlinxSerializationJson = "1.8.1"
+ktor = "3.1.2"
+material3 = "1.3.2"
 materialPreferences = "1.1.1"
-roomCompiler = "2.6.1"
+roomCompiler = "2.7.0"
 zxing = "3.5.3"
 
 [libraries]
@@ -25,6 +26,8 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomCompiler" }
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomCompiler" }
+
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coilCompose" }
 
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 

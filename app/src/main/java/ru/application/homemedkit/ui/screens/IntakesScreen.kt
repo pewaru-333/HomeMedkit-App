@@ -244,20 +244,31 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
 }
 
 @Composable
-fun ItemIntake(intake: Intake, modifier: Modifier, navigateToIntake: (Long) -> Unit) {
+fun ItemIntake(intake: Intake, modifier: Modifier, navigateToIntake: (Long) -> Unit) =
     ListItem(
-        headlineContent = {
+        overlineContent = {
             Text(
                 text = intake.title,
                 softWrap = false,
                 overflow = TextOverflow.Ellipsis,
-                maxLines = 1
+                maxLines = 1,
+                style = MaterialTheme.typography.bodyLarge,
+                color = ListItemDefaults.colors().headlineColor
+            )
+        },
+        headlineContent = {
+            Text(
+                text = intake.days.asString(),
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                style = MaterialTheme.typography.bodyMedium
             )
         },
         leadingContent = {
             MedicineImage(
                 image = intake.image,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(56.dp)
             )
         },
         supportingContent = {
@@ -271,11 +282,14 @@ fun ItemIntake(intake: Intake, modifier: Modifier, navigateToIntake: (Long) -> U
                 text = intake.interval.asString()
             )
         },
+        colors = ListItemDefaults.colors(
+            containerColor = if (intake.active) ListItemDefaults.containerColor
+            else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f)
+        ),
         modifier = modifier.clickable {
             navigateToIntake(intake.intakeId)
         }
     )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

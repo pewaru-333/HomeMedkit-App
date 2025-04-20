@@ -215,12 +215,13 @@
     <string name="text_go_to">Перейти</string>
     <string name="text_grant">Выдать</string>
     <string name="text_import">Импорт</string>
+    <string name="text_no">Нет</string>
     <string name="text_no_data_found">Лекарства отсутствуют. Добавьте их или измените фильтр.</string>
     <string name="text_no_intakes_found">Назначенные приёмы лекарств отсутствуют. Добавьте их через карточку информации о лекарстве или измените условие поиска.</string>
     <string name="text_not_selected">Не выбрано</string>
-    <string name="text_no">Нет</string>
     <string name="text_off">Отключено</string>
     <string name="text_on">Включено</string>
+    <string name="text_repeat">Повтор</string>
     <string name="text_same_amount">Равное для каждого приёма</string>
     <string name="text_save">Сохранить</string>
     <string name="text_selected">Выбрано</string>
@@ -232,9 +233,10 @@
     <string name="text_tap_to_view">Нажмите для просмотра</string>
     <string name="text_today">Сегодня</string>
     <string name="text_tomorrow">Завтра</string>
-    <string name="text_repeat">Повтор</string>
     <string name="text_unspecified">Не указано</string>
     <string name="text_update">Загрузить</string>
+    <string name="text_weekdays">Будние дни</string>
+    <string name="text_weekend">Выходные дни</string>
     <string name="text_yes">Да</string>
 
     <!-- Числительные -->
