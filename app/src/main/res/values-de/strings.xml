@@ -217,4 +217,6 @@
     <string name="text_set_image">Bild wählen</string>
     <string name="text_take_picture">Foto mit der Kamera aufnehmen</string>
     <string name="text_pick_icon">Aus den Icons wählen</string>
+    <string name="text_weekend">Wochenende</string>
+    <string name="text_weekdays">Werktage</string>
 </resources>
