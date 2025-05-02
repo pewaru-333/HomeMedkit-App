@@ -39,9 +39,9 @@
     <string name="text_medicine_dose">Liều lượng</string>
     <string name="text_medicine_product_name">Tên thuốc</string>
     <!-- Intakes -->
-    <string name="intakes_tab_list">Danh sách</string>
-    <string name="intakes_tab_current">Hiện tại</string>
-    <string name="intakes_tab_past">Uống</string>
+    <string name="tab_list">Danh sách</string>
+    <string name="tab_current">Hiện tại</string>
+    <string name="tab_past">Uống</string>
     <string name="intake_text_amount">Số lượng</string>
     <string name="intake_text_food_after">Sau bữa ăn</string>
     <string name="intake_text_food_before">Trước bữa ăn</string>

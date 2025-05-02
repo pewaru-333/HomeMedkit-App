@@ -1,19 +1,17 @@
 package ru.application.homemedkit.helpers.extensions
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.core.text.HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH
 import androidx.core.text.HtmlCompat.fromHtml
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.Technical
-import ru.application.homemedkit.data.model.KitModel
 import ru.application.homemedkit.data.model.MedicineFull
 import ru.application.homemedkit.data.model.MedicineIntake
 import ru.application.homemedkit.data.model.MedicineList
 import ru.application.homemedkit.data.model.MedicineMain
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.enums.Types
+import ru.application.homemedkit.helpers.enums.DrugType
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.inCard
 import ru.application.homemedkit.helpers.toExpDate
@@ -27,7 +25,7 @@ fun MedicineFull.toState() = MedicineState(
     editing = false,
     default = true,
     id = id,
-    kits = kits.mapTo(SnapshotStateList()) { KitModel(it.kitId, id, it.title, it.position) },
+    kits = kits.toMutableStateList(),
     cis = cis,
     productName = productName,
     nameAlias = nameAlias,
@@ -98,7 +96,7 @@ fun DrugsData.toMedicine() = Medicine(
     expDate = expireDate,
     prodFormNormName = foiv.prodFormNormName,
     prodDNormName = foiv.prodDNormName.orEmpty(),
-    doseType = Types.getDoseType(foiv.prodFormNormName),
+    doseType = DrugType.getDoseType(foiv.prodFormNormName),
     phKinetics = vidalData?.phKinetics.orEmpty(),
     technical = Technical(scanned = true, verified = true),
     prodAmount = foiv.prodPack1Size?.let { it.toDouble() * (foiv.prodPack12?.toDoubleOrNull() ?: 1.0) } ?: 0.0
@@ -114,7 +112,7 @@ fun BioData.toMedicine() = Medicine(
     storageConditions = productProperty.storageConditions.orEmpty(),
     structure = productProperty.structure.orEmpty(),
     prodFormNormName = productProperty.releaseForm.orEmpty().substringBefore(" ").uppercase(),
-    doseType = Types.getDoseType(productProperty.releaseForm.orEmpty()),
+    doseType = DrugType.getDoseType(productProperty.releaseForm.orEmpty()),
     technical = Technical(
         scanned = true,
         verified = true

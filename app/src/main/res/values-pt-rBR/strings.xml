@@ -45,14 +45,14 @@
     <string name="type_dragee">DRAGEADO</string>
     <string name="type_extract">EXTRATO</string>
     <string name="type_suspension">SUSPENSÃO</string>
-    <string name="intakes_tab_list">Lista</string>
+    <string name="tab_list">Lista</string>
     <string name="type_aerosol">AEROSOL</string>
     <string name="type_spray">SPRAY</string>
     <string name="type_drops">GOTAS</string>
     <string name="intake_text_amount">Quantidade</string>
-    <string name="intakes_tab_current">Atual</string>
+    <string name="tab_current">Atual</string>
     <string name="intake_text_date">Data</string>
-    <string name="intakes_tab_past">Passado</string>
+    <string name="tab_past">Passado</string>
     <string name="text_fix_notifications">O aplicativo reiniciará e todas as notificações atrasadas aparecerão na barra de status. Não use essa função se tudo estiver funcionando corretamente!</string>
     <string name="text_connection_error">Erro de conexão!</string>
     <string name="intake_text_time">Tempo</string>

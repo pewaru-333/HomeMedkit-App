@@ -18,12 +18,12 @@ interface AlarmDAO : BaseDAO<Alarm> {
         JOIN intakes ON intakes.intakeId = alarms.intakeId 
         JOIN medicines ON medicines.id = intakes.medicineId 
         JOIN images ON images.medicineId = medicines.id
+        WHERE (:search = '' OR LOWER(medicines.productName) LIKE '%' || LOWER(:search) || '%')
         GROUP BY alarms.alarmId
         """
     )
-    fun getFlow(): Flow<List<Schedule>>
+    fun getFlow(search: String): Flow<List<Schedule>>
 
-    @Transaction
     @Query("SELECT * FROM alarms")
     fun getAll(): List<Alarm>
 

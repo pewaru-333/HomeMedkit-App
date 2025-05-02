@@ -17,13 +17,14 @@ interface IntakeDAO : BaseDAO<Intake> {
     @Transaction
     @Query(
         """
-        SELECT intakes.intakeId, intakes.medicineId, intakes.interval, intakes.finalDate, 
-        medicines.productName, medicines.nameAlias 
-        FROM intakes 
+        SELECT intakeId, medicineId, interval, finalDate, productName, nameAlias
+        FROM intakes
         JOIN medicines ON medicines.id = intakes.medicineId
+        WHERE (:searchQuery = '' OR LOWER(productName) LIKE '%' || LOWER(:searchQuery) || '%'
+               OR LOWER(nameAlias) LIKE '%' || LOWER(:searchQuery) || '%')
         """
     )
-    fun getFlow(): Flow<List<IntakeList>>
+    fun getFlow(searchQuery: String): Flow<List<IntakeList>>
 
     @Query("SELECT * FROM intakes WHERE intakeId = :intakeId")
     fun getById(intakeId: Long): IntakeFull?

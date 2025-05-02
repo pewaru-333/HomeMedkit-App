@@ -96,9 +96,9 @@
     <string name="dose_l">升</string>
     <string name="dose_ml">毫升</string>
     <!-- Intakes -->
-    <string name="intakes_tab_list">列表</string>
-    <string name="intakes_tab_current">当前</string>
-    <string name="intakes_tab_past">之前</string>
+    <string name="tab_list">列表</string>
+    <string name="tab_current">当前</string>
+    <string name="tab_past">之前</string>
     <string name="intake_text_amount">数量</string>
     <string name="intake_text_by_schedule">用药计划</string>
     <string name="intake_text_date">日期</string>

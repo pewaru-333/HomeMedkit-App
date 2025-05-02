@@ -32,8 +32,8 @@
     <string name="text_medicine_dose">Dosis</string>
     <string name="text_medicine_product_name">Produktname</string>
     <!-- Intakes -->
-    <string name="intakes_tab_current">Anstehend</string>
-    <string name="intakes_tab_list">Liste</string>
+    <string name="tab_current">Anstehend</string>
+    <string name="tab_list">Liste</string>
     <string name="intake_text_interval">Intervall</string>
     <string name="intake_text_period">Zeitraum</string>
     <string name="intake_text_time">Zeit</string>
@@ -121,7 +121,7 @@
     <string name="intake_text_date">Datum</string>
     <string name="text_medicine_deleted">Medikament wurde gelöscht, Einnahmestatus ist nicht änderbar</string>
     <string name="type_mixture">MIXTUR</string>
-    <string name="intakes_tab_past">Zurückliegend</string>
+    <string name="tab_past">Zurückliegend</string>
     <string name="text_indications_for_use">Indikationen für die Anwendung</string>
     <string name="text_tap_to_view">Zum Ansehen antippen</string>
     <string name="type_pills">PILLEN</string>

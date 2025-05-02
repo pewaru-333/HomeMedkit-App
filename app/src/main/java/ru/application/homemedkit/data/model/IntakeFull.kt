@@ -6,7 +6,7 @@ import ru.application.homemedkit.data.dto.IntakeDay
 import ru.application.homemedkit.data.dto.IntakeTime
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.enums.SchemaTypes
+import ru.application.homemedkit.helpers.enums.SchemaType
 import java.time.DayOfWeek
 
 data class IntakeFull(
@@ -17,7 +17,7 @@ data class IntakeFull(
     val period: Int = 0,
     val startDate: String = BLANK,
     val finalDate: String = BLANK,
-    val schemaType: SchemaTypes = SchemaTypes.BY_DAYS,
+    val schemaType: SchemaType = SchemaType.BY_DAYS,
     val sameAmount: Boolean = true,
     val fullScreen: Boolean = false,
     val noSound: Boolean = false,

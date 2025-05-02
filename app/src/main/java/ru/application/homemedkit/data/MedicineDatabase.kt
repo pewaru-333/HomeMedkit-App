@@ -30,7 +30,7 @@ import ru.application.homemedkit.data.dto.MedicineKit
 import ru.application.homemedkit.helpers.DATABASE_NAME
 import ru.application.homemedkit.helpers.FORMAT_DD_MM_YYYY
 import ru.application.homemedkit.helpers.ZONE
-import ru.application.homemedkit.helpers.enums.SchemaTypes
+import ru.application.homemedkit.helpers.enums.SchemaType
 import ru.application.homemedkit.helpers.getDateTime
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -491,7 +491,7 @@ abstract class MedicineDatabase : RoomDatabase() {
                             )
 
                             first = first.plusDays(
-                                if (SchemaTypes.valueOf(schemaType) == SchemaTypes.BY_DAYS) SchemaTypes.valueOf(
+                                if (SchemaType.valueOf(schemaType) == SchemaType.BY_DAYS) SchemaType.valueOf(
                                     schemaType
                                 ).interval.days.toLong()
                                 else interval.toLong()
@@ -583,7 +583,7 @@ abstract class MedicineDatabase : RoomDatabase() {
 
 
                             first = first.plusDays(
-                                if (SchemaTypes.valueOf(schemaType) == SchemaTypes.BY_DAYS) SchemaTypes.valueOf(
+                                if (SchemaType.valueOf(schemaType) == SchemaType.BY_DAYS) SchemaType.valueOf(
                                     schemaType
                                 ).interval.days.toLong()
                                 else interval.toLong()

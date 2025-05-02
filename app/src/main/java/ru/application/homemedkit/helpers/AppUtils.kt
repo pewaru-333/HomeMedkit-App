@@ -4,7 +4,7 @@ import android.icu.math.BigDecimal
 import android.icu.text.DecimalFormat
 import androidx.compose.ui.text.intl.Locale
 import ru.application.homemedkit.data.dto.Image
-import ru.application.homemedkit.helpers.enums.Types
+import ru.application.homemedkit.helpers.enums.DrugType
 import ru.application.homemedkit.network.Network
 import java.io.File
 import java.time.Instant
@@ -88,7 +88,7 @@ suspend fun getMedicineImages(
     val images = if (imageList.isEmpty()) listOf(
         Image(
             medicineId = medicineId,
-            image = Types.setIcon(form)
+            image = DrugType.setIcon(form)
         )
     ) else imageList.map { image ->
         Image(

@@ -36,9 +36,9 @@
     <string name="text_medicine_dose">劑量</string>
     <string name="text_medicine_product_name">產品名稱</string>
     <!-- Intakes -->
-    <string name="intakes_tab_list">清單</string>
-    <string name="intakes_tab_current">目前</string>
-    <string name="intakes_tab_past">采取</string>
+    <string name="tab_list">清單</string>
+    <string name="tab_current">目前</string>
+    <string name="tab_past">采取</string>
     <string name="intake_text_amount">數量</string>
     <string name="intake_text_food_after">用餐後</string>
     <string name="intake_text_food_before">用餐前</string>

@@ -145,7 +145,7 @@ import ru.application.homemedkit.helpers.KEY_KITS
 import ru.application.homemedkit.helpers.KEY_PERMISSIONS
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.enums.Sorting
-import ru.application.homemedkit.helpers.enums.Themes
+import ru.application.homemedkit.helpers.enums.Theme
 import ru.application.homemedkit.helpers.extensions.getDisplayRegionName
 import ru.application.homemedkit.helpers.extensions.getLanguageList
 import ru.application.homemedkit.helpers.extensions.restartApplication
@@ -257,10 +257,10 @@ fun SettingsScreen(
             item {
                 val value by Preferences.theme.collectAsStateWithLifecycle()
 
-                ListPreference<Themes>(
+                ListPreference<Theme>(
                     value = value,
                     onValueChange = Preferences::setTheme,
-                    values = Themes.entries,
+                    values = Theme.entries,
                     title = { Text(stringResource(preference_app_theme)) },
                     summary = { Text(stringResource(value.title)) },
                     valueToText = { AnnotatedString(context.getString(it.title)) }
@@ -329,7 +329,7 @@ fun KitsManager(back: () -> Unit) {
 
     LaunchedEffect(Unit) {
         dao.getFlow().collectLatest {
-            list = it.sortedBy(Kit::position)
+            list = it
             kit = Kit(position = list.size.toLong())
         }
     }

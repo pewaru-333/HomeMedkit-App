@@ -114,11 +114,11 @@ import ru.application.homemedkit.data.model.MedicineIntake
 import ru.application.homemedkit.dialogs.DateRangePicker
 import ru.application.homemedkit.dialogs.TimePickerDialog
 import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.enums.FoodTypes
-import ru.application.homemedkit.helpers.enums.IntakeExtras
-import ru.application.homemedkit.helpers.enums.Intervals
-import ru.application.homemedkit.helpers.enums.Periods
-import ru.application.homemedkit.helpers.enums.SchemaTypes
+import ru.application.homemedkit.helpers.enums.FoodType
+import ru.application.homemedkit.helpers.enums.IntakeExtra
+import ru.application.homemedkit.helpers.enums.Interval
+import ru.application.homemedkit.helpers.enums.Period
+import ru.application.homemedkit.helpers.enums.SchemaType
 import ru.application.homemedkit.helpers.extensions.canUseFullScreenIntent
 import ru.application.homemedkit.helpers.formName
 import ru.application.homemedkit.helpers.toExpDate
@@ -212,15 +212,15 @@ fun IntakeScreen(navigateBack: () -> Unit) {
 
             item { SchemaType(state, model::onEvent) }
 
-            if (state.schemaType == SchemaTypes.BY_DAYS) item {
+            if (state.schemaType == SchemaType.BY_DAYS) item {
                 DaysPicker(state, model::onEvent)
             }
 
-            if (state.schemaType != SchemaTypes.BY_DAYS) item {
+            if (state.schemaType != SchemaType.BY_DAYS) item {
                 Interval(state, model::onEvent)
             }
 
-            if (state.schemaType != SchemaTypes.INDEFINITELY) item {
+            if (state.schemaType != SchemaType.INDEFINITELY) item {
                 Period(state, model::onEvent)
             }
 
@@ -330,7 +330,7 @@ private fun SchemaType(state: IntakeState, event: (IntakeEvent) -> Unit) = Outli
             }
         )
         ExposedDropdownMenu(state.showSchemaTypePicker, {}) {
-            SchemaTypes.entries.forEach {
+            SchemaType.entries.forEach {
                 DropdownMenuItem(
                     text = { Text(stringResource(it.title)) },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
@@ -478,7 +478,7 @@ private fun Interval(state: IntakeState, event: (IntakeEvent) -> Unit) =
                 }
             )
             ExposedDropdownMenu(state.showIntervalTypePicker, {}) {
-                Intervals.entries.forEach {
+                Interval.entries.forEach {
                     DropdownMenuItem(
                         text = { Text(stringResource(it.title)) },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
@@ -488,7 +488,7 @@ private fun Interval(state: IntakeState, event: (IntakeEvent) -> Unit) =
             }
         }
 
-        if (state.intervalType == Intervals.CUSTOM) {
+        if (state.intervalType == Interval.CUSTOM) {
             HorizontalDivider()
             ListItem(
                 leadingContent = { Text(stringResource(text_every)) },
@@ -535,7 +535,7 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                     }
                 )
                 ExposedDropdownMenu(state.showPeriodTypePicker, {}) {
-                    Periods.entries.forEach {
+                    Period.entries.forEach {
                         DropdownMenuItem(
                             text = { Text(stringResource(it.title)) },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
@@ -545,7 +545,7 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                 }
             }
 
-            if (state.periodType == Periods.OTHER)
+            if (state.periodType == Period.OTHER)
                 TextField(
                     value = state.period,
                     onValueChange = { event(IntakeEvent.SetPeriod(it)) },
@@ -569,7 +569,7 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                 )
         }
 
-        if (state.periodType != Periods.INDEFINITE) {
+        if (state.periodType != Period.INDEFINITE) {
             HorizontalDivider()
             Row {
                 ListItem(
@@ -578,21 +578,21 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                         Text(
                             softWrap = false,
                             overflow = TextOverflow.Visible,
-                            text = if (state.periodType == Periods.PICK)
+                            text = if (state.periodType == Period.PICK)
                                 state.startDate.ifEmpty { stringResource(R.string.text_not_selected) }
                             else state.startDate.ifEmpty { stringResource(R.string.text_today) }
                         )
                     },
                     trailingContent = state.let {
                         {
-                            if (!it.default && it.periodType == Periods.PICK)
+                            if (!it.default && it.periodType == Period.PICK)
                                 Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null)
                         }
                     },
                     modifier = Modifier
                         .weight(1f)
                         .clickable(
-                            enabled = !state.default && state.periodType == Periods.PICK,
+                            enabled = !state.default && state.periodType == Period.PICK,
                             onClick = { event(IntakeEvent.ShowDateRangePicker) }
                         ),
                     colors = ListItemDefaults.colors(
@@ -607,21 +607,21 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                         Text(
                             softWrap = false,
                             overflow = TextOverflow.Visible,
-                            text = if (state.periodType == Periods.PICK)
+                            text = if (state.periodType == Period.PICK)
                                 state.finalDate.ifEmpty { stringResource(R.string.text_not_selected) }
                             else state.finalDate.ifEmpty { stringResource(R.string.text_tomorrow) }
                         )
                     },
                     trailingContent = state.let {
                         {
-                            if (!it.default && it.periodType == Periods.PICK)
+                            if (!it.default && it.periodType == Period.PICK)
                                 Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null)
                         }
                     },
                     modifier = Modifier
                         .weight(1f)
                         .clickable(
-                            enabled = !state.default && state.periodType == Periods.PICK,
+                            enabled = !state.default && state.periodType == Period.PICK,
                             onClick = { event(IntakeEvent.ShowDateRangePicker) }
                         ),
                     colors = ListItemDefaults.colors(
@@ -650,7 +650,7 @@ private fun Food(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCar
     ListItem(
         headlineContent = {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceAround, CenterVertically) {
-                FoodTypes.entries.forEach { type ->
+                FoodType.entries.forEach { type ->
                     FilterChip(
                         modifier = Modifier.width(100.dp),
                         selected = type.value == state.foodType,
@@ -763,7 +763,7 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCa
                 stringResource(
                     R.string.text_selected_of,
                     state.selectedExtras.size,
-                    IntakeExtras.entries.size
+                    IntakeExtra.entries.size
                 )
             )
         }
@@ -771,8 +771,8 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCa
 
     HorizontalDivider()
 
-    IntakeExtras.entries
-        .filter { !(it == IntakeExtras.FULLSCREEN && !LocalContext.current.canUseFullScreenIntent()) }
+    IntakeExtra.entries
+        .filter { !(it == IntakeExtra.FULLSCREEN && !LocalContext.current.canUseFullScreenIntent()) }
         .forEach { extra ->
             ListItem(
                 headlineContent = { Text(stringResource(extra.title)) },
@@ -780,10 +780,10 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCa
                     Checkbox(
                         onCheckedChange = null,
                         checked = when (extra) {
-                            IntakeExtras.CANCELLABLE -> state.cancellable
-                            IntakeExtras.FULLSCREEN -> state.fullScreen
-                            IntakeExtras.NO_SOUND -> state.noSound
-                            IntakeExtras.PREALARM -> state.preAlarm
+                            IntakeExtra.CANCELLABLE -> state.cancellable
+                            IntakeExtra.FULLSCREEN -> state.fullScreen
+                            IntakeExtra.NO_SOUND -> state.noSound
+                            IntakeExtra.PREALARM -> state.preAlarm
                         }
                     )
                 },
@@ -799,10 +799,10 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCa
                     role = Role.Checkbox,
                     onValueChange = { event(IntakeEvent.SetIntakeExtra(extra)) },
                     value = when (extra) {
-                        IntakeExtras.CANCELLABLE -> state.cancellable
-                        IntakeExtras.FULLSCREEN -> state.fullScreen
-                        IntakeExtras.NO_SOUND -> state.noSound
-                        IntakeExtras.PREALARM -> state.preAlarm
+                        IntakeExtra.CANCELLABLE -> state.cancellable
+                        IntakeExtra.FULLSCREEN -> state.fullScreen
+                        IntakeExtra.NO_SOUND -> state.noSound
+                        IntakeExtra.PREALARM -> state.preAlarm
                     }
                 )
             )

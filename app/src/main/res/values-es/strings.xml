@@ -97,9 +97,9 @@
     <string name="dose_l">l</string>
     <string name="dose_ml">ml</string>
     <!-- Intakes -->
-    <string name="intakes_tab_list">Lista</string>
-    <string name="intakes_tab_current">Actual</string>
-    <string name="intakes_tab_past">Ya tomado</string>
+    <string name="tab_list">Lista</string>
+    <string name="tab_current">Actual</string>
+    <string name="tab_past">Ya tomado</string>
     <string name="intake_text_amount">Cantidad</string>
     <string name="intake_text_by_schedule">Por horario</string>
     <string name="intake_text_date">Fecha</string>

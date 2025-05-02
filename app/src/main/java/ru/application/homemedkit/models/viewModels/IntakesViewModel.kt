@@ -3,50 +3,43 @@
 package ru.application.homemedkit.models.viewModels
 
 import android.content.Context
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TimePickerState
-import androidx.compose.ui.text.intl.Locale
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.application.homemedkit.HomeMeds.Companion.database
-import ru.application.homemedkit.R
-import ru.application.homemedkit.R.string.intake_text_not_taken
 import ru.application.homemedkit.data.dto.IntakeTaken
-import ru.application.homemedkit.data.model.Intake
-import ru.application.homemedkit.data.model.IntakePast
-import ru.application.homemedkit.data.model.IntakeSchedule
-import ru.application.homemedkit.data.model.ScheduleModel
-import ru.application.homemedkit.data.model.TakenModel
+import ru.application.homemedkit.data.model.IntakeList
+import ru.application.homemedkit.data.model.Schedule
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.FORMAT_DD_MM_YYYY
-import ru.application.homemedkit.helpers.FORMAT_D_MMMM_E
 import ru.application.homemedkit.helpers.FORMAT_H_MM
-import ru.application.homemedkit.helpers.FORMAT_LONG
 import ru.application.homemedkit.helpers.ResourceText
 import ru.application.homemedkit.helpers.ZONE
-import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.enums.IntakeTabs
-import ru.application.homemedkit.helpers.formName
+import ru.application.homemedkit.helpers.enums.IntakeTab
+import ru.application.homemedkit.helpers.extensions.toIntake
+import ru.application.homemedkit.helpers.extensions.toIntakePast
+import ru.application.homemedkit.helpers.extensions.toIntakeSchedule
+import ru.application.homemedkit.helpers.extensions.toTakenState
 import ru.application.homemedkit.helpers.getDateTime
 import ru.application.homemedkit.models.events.TakenEvent
 import ru.application.homemedkit.models.states.IntakesState
 import ru.application.homemedkit.models.states.TakenState
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.format.TextStyle
 import kotlin.math.abs
 
 class IntakesViewModel : ViewModel() {
@@ -58,144 +51,39 @@ class IntakesViewModel : ViewModel() {
     val state = _state.asStateFlow()
 
     private val _takenState = MutableStateFlow(TakenState())
-    val takenState = _takenState
-        .onStart {
-            takenDAO.getById(_state.value.pickedTakenId)?.let { taken ->
-                _takenState.update {
-                    it.copy(
-                        takenId = taken.takenId,
-                        alarmId = taken.alarmId,
-                        medicine = medicineDAO.getById(taken.medicineId),
-                        productName = taken.productName,
-                        amount = taken.amount,
-                        date = getDateTime(taken.trigger).format(FORMAT_LONG),
-                        scheduled = getDateTime(taken.trigger).format(FORMAT_H_MM),
-                        actual = if (taken.taken) ResourceText.StaticString(getDateTime(taken.inFact).format(FORMAT_H_MM))
-                        else ResourceText.StringResource(intake_text_not_taken),
-                        inFact = taken.inFact,
-                        pickerState = getDateTime(taken.inFact).run {
-                            TimePickerState(hour, minute, true)
-                        },
-                        taken = taken.taken,
-                        selection = if (taken.taken) 1 else 0,
-                        notified = taken.notified
-                    )
-                }
-            }
+    val takenState = _takenState.asStateFlow()
+
+    private val listStates = IntakeTab.entries.associateWith { LazyListState() }
+    val listState: LazyListState
+        get() = listStates.getValue(_state.value.tab)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val intakes = _state.flatMapLatest { query ->
+        intakeDAO.getFlow(query.search).map { list ->
+            list.map(IntakeList::toIntake)
         }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = TakenState()
-        )
-
-    val intakes = combine(_state, intakeDAO.getFlow()) { query, list ->
-        list.filter { listOf(it.nameAlias, it.productName).any { it.contains(query.search, true) } }
-            .map {
-                Intake(
-                    intakeId = it.intakeId,
-                    title = it.nameAlias.ifEmpty(it::productName),
-                    image = it.image.firstOrNull() ?: BLANK,
-                    time = it.time.sortedBy { LocalTime.parse(it, FORMAT_H_MM) }.joinToString(),
-                    days = it.days.sorted().run {
-                        when {
-                            size == DayOfWeek.entries.size -> ResourceText.StringResource(R.string.text_every_day)
-                            equals(DayOfWeek.entries.drop(5)) -> ResourceText.StringResource(R.string.text_weekend)
-                            equals(DayOfWeek.entries.dropLast(2)) -> ResourceText.StringResource(R.string.text_weekdays)
-                            else -> ResourceText.StaticString(
-                                joinToString {
-                                    it.getDisplayName(TextStyle.SHORT, Locale.current.platformLocale)
-                                }
-                            )
-                        }
-                    },
-                    interval = it.time.run {
-                        ResourceText.PluralStringResource(R.plurals.intake_times_a_day, size, size)
-                    },
-                    active = LocalDate.parse(it.finalDate, FORMAT_DD_MM_YYYY) >= LocalDate.now()
-                )
-            }
     }.flowOn(Dispatchers.IO)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = emptyList()
-        )
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    val schedule = combine(_state, database.alarmDAO().getFlow()) { query, list ->
-        list.filter { it.productName.contains(query.search, true) }
-            .groupBy { getDateTime(it.trigger).toLocalDate().toEpochDay() }
-            .toSortedMap()
-            .map { map ->
-                IntakeSchedule(
-                    epochDay = map.key,
-                    date = LocalDate.ofEpochDay(map.key).run {
-                        format(if (LocalDate.now().year == year) FORMAT_D_MMMM_E else FORMAT_LONG)
-                    },
-                    intakes = map.value.map {
-                        ScheduleModel(
-                            id = it.alarmId,
-                            alarmId = it.alarmId,
-                            title = it.nameAlias.ifEmpty(it::productName),
-                            image = it.image,
-                            time = getDateTime(it.trigger).format(FORMAT_H_MM),
-                            doseAmount = ResourceText.StringResource(
-                                R.string.intake_text_quantity,
-                                it.prodFormNormName.run {
-                                    if (isNotEmpty()) formName(this)
-                                    else ResourceText.StringResource(R.string.text_amount)
-                                },
-                                decimalFormat(it.amount),
-                                ResourceText.StringResource(it.doseType.title)
-                            )
-                        )
-                    }
-                )
-            }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val schedule = _state.flatMapLatest { query->
+        database.alarmDAO().getFlow(query.search).map { list->
+            list.groupBy { getDateTime(it.trigger).toLocalDate().toEpochDay() }
+                .toSortedMap()
+                .map(Map.Entry<Long, List<Schedule>>::toIntakeSchedule)
+        }
     }.flowOn(Dispatchers.IO)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = emptyList()
-        )
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    val taken = combine(_state, takenDAO.getFlow()) { query, list ->
-        list.filter { it.productName.contains(query.search, true) }
-            .groupBy { getDateTime(it.trigger).toLocalDate().toEpochDay() }
-            .toSortedMap(Comparator.reverseOrder())
-            .map { map ->
-                IntakePast(
-                    epochDay = map.key,
-                    date = LocalDate.ofEpochDay(map.key).run {
-                        format(if (LocalDate.now().year == year) FORMAT_D_MMMM_E else FORMAT_LONG)
-                    },
-                    intakes = map.value.map {
-                        TakenModel(
-                            id = it.takenId,
-                            alarmId = it.alarmId,
-                            title = it.productName,
-                            image = it.image,
-                            time = getDateTime(it.trigger).format(FORMAT_H_MM),
-                            taken = it.taken,
-                            doseAmount = ResourceText.StringResource(
-                                R.string.intake_text_quantity,
-                                it.formName.run {
-                                    if (isNotEmpty()) formName(this)
-                                    else ResourceText.StringResource(R.string.text_amount)
-                                },
-                                decimalFormat(it.amount),
-                                ResourceText.StringResource(it.doseType.title)
-                            )
-                        )
-                    }
-                )
-            }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val taken = _state.flatMapLatest { query ->
+        takenDAO.getFlow(query.search).map { list ->
+            list.groupBy { getDateTime(it.trigger).toLocalDate().toEpochDay() }
+                .toSortedMap(Comparator.reverseOrder())
+                .map(Map.Entry<Long, List<IntakeTaken>>::toIntakePast)
+        }
     }.flowOn(Dispatchers.IO)
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = emptyList()
-        )
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun onTakenEvent(event: TakenEvent) {
         when (event) {
@@ -232,11 +120,24 @@ class IntakesViewModel : ViewModel() {
     fun setSearch(text: String) = _state.update { it.copy(search = text) }
     fun clearSearch() = _state.update { it.copy(search = BLANK) }
 
-    fun showDialog(takenId: Long) = _state.update {
-        it.copy(
-            pickedTakenId = takenId,
-            showDialog = true
-        )
+    fun showDialog(takenId: Long) {
+        viewModelScope.launch {
+            val taken = withContext(Dispatchers.IO) {
+                database.takenDAO().getById(takenId)
+            }
+
+            withContext(Dispatchers.Main) {
+                _takenState.update {
+                    taken?.toTakenState() ?: TakenState()
+                }
+
+                _state.update {
+                    it.copy(
+                        showDialog = true
+                    )
+                }
+            }
+        }
     }
 
     fun showDialogDelete(id: Long = 0L) {
@@ -252,11 +153,11 @@ class IntakesViewModel : ViewModel() {
         _state.update { it.copy(showDialogDelete = !it.showDialogDelete) }
     }
 
-    fun pickTab(tab: IntakeTabs) = _state.update { it.copy(tab = tab) }
+    fun pickTab(tab: IntakeTab) = _state.update { it.copy(tab = tab) }
 
     fun showDialogDate() = _state.update { it.copy(showDialogDate = !it.showDialogDate) }
     fun scrollToClosest(time: Long) {
-        val list = if (_state.value.tab == IntakeTabs.CURRENT) schedule.value else taken.value
+        val list = if (_state.value.tab == IntakeTab.CURRENT) schedule.value else taken.value
 
         if (list.isEmpty()) {
             _state.update { it.copy(showDialogDate = !it.showDialogDate) }
@@ -277,7 +178,7 @@ class IntakesViewModel : ViewModel() {
 
         viewModelScope.launch {
             _state.value.run {
-                (if (tab == IntakeTabs.CURRENT) stateB else stateC).scrollToItem(group + itemsIndex)
+                listState.scrollToItem(group + itemsIndex)
             }
             _state.update { it.copy(showDialogDate = !it.showDialogDate) }
         }

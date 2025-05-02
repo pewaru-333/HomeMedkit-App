@@ -108,11 +108,13 @@
     <string name="dose_l">л</string>
     <string name="dose_ml">мл</string>
 
-    <!-- Приём -->
-    <string name="intakes_tab_list">Список</string>
-    <string name="intakes_tab_current">Текущие</string>
-    <string name="intakes_tab_past">Прошедшие</string>
+    <!-- Вкладки -->
+    <string name="tab_groups">Группы</string>
+    <string name="tab_list">Список</string>
+    <string name="tab_current">Текущие</string>
+    <string name="tab_past">Прошедшие</string>
 
+    <!-- Приём -->
     <string name="intake_text_amount">Количество</string>
     <string name="intake_text_by_schedule">По расписанию</string>
     <string name="intake_text_date">Дата</string>
@@ -217,6 +219,7 @@
     <string name="text_import">Импорт</string>
     <string name="text_no">Нет</string>
     <string name="text_no_data_found">Лекарства отсутствуют. Добавьте их или измените фильтр.</string>
+    <string name="text_no_data_group_found">Лекарства с группами отсутствуют. Добавьте их или измените фильтр.</string>
     <string name="text_no_intakes_found">Назначенные приёмы лекарств отсутствуют. Добавьте их через карточку информации о лекарстве или измените условие поиска.</string>
     <string name="text_not_selected">Не выбрано</string>
     <string name="text_off">Отключено</string>

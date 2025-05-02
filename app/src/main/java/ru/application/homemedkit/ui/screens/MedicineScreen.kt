@@ -162,12 +162,12 @@ import ru.application.homemedkit.R.string.text_take_picture
 import ru.application.homemedkit.R.string.text_try_again
 import ru.application.homemedkit.R.string.text_unspecified
 import ru.application.homemedkit.R.string.text_update
-import ru.application.homemedkit.data.model.KitModel
+import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.dialogs.DatePicker
 import ru.application.homemedkit.dialogs.MonthYear
 import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.enums.DoseTypes
-import ru.application.homemedkit.helpers.enums.Types
+import ru.application.homemedkit.helpers.enums.DoseType
+import ru.application.homemedkit.helpers.enums.DrugType
 import ru.application.homemedkit.helpers.permissions.rememberPermissionState
 import ru.application.homemedkit.models.events.MedicineEvent
 import ru.application.homemedkit.models.events.Response
@@ -460,10 +460,10 @@ private fun ProductKit(state: MedicineState, event: (MedicineEvent) -> Unit) = C
             modifier = Modifier.horizontalScroll(rememberScrollState()),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             text = if (state.kits.isEmpty()) stringResource(text_unspecified)
-            else state.kits.joinToString(transform = KitModel::title),
+            else state.kits.joinToString(transform = Kit::title),
         )
     } else OutlinedTextField(
-        value = state.kits.joinToString(transform = KitModel::title),
+        value = state.kits.joinToString(transform = Kit::title),
         onValueChange = {},
         singleLine = true,
         readOnly = true,
@@ -703,7 +703,7 @@ private fun ProductNormName(state: MedicineState, event: (MedicineEvent) -> Unit
                             expanded = state.showMenuDose,
                             onDismissRequest = { event(MedicineEvent.ShowDoseMenu) }
                         ) {
-                            DoseTypes.entries.forEach { item ->
+                            DoseType.entries.forEach { item ->
                                 DropdownMenuItem(
                                     text = { Text(stringResource(item.title)) },
                                     onClick = { event(MedicineEvent.SetDoseType(item)) },
@@ -787,7 +787,7 @@ private fun Comment(state: MedicineState, event: (MedicineEvent) -> Unit) =
 
 @Composable
 private fun DialogKits(
-    kits: List<KitModel>,
+    kits: List<Kit>,
     state: MedicineState,
     event: (MedicineEvent) -> Unit
 ) = AlertDialog(
@@ -939,7 +939,7 @@ private fun IconPicker(event: (MedicineEvent) -> Unit) =
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(16.dp)
             ) {
-                items(Types.entries) {
+                items(DrugType.entries) {
                     ElevatedCard(
                         onClick = { event(MedicineEvent.SetIcon(it.value)) },
                         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.secondaryContainer)
@@ -979,14 +979,21 @@ fun DialogDelete(text: Int, cancel: () -> Unit, confirm: () -> Unit) = AlertDial
 )
 
 @Composable
-fun MedicineImage(image: String, modifier: Modifier = Modifier, editable: Boolean = false) =
+fun MedicineImage(image: String, modifier: Modifier = Modifier, editable: Boolean = false) {
+    val context = LocalContext.current
+
+    val model = remember(image, context) {
+        DrugType.getIcon(image) ?: File(context.filesDir, image)
+    }
+
     AsyncImage(
-        model = Types.getIcon(image) ?: File(LocalContext.current.filesDir, image),
-        error = painterResource(R.drawable.vector_type_unknown),
-        contentDescription = null,
+        model = model,
         modifier = modifier,
+        contentDescription = null,
+        error = painterResource(R.drawable.vector_type_unknown),
         alpha = if (editable) 0.4f else 1f
     )
+}
 
 @Composable
 private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {

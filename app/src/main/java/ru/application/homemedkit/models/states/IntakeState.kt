@@ -8,15 +8,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import ru.application.homemedkit.R
-import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.model.IntakeAmountTime
 import ru.application.homemedkit.data.model.MedicineIntake
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.enums.IntakeExtras
-import ru.application.homemedkit.helpers.enums.Intervals
-import ru.application.homemedkit.helpers.enums.Periods
+import ru.application.homemedkit.helpers.enums.IntakeExtra
+import ru.application.homemedkit.helpers.enums.Interval
+import ru.application.homemedkit.helpers.enums.Period
 import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.enums.SchemaTypes
+import ru.application.homemedkit.helpers.enums.SchemaType
 import java.time.DayOfWeek
 
 data class IntakeState(
@@ -27,16 +26,16 @@ data class IntakeState(
     val medicineId: Long = 0L,
     val medicine: MedicineIntake = MedicineIntake(),
     val image: String = BLANK,
-    val schemaType: SchemaTypes = SchemaTypes.BY_DAYS,
+    val schemaType: SchemaType = SchemaType.BY_DAYS,
     val amountStock: String = BLANK,
     @StringRes val amountError: Int? = null,
     val sameAmount: Boolean = true,
     @StringRes val doseType: Int = R.string.blank,
-    val interval: String = Intervals.DAILY.days.toString(),
-    val intervalType: Intervals = Intervals.DAILY,
+    val interval: String = Interval.DAILY.days.toString(),
+    val intervalType: Interval = Interval.DAILY,
     @StringRes val intervalError: Int? = null,
     val period: String = BLANK,
-    val periodType: Periods = Periods.PICK,
+    val periodType: Period = Period.PICK,
     @StringRes val periodError: Int? = null,
     val foodType: Int = -1,
     val pickedDays: SnapshotStateList<DayOfWeek> = DayOfWeek.entries.toMutableStateList(),
@@ -48,7 +47,7 @@ data class IntakeState(
     val finalDate: String = BLANK,
     @StringRes val finalDateError: Int? = null,
     @StringRes val extraDesc: Int? = null,
-    val selectedExtras: SnapshotStateList<IntakeExtras> = mutableStateListOf(IntakeExtras.CANCELLABLE),
+    val selectedExtras: SnapshotStateList<IntakeExtra> = mutableStateListOf(IntakeExtra.CANCELLABLE),
     val showIntervalTypePicker: Boolean = false,
     val showDateRangePicker: Boolean = false,
     val showSchemaTypePicker: Boolean = false,

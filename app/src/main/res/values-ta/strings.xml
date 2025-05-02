@@ -27,7 +27,7 @@
     <string name="type_solution">நீர்மக்கூழ்</string>
     <string name="bottom_bar_intakes">உட்கொள்ளல்</string>
     <string name="text_off">அணைக்கப்பட்டது</string>
-    <string name="intakes_tab_list">பட்டியல்</string>
+    <string name="tab_list">பட்டியல்</string>
     <string name="dose_ed">எட்</string>
     <string name="theme_dark">இருண்ட</string>
     <string name="text_pay_attention">கவனம் செலுத்துங்கள்!</string>
@@ -57,7 +57,7 @@
     <string name="type_tablets">மாத்திரைகள்</string>
     <string name="text_intake_time">மருத்துவம்: %1$s\n தொகை: %2$s %3$s</string>
     <string name="type_sachet">சாக்கெட்</string>
-    <string name="intakes_tab_past">கடந்த</string>
+    <string name="tab_past">கடந்த</string>
     <string name="text_empty">காலி</string>
     <string name="text_no_data_found">மருந்துகள் எதுவும் கிடைக்கவில்லை. அவற்றைச் சேர்க்கவும் அல்லது வடிப்பானை மாற்றவும்.</string>
     <string name="text_confirm_deletion_med">இந்த மருந்தை நீக்க விரும்புகிறீர்களா?</string>
@@ -102,7 +102,7 @@
     <string name="type_mix">கலக்க</string>
     <string name="text_grant">மானியம்</string>
     <string name="preference_sorting_type">மருந்து வரிசையாக்கம்</string>
-    <string name="intakes_tab_current">மின்னோட்ட்ம், ஓட்டம்</string>
+    <string name="tab_current">மின்னோட்ட்ம், ஓட்டம்</string>
     <string name="placeholder_dose">0.5 மி.கி + 84 எம்.சி.சி.</string>
     <string name="text_not_saved_intake">உட்கொள்ளல் காப்பாற்றப்படவில்லை! நீங்கள் திரும்பிச் செல்ல விரும்புகிறீர்களா?</string>
     <string name="dose_mg">எம்.சி.</string>

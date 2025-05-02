@@ -1,8 +1,8 @@
 package ru.application.homemedkit.models.events
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import ru.application.homemedkit.data.model.KitModel
-import ru.application.homemedkit.helpers.enums.DoseTypes
+import ru.application.homemedkit.data.dto.Kit
+import ru.application.homemedkit.helpers.enums.DoseType
 
 sealed interface MedicineEvent {
     data class SetCis(val cis: String) : MedicineEvent
@@ -12,12 +12,12 @@ sealed interface MedicineEvent {
     data class SetPackageDate(val timestamp: Long) : MedicineEvent
     data class SetFormName(val formName: String) : MedicineEvent
     data class SetDoseName(val doseName: String) : MedicineEvent
-    data class SetDoseType(val type: DoseTypes) : MedicineEvent
+    data class SetDoseType(val type: DoseType) : MedicineEvent
     data class SetAmount(val amount: String) : MedicineEvent
     data class SetPhKinetics(val phKinetics: String) : MedicineEvent
     data class SetComment(val comment: String) : MedicineEvent
 
-    data class PickKit(val kit: KitModel) : MedicineEvent
+    data class PickKit(val kit: Kit) : MedicineEvent
     data object ClearKit : MedicineEvent
 
     data class SetIcon(val icon: String) : MedicineEvent

@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import ru.application.homemedkit.R
 
 
-enum class IntakeExtras(
+enum class IntakeExtra(
     @StringRes val title: Int,
     @StringRes val description: Int
 ) {

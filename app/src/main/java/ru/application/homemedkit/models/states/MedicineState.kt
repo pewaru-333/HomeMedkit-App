@@ -5,10 +5,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import ru.application.homemedkit.data.dto.Kit
-import ru.application.homemedkit.data.model.KitModel
 import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.enums.DoseTypes
-import ru.application.homemedkit.helpers.enums.Types
+import ru.application.homemedkit.helpers.enums.DoseType
+import ru.application.homemedkit.helpers.enums.DrugType
 import kotlin.random.Random
 
 data class MedicineState(
@@ -16,7 +15,7 @@ data class MedicineState(
     val editing: Boolean = false,
     val default: Boolean = false,
     val id: Long = 0L,
-    val kits: SnapshotStateList<KitModel> = mutableStateListOf(),
+    val kits: SnapshotStateList<Kit> = mutableStateListOf(),
     val cis: String = BLANK,
     val productName: String = BLANK,
     @StringRes val productNameError: Int? = null,
@@ -29,13 +28,13 @@ data class MedicineState(
     val structure: String = BLANK,
     val prodDNormName: String = BLANK,
     val prodAmount: String = BLANK,
-    val doseType: DoseTypes = DoseTypes.UNKNOWN,
+    val doseType: DoseType = DoseType.UNKNOWN,
     val phKinetics: String = BLANK,
     val recommendations: String = BLANK,
     val storageConditions: String = BLANK,
     val comment: String = BLANK,
     val fullImage: Int = 0,
-    val images: SnapshotStateList<String> = mutableStateListOf(Types.entries[Random.nextInt(0, Types.entries.size)].value),
+    val images: SnapshotStateList<String> = mutableStateListOf(DrugType.entries[Random.nextInt(0, DrugType.entries.size)].value),
     val technical: TechnicalState = TechnicalState(),
     val snackbarHostState: SnackbarHostState = SnackbarHostState(),
     val showDialogKits: Boolean = false,

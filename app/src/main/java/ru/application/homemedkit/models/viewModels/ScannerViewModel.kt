@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Image
-import ru.application.homemedkit.helpers.enums.Types
+import ru.application.homemedkit.helpers.enums.DrugType
 import ru.application.homemedkit.helpers.extensions.toMedicine
 import ru.application.homemedkit.helpers.getMedicineImages
 import ru.application.homemedkit.models.events.Response
@@ -75,7 +75,7 @@ class ScannerViewModel : ViewModel() {
                             val id = dao.insert(medicine)
                             val image = Image(
                                 medicineId = id,
-                                image = Types.setIcon(it.productProperty.releaseForm.orEmpty())
+                                image = DrugType.setIcon(it.productProperty.releaseForm.orEmpty())
                             )
 
                             dao.addImage(image)

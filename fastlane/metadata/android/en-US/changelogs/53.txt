@@ -1,4 +1,0 @@
-— Added the feature to custom sort groups of medications. The function may be unstable!
-— In the medicine card, you can now enlarge its image.
-— The list of intakes now displays the days of the appointment. The days may not be displayed correctly for the user interval.
-— A lot of minor changes necessary for the stable operation of the application.

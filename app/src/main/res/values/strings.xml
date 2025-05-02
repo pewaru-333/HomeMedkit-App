@@ -108,11 +108,13 @@
     <string name="dose_ml">ml</string>
     <string name="dose_ratio" translatable="false">%</string>
 
-    <!-- Intakes -->
-    <string name="intakes_tab_list">List</string>
-    <string name="intakes_tab_current">Current</string>
-    <string name="intakes_tab_past">Past</string>
+    <!-- Tabs -->
+    <string name="tab_groups">Groups</string>
+    <string name="tab_list">List</string>
+    <string name="tab_current">Current</string>
+    <string name="tab_past">Past</string>
 
+    <!-- Intakes -->
     <string name="intake_text_amount">Quantity</string>
     <string name="intake_text_by_schedule">Scheduled</string>
     <string name="intake_text_date">Date</string>
@@ -221,6 +223,7 @@
     <string name="text_import">Import</string>
     <string name="text_no">No</string>
     <string name="text_no_data_found">No medications found. Add them or change the filter.</string>
+    <string name="text_no_data_group_found">No medications with group found. Add them or change the filter.</string>
     <string name="text_no_intakes_found">No intakes found. Add them via a medication\'s information card or change the search value.</string>
     <string name="text_not_selected">Not selected</string>
     <string name="text_off">Disabled</string>

@@ -65,13 +65,13 @@
     <string name="dose_ed">ED</string>
     <string name="dose_pcs">unité(s)</string>
     <string name="dose_ml">ml</string>
-    <string name="intakes_tab_current">Actuel</string>
-    <string name="intakes_tab_list">Liste</string>
+    <string name="tab_current">Actuel</string>
+    <string name="tab_list">Liste</string>
     <string name="dose_sach">sach</string>
     <string name="dose_g">g</string>
     <string name="dose_mg">mg</string>
     <string name="dose_l">l</string>
-    <string name="intakes_tab_past">Passé</string>
+    <string name="tab_past">Passé</string>
     <string name="intake_text_amount">Quantité</string>
     <string name="intake_text_by_schedule">Annexe</string>
     <string name="intake_text_date">Date</string>

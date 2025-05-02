@@ -27,16 +27,16 @@ import ru.application.homemedkit.helpers.FORMAT_DD_MM_YYYY
 import ru.application.homemedkit.helpers.FORMAT_H_MM
 import ru.application.homemedkit.helpers.Preferences
 import ru.application.homemedkit.helpers.ZONE
-import ru.application.homemedkit.helpers.enums.IntakeExtras
-import ru.application.homemedkit.helpers.enums.Intervals
-import ru.application.homemedkit.helpers.enums.Intervals.CUSTOM
-import ru.application.homemedkit.helpers.enums.Intervals.DAILY
-import ru.application.homemedkit.helpers.enums.Intervals.WEEKLY
-import ru.application.homemedkit.helpers.enums.Periods
-import ru.application.homemedkit.helpers.enums.Periods.INDEFINITE
-import ru.application.homemedkit.helpers.enums.Periods.OTHER
-import ru.application.homemedkit.helpers.enums.Periods.PICK
-import ru.application.homemedkit.helpers.enums.SchemaTypes
+import ru.application.homemedkit.helpers.enums.IntakeExtra
+import ru.application.homemedkit.helpers.enums.Interval
+import ru.application.homemedkit.helpers.enums.Interval.CUSTOM
+import ru.application.homemedkit.helpers.enums.Interval.DAILY
+import ru.application.homemedkit.helpers.enums.Interval.WEEKLY
+import ru.application.homemedkit.helpers.enums.Period
+import ru.application.homemedkit.helpers.enums.Period.INDEFINITE
+import ru.application.homemedkit.helpers.enums.Period.OTHER
+import ru.application.homemedkit.helpers.enums.Period.PICK
+import ru.application.homemedkit.helpers.enums.SchemaType
 import ru.application.homemedkit.helpers.extensions.toIntake
 import ru.application.homemedkit.helpers.extensions.toMedicineIntake
 import ru.application.homemedkit.helpers.extensions.toState
@@ -292,7 +292,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                 }
 
             is IntakeEvent.SetInterval -> when (val interval = event.interval) {
-                is Intervals -> when (interval) {
+                is Interval -> when (interval) {
                     DAILY, WEEKLY -> _state.update {
                         it.copy(
                             interval = interval.days.toString(),
@@ -315,7 +315,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             }
 
             is IntakeEvent.SetPeriod -> when (val period = event.period) {
-                is Periods -> when(period) {
+                is Period -> when(period) {
                     PICK -> _state.update {
                         it.copy(
                             period = period.days.toString(),
@@ -409,7 +409,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             }
 
             is IntakeEvent.SetSchemaType -> when (event.type) {
-                SchemaTypes.INDEFINITELY -> {
+                SchemaType.INDEFINITELY -> {
                     _state.update {
                         it.copy(
                             startDate = LocalDate.now().format(FORMAT_DD_MM_YYYY),
@@ -423,7 +423,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                     }
                 }
 
-                SchemaTypes.BY_DAYS -> _state.update {
+                SchemaType.BY_DAYS -> _state.update {
                     it.copy(
                         startDate = BLANK,
                         finalDate = BLANK,
@@ -434,7 +434,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                         showSchemaTypePicker = false
                     )
                 }
-                SchemaTypes.PERSONAL -> _state.update {
+                SchemaType.PERSONAL -> _state.update {
                     it.copy(
                         startDate = BLANK,
                         finalDate = BLANK,
@@ -487,10 +487,10 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             }
 
             is IntakeEvent.SetIntakeExtra -> when (event.extra) {
-                IntakeExtras.CANCELLABLE -> _state.update { it.copy(cancellable = !it.cancellable) }
-                IntakeExtras.FULLSCREEN -> _state.update { it.copy(fullScreen = !it.fullScreen) }
-                IntakeExtras.NO_SOUND -> _state.update { it.copy(noSound = !it.noSound) }
-                IntakeExtras.PREALARM -> _state.update { it.copy(preAlarm = !it.preAlarm) }
+                IntakeExtra.CANCELLABLE -> _state.update { it.copy(cancellable = !it.cancellable) }
+                IntakeExtra.FULLSCREEN -> _state.update { it.copy(fullScreen = !it.fullScreen) }
+                IntakeExtra.NO_SOUND -> _state.update { it.copy(noSound = !it.noSound) }
+                IntakeExtra.PREALARM -> _state.update { it.copy(preAlarm = !it.preAlarm) }
             }.also {
                 _state.update {
                     it.copy(

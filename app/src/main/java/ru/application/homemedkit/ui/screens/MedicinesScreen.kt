@@ -5,9 +5,9 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,6 +40,8 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -57,10 +59,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight.Companion.W500
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ru.application.homemedkit.R
 import ru.application.homemedkit.R.drawable.vector_filter
 import ru.application.homemedkit.R.drawable.vector_scanner
 import ru.application.homemedkit.R.drawable.vector_sort
@@ -69,15 +73,16 @@ import ru.application.homemedkit.R.string.text_clear
 import ru.application.homemedkit.R.string.text_enter_product_name
 import ru.application.homemedkit.R.string.text_exit_app
 import ru.application.homemedkit.R.string.text_no
-import ru.application.homemedkit.R.string.text_no_data_found
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_yes
-import ru.application.homemedkit.data.model.KitMedicines
+import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.model.MedicineList
 import ru.application.homemedkit.helpers.Preferences
+import ru.application.homemedkit.helpers.enums.MedicineTab
 import ru.application.homemedkit.helpers.enums.Sorting
 import ru.application.homemedkit.models.states.MedicinesState
 import ru.application.homemedkit.models.viewModels.MedicinesViewModel
+import ru.application.homemedkit.ui.elements.BoxWithEmptyListText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,8 +92,9 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
     val model = viewModel<MedicinesViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
     val medicines by model.medicines.collectAsStateWithLifecycle()
+    val grouped by model.grouped.collectAsStateWithLifecycle()
     val kits by model.kits.collectAsStateWithLifecycle()
-    val offset by remember { derivedStateOf { state.listState.firstVisibleItemScrollOffset } }
+    val offset by remember { derivedStateOf { model.listState.firstVisibleItemScrollOffset } }
 
     BackHandler { model.showExit(true) }
     Scaffold(
@@ -130,12 +136,12 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
                                     .height(56.dp)
                                     .padding(horizontal = 16.dp)
                                     .selectable(
-                                        selected = entry.type == state.sorting,
-                                        onClick = { model.setSorting(entry.type) },
+                                        selected = entry == state.sorting,
+                                        onClick = { model.setSorting(entry) },
                                         role = Role.RadioButton
                                     )
                             ) {
-                                RadioButton(entry.type == state.sorting, null)
+                                RadioButton(entry == state.sorting, null)
                                 Text(stringResource(entry.title), Modifier.padding(start = 16.dp))
                             }
                         }
@@ -147,7 +153,7 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
         },
         floatingActionButton = {
             AnimatedVisibility(
-                visible = !state.listState.isScrollInProgress && offset.dp <= 100.dp,
+                visible = !model.listState.isScrollInProgress && offset.dp <= 100.dp,
                 enter = slideInVertically(initialOffsetY = { it * 2 }),
                 exit = slideOutVertically(targetOffsetY = { it * 2 })
             ) {
@@ -186,24 +192,67 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
             }
         }
     ) { values ->
-        medicines.let { list ->
-            if (list.isNotEmpty())
-                LazyColumn(Modifier, state.listState, values) {
-                    items(list, MedicineList::id) {
-                        MedicineItem(it, Modifier.animateItem(), navigateToMedicine)
-                        HorizontalDivider()
-                    }
+        Column(Modifier.padding(values)) {
+            TabRow(state.tab.ordinal) {
+                MedicineTab.entries.forEach { tab ->
+                    Tab(
+                        selected = state.tab == tab,
+                        onClick = { model.pickTab(tab) },
+                        text = { Text(stringResource(tab.title)) }
+                    )
                 }
-            else Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Text(
-                    text = stringResource(text_no_data_found),
-                    textAlign = TextAlign.Center
-                )
+            }
+
+            when (state.tab) {
+                MedicineTab.LIST -> medicines.let { list ->
+                    if (list.isNotEmpty()) LazyColumn(Modifier.fillMaxSize(), model.listState) {
+                        items(list, MedicineList::id) {
+                            MedicineItem(it, Modifier.animateItem(), navigateToMedicine)
+
+                            if (it != list.lastOrNull()) HorizontalDivider()
+                        }
+                    } else BoxWithEmptyListText(
+                        text = R.string.text_no_data_found,
+                        modifier = Modifier
+                            .padding(values)
+                            .fillMaxSize()
+                    )
+                }
+
+                MedicineTab.GROUPS -> grouped.let { list ->
+                    if (list.isNotEmpty()) {
+                        LazyColumn(Modifier.fillMaxSize(), model.listState) {
+                            list.forEach { group ->
+                                item {
+                                    Text(
+                                        text = group.kit.title,
+                                        style = MaterialTheme.typography.titleLarge.copy(
+                                            fontWeight = W500
+                                        ),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(MaterialTheme.colorScheme.background)
+                                            .padding(12.dp, 24.dp)
+                                    )
+                                }
+
+                                items(
+                                    items = group.medicines,
+                                    key = { "${group.kit.kitId}_${it.id}" }
+                                ) {
+                                    MedicineItem(it, Modifier.animateItem(), navigateToMedicine)
+
+                                    if (it != group.medicines.lastOrNull()) HorizontalDivider()
+                                }
+                            }
+                        }
+                    } else BoxWithEmptyListText(
+                        text = R.string.text_no_data_group_found,
+                        modifier = Modifier
+                            .padding(values)
+                            .fillMaxSize()
+                    )
+                }
             }
         }
     }
@@ -223,12 +272,23 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
 }
 
 @Composable
-private fun MedicineItem(medicine: MedicineList, modifier: Modifier, navigateToMedicine: (Long) -> Unit) =
+private fun MedicineItem(medicine: MedicineList, modifier: Modifier, onClick: (Long) -> Unit) =
     ListItem(
-        modifier = modifier.clickable { navigateToMedicine(medicine.id) },
-        headlineContent = { Text(medicine.title) },
+        modifier = modifier.clickable { onClick(medicine.id) },
         leadingContent = { MedicineImage(medicine.image, Modifier.size(56.dp)) },
-        overlineContent = { Text(medicine.formName) },
+        headlineContent = {
+            Text(
+                text = medicine.title,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
+            )
+        },
+        overlineContent = {
+            Text(
+                text = medicine.formName,
+                style = MaterialTheme.typography.labelMedium
+            )
+        },
         supportingContent = {
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
                 Text(medicine.expDateS)
@@ -236,16 +296,16 @@ private fun MedicineItem(medicine: MedicineList, modifier: Modifier, navigateToM
             }
         },
         colors = ListItemDefaults.colors(
-            if (medicine.expDateL >= System.currentTimeMillis()) ListItemDefaults.containerColor
-            else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.7f)
+            if (medicine.expDateL >= System.currentTimeMillis()) MaterialTheme.colorScheme.surfaceContainerLow
+            else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
         )
     )
 
 @Composable
 private fun DialogKits(
-    kits: List<KitMedicines>,
+    kits: List<Kit>,
     state: MedicinesState,
-    pick: (KitMedicines) -> Unit,
+    pick: (Kit) -> Unit,
     show: () -> Unit,
     clear: () -> Unit
 ) = AlertDialog(

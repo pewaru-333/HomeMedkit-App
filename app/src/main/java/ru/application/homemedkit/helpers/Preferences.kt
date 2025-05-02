@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import ru.application.homemedkit.helpers.enums.Sorting
-import ru.application.homemedkit.helpers.enums.Themes
+import ru.application.homemedkit.helpers.enums.Theme
 import ru.application.homemedkit.helpers.extensions.getColorsFlow
 import ru.application.homemedkit.helpers.extensions.getEnum
 import ru.application.homemedkit.helpers.extensions.getSelectedLanguage
@@ -25,13 +25,13 @@ import java.util.Locale
 object Preferences : ViewModel() {
 
     private lateinit var preferences: SharedPreferences
-    lateinit var theme: StateFlow<Themes>
+    lateinit var theme: StateFlow<Theme>
     lateinit var dynamicColors: StateFlow<Boolean>
 
     fun getInstance(context: Context) {
         preferences = context.getSharedPreferences("${context.packageName}_preferences", MODE_PRIVATE)
         theme = preferences.getThemeFlow()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Themes.SYSTEM)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), Theme.SYSTEM)
         dynamicColors = preferences.getColorsFlow()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
     }
@@ -67,7 +67,7 @@ object Preferences : ViewModel() {
         (context as Activity).recreate()
     }
 
-    fun setTheme(theme: Themes) = preferences.edit {
+    fun setTheme(theme: Theme) = preferences.edit {
         putEnum(KEY_APP_THEME, theme)
     }
 

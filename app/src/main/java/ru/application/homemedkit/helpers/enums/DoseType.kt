@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import ru.application.homemedkit.R
 
 
-enum class DoseTypes(@StringRes val title: Int) {
+enum class DoseType(@StringRes val title: Int) {
     UNKNOWN(R.string.blank),
     UNITS(R.string.dose_ed),
     PIECES(R.string.dose_pcs),

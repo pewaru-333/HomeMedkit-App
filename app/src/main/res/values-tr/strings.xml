@@ -106,9 +106,9 @@
     <string name="dose_ml">ml</string>
 
     <!-- Alımlar -->
-    <string name="intakes_tab_list">Liste</string>
-    <string name="intakes_tab_current">Güncel</string>
-    <string name="intakes_tab_past">Geçmiş</string>
+    <string name="tab_list">Liste</string>
+    <string name="tab_current">Güncel</string>
+    <string name="tab_past">Geçmiş</string>
     
     <string name="intake_text_amount">Miktar</string>
     <string name="intake_text_by_schedule">Planlanmış</string>

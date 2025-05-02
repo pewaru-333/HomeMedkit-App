@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -53,7 +52,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
@@ -62,7 +60,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -87,10 +84,11 @@ import ru.application.homemedkit.data.model.IntakeModel
 import ru.application.homemedkit.data.model.ScheduleModel
 import ru.application.homemedkit.data.model.TakenModel
 import ru.application.homemedkit.dialogs.TimePickerDialog
-import ru.application.homemedkit.helpers.enums.IntakeTabs
+import ru.application.homemedkit.helpers.enums.IntakeTab
 import ru.application.homemedkit.models.events.TakenEvent
 import ru.application.homemedkit.models.states.TakenState
 import ru.application.homemedkit.models.viewModels.IntakesViewModel
+import ru.application.homemedkit.ui.elements.BoxWithEmptyListText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,6 +98,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
     val intakes by model.intakes.collectAsStateWithLifecycle()
     val schedule by model.schedule.collectAsStateWithLifecycle()
     val taken by model.taken.collectAsStateWithLifecycle()
+    val takenState by model.takenState.collectAsStateWithLifecycle()
 
     BackHandler(onBack = backClick)
     Scaffold(
@@ -131,7 +130,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                     drawLine(Color.LightGray, Offset(0f, size.height), Offset(size.width, size.height), 4f)
                 },
                 actions = {
-                    if (state.tab != IntakeTabs.LIST) IconButton(model::showDialogDate) {
+                    if (state.tab != IntakeTab.LIST) IconButton(model::showDialogDate) {
                         Icon(Icons.Outlined.DateRange, null)
                     }
                 }
@@ -145,7 +144,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
 
         Column(Modifier.padding(values)) {
             TabRow(state.tab.ordinal) {
-                IntakeTabs.entries.forEach { tab ->
+                IntakeTab.entries.forEach { tab ->
                     Tab(
                         selected = state.tab.ordinal == tab.ordinal,
                         onClick = { model.pickTab(tab) },
@@ -166,27 +165,21 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
             }
 
             when (state.tab) {
-                IntakeTabs.LIST -> if (intakes.isEmpty())
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.text_no_intakes_found),
-                            textAlign = TextAlign.Center
-                        )
+                IntakeTab.LIST -> if (intakes.isNotEmpty())
+                    LazyColumn(state = model.listState) {
+                        items(intakes, Intake::intakeId) {
+                            ItemIntake(it, Modifier.animateItem(), navigateToIntake)
+                            HorizontalDivider()
+                        }
                     }
-                else LazyColumn(state = state.stateA) {
-                    items(intakes, Intake::intakeId) {
-                        ItemIntake(it, Modifier.animateItem(), navigateToIntake)
-                        HorizontalDivider()
-                    }
-                }
+                else BoxWithEmptyListText(
+                    text = R.string.text_no_intakes_found,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(values)
+                )
 
-
-                IntakeTabs.CURRENT -> LazyColumn(state = state.stateB) {
+                IntakeTab.CURRENT -> LazyColumn(state = model.listState) {
                     schedule.forEach {
                         item {
                             TextDate(it.date)
@@ -207,7 +200,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                     }
                 }
 
-                IntakeTabs.PAST -> LazyColumn(state = state.stateC) {
+                IntakeTab.PAST -> LazyColumn(state = model.listState) {
                     taken.forEach {
                         item {
                             TextDate(it.date)
@@ -235,10 +228,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
         when {
             state.showDialogDelete -> DialogDeleteTaken(model::showDialogDelete, model::deleteTaken)
             state.showDialogDate -> DialogGoToDate(model::showDialogDate, model::scrollToClosest)
-            state.showDialog -> {
-                val takenState by model.takenState.collectAsStateWithLifecycle()
-                DialogTaken(takenState, model::onTakenEvent)
-            }
+            state.showDialog -> DialogTaken(takenState, model::onTakenEvent)
         }
     }
 }

@@ -2,40 +2,28 @@ package ru.application.homemedkit.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy.Companion.REPLACE
 import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.MedicineKit
-import ru.application.homemedkit.data.model.KitMedicines
-import ru.application.homemedkit.data.model.KitModel
 
 @Dao
 interface KitDAO : BaseDAO<Kit> {
     // ============================== Queries ==============================
-    @Query("SELECT * FROM kits")
-    fun getAllKits(): Flow<List<KitMedicines>>
-
-    @Query("SELECT * FROM kits")
+    @Query("SELECT * FROM kits ORDER BY position ASC, kitId ASC")
     fun getFlow(): Flow<List<Kit>>
 
-    @Transaction
-    @Query(
-        """
-            SELECT kits.kitId, title, medicineId, position FROM kits
-            LEFT JOIN medicines_kits ON kits.kitId = medicines_kits.kitId
-        """
-    )
-    fun getMedicineKits(): Flow<List<KitModel>>
+    @Query("SELECT * FROM kits WHERE kitId IN (:kitIds)")
+    suspend fun getKitList(kitIds: List<Long>): List<Kit>
 
     @Query("DELETE FROM medicines_kits WHERE medicineId = :medicineId")
-    fun deleteAll(medicineId: Long)
+    suspend fun deleteAll(medicineId: Long)
 
     // ============================== Insert ==============================
     @Insert
-    fun pinKit(kits: Iterable<MedicineKit>)
+    suspend fun pinKit(kits: Iterable<MedicineKit>)
 
-    @Insert(onConflict = REPLACE)
-    fun updatePositions(kits: Iterable<Kit>)
+    @Upsert
+    suspend fun updatePositions(kits: Iterable<Kit>)
 }

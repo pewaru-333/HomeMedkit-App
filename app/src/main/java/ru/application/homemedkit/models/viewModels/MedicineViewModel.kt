@@ -15,7 +15,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -23,8 +22,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Image
+import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.MedicineKit
-import ru.application.homemedkit.data.model.KitModel
 import ru.application.homemedkit.helpers.BLANK
 import ru.application.homemedkit.helpers.FileManager
 import ru.application.homemedkit.helpers.ImageCompressor
@@ -57,9 +56,8 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MedicineState())
 
-    val kits = database.kitDAO().getMedicineKits()
+    val kits = database.kitDAO().getFlow()
         .flowOn(Dispatchers.IO)
-        .map { list -> list.sortedBy(KitModel::position) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     init {
@@ -223,7 +221,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                     }
                 )
             }
-            MedicineEvent.ClearKit -> _state.update { it.copy(kits = it.kits.apply(SnapshotStateList<KitModel>::clear)) }
+            MedicineEvent.ClearKit -> _state.update { it.copy(kits = it.kits.apply(SnapshotStateList<Kit>::clear)) }
 
             is MedicineEvent.SetIcon -> _state.update {
                 it.copy(

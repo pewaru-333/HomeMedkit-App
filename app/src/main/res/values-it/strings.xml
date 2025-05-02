@@ -46,9 +46,9 @@
     <string name="text_medicine_status_scanned">Scansionato, non verificato</string>
     <string name="text_medicine_status_self_added">Aggiunto manualmente</string>
     <!-- Intakes -->
-    <string name="intakes_tab_current">Corrente</string>
-    <string name="intakes_tab_list">Elenco</string>
-    <string name="intakes_tab_past">Preso</string>
+    <string name="tab_current">Corrente</string>
+    <string name="tab_list">Elenco</string>
+    <string name="tab_past">Preso</string>
     <string name="intake_text_amount">Quantità</string>
     <string name="intake_text_date">Data</string>
     <string name="intake_text_food">Cibo e medicine</string>

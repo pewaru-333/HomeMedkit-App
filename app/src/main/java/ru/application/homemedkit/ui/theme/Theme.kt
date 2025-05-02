@@ -18,7 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.enums.Themes
+import ru.application.homemedkit.helpers.enums.Theme
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -104,8 +104,8 @@ fun AppTheme(content: @Composable () -> Unit) {
     val dynamicColor by Preferences.dynamicColors.collectAsStateWithLifecycle()
 
     val darkTheme = when (darkState) {
-        Themes.LIGHT -> false
-        Themes.DARK -> true
+        Theme.LIGHT -> false
+        Theme.DARK -> true
         else -> isSystemInDarkTheme()
     }
 
