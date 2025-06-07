@@ -1,3 +1,0 @@
-— Added a new view the list of medications by group.
-— Fixed a bug that caused the names of groups to be duplicated in the medicine card.
-— Fixed a bug that sometimes caused medications to not be sorted in the list.

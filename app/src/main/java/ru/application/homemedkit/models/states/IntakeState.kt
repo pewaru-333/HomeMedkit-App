@@ -10,12 +10,12 @@ import androidx.compose.runtime.toMutableStateList
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.model.IntakeAmountTime
 import ru.application.homemedkit.data.model.MedicineIntake
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.enums.IntakeExtra
-import ru.application.homemedkit.helpers.enums.Interval
-import ru.application.homemedkit.helpers.enums.Period
-import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.enums.SchemaType
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.enums.IntakeExtra
+import ru.application.homemedkit.utils.enums.Interval
+import ru.application.homemedkit.utils.enums.Period
+import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.enums.SchemaType
 import java.time.DayOfWeek
 
 data class IntakeState(
@@ -49,6 +49,7 @@ data class IntakeState(
     @StringRes val extraDesc: Int? = null,
     val selectedExtras: SnapshotStateList<IntakeExtra> = mutableStateListOf(IntakeExtra.CANCELLABLE),
     val showIntervalTypePicker: Boolean = false,
+    val showDatePicker: Boolean = false,
     val showDateRangePicker: Boolean = false,
     val showSchemaTypePicker: Boolean = false,
     val showPeriodTypePicker: Boolean = false,

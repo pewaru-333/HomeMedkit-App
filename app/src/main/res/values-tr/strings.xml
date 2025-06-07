@@ -119,7 +119,7 @@
     <string name="intake_text_food_before">Yemekten önce</string>
     <string name="intake_text_food_during">Yemek sırasında</string>
     <string name="intake_text_in_fact">Gerçekleşen</string>
-    <string name="intake_text_in_stock">Stokta: %1$s %2$s</string>
+    <string name="intake_text_in_stock_params">Stokta: %1$s %2$s</string>
     <string name="intake_text_interval">Aralık</string>
     <string name="intake_text_not_taken">Alınmadı</string>
     <string name="intake_text_period">Dönem</string>

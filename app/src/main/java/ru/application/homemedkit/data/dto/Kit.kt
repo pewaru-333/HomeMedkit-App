@@ -2,7 +2,7 @@ package ru.application.homemedkit.data.dto
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import ru.application.homemedkit.helpers.BLANK
+import ru.application.homemedkit.utils.BLANK
 
 @Entity(tableName = "kits")
 data class Kit(

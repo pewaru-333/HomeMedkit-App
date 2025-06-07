@@ -5,10 +5,10 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
 import ru.application.homemedkit.data.MedicineDatabase
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.ID
-import ru.application.homemedkit.helpers.TAKEN_ID
-import ru.application.homemedkit.helpers.TYPE
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.ID
+import ru.application.homemedkit.utils.TAKEN_ID
+import ru.application.homemedkit.utils.TYPE
 
 class ActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

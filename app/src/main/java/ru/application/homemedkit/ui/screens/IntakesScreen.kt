@@ -5,6 +5,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,9 +19,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Search
@@ -26,18 +36,26 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults.MinHeight
 import androidx.compose.material3.OutlinedTextFieldDefaults.MinWidth
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -46,24 +64,39 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.intake_text_by_schedule
 import ru.application.homemedkit.R.string.intake_text_date
@@ -81,24 +114,45 @@ import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_status
 import ru.application.homemedkit.data.model.Intake
 import ru.application.homemedkit.data.model.IntakeModel
+import ru.application.homemedkit.data.model.MedicineMain
 import ru.application.homemedkit.data.model.ScheduleModel
 import ru.application.homemedkit.data.model.TakenModel
 import ru.application.homemedkit.dialogs.TimePickerDialog
-import ru.application.homemedkit.helpers.enums.IntakeTab
 import ru.application.homemedkit.models.events.TakenEvent
 import ru.application.homemedkit.models.states.TakenState
 import ru.application.homemedkit.models.viewModels.IntakesViewModel
 import ru.application.homemedkit.ui.elements.BoxWithEmptyListText
+import ru.application.homemedkit.ui.navigation.Screen
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
+import ru.application.homemedkit.utils.FORMAT_H_MM
+import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.decimalFormat
+import ru.application.homemedkit.utils.enums.IntakeTab
+import ru.application.homemedkit.utils.getDateTime
+import java.time.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
     val model = viewModel<IntakesViewModel>()
+
     val state by model.state.collectAsStateWithLifecycle()
+    val medicines by model.medicines.collectAsStateWithLifecycle()
     val intakes by model.intakes.collectAsStateWithLifecycle()
     val schedule by model.schedule.collectAsStateWithLifecycle()
     val taken by model.taken.collectAsStateWithLifecycle()
     val takenState by model.takenState.collectAsStateWithLifecycle()
+
+    val scope = rememberCoroutineScope()
+    val pagerState = rememberPagerState(
+        pageCount = IntakeTab.entries::count,
+        initialPage = when (val route = Preferences.startPage.route) {
+            is Screen.Intakes -> route.tab.ordinal
+            else -> 0
+        }
+    )
+    val listStates = IntakeTab.entries.map { rememberLazyListState() }
 
     BackHandler(onBack = backClick)
     Scaffold(
@@ -130,33 +184,52 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                     drawLine(Color.LightGray, Offset(0f, size.height), Offset(size.width, size.height), 4f)
                 },
                 actions = {
-                    if (state.tab != IntakeTab.LIST) IconButton(model::showDialogDate) {
-                        Icon(Icons.Outlined.DateRange, null)
+                    if (IntakeTab.entries[pagerState.currentPage] != IntakeTab.LIST) {
+                        IconButton(model::showDialogDate) {
+                            Icon(Icons.Outlined.DateRange, null)
+                        }
                     }
-                }
+                },
             )
+        },
+        floatingActionButton = {
+            if (IntakeTab.entries[pagerState.currentPage] == IntakeTab.PAST) {
+                FloatingActionButton(model::showDialogAddTaken) {
+                    Icon(Icons.Outlined.Add, null)
+                }
+            }
         }
     ) { values ->
-        val initial = MaterialTheme.typography.bodyMedium
-
-        var style by remember { mutableStateOf(initial) }
-        var draw by remember { mutableStateOf(false) }
+        val style = MaterialTheme.typography.titleSmall
+        var maxFontSize by remember {
+            mutableStateOf(style.fontSize)
+        }
 
         Column(Modifier.padding(values)) {
-            TabRow(state.tab.ordinal) {
+            TabRow(pagerState.currentPage) {
                 IntakeTab.entries.forEach { tab ->
                     Tab(
-                        selected = state.tab.ordinal == tab.ordinal,
-                        onClick = { model.pickTab(tab) },
+                        selected = pagerState.currentPage == tab.ordinal,
+                        onClick = {
+                            scope.launch {
+                                pagerState.animateScrollToPage(tab.ordinal)
+                            }
+                        },
                         text = {
-                            Text(
+                            BasicText(
                                 text = stringResource(tab.title),
                                 softWrap = false,
-                                modifier = Modifier.drawWithContent { if (draw) drawContent() },
-                                style = style,
+                                style = LocalTextStyle.current.copy(
+                                    color = LocalContentColor.current,
+                                    fontSize = maxFontSize
+                                ),
+                                autoSize = TextAutoSize.StepBased(
+                                    minFontSize = 10.sp,
+                                    maxFontSize = maxFontSize,
+                                    stepSize = (0.1).sp
+                                ),
                                 onTextLayout = {
-                                    if (!it.didOverflowWidth) draw = true
-                                    else style = style.copy(fontSize = style.fontSize * 0.95)
+                                    maxFontSize = it.layoutInput.style.fontSize
                                 }
                             )
                         }
@@ -164,61 +237,73 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                 }
             }
 
-            when (state.tab) {
-                IntakeTab.LIST -> if (intakes.isNotEmpty())
-                    LazyColumn(state = model.listState) {
-                        items(intakes, Intake::intakeId) {
-                            ItemIntake(it, Modifier.animateItem(), navigateToIntake)
-                            HorizontalDivider()
-                        }
-                    }
-                else BoxWithEmptyListText(
-                    text = R.string.text_no_intakes_found,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(values)
-                )
-
-                IntakeTab.CURRENT -> LazyColumn(state = model.listState) {
-                    schedule.forEach {
-                        item {
-                            TextDate(it.date)
-                        }
-
-                        itemsIndexed(
-                            items = it.intakes,
-                            key = { _, item -> item.id },
-                            contentType = { _, item -> ScheduleModel::class }
-                        ) { index, item ->
-                            ItemSchedule(
-                                item = item,
-                                modifier = Modifier.animateItem()
-                            )
-
-                            if (index < it.intakes.lastIndex) HorizontalDivider()
-                        }
-                    }
+            LaunchedEffect(pagerState) {
+                snapshotFlow(pagerState::targetPage).collectLatest {
+                    pagerState.animateScrollToPage(it)
                 }
+            }
 
-                IntakeTab.PAST -> LazyColumn(state = model.listState) {
-                    taken.forEach {
-                        item {
-                            TextDate(it.date)
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.Top
+            ) { index ->
+                when (index) {
+                    0 -> if (intakes.isNotEmpty())
+                        LazyColumn(state = listStates[0]) {
+                            items(intakes, Intake::intakeId) {
+                                ItemIntake(it, Modifier.animateItem(), navigateToIntake)
+                                HorizontalDivider()
+                            }
                         }
+                    else BoxWithEmptyListText(
+                        text = R.string.text_no_intakes_found,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(values)
+                    )
 
-                        itemsIndexed(
-                            items = it.intakes.reversed(),
-                            key = { _, item -> item.id },
-                            contentType = { _, item -> TakenModel::class }
-                        ) { index, item ->
-                            ItemSchedule(
-                                item = item,
-                                modifier = Modifier.animateItem(),
-                                showDialog = model::showDialog,
-                                showDialogDelete = model::showDialogDelete
-                            )
+                    1 -> LazyColumn(state = listStates[1]) {
+                        schedule.forEach {
+                            item {
+                                TextDate(it.date)
+                            }
 
-                            if (index < it.intakes.lastIndex) HorizontalDivider()
+                            itemsIndexed(
+                                items = it.intakes,
+                                key = { _, item -> item.id },
+                                contentType = { _, item -> ScheduleModel::class }
+                            ) { index, item ->
+                                ItemSchedule(
+                                    item = item,
+                                    modifier = Modifier.animateItem()
+                                )
+
+                                if (index < it.intakes.lastIndex) HorizontalDivider()
+                            }
+                        }
+                    }
+
+                    2 -> LazyColumn(state = listStates[2]) {
+                        taken.forEach {
+                            item {
+                                TextDate(it.date)
+                            }
+
+                            itemsIndexed(
+                                items = it.intakes.reversed(),
+                                key = { _, item -> item.id },
+                                contentType = { _, item -> TakenModel::class }
+                            ) { index, item ->
+                                ItemSchedule(
+                                    item = item,
+                                    modifier = Modifier.animateItem(),
+                                    showDialog = model::showDialog,
+                                    showDialogDelete = model::showDialogDelete
+                                )
+
+                                if (index < it.intakes.lastIndex) HorizontalDivider()
+                            }
                         }
                     }
                 }
@@ -226,9 +311,21 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
         }
 
         when {
-            state.showDialogDelete -> DialogDeleteTaken(model::showDialogDelete, model::deleteTaken)
-            state.showDialogDate -> DialogGoToDate(model::showDialogDate, model::scrollToClosest)
             state.showDialog -> DialogTaken(takenState, model::onTakenEvent)
+            state.showDialogDelete -> DialogDeleteTaken(model::showDialogDelete, model::deleteTaken)
+            state.showDialogDate -> DialogGoToDate(model::showDialogDate) { time ->
+                model.scrollToClosest(
+                    tab = IntakeTab.entries[pagerState.currentPage],
+                    listState = listStates[pagerState.currentPage],
+                    time = time
+                )
+            }
+
+            state.showDialogAddTaken -> DialogAddTaken(
+                medicines = medicines,
+                hide = model::showDialogAddTaken,
+                add = model::addTaken
+            )
         }
     }
 }
@@ -300,6 +397,217 @@ private fun DialogGoToDate(show: () -> Unit, scroll: (Long) -> Unit) {
             state = pickerState,
             showModeToggle = false
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DialogAddTaken(
+    medicines: List<MedicineMain>,
+    add: (MedicineMain, String, DatePickerState, TimePickerState) -> Unit,
+    hide: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState(
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long) = utcTimeMillis <= System.currentTimeMillis()
+        }
+    )
+
+    val timePickerState = rememberTimePickerState(12, 0, true)
+
+    var expanded by remember { mutableStateOf(false) }
+    var showDate by remember { mutableStateOf(false) }
+    var showTime by remember { mutableStateOf(false) }
+
+    var medicine: MedicineMain? by remember { mutableStateOf(null) }
+    var amount by remember { mutableStateOf(BLANK) }
+    var date by remember { mutableLongStateOf(-1L) }
+    var time by remember { mutableStateOf(Pair(-1, -1))}
+
+    fun validateAmount(text: String) = if (text.isNotEmpty()) {
+        when (text.replace(',', '.').toDoubleOrNull()) {
+            null -> {}
+            else -> amount = text.replace(',', '.')
+        }
+    } else {
+        amount = BLANK
+    }
+
+    fun validateDate(millis: Long) = if (millis == -1L) BLANK
+    else getDateTime(millis).format(FORMAT_DD_MM_YYYY)
+
+    fun validateTime(time: Pair<Int, Int>) = if (time.first == -1) BLANK
+    else LocalTime.of(time.first, time.second).format(FORMAT_H_MM)
+
+    AlertDialog(
+        onDismissRequest = hide,
+        dismissButton = {
+            TextButton(hide) {
+                Text(stringResource(R.string.text_cancel))
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = medicine != null && amount.isNotEmpty() && date != -1L && time != Pair(-1, -1),
+                onClick = {
+                    medicine?.let {
+                        add(it, amount, datePickerState, timePickerState)
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.text_save))
+            }
+        },
+        title = {
+            Text(
+                text = stringResource(R.string.text_add),
+                modifier = Modifier.width(MinWidth)
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = medicine?.nameAlias.orEmpty().ifEmpty(medicine?.productName::orEmpty),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.text_medicine_product_name)) }
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        medicines.forEach { item ->
+                            DropdownMenuItem(
+                                onClick = { medicine = item; expanded = false },
+                                text = {
+                                    Text(
+                                        text = item.nameAlias.ifEmpty(item::productName),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
+                    OutlinedTextField(
+                        value = amount,
+                        modifier = Modifier.weight(0.5f),
+                        onValueChange = { validateAmount(it) },
+                        label = { Text(stringResource(R.string.text_amount)) },
+                        placeholder = { Text(stringResource(R.string.text_empty)) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        visualTransformation = {
+                            TransformedText(
+                                AnnotatedString(it.text.replace('.', ',')),
+                                OffsetMapping.Identity
+                            )
+                        }
+                    )
+                    OutlinedTextField(
+                        value = if (medicine == null) BLANK
+                        else decimalFormat(medicine?.prodAmount?.toString() ?: BLANK),
+                        modifier = Modifier.weight(0.5f),
+                        onValueChange = {},
+                        label = { Text(stringResource(R.string.intake_text_in_stock)) },
+                        placeholder = { Text(stringResource(R.string.text_empty)) },
+                        suffix = { Text(medicine?.let { stringResource(it.doseType.title) } ?: BLANK) },
+                        readOnly = true
+                    )
+                }
+
+                Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
+                    OutlinedTextField(
+                        value = validateDate(date),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.intake_text_date)) },
+                        placeholder = { Text(stringResource(R.string.text_empty)) },
+                        modifier = Modifier
+                            .weight(0.5f)
+                            .pointerInput(Unit) {
+                                awaitEachGesture {
+                                    awaitFirstDown(pass = PointerEventPass.Initial)
+                                    val upEvent =
+                                        waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                                    if (upEvent != null) {
+                                        showDate = true
+                                    }
+                                }
+                            }
+                    )
+
+                    OutlinedTextField(
+                        value = validateTime(time),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.intake_text_time)) },
+                        placeholder = { Text(stringResource(R.string.text_empty)) },
+                        modifier = Modifier
+                            .weight(0.5f)
+                            .pointerInput(Unit) {
+                                awaitEachGesture {
+                                    awaitFirstDown(pass = PointerEventPass.Initial)
+                                    val upEvent =
+                                        waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                                    if (upEvent != null) {
+                                        showTime = true
+                                    }
+                                }
+                            }
+                    )
+                }
+            }
+        }
+    )
+
+    when {
+        showDate -> DatePickerDialog(
+            onDismissRequest = { showDate = false },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDate = false
+                    }
+                ) {
+                    Text(stringResource(text_cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = datePickerState.selectedDateMillis != null,
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { date = it }
+                        showDate = false
+                    }
+                ) { Text(stringResource(R.string.text_save)) }
+            }
+        ) {
+            DatePicker(
+                state = datePickerState,
+                showModeToggle = false
+            )
+        }
+
+        showTime -> TimePickerDialog(
+            onCancel = { showTime = false },
+            onConfirm = {
+                timePickerState.let { time = Pair(it.hour, it.minute) }
+                showTime = false
+            }
+        ) {
+            TimePicker(timePickerState)
+        }
     }
 }
 

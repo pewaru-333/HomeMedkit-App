@@ -4,8 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.enums.DoseType
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.enums.DoseType
 
 @Entity(tableName = "medicines")
 data class Medicine(

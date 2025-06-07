@@ -1,6 +1,6 @@
 package ru.application.homemedkit.data.model
 
-import ru.application.homemedkit.helpers.enums.DoseType
+import ru.application.homemedkit.utils.enums.DoseType
 
 data class Schedule(
     val alarmId: Long,

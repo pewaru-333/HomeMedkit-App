@@ -1,6 +1,6 @@
 package ru.application.homemedkit.data.model
 
-import ru.application.homemedkit.helpers.ResourceText
+import ru.application.homemedkit.utils.ResourceText
 
 data class ScheduleModel(
     override val id: Long,

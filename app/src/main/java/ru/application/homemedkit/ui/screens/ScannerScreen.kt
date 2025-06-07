@@ -30,10 +30,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -65,7 +68,6 @@ import ru.application.homemedkit.R.drawable.vector_flash
 import ru.application.homemedkit.R.drawable.vector_wrong
 import ru.application.homemedkit.R.string.manual_add
 import ru.application.homemedkit.R.string.text_connection_error
-import ru.application.homemedkit.R.string.text_error_not_medicine
 import ru.application.homemedkit.R.string.text_exit
 import ru.application.homemedkit.R.string.text_explain_camera
 import ru.application.homemedkit.R.string.text_grant
@@ -73,37 +75,38 @@ import ru.application.homemedkit.R.string.text_no
 import ru.application.homemedkit.R.string.text_pay_attention
 import ru.application.homemedkit.R.string.text_permission_grant_full
 import ru.application.homemedkit.R.string.text_request_camera
-import ru.application.homemedkit.R.string.text_try_again
 import ru.application.homemedkit.R.string.text_yes
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.permissions.PermissionState
-import ru.application.homemedkit.helpers.permissions.rememberPermissionState
 import ru.application.homemedkit.models.events.Response
-import ru.application.homemedkit.models.states.rememberCameraState
-import ru.application.homemedkit.models.states.rememberImageAnalyzer
+import ru.application.homemedkit.utils.camera.rememberCameraConfig
+import ru.application.homemedkit.utils.camera.rememberImageAnalyzer
 import ru.application.homemedkit.models.viewModels.ScannerViewModel
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.permissions.PermissionState
+import ru.application.homemedkit.utils.permissions.rememberPermissionState
 
 @OptIn(TransformExperimental::class)
 @Composable
 fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boolean) -> Unit) {
-    val filesDir = LocalContext.current.filesDir
+    val context = LocalContext.current
+    val filesDir = context.filesDir
 
     val model = viewModel<ScannerViewModel>()
-    val state by model.state.collectAsStateWithLifecycle()
     val response by model.response.collectAsStateWithLifecycle(
-        initialValue = null,
+        initialValue = Response.Initial,
         context = Dispatchers.Main.immediate
     )
 
     val cameraPermission = rememberPermissionState(Manifest.permission.CAMERA)
 
     val analyzer = rememberImageAnalyzer { model.fetch(filesDir, it) }
-    val controller = rememberCameraState(CameraController.IMAGE_ANALYSIS, analyzer)
+    val controller = rememberCameraConfig(CameraController.IMAGE_ANALYSIS, analyzer)
+
+    val snackbarHost = remember(::SnackbarHostState)
 
     BackHandler(onBack = navigateUp)
     if (cameraPermission.isGranted) Scaffold(
         snackbarHost = {
-            SnackbarHost(state.snackbarHostState) {
+            SnackbarHost(snackbarHost) {
                 Snackbar(
                     snackbarData = it,
                     containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -139,17 +142,21 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
     else if (cameraPermission.showRationale) PermissionDialog(cameraPermission, navigateUp)
     else FirstTimeScreen(navigateUp, cameraPermission::launchRequest)
 
-
     when (val value = response) {
-        null -> Unit
-        Response.Duplicate -> Unit
         Response.Loading -> LoadingDialog()
-        Response.IncorrectCode -> model.showSnackbar(stringResource(text_error_not_medicine))
-        Response.UnknownError -> model.showSnackbar(stringResource(text_try_again))
-        is Response.Success -> navigateToMedicine(value.id, BLANK, value.duplicate)
-        is Response.NetworkError -> AddMedicineDialog(model::setInitial) {
-            value.code?.let { navigateToMedicine(0L, it, false) }
+        is Response.Error -> when (value) {
+            is Response.Error.NetworkError -> AddMedicineDialog(model::setInitial) {
+                value.code?.let { navigateToMedicine(0L, it, false) }
+            }
+
+            else -> LaunchedEffect(snackbarHost) {
+                snackbarHost.showSnackbar(context.getString(value.message))
+            }
         }
+
+        is Response.Navigate -> navigateToMedicine(value.id, BLANK, value.duplicate)
+
+        else -> Unit
     }
 }
 
@@ -229,9 +236,9 @@ private fun AddMedicineDialog(setDefault: () -> Unit, navigateWithCis: () -> Uni
 )
 
 @Composable
-fun LoadingDialog() = Box(
+fun LoadingDialog(modifier: Modifier = Modifier) = Box(
     contentAlignment = Alignment.Center,
-    modifier = Modifier
+    modifier = modifier
         .fillMaxSize()
         .background(Color.Black.copy(alpha = 0.45f))
 ) { CircularProgressIndicator() }

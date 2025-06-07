@@ -109,7 +109,7 @@
     <string name="intake_text_food_before">Antes de la comida</string>
     <string name="intake_text_food_during">Durante la comida</string>
     <string name="intake_text_in_fact">En realidad</string>
-    <string name="intake_text_in_stock">In stock: %1$s %2$s</string>
+    <string name="intake_text_in_stock_params">In stock: %1$s %2$s</string>
     <string name="intake_text_interval">Intervalo</string>
     <string name="intake_text_not_taken">No tomado</string>
     <string name="intake_text_period">Periodo</string>

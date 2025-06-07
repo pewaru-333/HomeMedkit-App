@@ -5,8 +5,8 @@ import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.IntakeDay
 import ru.application.homemedkit.data.dto.IntakeTime
 import ru.application.homemedkit.data.dto.Medicine
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.enums.SchemaType
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.enums.SchemaType
 import java.time.DayOfWeek
 
 data class IntakeFull(

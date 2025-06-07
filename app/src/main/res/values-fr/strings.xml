@@ -16,7 +16,7 @@
     <string name="text_medicine_amount_not_enough">Quantité restante insuffisante</string>
     <string name="preference_kits_group">Groupes de médicaments</string>
     <string name="preference_check_expiration_date">Vérifier la date d\'expiration des médicaments</string>
-    <string name="preference_clear_app_cache">Vider le cache de l'application</string>
+    <string name="preference_clear_app_cache">Vider le cache de l\'application</string>
     <string name="preference_download_images">Télécharger les images des médicaments</string>
     <string name="preference_fixing_notifications">Des problèmes avec les notifications ?</string>
     <string name="sorting_from_newest">Date d\'expiration (du plus récent)</string>
@@ -25,7 +25,7 @@
     <string name="bottom_bar_medicines">Médicaments</string>
     <string name="preference_app_theme">Thème de l\'application</string>
     <string name="sorting_a_z">Alphabétiquement (A à Z)</string>
-    <string name="preference_app_view">Vue de l'application</string>
+    <string name="preference_app_view">Vue de l\'application</string>
     <string name="channel_name">Notifications sonores</string>
     <string name="channel_intakes_desc">Prises de médicaments</string>
     <string name="preference_import_export">Importer/exporter</string>
@@ -81,7 +81,7 @@
     <string name="intake_text_food_before">Avant le repas</string>
     <string name="intake_text_food_during">Pendant le repas</string>
     <string name="intake_text_in_fact">Effectif</string>
-    <string name="intake_text_in_stock">En stock : %1$s %2$s</string>
+    <string name="intake_text_in_stock_params">En stock : %1$s %2$s</string>
     <string name="text_package_opened_date">Emballage ouvert</string>
     <string name="text_indications_for_use">Mode d\'emploi</string>
     <string name="text_exp_date">Date d\'exp.</string>

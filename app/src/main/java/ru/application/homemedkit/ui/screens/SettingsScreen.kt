@@ -131,29 +131,31 @@ import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.dialogs.dragHandle
 import ru.application.homemedkit.dialogs.draggableItems
 import ru.application.homemedkit.dialogs.rememberDraggableListState
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.KEY_APP_SYSTEM
-import ru.application.homemedkit.helpers.KEY_APP_VIEW
-import ru.application.homemedkit.helpers.KEY_BASIC_SETTINGS
-import ru.application.homemedkit.helpers.KEY_CLEAR_CACHE
-import ru.application.homemedkit.helpers.KEY_CONFIRM_EXIT
-import ru.application.homemedkit.helpers.KEY_DOWNLOAD
-import ru.application.homemedkit.helpers.KEY_DYNAMIC_COLOR
-import ru.application.homemedkit.helpers.KEY_EXP_IMP
-import ru.application.homemedkit.helpers.KEY_FIXING
-import ru.application.homemedkit.helpers.KEY_KITS
-import ru.application.homemedkit.helpers.KEY_PERMISSIONS
-import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.enums.Sorting
-import ru.application.homemedkit.helpers.enums.Theme
-import ru.application.homemedkit.helpers.extensions.getDisplayRegionName
-import ru.application.homemedkit.helpers.extensions.getLanguageList
-import ru.application.homemedkit.helpers.extensions.restartApplication
-import ru.application.homemedkit.helpers.extensions.showToast
-import ru.application.homemedkit.helpers.permissions.PermissionState
-import ru.application.homemedkit.helpers.permissions.rememberPermissionState
 import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.ui.theme.isDynamicColorAvailable
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.KEY_APP_SYSTEM
+import ru.application.homemedkit.utils.KEY_APP_VIEW
+import ru.application.homemedkit.utils.KEY_BASIC_SETTINGS
+import ru.application.homemedkit.utils.KEY_CLEAR_CACHE
+import ru.application.homemedkit.utils.KEY_CONFIRM_EXIT
+import ru.application.homemedkit.utils.KEY_DOWNLOAD
+import ru.application.homemedkit.utils.KEY_DYNAMIC_COLOR
+import ru.application.homemedkit.utils.KEY_EXP_IMP
+import ru.application.homemedkit.utils.KEY_FIXING
+import ru.application.homemedkit.utils.KEY_KITS
+import ru.application.homemedkit.utils.KEY_PERMISSIONS
+import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.enums.Page
+import ru.application.homemedkit.utils.enums.Sorting
+import ru.application.homemedkit.utils.enums.Theme
+import ru.application.homemedkit.utils.extensions.canScheduleExactAlarms
+import ru.application.homemedkit.utils.extensions.getDisplayRegionName
+import ru.application.homemedkit.utils.extensions.getLanguageList
+import ru.application.homemedkit.utils.extensions.restartApplication
+import ru.application.homemedkit.utils.extensions.showToast
+import ru.application.homemedkit.utils.permissions.PermissionState
+import ru.application.homemedkit.utils.permissions.rememberPermissionState
 import java.io.File
 import java.util.Locale
 
@@ -183,6 +185,19 @@ fun SettingsScreen(
                 onClick = toKitsManager,
                 summary = { Text(stringResource(text_tap_to_view)) }
             )
+
+            item {
+                var value by remember { mutableStateOf(Preferences.startPage) }
+
+                ListPreference<Page>(
+                    value = value,
+                    onValueChange = { value = it; Preferences.startPage = it },
+                    values = Page.entries,
+                    title = { Text(stringResource(R.string.preference_start_page)) },
+                    summary = { Text(stringResource(value.title)) },
+                    valueToText = { AnnotatedString(context.getString(it.title)) }
+                )
+            }
 
             item {
                 var value by remember { mutableStateOf(Preferences.sortingOrder) }
@@ -219,6 +234,27 @@ fun SettingsScreen(
                     onValueChange = { value = it; Preferences.setCheckExpDate(context, it) },
                     title = { Text(stringResource(preference_check_expiration_date)) },
                     summary = { Text(stringResource(if (value) text_daily_at else text_off)) }
+                )
+            }
+
+            item {
+                var value by remember { mutableStateOf(Preferences.useAlarmClock) }
+
+                SwitchPreference(
+                    value = value,
+                    onValueChange = { value = it; Preferences.useAlarmClock = it },
+                    enabled = context.canScheduleExactAlarms(),
+                    title = { Text(stringResource(R.string.preference_use_alarm_clock)) },
+                    summary = {
+                        Text(
+                            text = stringResource(
+                                when {
+                                    context.canScheduleExactAlarms() -> if (value) text_on else text_off
+                                    else -> R.string.text_explain_disabled
+                                }
+                            )
+                        )
+                    }
                 )
             }
 

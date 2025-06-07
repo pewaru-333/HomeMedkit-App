@@ -1,7 +1,6 @@
 package ru.application.homemedkit.ui.screens
 
 import android.Manifest
-import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -74,6 +73,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -82,7 +82,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -117,6 +116,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
@@ -133,12 +133,10 @@ import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_choose_from_gallery
 import ru.application.homemedkit.R.string.text_clear
 import ru.application.homemedkit.R.string.text_confirm_deletion_med
-import ru.application.homemedkit.R.string.text_connection_error
 import ru.application.homemedkit.R.string.text_delete
 import ru.application.homemedkit.R.string.text_duplicate
 import ru.application.homemedkit.R.string.text_edit
 import ru.application.homemedkit.R.string.text_empty
-import ru.application.homemedkit.R.string.text_error_not_medicine
 import ru.application.homemedkit.R.string.text_exp_date
 import ru.application.homemedkit.R.string.text_indications_for_use
 import ru.application.homemedkit.R.string.text_medicine_comment
@@ -159,37 +157,46 @@ import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_set_image
 import ru.application.homemedkit.R.string.text_status
 import ru.application.homemedkit.R.string.text_take_picture
-import ru.application.homemedkit.R.string.text_try_again
 import ru.application.homemedkit.R.string.text_unspecified
 import ru.application.homemedkit.R.string.text_update
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.dialogs.DatePicker
 import ru.application.homemedkit.dialogs.MonthYear
-import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.enums.DoseType
-import ru.application.homemedkit.helpers.enums.DrugType
-import ru.application.homemedkit.helpers.permissions.rememberPermissionState
 import ru.application.homemedkit.models.events.MedicineEvent
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.states.MedicineState
-import ru.application.homemedkit.models.states.rememberCameraState
+import ru.application.homemedkit.utils.camera.rememberCameraConfig
 import ru.application.homemedkit.models.viewModels.MedicineViewModel
+import ru.application.homemedkit.utils.camera.ImageProcessing
+import ru.application.homemedkit.utils.decimalFormat
+import ru.application.homemedkit.utils.enums.DoseType
+import ru.application.homemedkit.utils.enums.DrugType
+import ru.application.homemedkit.utils.permissions.rememberPermissionState
 import java.io.File
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
-    val filesDir = LocalContext.current.filesDir
+    val context = LocalContext.current
+    val filesDir = context.filesDir
     val focusManager = LocalFocusManager.current
 
     val model = viewModel<MedicineViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
     val kits by model.kits.collectAsStateWithLifecycle()
     val response by model.response.collectAsStateWithLifecycle(
-        initialValue = null,
+        initialValue = Response.Initial,
         context = Dispatchers.Main.immediate
     )
+
+    val snackbarHost = remember(::SnackbarHostState)
+
+    LaunchedEffect(Unit) {
+        model.deleted.collectLatest {
+            if (it) navigateBack()
+        }
+    }
 
     BackHandler { if (state.showTakePhoto) model.onEvent(MedicineEvent.ShowTakePhoto) else navigateBack() }
     Scaffold(
@@ -253,7 +260,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
             )
         },
         snackbarHost = {
-            SnackbarHost(state.snackbarHostState) {
+            SnackbarHost(snackbarHost) {
                 Snackbar(
                     snackbarData = it,
                     containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -308,14 +315,18 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
         }
     }
 
-    when (response) {
-        null -> Unit
-        Response.Loading -> LoadingDialog()
-        Response.Duplicate -> model.showSnackbar(stringResource(text_duplicate))
-        Response.IncorrectCode -> model.showSnackbar(stringResource(text_error_not_medicine))
-        Response.UnknownError -> model.showSnackbar(stringResource(text_try_again))
-        is Response.Success -> Unit
-        is Response.NetworkError -> model.showSnackbar(stringResource(text_connection_error))
+    when (val value = response) {
+        Response.Loading -> LoadingDialog(Modifier.zIndex(10f))
+
+        Response.Duplicate -> LaunchedEffect(snackbarHost) {
+            snackbarHost.showSnackbar(context.getString(text_duplicate))
+        }
+
+        is Response.Error -> LaunchedEffect(snackbarHost) {
+            snackbarHost.showSnackbar(context.getString(value.message))
+        }
+
+        else -> Unit
     }
 
     when {
@@ -326,10 +337,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
         state.showDialogDelete -> DialogDelete(
             text = text_confirm_deletion_med,
             cancel = { model.onEvent(MedicineEvent.ShowDialogDelete) },
-            confirm = {
-                model.delete(filesDir)
-                navigateBack()
-            }
+            confirm = { model.delete(filesDir) }
         )
 
         state.showDialogDate -> MonthYear(
@@ -571,7 +579,12 @@ private fun ProductImage(state: MedicineState, event: (MedicineEvent) -> Unit) {
                         modifier = Modifier
                             .padding(2.dp)
                             .clip(CircleShape)
-                            .background(if (pagerState.currentPage == index) Color.DarkGray else Color.LightGray)
+                            .background(
+                                MaterialTheme.colorScheme.onSurface.copy(
+                                    alpha = if (pagerState.currentPage == index) 0.3f
+                                    else 0.7f
+                                )
+                            )
                             .size(12.dp)
                     )
                 }
@@ -786,11 +799,7 @@ private fun Comment(state: MedicineState, event: (MedicineEvent) -> Unit) =
     }
 
 @Composable
-private fun DialogKits(
-    kits: List<Kit>,
-    state: MedicineState,
-    event: (MedicineEvent) -> Unit
-) = AlertDialog(
+private fun DialogKits(kits: List<Kit>, state: MedicineState, event: (MedicineEvent) -> Unit) = AlertDialog(
     onDismissRequest = { event(MedicineEvent.ShowKitDialog) },
     title = { Text(stringResource(preference_kits_group)) },
     dismissButton = {
@@ -808,7 +817,13 @@ private fun DialogKits(
         }
     },
     text = {
-        LazyColumn {
+        if (kits.isEmpty()) {
+            Text(
+                text = stringResource(R.string.text_kit_list_is_empty),
+                modifier = Modifier.padding(horizontal = 12.dp),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        } else LazyColumn {
             items(kits) { kit ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -843,25 +858,36 @@ private fun DialogFullImage(state: MedicineState, event: (MedicineEvent) -> Unit
         }
     }
 
-    Dialog(onDismissRequest = { event(MedicineEvent.ShowDialogFullImage()) }) {
-        HorizontalPager(pagerState, Modifier.fillMaxSize()) { page ->
-            Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
-                MedicineImage(state.images[page], Modifier.size(240.dp, 340.dp))
+    Dialog(
+        onDismissRequest = { event(MedicineEvent.ShowDialogFullImage()) }
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 120.dp)
+        ) {
+            HorizontalPager(pagerState, Modifier.fillMaxSize()) { page ->
+                Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
+                    MedicineImage(state.images[page], Modifier.size(240.dp, 340.dp))
 
-                Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(16.dp))
 
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                    repeat(pagerState.pageCount) { index ->
-                        Box(
-                            modifier = Modifier
-                                .padding(2.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    if (pagerState.currentPage == index) Color.White
-                                    else Color.LightGray
-                                )
-                                .size(16.dp)
-                        )
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        repeat(pagerState.pageCount) { index ->
+                            Box(
+                                modifier = Modifier
+                                    .padding(2.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        MaterialTheme.colorScheme.onSurface.copy(
+                                            alpha = if (pagerState.currentPage == index) 0.3f
+                                            else 0.7f
+                                        )
+                                    )
+                                    .size(16.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -870,14 +896,14 @@ private fun DialogFullImage(state: MedicineState, event: (MedicineEvent) -> Unit
 }
 
 @Composable
-private fun DialogPictureChoose(event: (MedicineEvent) -> Unit, onPicked: (Context, List<Uri>) -> Unit) {
+private fun DialogPictureChoose(event: (MedicineEvent) -> Unit, onPicked: (ImageProcessing, List<Uri>) -> Unit) {
     val context = LocalContext.current
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
     val picker = rememberLauncherForActivityResult(PickMultipleVisualMedia(5)) { items ->
         if (items.isEmpty() || items.size > 5) return@rememberLauncherForActivityResult
 
-        onPicked(context, items)
+        onPicked(ImageProcessing(context), items)
     }
 
     AlertDialog(
@@ -997,7 +1023,8 @@ fun MedicineImage(image: String, modifier: Modifier = Modifier, editable: Boolea
 
 @Composable
 private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
-    val controller = rememberCameraState(CameraController.IMAGE_CAPTURE)
+    val context = LocalContext.current
+    val controller = rememberCameraConfig(CameraController.IMAGE_CAPTURE)
 
     Box {
         CameraPreview(controller, Modifier.fillMaxSize())
@@ -1024,9 +1051,10 @@ private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
                 .background(Color.White, CircleShape)
                 .border(4.dp, Color.LightGray, CircleShape)
                 .clickable {
-                    controller.takePicture {
-                        event(MedicineEvent.SetImage(mutableStateListOf(it)))
-                    }
+                    controller.takePicture(
+                        onStart = { event(MedicineEvent.ShowLoading) },
+                        onResult = { event(MedicineEvent.SetImage(ImageProcessing(context), it)) }
+                    )
                 }
         ) {
             Icon(

@@ -25,9 +25,9 @@ import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_finish_date
 import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_start_date
-import ru.application.homemedkit.helpers.FORMAT_DD_MM_YYYY
-import ru.application.homemedkit.helpers.ZONE
-import ru.application.homemedkit.helpers.getDateTime
+import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
+import ru.application.homemedkit.utils.ZONE
+import ru.application.homemedkit.utils.getDateTime
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime

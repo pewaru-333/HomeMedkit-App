@@ -1,8 +1,9 @@
 package ru.application.homemedkit.models.events
 
 import androidx.annotation.StringRes
-import ru.application.homemedkit.helpers.enums.IntakeExtra
-import ru.application.homemedkit.helpers.enums.SchemaType
+import kotlinx.serialization.descriptors.PrimitiveKind
+import ru.application.homemedkit.utils.enums.IntakeExtra
+import ru.application.homemedkit.utils.enums.SchemaType
 import java.time.DayOfWeek
 
 sealed interface IntakeEvent {
@@ -10,6 +11,7 @@ sealed interface IntakeEvent {
     data class SetAmount(val amount: String, val index: Int = 0) : IntakeEvent
     data class SetInterval(val interval: Any?) : IntakeEvent
     data class SetPeriod(val period: Any?) : IntakeEvent
+    data class SetStartDate(val millis: Long) : IntakeEvent
     data class SetFoodType(val type: Int) : IntakeEvent
     data class SetPickedDay(val day: DayOfWeek) : IntakeEvent
     data class SetSameAmount(val flag: Boolean) : IntakeEvent
@@ -17,7 +19,7 @@ sealed interface IntakeEvent {
     data object SetPickedTime : IntakeEvent
 
     data object ShowSchemaTypePicker : IntakeEvent
-    data object ShowDateRangePicker : IntakeEvent
+    data object ShowDatePicker : IntakeEvent
     data object ShowPeriodTypePicker : IntakeEvent
     data object ShowIntervalTypePicker : IntakeEvent
     data class ShowTimePicker(val index: Int = 0) : IntakeEvent

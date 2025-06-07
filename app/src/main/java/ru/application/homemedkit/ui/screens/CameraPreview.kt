@@ -6,10 +6,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import ru.application.homemedkit.models.states.CameraState
+import ru.application.homemedkit.utils.camera.CameraConfig
 
 @Composable
-fun CameraPreview(cameraState: CameraState, modifier: Modifier = Modifier) {
+fun CameraPreview(cameraConfig: CameraConfig, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -17,9 +17,7 @@ fun CameraPreview(cameraState: CameraState, modifier: Modifier = Modifier) {
         modifier = modifier,
         factory = {
             PreviewView(context).apply {
-                controller = cameraState.controller.apply {
-                    bindToLifecycle(lifecycleOwner)
-                }
+                controller = cameraConfig.bindToLifecycle(lifecycleOwner)
             }
         }
     )

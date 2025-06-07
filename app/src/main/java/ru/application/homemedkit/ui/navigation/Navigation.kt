@@ -20,9 +20,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
-import ru.application.homemedkit.helpers.enums.Menu
-import ru.application.homemedkit.helpers.extensions.isCurrentRoute
-import ru.application.homemedkit.helpers.extensions.toBottomBarItem
 import ru.application.homemedkit.ui.navigation.Screen.Intake
 import ru.application.homemedkit.ui.navigation.Screen.Intakes
 import ru.application.homemedkit.ui.navigation.Screen.KitsManager
@@ -39,10 +36,14 @@ import ru.application.homemedkit.ui.screens.MedicinesScreen
 import ru.application.homemedkit.ui.screens.PermissionsScreen
 import ru.application.homemedkit.ui.screens.ScannerScreen
 import ru.application.homemedkit.ui.screens.SettingsScreen
+import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.enums.Menu
+import ru.application.homemedkit.utils.extensions.isCurrentRoute
+import ru.application.homemedkit.utils.extensions.toBottomBarItem
 
 @Composable
 fun Navigation(navigator: NavHostController, modifier: Modifier) {
-    NavHost(navigator, Medicines, modifier.consumeWindowInsets(WindowInsets.systemBars)) {
+    NavHost(navigator, Preferences.startPage.route, modifier.consumeWindowInsets(WindowInsets.systemBars)) {
         // Bottom menu items //
         composable<Medicines> {
             MedicinesScreen(
@@ -58,7 +59,7 @@ fun Navigation(navigator: NavHostController, modifier: Modifier) {
         }
         composable<Settings> {
             SettingsScreen(
-                backClick = { navigator.toBottomBarItem(Intakes) },
+                backClick = { navigator.toBottomBarItem(Intakes()) },
                 toKitsManager = { navigator.navigate(KitsManager) },
                 toPermissionsScreen = { navigator.navigate(PermissionsScreen) }
             )

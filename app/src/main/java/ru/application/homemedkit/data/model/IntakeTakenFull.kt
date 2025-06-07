@@ -2,7 +2,7 @@ package ru.application.homemedkit.data.model
 
 import androidx.room.Relation
 import ru.application.homemedkit.data.dto.Medicine
-import ru.application.homemedkit.helpers.enums.DoseType
+import ru.application.homemedkit.utils.enums.DoseType
 
 data class IntakeTakenFull(
     val takenId: Long,

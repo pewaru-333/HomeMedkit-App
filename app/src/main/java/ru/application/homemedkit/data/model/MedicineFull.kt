@@ -5,7 +5,7 @@ import androidx.room.Relation
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.MedicineKit
-import ru.application.homemedkit.helpers.enums.DoseType
+import ru.application.homemedkit.utils.enums.DoseType
 
 data class MedicineFull(
     val id: Long,

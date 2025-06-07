@@ -189,7 +189,7 @@
     <string name="text_repeat">Wiederholen</string>
     <string name="intake_schema_type_indefinitely">Unendlich</string>
     <string name="text_not_selected">Nicht ausgewählt</string>
-    <string name="intake_text_in_stock">Vorrätig: %1$s %2$s</string>
+    <string name="intake_text_in_stock_params">Vorrätig: %1$s %2$s</string>
     <string name="text_explain_reminders">Erlaubt Benachrichtigungen zu präzisen Zeitpunkten</string>
     <string name="text_permission_title_notifications">Benachrichtigungen</string>
     <string name="text_explain_request_permissions">Um Benachrichtigungen anzuzeigen, müssen folgende Erlaubnisse gewährt werden</string>

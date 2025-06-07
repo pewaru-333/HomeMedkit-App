@@ -16,10 +16,10 @@ import ru.application.homemedkit.R.string.intake_text_taken
 import ru.application.homemedkit.R.string.text_do_intake
 import ru.application.homemedkit.R.string.text_intake_time
 import ru.application.homemedkit.data.MedicineDatabase
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.ID
-import ru.application.homemedkit.helpers.TAKEN_ID
-import ru.application.homemedkit.helpers.decimalFormat
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.ID
+import ru.application.homemedkit.utils.TAKEN_ID
+import ru.application.homemedkit.utils.decimalFormat
 import ru.application.homemedkit.ui.theme.AppTheme
 
 

@@ -1,6 +1,5 @@
 package ru.application.homemedkit.models.viewModels
 
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,22 +14,22 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import ru.application.homemedkit.HomeMeds.Companion.database
+import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Kit
+import ru.application.homemedkit.data.model.KitModel
 import ru.application.homemedkit.data.model.MedicineGrouped
 import ru.application.homemedkit.data.model.MedicineMain
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.enums.MedicineTab
-import ru.application.homemedkit.helpers.enums.Sorting
-import ru.application.homemedkit.helpers.extensions.toMedicineList
 import ru.application.homemedkit.models.states.MedicinesState
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.ResourceText
+import ru.application.homemedkit.utils.enums.MedicineTab
+import ru.application.homemedkit.utils.enums.Sorting
+import ru.application.homemedkit.utils.extensions.toMedicineList
+import ru.application.homemedkit.utils.extensions.toModel
 
 class MedicinesViewModel : ViewModel() {
     private val _state = MutableStateFlow(MedicinesState())
     val state = _state.asStateFlow()
-
-    private val listStates = MedicineTab.entries.associateWith { LazyListState() }
-    val listState: LazyListState
-        get() = listStates.getValue(_state.value.tab)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val _medicines = _state.flatMapLatest { query ->
@@ -44,34 +43,99 @@ class MedicinesViewModel : ViewModel() {
 
     val medicines = _medicines
         .map { list -> list.map(MedicineMain::toMedicineList) }
-        .flowOn(Dispatchers.IO)
+        .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    val grouped = _medicines.map { list ->
-        val kitIds = list.flatMap(MedicineMain::kitIds).distinct()
-        val kitsMap = database.kitDAO().getKitList(kitIds).associateBy(Kit::kitId)
 
-        list.flatMap { medicine ->
-            medicine.kitIds.mapNotNull { kitId ->
-                kitsMap[kitId]?.let { kit -> Pair(kit, medicine) }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val grouped = _state.flatMapLatest { state ->
+        _medicines.map { medicineList ->
+            val selectedKits = state.kits.map(Kit::kitId).toSet()
+            val filterIsEmpty = selectedKits.isEmpty()
+
+            val kitsToGroup = if (filterIsEmpty) {
+                database.kitDAO().getKitList(medicineList.flatMap(MedicineMain::kitIds).distinct()).associateBy(Kit::kitId)
+            } else {
+                database.kitDAO().getKitList(selectedKits.toList()).associateBy(Kit::kitId)
+            }
+
+            val (toGroup, noGroup) = medicineList.partition { medicine ->
+                if (filterIsEmpty) {
+                    medicine.kitIds.isNotEmpty() && medicine.kitIds.any(kitsToGroup::containsKey)
+                } else {
+                    medicine.kitIds.any { kitId -> selectedKits.contains(kitId) } && medicine.kitIds.any(kitsToGroup::containsKey)
+                }
+            }
+
+            val withKits = mutableListOf<MedicineGrouped>()
+
+            if (filterIsEmpty) {
+                val groupedByAllTheirKits = toGroup.flatMap { medicine ->
+                    medicine.kitIds.mapNotNull { kitId ->
+                        kitsToGroup[kitId]?.let { kit -> Pair(kit, medicine) }
+                    }
+                }
+                    .groupBy(Pair<Kit, MedicineMain>::first, Pair<Kit, MedicineMain>::second)
+                    .map { (kit, medicinesInKit) ->
+                        MedicineGrouped(
+                            kit = kit.toModel(),
+                            medicines = medicinesInKit.map(MedicineMain::toMedicineList)
+                        )
+                    }
+                withKits.addAll(groupedByAllTheirKits)
+            } else {
+                selectedKits.forEach { selectedKitId ->
+                    val kitInfo = kitsToGroup[selectedKitId]
+                    if (kitInfo != null) {
+                        val medicinesSelectedKits = toGroup.filter { medicine ->
+                            medicine.kitIds.contains(selectedKitId)
+                        }
+                        if (medicinesSelectedKits.isNotEmpty()) {
+                            withKits.add(
+                                MedicineGrouped(
+                                    kit = kitInfo.toModel(),
+                                    medicines = medicinesSelectedKits.map(MedicineMain::toMedicineList)
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+
+            withKits.sortBy { it.kit.position }
+
+            val noGroupMedicines = mutableListOf<MedicineMain>().apply {
+                addAll(noGroup)
+            }
+
+            mutableListOf<MedicineGrouped>().apply {
+                addAll(withKits)
+
+                if (noGroupMedicines.isNotEmpty()) {
+                    add(
+                        MedicineGrouped(
+                            medicines = noGroupMedicines.map(MedicineMain::toMedicineList),
+                            kit = KitModel(
+                                id = -1L,
+                                position = Int.MAX_VALUE.toLong(),
+                                title = ResourceText.StringResource(R.string.text_no_group)
+                            )
+                        )
+                    )
+                }
+
+                sortBy { it.kit.position }
             }
         }
-            .groupBy(Pair<Kit, MedicineMain>::first, Pair<Kit, MedicineMain>::second)
-            .map { (kit, medicines) ->
-                MedicineGrouped(
-                    kit = kit,
-                    medicines = medicines.map(MedicineMain::toMedicineList)
-                )
-            }
-            .sortedBy { it.kit.position }
-    }
+    }.flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     val kits = database.kitDAO().getFlow()
-        .flowOn(Dispatchers.IO)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    fun pickTab(tab: MedicineTab) = _state.update { it.copy(tab = tab) }
+    fun toggleView() = _state.update {
+        it.copy(tab = MedicineTab.entries.getOrElse(it.tab.ordinal + 1) { MedicineTab.LIST })
+    }
 
     fun showAdding() = _state.update { it.copy(showAdding = !it.showAdding) }
     fun showExit(flag: Boolean = false) = _state.update { it.copy(showExit = flag) }

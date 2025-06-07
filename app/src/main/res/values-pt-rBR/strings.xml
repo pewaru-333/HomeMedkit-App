@@ -189,7 +189,7 @@
     <string name="text_permission_granted">Permitido</string>
     <string name="intake_schema_type_day_picker">Selecionador de dia</string>
     <string name="text_every_day">Todo dia</string>
-    <string name="intake_text_in_stock">No estoque: %1$s %2$s</string>
+    <string name="intake_text_in_stock_params">No estoque: %1$s %2$s</string>
     <string name="intake_text_start">Iniciar</string>
     <string name="intake_extra_desc_no_sound">Silencia a notificação, independente das configurações de som e vibração</string>
     <string name="text_permission_title_reminders">Configurar lembretes</string>

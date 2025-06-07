@@ -13,10 +13,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import ru.application.homemedkit.helpers.KEY_EXP_IMP
-import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.extensions.showToast
-import ru.application.homemedkit.helpers.extensions.toBottomBarItem
+import ru.application.homemedkit.utils.KEY_EXP_IMP
+import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.extensions.showToast
+import ru.application.homemedkit.utils.extensions.toBottomBarItem
 import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.ui.navigation.BottomNavigationBar
 import ru.application.homemedkit.ui.navigation.Navigation

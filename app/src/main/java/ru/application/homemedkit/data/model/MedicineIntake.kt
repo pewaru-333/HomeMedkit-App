@@ -1,7 +1,7 @@
 package ru.application.homemedkit.data.model
 
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.enums.DoseType
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.enums.DoseType
 
 data class MedicineIntake(
     val productName: String = BLANK,

@@ -6,8 +6,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Medicine
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.ResourceText
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.ResourceText
 
 data class TakenState(
     val takenId: Long = 0L,

@@ -17,8 +17,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.enums.Theme
+import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.enums.Theme
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,

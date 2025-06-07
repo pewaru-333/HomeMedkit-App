@@ -1,12 +1,11 @@
 package ru.application.homemedkit.models.states
 
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.enums.IntakeTab
+import ru.application.homemedkit.utils.BLANK
 
 data class IntakesState(
     val search: String = BLANK,
-    val tab: IntakeTab = IntakeTab.LIST,
     val showDialog: Boolean = false,
     val showDialogDate: Boolean = false,
-    val showDialogDelete: Boolean = false
+    val showDialogDelete: Boolean = false,
+    val showDialogAddTaken: Boolean = false
 )

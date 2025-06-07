@@ -9,7 +9,7 @@ import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.model.MedicineFull
 import ru.application.homemedkit.data.model.MedicineMain
-import ru.application.homemedkit.helpers.enums.Sorting
+import ru.application.homemedkit.utils.enums.Sorting
 
 @Dao
 interface MedicineDAO : BaseDAO<Medicine> {
@@ -42,14 +42,11 @@ interface MedicineDAO : BaseDAO<Medicine> {
     )
     fun getListFlow(search: String, sorting: Sorting, kitIds: List<Long>, kitsEnabled: Boolean): Flow<List<MedicineMain>>
 
-    @Query("SELECT id FROM medicines where cis = :cis")
-    fun getIdByCis(cis: String): Long
+    @Query("SELECT id FROM medicines WHERE :cis LIKE '%' || cis || '%' AND cis IS NOT NULL AND cis != '' LIMIT 1")
+    fun getIdByCis(cis: String): Long?
 
     @Query("SELECT * FROM medicines WHERE id = :id ")
     fun getById(id: Long): MedicineFull?
-
-    @Query("SELECT cis from medicines")
-    fun getAllCis(): List<String>
 
     @Query("SELECT image FROM images")
     fun getAllImages(): List<String>
@@ -64,9 +61,6 @@ interface MedicineDAO : BaseDAO<Medicine> {
     fun untakeMedicine(id: Long, amount: Double)
 
     // ============================== Insert ==============================
-    @Insert
-    suspend fun addImage(image: Image)
-
     @Insert
     suspend fun addImage(image: Iterable<Image>)
 

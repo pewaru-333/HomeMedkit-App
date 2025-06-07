@@ -27,11 +27,11 @@ import ru.application.homemedkit.data.dto.IntakeTime
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.MedicineKit
-import ru.application.homemedkit.helpers.DATABASE_NAME
-import ru.application.homemedkit.helpers.FORMAT_DD_MM_YYYY
-import ru.application.homemedkit.helpers.ZONE
-import ru.application.homemedkit.helpers.enums.SchemaType
-import ru.application.homemedkit.helpers.getDateTime
+import ru.application.homemedkit.utils.DATABASE_NAME
+import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
+import ru.application.homemedkit.utils.ZONE
+import ru.application.homemedkit.utils.enums.SchemaType
+import ru.application.homemedkit.utils.getDateTime
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime

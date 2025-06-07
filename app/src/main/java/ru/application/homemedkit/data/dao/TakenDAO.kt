@@ -17,6 +17,7 @@ interface TakenDAO : BaseDAO<IntakeTaken> {
         """
         SELECT * FROM intakes_taken
         WHERE (:search = '' OR LOWER(productName) LIKE '%' || LOWER(:search) || '%')
+        ORDER BY `trigger`
         """
     )
     fun getFlow(search: String): Flow<List<IntakeTaken>>

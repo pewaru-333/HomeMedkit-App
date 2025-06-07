@@ -5,9 +5,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import ru.application.homemedkit.data.dto.Kit
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.enums.DoseType
-import ru.application.homemedkit.helpers.enums.DrugType
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.enums.DoseType
+import ru.application.homemedkit.utils.enums.DrugType
 import kotlin.random.Random
 
 data class MedicineState(

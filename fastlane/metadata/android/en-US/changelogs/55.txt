@@ -1,0 +1,4 @@
+— Now you can add a separate medication in the "Past" tab.
+— Medicines that do not belong to any group will be displayed with the heading "No group".
+— Added a feature in the app settings that allows you to replace the usual notifications with an "alarm clock".
+— Many changes and improvements to the app.

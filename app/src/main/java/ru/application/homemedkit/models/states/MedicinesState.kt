@@ -3,10 +3,10 @@ package ru.application.homemedkit.models.states
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import ru.application.homemedkit.data.dto.Kit
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.Preferences
-import ru.application.homemedkit.helpers.enums.MedicineTab
-import ru.application.homemedkit.helpers.enums.Sorting
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.enums.MedicineTab
+import ru.application.homemedkit.utils.enums.Sorting
 
 data class MedicinesState(
     val search: String = BLANK,

@@ -17,8 +17,8 @@ import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.text_attention
 import ru.application.homemedkit.R.string.text_expire_soon
 import ru.application.homemedkit.data.MedicineDatabase
-import ru.application.homemedkit.helpers.CHANNEL_ID_EXP
-import ru.application.homemedkit.helpers.extensions.safeNotify
+import ru.application.homemedkit.utils.CHANNEL_ID_EXP
+import ru.application.homemedkit.utils.extensions.safeNotify
 
 class ExpirationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

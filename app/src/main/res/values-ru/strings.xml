@@ -11,10 +11,12 @@
     <string name="preference_basic_settings">Основные настройки</string>
     <string name="preference_app_view">Вид приложения</string>
     <string name="preference_kits_group">Группы лекарств</string>
+    <string name="preference_start_page">Стартовая страница</string>
     <string name="preference_sorting_type">Сортировка лекарств по</string>
     <string name="preference_confirm_exit">Подтверждать выход из приложения</string>
     <string name="preference_download_images">Загружать изображения лекарств</string>
     <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
+    <string name="preference_use_alarm_clock">Использовать будильник вместо уведомлений</string>
     <string name="preference_system">Системные</string>
     <string name="preference_permissions">Разрешения</string>
     <string name="preference_language">Язык приложения</string>
@@ -23,6 +25,13 @@
     <string name="preference_import_export">Импорт/Экспорт</string>
     <string name="preference_fixing_notifications">Не приходят уведомления?</string>
     <string name="preference_clear_app_cache">Очистить кеш приложения</string>
+
+    <!-- Страницы -->
+    <string name="page_medications">Лекарства</string>
+    <string name="page_intake_list">Приём (список)</string>
+    <string name="page_intake_current">Приём (текущие)</string>
+    <string name="page_intake_past">Приём (прошедшие)</string>
+    <string name="page_intake_settings">Настройки</string>
 
     <!-- Сортировка -->
     <string name="sorting_a_z">Названию (от А до Я)</string>
@@ -124,7 +133,8 @@
     <string name="intake_text_food_before">Перед едой</string>
     <string name="intake_text_food_during">Во время еды</string>
     <string name="intake_text_in_fact">По факту</string>
-    <string name="intake_text_in_stock">В наличии: %1$s %2$s</string>
+    <string name="intake_text_in_stock">В наличии</string>
+    <string name="intake_text_in_stock_params">В наличии: %1$s %2$s</string>
     <string name="intake_text_interval">Интервал</string>
     <string name="intake_text_not_taken">Не принято</string>
     <string name="intake_text_period">Период</string>
@@ -160,6 +170,7 @@
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
     <string name="text_choose_from_gallery">Выбрать из галереи</string>
     <string name="text_clear_app_cache_description">Данное действие удалит кеш приложения, а также более неиспользуемые фотографии лекарств</string>
+    <string name="text_code_not_found">Код не найден!</string>
     <string name="text_confirm_deletion_int">Вы подтверждаете удаление этого приёма лекарства?</string>
     <string name="text_confirm_deletion_med">Вы подтверждаете удаление этого лекарства?</string>
     <string name="text_connection_error">Ошибка при подключении!</string>
@@ -170,6 +181,7 @@
     <string name="text_fill_field">Заполните это поле!</string>
     <string name="text_fix_notifications">Приложение перезапустится, и все не пришедшие в срок уведомления появятся в строке состояния. Не используйте данную функцию, если всё работает корректно!</string>
     <string name="text_kit_title">Название группы</string>
+    <string name="text_kit_list_is_empty">Список групп пуст. Вы можете добавить группы в настройках приложения.</string>
     <string name="text_medicine_deleted">Лекарство было удалено из списка, невозможно изменить статус приёма</string>
     <string name="text_not_saved_intake">Настройки данного приёма не сохранены! Вы действительно хотите выйти?</string>
     <string name="text_pay_attention">Обратите внимание!</string>
@@ -185,12 +197,15 @@
     <string name="text_permission_title_ignore_battery">Игнорировать оптимизацию батареи</string>
     <string name="text_permission_title_notifications">Уведомления</string>
     <string name="text_permission_title_reminders">Установка напоминаний</string>
+
     <string name="text_explain_camera">Для сканирования маркировки необходимо выдать разрешение на использование камеры. Пример того, как выглядит маркировка, представлен ниже</string>
+    <string name="text_explain_disabled">Необходимое разрешение не выдано</string>
     <string name="text_explain_full_screen_intent">Разрешить показывать полноэкранные уведомления о приёме лекарства</string>
     <string name="text_expain_ignore_battery">Разрешить игнорировать оптимизацию батареи. Если отключено, уведомления могут быть потеряны!</string>
     <string name="text_explain_notifications">Разрешить показывать все уведомления приложения</string>
     <string name="text_explain_reminders">Разрешить устанавливать напоминания на точное время</string>
     <string name="text_explain_request_permissions">Для получения уведомлений необходимо выдать соответствующие разрешения</string>
+
     <string name="text_permission_grant">Выдать</string>
     <string name="text_permission_granted">Выдано</string>
     <string name="text_permission_grant_full">Выдать разрешение</string>
@@ -220,6 +235,7 @@
     <string name="text_no">Нет</string>
     <string name="text_no_data_found">Лекарства отсутствуют. Добавьте их или измените фильтр.</string>
     <string name="text_no_data_group_found">Лекарства с группами отсутствуют. Добавьте их или измените фильтр.</string>
+    <string name="text_no_group">Без группы</string>
     <string name="text_no_intakes_found">Назначенные приёмы лекарств отсутствуют. Добавьте их через карточку информации о лекарстве или измените условие поиска.</string>
     <string name="text_not_selected">Не выбрано</string>
     <string name="text_off">Отключено</string>

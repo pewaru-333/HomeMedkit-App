@@ -111,21 +111,22 @@ import ru.application.homemedkit.R.string.text_not_saved_intake
 import ru.application.homemedkit.R.string.text_stay
 import ru.application.homemedkit.R.string.text_unspecified
 import ru.application.homemedkit.data.model.MedicineIntake
+import ru.application.homemedkit.dialogs.DatePicker
 import ru.application.homemedkit.dialogs.DateRangePicker
 import ru.application.homemedkit.dialogs.TimePickerDialog
-import ru.application.homemedkit.helpers.decimalFormat
-import ru.application.homemedkit.helpers.enums.FoodType
-import ru.application.homemedkit.helpers.enums.IntakeExtra
-import ru.application.homemedkit.helpers.enums.Interval
-import ru.application.homemedkit.helpers.enums.Period
-import ru.application.homemedkit.helpers.enums.SchemaType
-import ru.application.homemedkit.helpers.extensions.canUseFullScreenIntent
-import ru.application.homemedkit.helpers.formName
-import ru.application.homemedkit.helpers.toExpDate
 import ru.application.homemedkit.models.events.IntakeEvent
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.viewModels.IntakeViewModel
 import ru.application.homemedkit.receivers.AlarmSetter
+import ru.application.homemedkit.utils.decimalFormat
+import ru.application.homemedkit.utils.enums.FoodType
+import ru.application.homemedkit.utils.enums.IntakeExtra
+import ru.application.homemedkit.utils.enums.Interval
+import ru.application.homemedkit.utils.enums.Period
+import ru.application.homemedkit.utils.enums.SchemaType
+import ru.application.homemedkit.utils.extensions.canUseFullScreenIntent
+import ru.application.homemedkit.utils.formName
+import ru.application.homemedkit.utils.toExpDate
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 
@@ -240,10 +241,15 @@ fun IntakeScreen(navigateBack: () -> Unit) {
             confirm = { model.delete(); navigateBack() }
         )
 
+        state.showDatePicker -> DatePicker(
+            onDismiss = { model.onEvent(IntakeEvent.ShowDatePicker) },
+            onSelect = { model.onEvent(IntakeEvent.SetStartDate(it)) }
+        )
+
         state.showDateRangePicker -> DateRangePicker(
             startDate = state.startDate,
             finalDate = state.finalDate,
-            onDismiss = { model.onEvent(IntakeEvent.ShowDateRangePicker) },
+            onDismiss = { model.onEvent(IntakeEvent.ShowDatePicker) },
             onRangeSelected = { model.onEvent(IntakeEvent.SetPeriod(it)) }
         )
 
@@ -396,7 +402,7 @@ private fun Amount(state: IntakeState, event: (IntakeEvent) -> Unit) =
             supportingContent = {
                 Text(
                     stringResource(
-                        R.string.intake_text_in_stock,
+                        R.string.intake_text_in_stock_params,
                         decimalFormat(state.amountStock),
                         stringResource(state.doseType)
                     )
@@ -585,15 +591,15 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                     },
                     trailingContent = state.let {
                         {
-                            if (!it.default && it.periodType == Period.PICK)
+                            if (!it.default && it.periodType in Period.entries.dropLast(1))
                                 Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null)
                         }
                     },
                     modifier = Modifier
                         .weight(1f)
                         .clickable(
-                            enabled = !state.default && state.periodType == Period.PICK,
-                            onClick = { event(IntakeEvent.ShowDateRangePicker) }
+                            enabled = !state.default && state.periodType in Period.entries.dropLast(1),
+                            onClick = { event(IntakeEvent.ShowDatePicker) }
                         ),
                     colors = ListItemDefaults.colors(
                         containerColor = if (state.periodError != null && state.startDate.isEmpty())
@@ -622,7 +628,7 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                         .weight(1f)
                         .clickable(
                             enabled = !state.default && state.periodType == Period.PICK,
-                            onClick = { event(IntakeEvent.ShowDateRangePicker) }
+                            onClick = { event(IntakeEvent.ShowDatePicker) }
                         ),
                     colors = ListItemDefaults.colors(
                         containerColor = if (state.periodError != null && state.finalDate.isEmpty())

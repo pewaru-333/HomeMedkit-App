@@ -1,8 +1,9 @@
 package ru.application.homemedkit.models.events
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.camera.core.ImageProxy
 import ru.application.homemedkit.data.dto.Kit
-import ru.application.homemedkit.helpers.enums.DoseType
+import ru.application.homemedkit.utils.camera.ImageProcessing
+import ru.application.homemedkit.utils.enums.DoseType
 
 sealed interface MedicineEvent {
     data class SetCis(val cis: String) : MedicineEvent
@@ -21,10 +22,11 @@ sealed interface MedicineEvent {
     data object ClearKit : MedicineEvent
 
     data class SetIcon(val icon: String) : MedicineEvent
-    data class SetImage(val images: SnapshotStateList<String>) : MedicineEvent
+    data class SetImage(val imageProcessing: ImageProcessing, val image: ImageProxy) : MedicineEvent
     data class ShowDialogFullImage(val index: Int = 0) : MedicineEvent
     data class SetFullImage(val index: Int) : MedicineEvent
 
+    data object ShowLoading : MedicineEvent
     data object ShowKitDialog : MedicineEvent
     data object ShowDatePicker : MedicineEvent
     data object ShowPackageDatePicker : MedicineEvent

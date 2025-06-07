@@ -10,9 +10,10 @@ import android.content.Context
 import android.content.Intent
 import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.data.dto.Alarm
-import ru.application.homemedkit.helpers.ALARM_ID
-import ru.application.homemedkit.helpers.expirationCheckTime
-import ru.application.homemedkit.helpers.extensions.canScheduleExactAlarms
+import ru.application.homemedkit.utils.ALARM_ID
+import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.expirationCheckTime
+import ru.application.homemedkit.utils.extensions.canScheduleExactAlarms
 
 class AlarmSetter(private val context: Context) {
     private val manager = context.getSystemService(AlarmManager::class.java)
@@ -31,7 +32,11 @@ class AlarmSetter(private val context: Context) {
 
         with(manager) {
             if (context.canScheduleExactAlarms()) {
-                setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pending)
+                if (Preferences.useAlarmClock) {
+                    setAlarmClock(AlarmManager.AlarmClockInfo(trigger, pending), pending)
+                } else {
+                    setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pending)
+                }
             } else {
                 setAndAllowWhileIdle(RTC_WAKEUP, trigger, pending)
             }
@@ -51,7 +56,11 @@ class AlarmSetter(private val context: Context) {
 
         with(manager) {
             if (context.canScheduleExactAlarms()) {
-                setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pending)
+                if (Preferences.useAlarmClock) {
+                    setAlarmClock(AlarmManager.AlarmClockInfo(preTrigger, pending), pending)
+                } else {
+                    setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pending)
+                }
             } else {
                 setAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pending)
             }
@@ -120,7 +129,11 @@ class AlarmSetter(private val context: Context) {
         with(manager) {
             if (check) {
                 if (context.canScheduleExactAlarms()) {
-                    setExactAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
+                    if (Preferences.useAlarmClock) {
+                        setAlarmClock(AlarmManager.AlarmClockInfo(expirationCheckTime(), broadcast), broadcast)
+                    } else {
+                        setExactAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
+                    }
                 } else {
                     setAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
                 }

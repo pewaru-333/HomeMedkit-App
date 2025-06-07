@@ -4,7 +4,9 @@ package ru.application.homemedkit.models.viewModels
 
 import android.content.Context
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TimePickerState
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +16,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -23,20 +24,23 @@ import kotlinx.coroutines.withContext
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.data.model.IntakeList
+import ru.application.homemedkit.data.model.MedicineMain
 import ru.application.homemedkit.data.model.Schedule
-import ru.application.homemedkit.helpers.BLANK
-import ru.application.homemedkit.helpers.FORMAT_H_MM
-import ru.application.homemedkit.helpers.ResourceText
-import ru.application.homemedkit.helpers.ZONE
-import ru.application.homemedkit.helpers.enums.IntakeTab
-import ru.application.homemedkit.helpers.extensions.toIntake
-import ru.application.homemedkit.helpers.extensions.toIntakePast
-import ru.application.homemedkit.helpers.extensions.toIntakeSchedule
-import ru.application.homemedkit.helpers.extensions.toTakenState
-import ru.application.homemedkit.helpers.getDateTime
 import ru.application.homemedkit.models.events.TakenEvent
 import ru.application.homemedkit.models.states.IntakesState
 import ru.application.homemedkit.models.states.TakenState
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.FORMAT_H_MM
+import ru.application.homemedkit.utils.ResourceText
+import ru.application.homemedkit.utils.ZONE
+import ru.application.homemedkit.utils.enums.IntakeTab
+import ru.application.homemedkit.utils.enums.Sorting
+import ru.application.homemedkit.utils.extensions.toIntake
+import ru.application.homemedkit.utils.extensions.toIntakePast
+import ru.application.homemedkit.utils.extensions.toIntakeSchedule
+import ru.application.homemedkit.utils.extensions.toTakenState
+import ru.application.homemedkit.utils.getDateTime
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -53,36 +57,41 @@ class IntakesViewModel : ViewModel() {
     private val _takenState = MutableStateFlow(TakenState())
     val takenState = _takenState.asStateFlow()
 
-    private val listStates = IntakeTab.entries.associateWith { LazyListState() }
-    val listState: LazyListState
-        get() = listStates.getValue(_state.value.tab)
+    val medicines = medicineDAO.getListFlow(BLANK, Sorting.IN_NAME, emptyList(), false)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val intakes = _state.flatMapLatest { query ->
         intakeDAO.getFlow(query.search).map { list ->
-            list.map(IntakeList::toIntake)
+            withContext(Dispatchers.Default) {
+                list.map(IntakeList::toIntake)
+            }
         }
-    }.flowOn(Dispatchers.IO)
+    }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val schedule = _state.flatMapLatest { query->
-        database.alarmDAO().getFlow(query.search).map { list->
-            list.groupBy { getDateTime(it.trigger).toLocalDate().toEpochDay() }
-                .toSortedMap()
-                .map(Map.Entry<Long, List<Schedule>>::toIntakeSchedule)
+    val schedule = _state.flatMapLatest { query ->
+        database.alarmDAO().getFlow(query.search).map { list ->
+            withContext(Dispatchers.Default) {
+                list.groupBy { getDateTime(it.trigger).toLocalDate().toEpochDay() }
+                    .toSortedMap()
+                    .map(Map.Entry<Long, List<Schedule>>::toIntakeSchedule)
+            }
         }
-    }.flowOn(Dispatchers.IO)
+    }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val taken = _state.flatMapLatest { query ->
         takenDAO.getFlow(query.search).map { list ->
-            list.groupBy { getDateTime(it.trigger).toLocalDate().toEpochDay() }
-                .toSortedMap(Comparator.reverseOrder())
-                .map(Map.Entry<Long, List<IntakeTaken>>::toIntakePast)
+            withContext(Dispatchers.Default) {
+                list.groupBy { getDateTime(it.trigger).toLocalDate().toEpochDay() }
+                    .toSortedMap(Comparator.reverseOrder())
+                    .map(Map.Entry<Long, List<IntakeTaken>>::toIntakePast)
+            }
         }
-    }.flowOn(Dispatchers.IO)
+    }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     fun onTakenEvent(event: TakenEvent) {
@@ -122,9 +131,7 @@ class IntakesViewModel : ViewModel() {
 
     fun showDialog(takenId: Long) {
         viewModelScope.launch {
-            val taken = withContext(Dispatchers.IO) {
-                database.takenDAO().getById(takenId)
-            }
+            val taken = database.takenDAO().getById(takenId)
 
             withContext(Dispatchers.Main) {
                 _takenState.update {
@@ -145,19 +152,53 @@ class IntakesViewModel : ViewModel() {
         _state.update { it.copy(showDialogDelete = !it.showDialogDelete) }
     }
 
+    fun showDialogAddTaken() {
+        _state.update {
+            it.copy(showDialogAddTaken = !it.showDialogAddTaken)
+        }
+    }
+
+    fun addTaken(medicine: MedicineMain, amount: String, date: DatePickerState, time: TimePickerState) {
+        val trigger = LocalDateTime.of(
+            LocalDate.from(Instant.ofEpochMilli(date.selectedDateMillis!!).atZone(ZONE)),
+            LocalTime.of(time.hour, time.minute)
+        ).toInstant(ZONE).toEpochMilli()
+
+        val taken = IntakeTaken(
+            medicineId = medicine.id,
+            productName = medicine.nameAlias.ifEmpty(medicine::productName),
+            formName = medicine.prodFormNormName,
+            amount = amount.toDouble(),
+            doseType = medicine.doseType,
+            image = medicine.image.firstOrNull().orEmpty(),
+            trigger = trigger,
+            inFact = trigger,
+            taken = true,
+            notified = true
+        )
+
+
+        viewModelScope.launch {
+            takenDAO.insert(taken)
+            medicineDAO.intakeMedicine(taken.medicineId, taken.amount)
+        }
+
+        _state.update {
+            it.copy(showDialogAddTaken = false)
+        }
+    }
+
     fun deleteTaken() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             takenDAO.delete(IntakeTaken(_takenState.value.takenId))
         }
 
         _state.update { it.copy(showDialogDelete = !it.showDialogDelete) }
     }
 
-    fun pickTab(tab: IntakeTab) = _state.update { it.copy(tab = tab) }
-
     fun showDialogDate() = _state.update { it.copy(showDialogDate = !it.showDialogDate) }
-    fun scrollToClosest(time: Long) {
-        val list = if (_state.value.tab == IntakeTab.CURRENT) schedule.value else taken.value
+    fun scrollToClosest(tab: IntakeTab, listState: LazyListState, time: Long) {
+        val list = if (tab == IntakeTab.CURRENT) schedule.value else taken.value
 
         if (list.isEmpty()) {
             _state.update { it.copy(showDialogDate = !it.showDialogDate) }

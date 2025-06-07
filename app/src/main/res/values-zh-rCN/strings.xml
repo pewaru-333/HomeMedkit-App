@@ -108,7 +108,7 @@
     <string name="intake_text_food_before">餐前用药</string>
     <string name="intake_text_food_during">餐时用药</string>
     <string name="intake_text_in_fact">实际</string>
-    <string name="intake_text_in_stock">存量:%1$s %2$s</string>
+    <string name="intake_text_in_stock_params">存量:%1$s %2$s</string>
     <string name="intake_text_interval">用药间隔</string>
     <string name="intake_text_not_taken">未用药</string>
     <string name="intake_text_period">疗程</string>
