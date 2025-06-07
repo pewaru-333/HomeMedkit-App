@@ -1,3 +1,0 @@
-— Neue Listenansicht: Medikamente nach Gruppe sortiert.
-— Repariert: Fehler, der dazu führte, dass es doppelte Gruppennamen in der Medikamentenkarte gab.
-— Repariert: Fehler, der dazu führte, dass Medikamente manchmal in der Liste nicht sortiert wurden.
