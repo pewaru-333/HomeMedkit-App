@@ -221,4 +221,14 @@
     <string name="text_weekdays">Werktage</string>
     <string name="tab_groups">Gruppen</string>
     <string name="text_no_data_group_found">Keine Medikamente mit Gruppe gefunden. Bitte hinzufügen oder Filter ändern.</string>
+    <string name="page_intake_settings">Einstellung</string>
+    <string name="text_code_not_found">Code nicht gefunden!</string>
+    <string name="page_medications">Medikamente</string>
+    <string name="text_kit_list_is_empty">Keine Gruppen gefunden. Gruppen können in den Einstellungen der App hinzugefügt werden.</string>
+    <string name="preference_use_alarm_clock">Alarm statt Benachrichtigung verwenden</string>
+    <string name="preference_start_page">Startseite</string>
+    <string name="page_intake_past">Einnahmen (zurückliegend)</string>
+    <string name="page_intake_list">Einnahmen (Liste)</string>
+    <string name="text_explain_disabled">Die erforderliche Berechtigung wurde nicht gewährt</string>
+    <string name="text_no_group">Ohne Gruppe</string>
 </resources>

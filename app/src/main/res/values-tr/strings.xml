@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
-
     <!-- Menü -->
     <string name="bottom_bar_medicines">İlaçlar</string>
     <string name="bottom_bar_intakes">Alımlar</string>
     <string name="bottom_bar_settings">Ayarlar</string>
-
     <!-- Tercihler -->
     <string name="preference_app_view">Uygulama görünümü</string>
     <string name="preference_kits_group">İlaç grupları</string>
@@ -21,18 +19,15 @@
     <string name="preference_dynamic_color">Dinamik renk</string>
     <string name="preference_import_export">İçe/Dışa Aktar</string>
     <string name="preference_fixing_notifications">Bildirimlerle ilgili sorun mu var?</string>
-
     <!-- Sıralama -->
     <string name="sorting_a_z">Alfabetik (A’dan Z’ye)</string>
     <string name="sorting_z_a">Alfabetik (Z’den A’ya)</string>
     <string name="sorting_from_oldest">Son kullanma tarihi (eskiden yeniye)</string>
     <string name="sorting_from_newest">Son kullanma tarihi (yeniden eskiye)</string>
-
     <!-- Temalar -->
     <string name="theme_system">Sistem</string>
     <string name="theme_light">Açık</string>
     <string name="theme_dark">Koyu</string>
-
     <!-- Bildirimler -->
     <string name="channel_name">Sesli bildirimler</string>
     <string name="channel_exp_desc">Son kullanma tarihi</string>
@@ -46,11 +41,9 @@
     <string name="text_intake_prealarm_title">Yaklaşan alım</string>
     <string name="text_intake_time">İlaç: %1$s\nAlım miktarı: %2$s %3$s\nKalan ilaç: %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Yeterli miktar yok</string>
-
     <!-- Yer tutucular -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_time">Saat #%1$d</string>
-
     <!-- İlaçlar -->
     <string name="text_exp_date">Son kullanma tarihi</string>
     <string name="text_indications_for_use">Kullanım endikasyonları</string>
@@ -67,7 +60,6 @@
     <string name="text_medicine_status_scanned">Tarandı, doğrulanmadı</string>
     <string name="text_medicine_status_self_added">Manuel eklendi</string>
     <string name="text_medicine_storage_conditions">Saklama koşulları</string>
-
     <!-- İlaç türleri -->
     <string name="type_tablets">TABLETLER</string>
     <string name="type_capsules">KAPSÜLLER</string>
@@ -95,7 +87,6 @@
     <string name="type_patch">YAMA</string>
     <string name="type_bandage">BANDAJ</string>
     <string name="type_napkins">MENDİLLER</string>
-    
     <!-- İlaç doz türleri -->
     <string name="dose_ed">ED</string>
     <string name="dose_pcs">adet</string>
@@ -104,12 +95,10 @@
     <string name="dose_mg">mg</string>
     <string name="dose_l">l</string>
     <string name="dose_ml">ml</string>
-
     <!-- Alımlar -->
     <string name="tab_list">Liste</string>
     <string name="tab_current">Güncel</string>
     <string name="tab_past">Geçmiş</string>
-    
     <string name="intake_text_amount">Miktar</string>
     <string name="intake_text_by_schedule">Planlanmış</string>
     <string name="intake_text_date">Tarih</string>
@@ -128,29 +117,23 @@
     <string name="intake_text_time">Zaman</string>
     <string name="intake_text_start">Başlangıç</string>
     <string name="intake_text_finish">Bitiş</string>
-    
     <string name="intake_extra_cancellable">Bildirim zaman aşımı</string>
     <string name="intake_extra_fullscreen">Tam ekran bildirim</string>
     <string name="intake_extra_no_sound">Sessiz</string>
     <string name="intake_extra_prealarm">Yaklaşan bildirim</string>
-    
     <string name="intake_extra_desc_cancellable">Bildirim 10 dakika sonra otomatik olarak iptal edilecek</string>
     <string name="intake_extra_desc_fullscreen">Kilitli ekranda bildirim yerine bir işlem başlatılacak</string>
     <string name="intake_extra_desc_no_sound">Bildirim sesi ve titreşimleri devre dışı bırakır</string>
     <string name="intake_extra_desc_prealarm">Planlanan saatten 30 dakika önce hatırlatma gönderilecek</string>
-    
     <string name="intake_interval_daily">günlük</string>
     <string name="intake_interval_weekly">haftalık</string>
     <string name="intake_interval_other">özel</string>
-    
     <string name="intake_schema_type_indefinitely">Süresiz</string>
     <string name="intake_schema_type_day_picker">Gün seçici</string>
     <string name="intake_schema_type_personal">Kişisel</string>
-    
     <string name="intake_period_pick">tarihe göre</string>
     <string name="intake_period_other">gün sayısına göre</string>
     <string name="intake_period_indef">süresiz</string>
-
     <!-- Diyaloglar -->
     <string name="manual_add">İlacı manuel olarak eklemek ister misiniz?</string>
     <string name="text_confirm_deletion_int">Bu alımı silmek istediğinizden emin misiniz?</string>
@@ -169,24 +152,20 @@
     <string name="text_request_camera">Etiketleri taramak için kamera izni gereklidir</string>
     <string name="text_select_time">Zaman seçin</string>
     <string name="text_try_again">Etiketi tekrar taramayı deneyin!</string>
-    
     <!-- İzinler -->
     <string name="text_permission_title_full_screen">Tam ekran bildirimleri</string>
     <string name="text_permission_title_ignore_battery">Pil optimizasyonunu yok say</string>
     <string name="text_permission_title_notifications">Bildirimler</string>
     <string name="text_permission_title_reminders">Hatırlatıcıları ayarla</string>
-    
     <string name="text_explain_camera">Etiket taramak için kamerayı kullanma izni vermelisiniz. Aşağıda işaretlemenin nasıl görünmesi gerektiğine dair bir örnek gösterilmektedir (yalnızca Rus ilaçları için çalışır)</string>
     <string name="text_explain_full_screen_intent">Alım bildirimlerinin tam ekran görüntülenmesine izin verin</string>
     <string name="text_expain_ignore_battery">Uygulamanın pil optimizasyonlarını yok saymasına izin verin. Eğer izin verilmezse, bildirimler kaybolabilir!</string>
     <string name="text_explain_notifications">Tüm uygulama bildirimlerinin gösterilmesine izin verin</string>
     <string name="text_explain_reminders">Hatırlatıcıların belirli bir zamanda ayarlanmasına izin verin</string>
     <string name="text_explain_request_permissions">Bildirim almak için aşağıdaki izinleri vermelisiniz</string>
-    
     <string name="text_permission_grant">İzin ver</string>
     <string name="text_permission_granted">İzin verildi</string>
     <string name="text_permission_grant_full">İzni ver</string>
-
     <!-- Dizeler -->
     <string name="text_add">Ekle</string>
     <string name="text_amount">Miktar</string>
@@ -230,7 +209,6 @@
     <string name="text_unspecified">Belirtilmemiş</string>
     <string name="text_update">Güncelle</string>
     <string name="text_yes">Evet</string>
-    
     <!-- Çoğul ifadeler -->
     <plurals name="intake_times_a_day">
         <item quantity="one">Günde %d kez</item>

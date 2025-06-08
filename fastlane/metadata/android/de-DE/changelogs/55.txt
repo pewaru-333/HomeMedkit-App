@@ -1,0 +1,4 @@
+- Auf dem Tab "Zurückliegend" kann jetzt ein einzelnes Medikament hinzugefügt werden.
+- Medikamente, die zu keiner Gruppe gehören, werden mit der Überschrift "Ohne Gruppe" angezeigt.
+- In den App-Einstellungen wurde eine Funktion hinzugefügt, mit der man die normalen Benachrichtigungen für Medikamente durch einen "Alarm" ersetzen kann.
+- Zahlreiche Änderungen und Verbesserungen an der App.
