@@ -1,7 +1,6 @@
 package ru.application.homemedkit.models.events
 
 import androidx.annotation.StringRes
-import kotlinx.serialization.descriptors.PrimitiveKind
 import ru.application.homemedkit.utils.enums.IntakeExtra
 import ru.application.homemedkit.utils.enums.SchemaType
 import java.time.DayOfWeek

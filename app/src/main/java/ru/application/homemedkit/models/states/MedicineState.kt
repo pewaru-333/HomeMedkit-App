@@ -8,6 +8,7 @@ import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.enums.DoseType
 import ru.application.homemedkit.utils.enums.DrugType
+import ru.application.homemedkit.utils.enums.ImageEditing
 import kotlin.random.Random
 
 data class MedicineState(
@@ -37,10 +38,12 @@ data class MedicineState(
     val images: SnapshotStateList<String> = mutableStateListOf(DrugType.entries[Random.nextInt(0, DrugType.entries.size)].value),
     val technical: TechnicalState = TechnicalState(),
     val snackbarHostState: SnackbarHostState = SnackbarHostState(),
+    val imageEditing: ImageEditing = ImageEditing.ADDING,
     val showDialogKits: Boolean = false,
     val showDialogDate: Boolean = false,
     val showDialogPackageDate: Boolean = false,
     val showDialogIcons: Boolean = false,
+    val showDialogPictureGrid: Boolean = false,
     val showDialogPictureChoose: Boolean = false,
     val showDialogFullImage: Boolean = false,
     val showDialogDelete: Boolean = false,

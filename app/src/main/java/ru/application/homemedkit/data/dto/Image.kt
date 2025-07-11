@@ -21,5 +21,6 @@ data class Image(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
     val medicineId: Long = 0L,
+    val position: Int = 0,
     val image: String = BLANK
 )

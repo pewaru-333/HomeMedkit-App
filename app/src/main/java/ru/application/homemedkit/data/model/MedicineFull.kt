@@ -28,11 +28,9 @@ data class MedicineFull(
 
     @Relation(
         parentColumn = "id",
-        entityColumn = "medicineId",
-        projection = ["image"],
-        entity = Image::class
+        entityColumn = "medicineId"
     )
-    val images: List<String>,
+    val images: List<Image>,
 
     @Relation(
         entity = Kit::class,

@@ -26,6 +26,7 @@ interface IntakeDAO : BaseDAO<Intake> {
     )
     fun getFlow(searchQuery: String): Flow<List<IntakeList>>
 
+    @Transaction
     @Query("SELECT * FROM intakes WHERE intakeId = :intakeId")
     fun getById(intakeId: Long): IntakeFull?
 

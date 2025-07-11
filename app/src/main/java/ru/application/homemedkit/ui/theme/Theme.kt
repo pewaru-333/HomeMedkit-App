@@ -105,17 +105,23 @@ fun AppTheme(content: @Composable () -> Unit) {
 
     val darkTheme = when (darkState) {
         Theme.LIGHT -> false
-        Theme.DARK -> true
+        Theme.DARK, Theme.DARK_AMOLED -> true
         else -> isSystemInDarkTheme()
     }
 
-    val colors = when {
+    val baseColors = when {
         isDynamicColorAvailable() && dynamicColor ->
-            if (darkTheme) dynamicDarkColorScheme(activity) else dynamicLightColorScheme(activity)
+            if (darkTheme) dynamicDarkColorScheme(activity)
+            else dynamicLightColorScheme(activity)
 
         darkTheme -> darkScheme
         else -> lightScheme
     }
+
+    val colors = if (darkState != Theme.DARK_AMOLED) baseColors else baseColors.copy(
+        background = androidx.compose.ui.graphics.Color.Black,
+        surface = androidx.compose.ui.graphics.Color.Black
+    )
 
     DisposableEffect(darkTheme) {
         activity.enableEdgeToEdge(

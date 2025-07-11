@@ -34,10 +34,10 @@ import ru.application.homemedkit.utils.enums.SchemaType
 import ru.application.homemedkit.utils.getDateTime
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 @Database(
-    version = 31,
+    version = 32,
     entities = [
         Medicine::class,
         Intake::class,
@@ -100,7 +100,8 @@ abstract class MedicineDatabase : RoomDatabase() {
                     MIGRATION_26_27,
                     MIGRATION_28_29,
                     MIGRATION_29_30,
-                    MIGRATION_30_31
+                    MIGRATION_30_31,
+                    MIGRATION_31_32
                 )
                 .setQueryExecutor(Dispatchers.IO.asExecutor())
                 .setTransactionExecutor(Dispatchers.IO.asExecutor())
@@ -477,17 +478,18 @@ abstract class MedicineDatabase : RoomDatabase() {
                         val alarmId = alarmCursor.getLong(0)
                         val trigger = alarmCursor.getLong(1)
 
-                        var first = getDateTime(trigger).toLocalDateTime()
+                        var first = getDateTime(trigger)
 
-                        val last = LocalDateTime.of(
+                        val last = ZonedDateTime.of(
                             LocalDate.parse(finalDate, FORMAT_DD_MM_YYYY),
-                            getDateTime(trigger).toLocalTime()
+                            getDateTime(trigger).toLocalTime(),
+                            ZONE
                         )
 
                         while (!first.isAfter(last)) {
                             db.execSQL(
                                 "INSERT INTO intake_schedule (`alarmId`, `trigger`) " +
-                                        "VALUES ($alarmId, ${first.toInstant(ZONE).toEpochMilli()})"
+                                        "VALUES ($alarmId, ${first.toInstant().toEpochMilli()})"
                             )
 
                             first = first.plusDays(
@@ -554,12 +556,12 @@ abstract class MedicineDatabase : RoomDatabase() {
                         val amount = alarmCursor.getDouble(3)
                         val preAlarm = alarmCursor.getInt(4)
 
-                        var first = getDateTime(trigger).toLocalDateTime()
+                        var first = getDateTime(trigger)
 
                         first = first.let {
                             var unix = it
 
-                            while (unix.toInstant(ZONE)
+                            while (unix.toInstant()
                                     .toEpochMilli() < System.currentTimeMillis()
                             ) {
                                 unix = unix.plusDays(1)
@@ -568,16 +570,27 @@ abstract class MedicineDatabase : RoomDatabase() {
                             unix
                         }
 
-                        val last = LocalDateTime.of(
+                        val last = ZonedDateTime.of(
                             LocalDate.parse(finalDate, FORMAT_DD_MM_YYYY),
-                            getDateTime(trigger).toLocalTime()
+                            getDateTime(trigger).toLocalTime(),
+                            ZONE
                         )
 
-                        while (!first.isAfter(last) && first < LocalDateTime.of(2030, 1, 1, 0, 0)) {
+                        while (!first.isAfter(last) && first < ZonedDateTime.of(
+                                2030,
+                                1,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0,
+                                ZONE
+                            )
+                        ) {
                             db.execSQL(
                                 "INSERT INTO alarms (`intakeId`, `trigger`, `amount`, `preAlarm`) " +
                                         "VALUES ($intakeId, ${
-                                            first.toInstant(ZONE).toEpochMilli()
+                                            first.toInstant().toEpochMilli()
                                         }, $amount, $preAlarm)"
                             )
 
@@ -656,6 +669,23 @@ abstract class MedicineDatabase : RoomDatabase() {
                     val kitId = cursor.getLong(0)
 
                     db.execSQL("UPDATE kits SET position = $kitId WHERE kitId = $kitId")
+
+                    cursor.moveToNext()
+                }
+            }
+        }
+
+        private val MIGRATION_31_32 = object : Migration(31, 32) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE images ADD COLUMN position INTEGER NOT NULL DEFAULT 1")
+
+                val cursor = db.query("SELECT id FROM images")
+                cursor.moveToFirst()
+
+                while (!cursor.isAfterLast) {
+                    val imageId = cursor.getLong(0)
+
+                    db.execSQL("UPDATE images SET position = $imageId WHERE id = $imageId")
 
                     cursor.moveToNext()
                 }

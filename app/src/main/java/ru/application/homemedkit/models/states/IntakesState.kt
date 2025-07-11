@@ -7,5 +7,6 @@ data class IntakesState(
     val showDialog: Boolean = false,
     val showDialogDate: Boolean = false,
     val showDialogDelete: Boolean = false,
-    val showDialogAddTaken: Boolean = false
+    val showDialogAddTaken: Boolean = false,
+    val showDialogScheduleToTaken: Boolean = false
 )

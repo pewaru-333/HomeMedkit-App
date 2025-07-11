@@ -189,7 +189,7 @@ fun SettingsScreen(
             item {
                 var value by remember { mutableStateOf(Preferences.startPage) }
 
-                ListPreference<Page>(
+                ListPreference(
                     value = value,
                     onValueChange = { value = it; Preferences.startPage = it },
                     values = Page.entries,
@@ -202,7 +202,7 @@ fun SettingsScreen(
             item {
                 var value by remember { mutableStateOf(Preferences.sortingOrder) }
 
-                ListPreference<Sorting>(
+                ListPreference(
                     value = value,
                     onValueChange = { value = it; Preferences.sortingOrder = it },
                     values = Sorting.entries,
@@ -293,7 +293,7 @@ fun SettingsScreen(
             item {
                 val value by Preferences.theme.collectAsStateWithLifecycle()
 
-                ListPreference<Theme>(
+                ListPreference(
                     value = value,
                     onValueChange = Preferences::setTheme,
                     values = Theme.entries,

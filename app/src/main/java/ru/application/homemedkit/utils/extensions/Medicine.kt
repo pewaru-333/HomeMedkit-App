@@ -3,6 +3,7 @@ package ru.application.homemedkit.utils.extensions
 import androidx.compose.runtime.toMutableStateList
 import androidx.core.text.HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH
 import androidx.core.text.HtmlCompat.fromHtml
+import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.Technical
 import ru.application.homemedkit.data.model.MedicineFull
@@ -42,7 +43,7 @@ fun MedicineFull.toState() = MedicineState(
     recommendations = fromHtml(recommendations, FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH).toString(),
     storageConditions = fromHtml(storageConditions, FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH).toString(),
     comment = comment,
-    images = images.toMutableStateList(),
+    images = images.sortedBy(Image::position).map(Image::image).toMutableStateList(),
     technical = TechnicalState(
         scanned = scanned,
         verified = verified
@@ -64,10 +65,10 @@ fun MedicineMain.toMedicineList() = MedicineList(
     prodAmount = decimalFormat(prodAmount),
     doseType = doseType.title,
     expDateS = inCard(expDate),
-    expDateL = expDate,
     formName = formName(prodFormNormName),
     image =  image.firstOrNull() ?: BLANK,
-    inStock = prodAmount >= 0.1
+    inStock = prodAmount >= 0.1,
+    isExpired = expDate < System.currentTimeMillis()
 )
 
 fun MedicineState.toMedicine() = Medicine(

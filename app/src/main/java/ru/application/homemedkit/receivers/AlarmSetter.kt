@@ -12,15 +12,17 @@ import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.utils.ALARM_ID
 import ru.application.homemedkit.utils.Preferences
-import ru.application.homemedkit.utils.expirationCheckTime
+import ru.application.homemedkit.utils.ZONE
 import ru.application.homemedkit.utils.extensions.canScheduleExactAlarms
+import java.time.LocalTime
+import java.time.ZonedDateTime
 
 class AlarmSetter(private val context: Context) {
     private val manager = context.getSystemService(AlarmManager::class.java)
     private val database = MedicineDatabase.getInstance(context)
 
-    private val alarmIntent = Intent(context, AlarmReceiver::class.java).addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-    private val preAlarmIntent = Intent(context, PreAlarmReceiver::class.java).addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+    private val alarmIntent = Intent(context, AlarmReceiver::class.java)
+    private val preAlarmIntent = Intent(context, PreAlarmReceiver::class.java)
 
     fun setAlarm(takenId: Long, trigger: Long) {
         val pending = getBroadcast(
@@ -32,6 +34,8 @@ class AlarmSetter(private val context: Context) {
 
         with(manager) {
             if (context.canScheduleExactAlarms()) {
+                Preferences.getInstance(context)
+
                 if (Preferences.useAlarmClock) {
                     setAlarmClock(AlarmManager.AlarmClockInfo(trigger, pending), pending)
                 } else {
@@ -56,6 +60,8 @@ class AlarmSetter(private val context: Context) {
 
         with(manager) {
             if (context.canScheduleExactAlarms()) {
+                Preferences.getInstance(context)
+
                 if (Preferences.useAlarmClock) {
                     setAlarmClock(AlarmManager.AlarmClockInfo(preTrigger, pending), pending)
                 } else {
@@ -122,20 +128,27 @@ class AlarmSetter(private val context: Context) {
         val broadcast = getBroadcast(
             context,
             81000,
-            Intent(context, ExpirationReceiver::class.java).addFlags(Intent.FLAG_RECEIVER_FOREGROUND),
+            Intent(context, ExpirationReceiver::class.java),
             FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
         )
 
         with(manager) {
             if (check) {
+                val now = ZonedDateTime.now(ZONE)
+                val noonToday = ZonedDateTime.of(now.toLocalDate(), LocalTime.NOON, ZONE)
+                val nextNoon = if (now.isBefore(noonToday)) noonToday else noonToday.plusDays(1)
+                val nextTime = nextNoon.toInstant().toEpochMilli()
+
                 if (context.canScheduleExactAlarms()) {
+                    Preferences.getInstance(context)
+
                     if (Preferences.useAlarmClock) {
-                        setAlarmClock(AlarmManager.AlarmClockInfo(expirationCheckTime(), broadcast), broadcast)
+                        setAlarmClock(AlarmManager.AlarmClockInfo(nextTime, broadcast), broadcast)
                     } else {
-                        setExactAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
+                        setExactAndAllowWhileIdle(RTC_WAKEUP, nextTime, broadcast)
                     }
                 } else {
-                    setAndAllowWhileIdle(RTC_WAKEUP, expirationCheckTime(), broadcast)
+                    setAndAllowWhileIdle(RTC_WAKEUP, nextTime, broadcast)
                 }
             } else {
                 cancel(broadcast)

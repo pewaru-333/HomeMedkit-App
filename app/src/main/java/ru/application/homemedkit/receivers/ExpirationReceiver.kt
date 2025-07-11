@@ -22,9 +22,7 @@ import ru.application.homemedkit.utils.extensions.safeNotify
 
 class ExpirationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val medicines = MedicineDatabase.getInstance(context).medicineDAO().getAll()
-
-        medicines.forEach {
+        MedicineDatabase.getInstance(context).medicineDAO().getAll().forEach {
             if (it.expDate < System.currentTimeMillis() + 30 * INTERVAL_DAY && it.prodAmount > 0) {
                 NotificationManagerCompat.from(context).safeNotify(
                     context,

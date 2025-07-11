@@ -51,11 +51,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
@@ -67,6 +71,8 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
@@ -90,13 +96,17 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -162,15 +172,19 @@ import ru.application.homemedkit.R.string.text_update
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.dialogs.DatePicker
 import ru.application.homemedkit.dialogs.MonthYear
+import ru.application.homemedkit.dialogs.dragHandle
+import ru.application.homemedkit.dialogs.draggableItemsIndexed
+import ru.application.homemedkit.dialogs.rememberDraggableListState
 import ru.application.homemedkit.models.events.MedicineEvent
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.states.MedicineState
-import ru.application.homemedkit.utils.camera.rememberCameraConfig
 import ru.application.homemedkit.models.viewModels.MedicineViewModel
 import ru.application.homemedkit.utils.camera.ImageProcessing
+import ru.application.homemedkit.utils.camera.rememberCameraConfig
 import ru.application.homemedkit.utils.decimalFormat
 import ru.application.homemedkit.utils.enums.DoseType
 import ru.application.homemedkit.utils.enums.DrugType
+import ru.application.homemedkit.utils.enums.ImageEditing
 import ru.application.homemedkit.utils.permissions.rememberPermissionState
 import java.io.File
 
@@ -331,7 +345,8 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
 
     when {
         state.showDialogKits -> DialogKits(kits, state, model::onEvent)
-        state.showDialogPictureChoose -> DialogPictureChoose(model::onEvent, model::compressImage)
+        state.showDialogPictureGrid -> DialogPictureGrid(state, model::onEvent)
+        state.showDialogPictureChoose -> DialogPictureChoose(state, model::onEvent, model::compressImage)
         state.showDialogFullImage -> DialogFullImage(state, model::onEvent)
         state.showDialogIcons -> IconPicker(model::onEvent)
         state.showDialogDelete -> DialogDelete(
@@ -553,7 +568,7 @@ private fun ProductImage(state: MedicineState, event: (MedicineEvent) -> Unit) {
             .border(1.dp, MaterialTheme.colorScheme.onSurface, MaterialTheme.shapes.medium)
             .clickable {
                 if (state.default) event(MedicineEvent.ShowDialogFullImage(pagerState.currentPage))
-                else event(MedicineEvent.ShowDialogPictureChoose)
+                else event(MedicineEvent.ShowDialogPictureGrid)
             }
     ) {
         HorizontalPager(pagerState, Modifier.fillMaxSize()) {
@@ -896,14 +911,152 @@ private fun DialogFullImage(state: MedicineState, event: (MedicineEvent) -> Unit
 }
 
 @Composable
-private fun DialogPictureChoose(event: (MedicineEvent) -> Unit, onPicked: (ImageProcessing, List<Uri>) -> Unit) {
+private fun DialogPictureGrid(state: MedicineState, event: (MedicineEvent) -> Unit) {
+    val borderColor = MaterialTheme.colorScheme.onSurface
+
+    AlertDialog(
+        title = { Text(stringResource(R.string.text_images)) },
+        onDismissRequest = { event(MedicineEvent.ShowDialogPictureGrid) },
+        confirmButton = {
+            TextButton(
+                onClick = { event(MedicineEvent.ShowDialogPictureGrid) },
+                content = { Text(stringResource(R.string.text_save)) }
+            )
+        },
+        dismissButton = {
+            TextButton(
+                onClick = { event(MedicineEvent.EditImagesOrder) },
+                content = {
+                    Text(
+                        text = stringResource(
+                            when (state.imageEditing) {
+                                ImageEditing.ADDING -> R.string.text_edit
+                                ImageEditing.REORDERING -> R.string.text_add
+                            }
+                        )
+                    )
+                }
+            )
+        },
+        text = {
+            when (state.imageEditing) {
+                ImageEditing.ADDING -> LazyVerticalGrid(
+                    columns = GridCells.FixedSize(80.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(state.images) { image ->
+                        MedicineImage(
+                            image = image,
+                            editable = false,
+                            modifier = Modifier
+                                .size(80.dp, 120.dp)
+                                .border(1.dp, borderColor, MaterialTheme.shapes.medium)
+                                .padding(4.dp)
+                        )
+                    }
+
+                    if (state.images.size < 5) {
+                        item {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(80.dp, 120.dp)
+                                    .drawBehind {
+                                        drawRoundRect(
+                                            color = borderColor,
+                                            cornerRadius = CornerRadius(16.dp.toPx()),
+                                            style = Stroke(
+                                                width = 4f,
+                                                pathEffect = PathEffect.dashPathEffect(
+                                                    intervals = floatArrayOf(10f, 10f),
+                                                    phase = 0f
+                                                )
+                                            )
+                                        )
+                                    }
+                                    .clickable {
+                                        event(MedicineEvent.ShowDialogPictureChoose)
+                                    }
+                            ) {
+                                Icon(Icons.Outlined.Add, null)
+                            }
+                        }
+                    }
+                }
+
+                ImageEditing.REORDERING -> {
+                    val draggableState = rememberDraggableListState { fromIndex, toIndex ->
+                        event(MedicineEvent.OnImageReodering(fromIndex, toIndex))
+                    }
+
+                    LazyColumn(state = draggableState.listState) {
+                        draggableItemsIndexed(draggableState, state.images) { index, image, _ ->
+                            ListItem(
+                                headlineContent = {},
+                                leadingContent = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        if (state.images.size > 1) {
+                                            IconButton(
+                                                onClick = { event(MedicineEvent.RemoveImage(image)) },
+                                                content = { Icon(Icons.Outlined.Delete, null) }
+                                            )
+                                        }
+
+                                        MedicineImage(
+                                            image = image,
+                                            editable = false,
+                                            modifier = Modifier.size(64.dp)
+                                        )
+                                    }
+                                },
+                                trailingContent = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Menu,
+                                        contentDescription = null,
+                                        modifier = Modifier.dragHandle(draggableState, index)
+                                    )
+                                },
+                                colors = ListItemDefaults.colors(
+                                    containerColor = AlertDialogDefaults.containerColor
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    )
+}
+
+@Composable
+private fun DialogPictureChoose(
+    state: MedicineState,
+    event: (MedicineEvent) -> Unit,
+    onPicked: (ImageProcessing, List<Uri>) -> Unit
+) {
     val context = LocalContext.current
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
-    val picker = rememberLauncherForActivityResult(PickMultipleVisualMedia(5)) { items ->
-        if (items.isEmpty() || items.size > 5) return@rememberLauncherForActivityResult
+    val maxItems = 5 - state.images.size
 
-        onPicked(ImageProcessing(context), items)
+    val contract = if (maxItems > 1) PickMultipleVisualMedia(maxItems)
+    else PickVisualMedia()
+
+    val picker = rememberLauncherForActivityResult(contract) { result ->
+        when (val picked = result) {
+            is List<*> -> {
+                if (picked.isEmpty() || picked.size > maxItems) {
+                    return@rememberLauncherForActivityResult
+                }
+
+                onPicked(ImageProcessing(context), picked as List<Uri>)
+            }
+
+            is Uri? -> picked?.let { uri ->
+                onPicked(ImageProcessing(context), listOf(uri))
+            }
+        }
     }
 
     AlertDialog(

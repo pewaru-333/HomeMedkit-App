@@ -19,6 +19,8 @@ import ru.application.homemedkit.data.model.IntakeTakenFull
 import ru.application.homemedkit.data.model.Schedule
 import ru.application.homemedkit.data.model.ScheduleModel
 import ru.application.homemedkit.data.model.TakenModel
+import ru.application.homemedkit.models.states.IntakeState
+import ru.application.homemedkit.models.states.TakenState
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
 import ru.application.homemedkit.utils.FORMAT_D_MMMM_E
@@ -31,8 +33,6 @@ import ru.application.homemedkit.utils.enums.Interval
 import ru.application.homemedkit.utils.enums.Period
 import ru.application.homemedkit.utils.formName
 import ru.application.homemedkit.utils.getDateTime
-import ru.application.homemedkit.models.states.IntakeState
-import ru.application.homemedkit.models.states.TakenState
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime

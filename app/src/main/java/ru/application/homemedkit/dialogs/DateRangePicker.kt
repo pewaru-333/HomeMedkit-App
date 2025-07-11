@@ -29,8 +29,8 @@ import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
 import ru.application.homemedkit.utils.ZONE
 import ru.application.homemedkit.utils.getDateTime
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZonedDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,15 +41,19 @@ fun DateRangePicker(
     onDismiss: () -> Unit
 ) {
     val initialStart = startDate.let {
-        if (it.isNotEmpty()) LocalDateTime.of(
-            LocalDate.parse(it, FORMAT_DD_MM_YYYY), LocalTime.of(12, 0, 0)
-        ).toInstant(ZONE).toEpochMilli() else null
+        if (it.isNotEmpty()) ZonedDateTime.of(
+            LocalDate.parse(it, FORMAT_DD_MM_YYYY),
+            LocalTime.of(12, 0, 0),
+            ZONE
+        ).toInstant().toEpochMilli() else null
     }
 
     val initialFinal = finalDate.let {
-        if (it.isNotEmpty()) LocalDateTime.of(
-            LocalDate.parse(it, FORMAT_DD_MM_YYYY), LocalTime.of(12, 0, 0)
-        ).toInstant(ZONE).toEpochMilli() else null
+        if (it.isNotEmpty()) ZonedDateTime.of(
+            LocalDate.parse(it, FORMAT_DD_MM_YYYY),
+            LocalTime.of(12, 0, 0),
+            ZONE
+        ).toInstant().toEpochMilli() else null
     }
 
     val state = rememberDateRangePickerState(

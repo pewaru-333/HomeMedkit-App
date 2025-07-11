@@ -4,21 +4,19 @@ import android.icu.math.BigDecimal
 import android.icu.text.DecimalFormat
 import androidx.compose.ui.text.intl.Locale
 import ru.application.homemedkit.data.dto.Image
-import ru.application.homemedkit.utils.enums.DrugType
 import ru.application.homemedkit.network.Network
+import ru.application.homemedkit.utils.enums.DrugType
 import java.io.File
 import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.YearMonth
 import java.time.ZoneId
-import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-val ZONE: ZoneOffset
-    get() = ZoneId.systemDefault().rules.getOffset(Instant.now())
+val ZONE: ZoneId
+    get() = ZoneId.systemDefault()
 
 val FORMAT_LONG: DateTimeFormatter
     get() = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.current.platformLocale)
@@ -41,21 +39,16 @@ fun inCard(milli: Long) = if (milli == -1L) BLANK else getDateTime(milli).format
 
 fun toExpDate(milli: Long) = if (milli > 0) getDateTime(milli).format(FORMAT_LONG) else BLANK
 
-fun toTimestamp(month: Int, year: Int) = LocalDateTime.of(
+fun toTimestamp(month: Int, year: Int) = ZonedDateTime.of(
     year,
     month,
     YearMonth.of(year, month).lengthOfMonth(),
     LocalTime.MAX.hour,
-    LocalTime.MAX.minute
-).toInstant(ZONE).toEpochMilli()
-
-fun expirationCheckTime(): Long {
-    var unix = LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 0))
-
-    if (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) unix = unix.plusDays(1)
-
-    return unix.toInstant(ZONE).toEpochMilli()
-}
+    LocalTime.MAX.minute,
+    LocalTime.MAX.second,
+    LocalTime.MAX.nano,
+    ZONE
+).toInstant().toEpochMilli()
 
 fun formName(name: String) = name.substringBefore(" ")
 

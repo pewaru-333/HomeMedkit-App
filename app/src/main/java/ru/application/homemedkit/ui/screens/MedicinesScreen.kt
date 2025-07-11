@@ -304,9 +304,9 @@ private fun MedicineItem(medicine: MedicineList, modifier: Modifier, onClick: (L
         },
         colors = ListItemDefaults.colors(
             when {
-                medicine.expDateL >= System.currentTimeMillis() -> MaterialTheme.colorScheme.surfaceContainerLow
+                medicine.isExpired -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
                 !medicine.inStock -> MaterialTheme.colorScheme.scrim.copy(alpha = 0.15f)
-                else -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
+                else -> MaterialTheme.colorScheme.surfaceContainerLow
             }
         )
     )

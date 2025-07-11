@@ -106,7 +106,7 @@ fun Navigation(navigator: NavHostController, modifier: Modifier) {
 }
 
 @Composable
-fun BottomNavigationBar(backStack: NavBackStackEntry?, onClick: (Screen) -> Unit) {
+fun BottomNavigationBar(backStack: NavBackStackEntry?, onClick: (Screen) -> Unit) =
     AnimatedVisibility(
         visible = Menu.entries.any { backStack.isCurrentRoute(it.route::class) },
         enter = expandVertically(),
@@ -123,4 +123,3 @@ fun BottomNavigationBar(backStack: NavBackStackEntry?, onClick: (Screen) -> Unit
             }
         }
     }
-}

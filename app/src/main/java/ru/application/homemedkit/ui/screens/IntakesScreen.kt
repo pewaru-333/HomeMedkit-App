@@ -36,7 +36,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -64,13 +63,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -118,31 +115,34 @@ import ru.application.homemedkit.data.model.MedicineMain
 import ru.application.homemedkit.data.model.ScheduleModel
 import ru.application.homemedkit.data.model.TakenModel
 import ru.application.homemedkit.dialogs.TimePickerDialog
+import ru.application.homemedkit.models.events.NewTakenEvent
 import ru.application.homemedkit.models.events.TakenEvent
+import ru.application.homemedkit.models.states.NewTakenState
+import ru.application.homemedkit.models.states.ScheduledState
 import ru.application.homemedkit.models.states.TakenState
 import ru.application.homemedkit.models.viewModels.IntakesViewModel
+import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.ui.elements.BoxWithEmptyListText
 import ru.application.homemedkit.ui.navigation.Screen
-import ru.application.homemedkit.utils.BLANK
-import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
-import ru.application.homemedkit.utils.FORMAT_H_MM
 import ru.application.homemedkit.utils.Preferences
-import ru.application.homemedkit.utils.decimalFormat
 import ru.application.homemedkit.utils.enums.IntakeTab
 import ru.application.homemedkit.utils.getDateTime
-import java.time.LocalTime
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
+    val context = LocalContext.current
     val model = viewModel<IntakesViewModel>()
 
     val state by model.state.collectAsStateWithLifecycle()
     val medicines by model.medicines.collectAsStateWithLifecycle()
     val intakes by model.intakes.collectAsStateWithLifecycle()
     val schedule by model.schedule.collectAsStateWithLifecycle()
+    val scheduledState by model.scheduleState.collectAsStateWithLifecycle()
     val taken by model.taken.collectAsStateWithLifecycle()
     val takenState by model.takenState.collectAsStateWithLifecycle()
+    val newTaken by model.newTakenState.collectAsStateWithLifecycle()
 
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
@@ -276,7 +276,8 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                             ) { index, item ->
                                 ItemSchedule(
                                     item = item,
-                                    modifier = Modifier.animateItem()
+                                    modifier = Modifier.animateItem(),
+                                    showDialogScheduleToTaken = model::showDialogScheduleToTaken
                                 )
 
                                 if (index < it.intakes.lastIndex) HorizontalDivider()
@@ -321,10 +322,17 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                 )
             }
 
+            state.showDialogScheduleToTaken -> DialogScheduleToTaken(
+                item = scheduledState,
+                onDismiss = model::showDialogScheduleToTaken,
+                onConfirm = { model.scheduleToTaken(AlarmSetter(context)) }
+            )
+
             state.showDialogAddTaken -> DialogAddTaken(
                 medicines = medicines,
+                newTaken = newTaken,
+                onEvent = model::onNewTakenEvent,
                 hide = model::showDialogAddTaken,
-                add = model::addTaken
             )
         }
     }
@@ -400,63 +408,70 @@ private fun DialogGoToDate(show: () -> Unit, scroll: (Long) -> Unit) {
     }
 }
 
+@Composable
+private fun DialogScheduleToTaken(
+    item: ScheduledState,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) = AlertDialog(
+    onDismissRequest = onDismiss,
+    title = { Text(stringResource(R.string.text_edit)) },
+    dismissButton = {
+        TextButton(onDismiss) { Text(stringResource(R.string.text_cancel)) }
+    },
+    confirmButton = {
+        TextButton(
+            onClick = onConfirm,
+            enabled = item.taken,
+            content = { Text(stringResource(R.string.text_confirm)) })
+    },
+    text = {
+        Text(
+            text = if (item.taken) stringResource(R.string.text_confirm_schedule_to_taken, item.title, item.time)
+            else stringResource(R.string.text_medicine_not_in_stock, item.title),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DialogAddTaken(
     medicines: List<MedicineMain>,
-    add: (MedicineMain, String, DatePickerState, TimePickerState) -> Unit,
+    newTaken: NewTakenState,
+    onEvent: (NewTakenEvent) -> Unit,
     hide: () -> Unit
 ) {
     val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = getDateTime(System.currentTimeMillis()).toInstant().toEpochMilli(),
         selectableDates = object : SelectableDates {
-            override fun isSelectableDate(utcTimeMillis: Long) = utcTimeMillis <= System.currentTimeMillis()
+            override fun isSelectableDate(utcTimeMillis: Long) =
+                getDateTime(utcTimeMillis).toLocalDate() <= LocalDate.now()
         }
     )
 
     val timePickerState = rememberTimePickerState(12, 0, true)
 
+    LaunchedEffect(Unit) {
+        onEvent(NewTakenEvent.SetDate(datePickerState))
+        onEvent(NewTakenEvent.SetTime(timePickerState))
+    }
+
     var expanded by remember { mutableStateOf(false) }
     var showDate by remember { mutableStateOf(false) }
     var showTime by remember { mutableStateOf(false) }
 
-    var medicine: MedicineMain? by remember { mutableStateOf(null) }
-    var amount by remember { mutableStateOf(BLANK) }
-    var date by remember { mutableLongStateOf(-1L) }
-    var time by remember { mutableStateOf(Pair(-1, -1))}
-
-    fun validateAmount(text: String) = if (text.isNotEmpty()) {
-        when (text.replace(',', '.').toDoubleOrNull()) {
-            null -> {}
-            else -> amount = text.replace(',', '.')
-        }
-    } else {
-        amount = BLANK
-    }
-
-    fun validateDate(millis: Long) = if (millis == -1L) BLANK
-    else getDateTime(millis).format(FORMAT_DD_MM_YYYY)
-
-    fun validateTime(time: Pair<Int, Int>) = if (time.first == -1) BLANK
-    else LocalTime.of(time.first, time.second).format(FORMAT_H_MM)
-
     AlertDialog(
         onDismissRequest = hide,
         dismissButton = {
-            TextButton(hide) {
-                Text(stringResource(R.string.text_cancel))
-            }
+            TextButton(hide) { Text(stringResource(R.string.text_cancel)) }
         },
         confirmButton = {
             TextButton(
-                enabled = medicine != null && amount.isNotEmpty() && date != -1L && time != Pair(-1, -1),
-                onClick = {
-                    medicine?.let {
-                        add(it, amount, datePickerState, timePickerState)
-                    }
-                }
-            ) {
-                Text(stringResource(R.string.text_save))
-            }
+                enabled = newTaken.medicine != null && newTaken.amount.isNotEmpty(),
+                onClick = { onEvent(NewTakenEvent.AddNewTaken) },
+                content = { Text(stringResource(R.string.text_save)) }
+            )
         },
         title = {
             Text(
@@ -474,7 +489,7 @@ private fun DialogAddTaken(
                     onExpandedChange = { expanded = it }
                 ) {
                     OutlinedTextField(
-                        value = medicine?.nameAlias.orEmpty().ifEmpty(medicine?.productName::orEmpty),
+                        value = newTaken.title,
                         modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                         onValueChange = {},
                         readOnly = true,
@@ -486,7 +501,10 @@ private fun DialogAddTaken(
                     ) {
                         medicines.forEach { item ->
                             DropdownMenuItem(
-                                onClick = { medicine = item; expanded = false },
+                                onClick = {
+                                    onEvent(NewTakenEvent.PickMedicine(item))
+                                    expanded = false
+                                },
                                 text = {
                                     Text(
                                         text = item.nameAlias.ifEmpty(item::productName),
@@ -501,9 +519,9 @@ private fun DialogAddTaken(
 
                 Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
-                        value = amount,
+                        value = newTaken.amount,
                         modifier = Modifier.weight(0.5f),
-                        onValueChange = { validateAmount(it) },
+                        onValueChange = { onEvent(NewTakenEvent.SetAmount(it)) },
                         label = { Text(stringResource(R.string.text_amount)) },
                         placeholder = { Text(stringResource(R.string.text_empty)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -515,20 +533,19 @@ private fun DialogAddTaken(
                         }
                     )
                     OutlinedTextField(
-                        value = if (medicine == null) BLANK
-                        else decimalFormat(medicine?.prodAmount?.toString() ?: BLANK),
+                        value = newTaken.inStock,
                         modifier = Modifier.weight(0.5f),
                         onValueChange = {},
                         label = { Text(stringResource(R.string.intake_text_in_stock)) },
                         placeholder = { Text(stringResource(R.string.text_empty)) },
-                        suffix = { Text(medicine?.let { stringResource(it.doseType.title) } ?: BLANK) },
+                        suffix = { Text(newTaken.doseType.asString()) },
                         readOnly = true
                     )
                 }
 
                 Row(Modifier.fillMaxWidth(), Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
-                        value = validateDate(date),
+                        value = newTaken.date,
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(stringResource(R.string.intake_text_date)) },
@@ -548,7 +565,7 @@ private fun DialogAddTaken(
                     )
 
                     OutlinedTextField(
-                        value = validateTime(time),
+                        value = newTaken.time,
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(stringResource(R.string.intake_text_time)) },
@@ -576,21 +593,19 @@ private fun DialogAddTaken(
             onDismissRequest = { showDate = false },
             dismissButton = {
                 TextButton(
-                    onClick = {
-                        showDate = false
-                    }
-                ) {
-                    Text(stringResource(text_cancel))
-                }
+                    onClick = { showDate = false },
+                    content = { Text(stringResource(text_cancel)) }
+                )
             },
             confirmButton = {
                 TextButton(
+                    content = { Text(stringResource(R.string.text_save)) },
                     enabled = datePickerState.selectedDateMillis != null,
                     onClick = {
-                        datePickerState.selectedDateMillis?.let { date = it }
+                        onEvent(NewTakenEvent.SetDate(datePickerState))
                         showDate = false
                     }
-                ) { Text(stringResource(R.string.text_save)) }
+                )
             }
         ) {
             DatePicker(
@@ -600,14 +615,13 @@ private fun DialogAddTaken(
         }
 
         showTime -> TimePickerDialog(
+            content = { TimePicker(timePickerState) },
             onCancel = { showTime = false },
             onConfirm = {
-                timePickerState.let { time = Pair(it.hour, it.minute) }
+                onEvent(NewTakenEvent.SetTime(timePickerState))
                 showTime = false
             }
-        ) {
-            TimePicker(timePickerState)
-        }
+        )
     }
 }
 
@@ -617,13 +631,14 @@ private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
     val context = LocalContext.current
     val items = listOf(stringResource(intake_text_not_taken), stringResource(intake_text_taken))
 
-    if (intake.showPicker)
+    if (intake.showPicker) {
         TimePickerDialog(
             onCancel = { onEvent(TakenEvent.ShowTimePicker(false)) },
             onConfirm = { onEvent(TakenEvent.SetFactTime) }
         ) {
             TimePicker(intake.pickerState)
         }
+    }
 
     AlertDialog(
         onDismissRequest = { onEvent(TakenEvent.HideDialog) },
@@ -766,7 +781,8 @@ fun ItemSchedule(
     item: IntakeModel,
     modifier: Modifier,
     showDialog: ((Long) -> Unit)? = null,
-    showDialogDelete: ((Long) -> Unit)? = null
+    showDialogDelete: ((Long) -> Unit)? = null,
+    showDialogScheduleToTaken: ((IntakeModel) -> Unit)? = null
 ) {
     ListItem(
         headlineContent = {
@@ -784,7 +800,13 @@ fun ItemSchedule(
         },
         modifier = modifier.combinedClickable(
             onClick = { showDialog?.invoke(item.id) },
-            onLongClick = { if (!item.taken) showDialogDelete?.invoke(item.id) }
+            onLongClick = {
+                showDialogScheduleToTaken?.invoke(item)
+
+                if (!item.taken) {
+                    showDialogDelete?.invoke(item.id)
+                }
+            }
         ),
         supportingContent = {
             Text(

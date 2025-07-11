@@ -6,8 +6,8 @@ data class MedicineList(
     val prodAmount: String,
     val doseType: Int,
     val expDateS: String,
-    val expDateL: Long,
     val formName: String,
     val image: String,
-    val inStock: Boolean
+    val inStock: Boolean,
+    val isExpired: Boolean
 )

@@ -26,6 +26,16 @@ interface TakenDAO : BaseDAO<IntakeTaken> {
     @Query("SELECT * FROM intakes_taken WHERE takenId = :takenId")
     fun getById(takenId: Long): IntakeTakenFull?
 
+    @Query(
+        """
+        SELECT amount FROM intakes_taken 
+        WHERE medicineId = :medicineId
+        ORDER BY `trigger` DESC
+        LIMIT 1
+        """
+    )
+    fun getSimilarAmount(medicineId: Long): Double?
+
     @Query("UPDATE intakes_taken SET taken = :taken, inFact = :inFact WHERE takenId = :id")
     fun setTaken(id: Long, taken: Boolean, inFact: Long)
 

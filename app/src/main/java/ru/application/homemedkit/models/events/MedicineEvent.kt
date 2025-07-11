@@ -25,11 +25,17 @@ sealed interface MedicineEvent {
     data class SetImage(val imageProcessing: ImageProcessing, val image: ImageProxy) : MedicineEvent
     data class ShowDialogFullImage(val index: Int = 0) : MedicineEvent
     data class SetFullImage(val index: Int) : MedicineEvent
+    data class RemoveImage(val image: String) : MedicineEvent
+
+    data class OnImageReodering(val fromIndex: Int, val toIndex: Int) : MedicineEvent
+
+    data object EditImagesOrder : MedicineEvent
 
     data object ShowLoading : MedicineEvent
     data object ShowKitDialog : MedicineEvent
     data object ShowDatePicker : MedicineEvent
     data object ShowPackageDatePicker : MedicineEvent
+    data object ShowDialogPictureGrid : MedicineEvent
     data object ShowDialogPictureChoose : MedicineEvent
     data object ShowIconPicker : MedicineEvent
     data object ShowDialogDelete : MedicineEvent

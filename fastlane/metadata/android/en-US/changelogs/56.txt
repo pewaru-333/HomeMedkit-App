@@ -1,0 +1,3 @@
+— Now you can set the scheduled medication taken in advance.
+— Added the ability to completely change the images of medicines.
+— Lots of minor changes and bug fixes.

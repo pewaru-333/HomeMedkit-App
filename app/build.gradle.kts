@@ -9,14 +9,14 @@ plugins {
 
 android {
     namespace = "ru.application.homemedkit"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 55
-        versionName = "1.8.0"
+        targetSdk = 36
+        versionCode = 56
+        versionName = "1.8.1"
     }
 
     dependenciesInfo {
@@ -45,8 +45,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+    kotlin {
+        compilerOptions {
+            jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+        }
     }
     buildFeatures {
         compose = true

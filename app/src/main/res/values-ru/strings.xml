@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Аптечка</string>
+
     <!-- Меню -->
     <string name="bottom_bar_medicines">Лекарства</string>
     <string name="bottom_bar_intakes">Приём</string>
     <string name="bottom_bar_settings">Настройки</string>
+
     <!-- Настройки -->
     <string name="preference_basic_settings">Основные настройки</string>
     <string name="preference_app_view">Вид приложения</string>
@@ -23,21 +25,26 @@
     <string name="preference_import_export">Импорт/Экспорт</string>
     <string name="preference_fixing_notifications">Не приходят уведомления?</string>
     <string name="preference_clear_app_cache">Очистить кеш приложения</string>
+
     <!-- Страницы -->
     <string name="page_medications">Лекарства</string>
     <string name="page_intake_list">Приём (список)</string>
     <string name="page_intake_current">Приём (текущие)</string>
     <string name="page_intake_past">Приём (прошедшие)</string>
     <string name="page_intake_settings">Настройки</string>
+
     <!-- Сортировка -->
     <string name="sorting_a_z">Названию (от А до Я)</string>
     <string name="sorting_z_a">Названию (от Я до А)</string>
     <string name="sorting_from_oldest">Сроку годности (со старых)</string>
     <string name="sorting_from_newest">Сроку годности (с новых)</string>
+
     <!-- Темы -->
     <string name="theme_system">Системная</string>
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
+    <string name="theme_dark_amoled">Тёмная AMOLED</string>
+
     <!-- Уведомления -->
     <string name="channel_name">Звуковые уведомления</string>
     <string name="channel_exp_desc">Окончание срока годности</string>
@@ -51,9 +58,11 @@
     <string name="text_intake_prealarm_title">Предстоящий приём</string>
     <string name="text_intake_time">Лекарство: %1$s\nДоза приёма: %2$s %3$s\nОстаток лекарства: %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Осталось недостаточно лекарства</string>
+
     <!-- "Заполнители" -->
     <string name="placeholder_dose">0,5 мг + 84 мкг</string>
     <string name="placeholder_time">Время #%1$d</string>
+
     <!-- Лекарства -->
     <string name="text_exp_date">Годен до</string>
     <string name="text_package_opened_date">Вскрытие упаковки</string>
@@ -71,6 +80,7 @@
     <string name="text_medicine_status_scanned">Не проверено</string>
     <string name="text_medicine_status_self_added">Добавлено вручную</string>
     <string name="text_medicine_storage_conditions">Условия хранения</string>
+
     <!-- Формы лекарств -->
     <string name="type_tablets">ТАБЛЕТКИ</string>
     <string name="type_capsules">КАПСУЛЫ</string>
@@ -98,6 +108,7 @@
     <string name="type_patch">ПЛАСТЫРЬ</string>
     <string name="type_bandage">БИНТ</string>
     <string name="type_napkins">САЛФЕТКИ</string>
+
     <!-- Виды доз лекарств -->
     <string name="dose_ed">ЕД</string>
     <string name="dose_pcs">шт</string>
@@ -106,11 +117,13 @@
     <string name="dose_mg">мг</string>
     <string name="dose_l">л</string>
     <string name="dose_ml">мл</string>
+
     <!-- Вкладки -->
     <string name="tab_groups">Группы</string>
     <string name="tab_list">Список</string>
     <string name="tab_current">Текущие</string>
     <string name="tab_past">Прошедшие</string>
+
     <!-- Приём -->
     <string name="intake_text_amount">Количество</string>
     <string name="intake_text_by_schedule">По расписанию</string>
@@ -148,6 +161,7 @@
     <string name="intake_period_pick">выбор по датам</string>
     <string name="intake_period_other">ввод дней</string>
     <string name="intake_period_indef">бессрочно</string>
+
     <!-- Диалоговые окна -->
     <string name="manual_add">Хотите добавить лекарство вручную?</string>
     <string name="text_choose_from_gallery">Выбрать из галереи</string>
@@ -155,6 +169,7 @@
     <string name="text_code_not_found">Код не найден!</string>
     <string name="text_confirm_deletion_int">Вы подтверждаете удаление этого приёма лекарства?</string>
     <string name="text_confirm_deletion_med">Вы подтверждаете удаление этого лекарства?</string>
+    <string name="text_confirm_schedule_to_taken">Вы подтверждаете, что уже приняли %1$s в %2$s?</string>
     <string name="text_connection_error">Ошибка при подключении!</string>
     <string name="text_duplicate">Лекарство уже было добавлено!</string>
     <string name="text_error_not_medicine">Это не код лекарства!</string>
@@ -162,6 +177,7 @@
     <string name="text_export_import_description">Это экспериментальная функция.\nПри импорте текущие данные будут удалены!</string>
     <string name="text_fill_field">Заполните это поле!</string>
     <string name="text_fix_notifications">Приложение перезапустится, и все не пришедшие в срок уведомления появятся в строке состояния. Не используйте данную функцию, если всё работает корректно!</string>
+    <string name="text_images">Изображения</string>
     <string name="text_kit_title">Название группы</string>
     <string name="text_kit_list_is_empty">Список групп пуст. Вы можете добавить группы в настройках приложения.</string>
     <string name="text_medicine_deleted">Лекарство было удалено из списка, невозможно изменить статус приёма</string>
@@ -173,6 +189,7 @@
     <string name="text_set_image">Установить изображение</string>
     <string name="text_take_picture">Сделать фото</string>
     <string name="text_try_again">Попробуйте отсканировать код ещё раз!</string>
+
     <!-- Разрешения -->
     <string name="text_permission_title_full_screen">Полноэкранные уведомления</string>
     <string name="text_permission_title_ignore_battery">Игнорировать оптимизацию батареи</string>
@@ -188,6 +205,7 @@
     <string name="text_permission_grant">Выдать</string>
     <string name="text_permission_granted">Выдано</string>
     <string name="text_permission_grant_full">Выдать разрешение</string>
+
     <!-- Строки -->
     <string name="text_add">Добавить</string>
     <string name="text_amount">Количество</string>
@@ -210,6 +228,7 @@
     <string name="text_go_to">Перейти</string>
     <string name="text_grant">Выдать</string>
     <string name="text_import">Импорт</string>
+    <string name="text_medicine_not_in_stock">Вы не можете принять %1$s, так как его осталось недостаточно!</string>
     <string name="text_no">Нет</string>
     <string name="text_no_data_found">Лекарства отсутствуют. Добавьте их или измените фильтр.</string>
     <string name="text_no_data_group_found">Лекарства с группами отсутствуют. Добавьте их или измените фильтр.</string>
@@ -235,6 +254,7 @@
     <string name="text_weekdays">Будние дни</string>
     <string name="text_weekend">Выходные дни</string>
     <string name="text_yes">Да</string>
+
     <!-- Числительные -->
     <plurals name="intake_times_a_day">
         <item quantity="one">%d раз в день</item>

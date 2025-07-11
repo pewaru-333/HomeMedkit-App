@@ -45,6 +45,7 @@ interface MedicineDAO : BaseDAO<Medicine> {
     @Query("SELECT id FROM medicines WHERE :cis LIKE '%' || cis || '%' AND cis IS NOT NULL AND cis != '' LIMIT 1")
     fun getIdByCis(cis: String): Long?
 
+    @Transaction
     @Query("SELECT * FROM medicines WHERE id = :id ")
     fun getById(id: Long): MedicineFull?
 

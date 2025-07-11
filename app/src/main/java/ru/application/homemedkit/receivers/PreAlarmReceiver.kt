@@ -42,7 +42,7 @@ class PreAlarmReceiver : BroadcastReceiver() {
                     medicineId = medicine.id,
                     intakeId = alarm.intakeId,
                     alarmId = alarmId,
-                    productName = medicine.productName,
+                    productName = medicine.nameAlias.ifEmpty(medicine::productName),
                     formName = medicine.prodFormNormName,
                     amount = alarm.amount,
                     doseType = medicine.doseType,

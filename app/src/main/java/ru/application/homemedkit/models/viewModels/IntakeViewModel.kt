@@ -50,6 +50,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZonedDateTime
 
 class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
     private lateinit var setter: AlarmSetter
@@ -68,7 +69,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                             medicine = medicine.toMedicineIntake(),
                             amountStock = medicine.prodAmount.toString(),
                             doseType = medicine.doseType.title,
-                            image = medicine.images.firstOrNull() ?: BLANK
+                            image = medicine.images.firstOrNull()?.image ?: BLANK
                         )
                     }
                 }
@@ -95,20 +96,22 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                 val scheduled = mutableListOf<Alarm>()
 
                 _state.value.pickedTime.forEach { pickedTime ->
-                    var initial = LocalDateTime.of(
+                    var initial = ZonedDateTime.of(
                         LocalDate.parse(_state.value.startDate, FORMAT_DD_MM_YYYY),
-                        LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
+                        LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute),
+                        ZONE
                     )
 
-                    val finish = LocalDateTime.of(
+                    val finish = ZonedDateTime.of(
                         LocalDate.parse(_state.value.finalDate, FORMAT_DD_MM_YYYY),
-                        LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
+                        LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute),
+                        ZONE
                     )
 
                     initial = initial.let {
                         var unix = it
 
-                        while (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) {
+                        while (unix.toInstant().toEpochMilli() < System.currentTimeMillis()) {
                             unix = unix.plusDays(1)
                         }
 
@@ -128,7 +131,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                             scheduled.add(
                                 Alarm(
                                     intakeId = intakeId,
-                                    trigger = initial.toInstant(ZONE).toEpochMilli(),
+                                    trigger = initial.toInstant().toEpochMilli(),
                                     amount = pickedTime.amount.toDouble(),
                                     preAlarm = _state.value.preAlarm
                                 )
@@ -184,20 +187,22 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                     val scheduled = mutableListOf<Alarm>()
 
                     _state.value.pickedTime.forEach { pickedTime ->
-                        var initial = LocalDateTime.of(
+                        var initial = ZonedDateTime.of(
                             LocalDate.parse(_state.value.startDate, FORMAT_DD_MM_YYYY),
-                            LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
+                            LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute),
+                            ZONE
                         )
 
-                        val finish = LocalDateTime.of(
+                        val finish = ZonedDateTime.of(
                             LocalDate.parse(_state.value.finalDate, FORMAT_DD_MM_YYYY),
-                            LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
+                            LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute),
+                            ZONE
                         )
 
                         initial = initial.let {
                             var unix = it
 
-                            while (unix.toInstant(ZONE).toEpochMilli() < System.currentTimeMillis()) {
+                            while (unix.toInstant().toEpochMilli() < System.currentTimeMillis()) {
                                 unix = unix.plusDays(1)
                             }
 
@@ -217,7 +222,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                                 scheduled.add(
                                     Alarm(
                                         intakeId = _state.value.intakeId,
-                                        trigger = initial.toInstant(ZONE).toEpochMilli(),
+                                        trigger = initial.toInstant().toEpochMilli(),
                                         amount = pickedTime.amount.toDouble(),
                                         preAlarm = _state.value.preAlarm
                                     )

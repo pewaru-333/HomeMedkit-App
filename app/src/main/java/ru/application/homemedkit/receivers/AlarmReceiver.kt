@@ -86,7 +86,7 @@ class AlarmReceiver : BroadcastReceiver() {
                                 context,
                                 takenId.toInt(),
                                 Intent(context, IntakeDialogActivity::class.java).apply {
-                                    setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                     putExtra(ID, intake.medicineId)
                                     putExtra(TAKEN_ID, takenId)
                                     putExtra(BLANK, taken.amount)

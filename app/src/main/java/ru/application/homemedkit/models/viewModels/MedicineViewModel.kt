@@ -1,9 +1,7 @@
 package ru.application.homemedkit.models.viewModels
 
 import android.net.Uri
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -32,6 +30,7 @@ import ru.application.homemedkit.network.Network
 import ru.application.homemedkit.ui.navigation.Screen.Medicine
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.camera.ImageProcessing
+import ru.application.homemedkit.utils.enums.ImageEditing
 import ru.application.homemedkit.utils.extensions.toMedicine
 import ru.application.homemedkit.utils.extensions.toState
 import ru.application.homemedkit.utils.getMedicineImages
@@ -71,9 +70,10 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             if (checkProductName.successful) {
                 val id = dao.insert(_state.value.toMedicine())
                 val kits = _state.value.kits.map { MedicineKit(id, it.kitId) }
-                val images = _state.value.images.map { image ->
+                val images = _state.value.images.mapIndexed { index, image ->
                     Image(
-                        medicineId = id,
+                        medicineId = _state.value.id,
+                        position = index,
                         image = image
                     )
                 }
@@ -100,9 +100,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             _response.send(Response.Loading)
 
             try {
-                val response = withContext(Dispatchers.IO) {
-                    Network.getMedicine(_state.value.cis)
-                }
+                val response = Network.getMedicine(_state.value.cis)
 
                 when(val data = response) {
                     is Response.Error -> {
@@ -149,10 +147,11 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
             if (checkProductName.successful) {
                 val kits = _state.value.kits.map { MedicineKit(_state.value.id, it.kitId) }
-                val images = _state.value.images.map {
+                val images = _state.value.images.mapIndexed { index, image ->
                     Image(
                         medicineId = _state.value.id,
-                        image = it
+                        position = index,
+                        image = image
                     )
                 }
 
@@ -238,28 +237,40 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
             is MedicineEvent.SetIcon -> _state.update {
                 it.copy(
-                    images = mutableStateListOf(event.icon),
-                    showDialogIcons = false
+                    showDialogIcons = false,
+                    showDialogPictureGrid = true,
+                    images = it.images.apply { add(event.icon) },
                 )
             }
 
             is MedicineEvent.SetFullImage -> _state.update { it.copy(fullImage = event.index) }
 
             is MedicineEvent.SetImage -> viewModelScope.launch {
-                val images = mutableStateListOf<String>().apply {
-                    add(event.imageProcessing.compressImage(event.image))
-                }
-
                 _state.update {
                     it.copy(
-                        images = images,
+                        showDialogPictureGrid = true,
                         showDialogPictureChoose = false,
                         showTakePhoto = false,
-                        showDialogIcons = false
+                        showDialogIcons = false,
+                        images = it.images.apply {
+                            add(event.imageProcessing.compressImage(event.image))
+                        }
                     )
                 }
 
                 _response.send(Response.Initial)
+            }
+
+            is MedicineEvent.OnImageReodering -> _state.update {
+                it.copy(images = it.images.apply { add(event.toIndex, removeAt(event.fromIndex)) })
+            }
+
+            is MedicineEvent.RemoveImage -> _state.update {
+                it.copy(images = it.images.apply { remove(event.image) })
+            }
+
+            MedicineEvent.EditImagesOrder -> _state.update {
+                it.copy(imageEditing = ImageEditing.entries.getOrElse(it.imageEditing.ordinal + 1) { ImageEditing.ADDING })
             }
 
             MedicineEvent.ShowLoading -> viewModelScope.launch {
@@ -279,7 +290,14 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                 )
             }
 
-            MedicineEvent.ShowDialogPictureChoose -> _state.update { it.copy(showDialogPictureChoose = !it.showDialogPictureChoose) }
+            MedicineEvent.ShowDialogPictureGrid -> _state.update { it.copy(showDialogPictureGrid = !it.showDialogPictureGrid) }
+
+            MedicineEvent.ShowDialogPictureChoose -> _state.update {
+                it.copy(
+                    showDialogPictureGrid = !it.showDialogPictureGrid,
+                    showDialogPictureChoose = !it.showDialogPictureChoose
+                )
+            }
 
             is MedicineEvent.ShowDialogFullImage -> _state.update {
                 it.copy(
@@ -309,15 +327,15 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun compressImage(imageProcessing: ImageProcessing, images: List<Uri>) {
-        viewModelScope.launch {
-            _state.update {
-                it.copy(
-                    showDialogPictureChoose = false,
-                    showTakePhoto = false,
-                    showDialogIcons = false
-                )
-            }
+        _state.update {
+            it.copy(
+                showDialogPictureChoose = false,
+                showTakePhoto = false,
+                showDialogIcons = false
+            )
+        }
 
+        viewModelScope.launch {
             _response.send(Response.Loading)
 
             val compressed = images.map { uri ->
@@ -326,10 +344,15 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                 }
             }
 
-            _state.update {
-                it.copy(
-                    images = compressed.mapNotNull { it.await() }.toMutableStateList()
-                )
+            val compressedResult = compressed.mapNotNull { it.await() }
+
+            withContext(Dispatchers.Main) {
+                _state.update {
+                    it.copy(
+                        images = it.images.apply { addAll(compressedResult) },
+                        showDialogPictureGrid = true
+                    )
+                }
             }
 
             _response.send(Response.Initial)
