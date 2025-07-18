@@ -442,15 +442,21 @@ private fun DialogAddTaken(
     onEvent: (NewTakenEvent) -> Unit,
     hide: () -> Unit
 ) {
+    val currentTime = getDateTime(System.currentTimeMillis())
+
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = getDateTime(System.currentTimeMillis()).toInstant().toEpochMilli(),
+        initialSelectedDateMillis = currentTime.toInstant().toEpochMilli(),
         selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long) =
                 getDateTime(utcTimeMillis).toLocalDate() <= LocalDate.now()
         }
     )
 
-    val timePickerState = rememberTimePickerState(12, 0, true)
+    val timePickerState = rememberTimePickerState(
+        initialHour = currentTime.hour,
+        initialMinute = currentTime.minute,
+        is24Hour = true
+    )
 
     LaunchedEffect(Unit) {
         onEvent(NewTakenEvent.SetDate(datePickerState))

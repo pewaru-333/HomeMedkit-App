@@ -72,7 +72,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                 val kits = _state.value.kits.map { MedicineKit(id, it.kitId) }
                 val images = _state.value.images.mapIndexed { index, image ->
                     Image(
-                        medicineId = _state.value.id,
+                        medicineId = id,
                         position = index,
                         image = image
                     )

@@ -149,11 +149,15 @@ class IntakesViewModel : ViewModel() {
 
                 val medicine = _newTakenState.value.medicine!!
 
+                val amount = _newTakenState.value.amount.let {
+                    it.toDoubleOrNull() ?: it.replace(',', '.').toDoubleOrNull() ?: 1.0
+                }
+
                 val taken = IntakeTaken(
                     medicineId = medicine.id,
                     productName = _newTakenState.value.title,
                     formName = medicine.prodFormNormName,
-                    amount = _newTakenState.value.amount.toDouble(),
+                    amount = amount,
                     doseType = medicine.doseType,
                     image = medicine.image.firstOrNull().orEmpty(),
                     trigger = trigger,
