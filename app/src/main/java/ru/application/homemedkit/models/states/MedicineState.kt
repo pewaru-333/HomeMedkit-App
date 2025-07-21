@@ -3,7 +3,9 @@ package ru.application.homemedkit.models.states
 import androidx.annotation.StringRes
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.enums.DoseType
@@ -16,7 +18,7 @@ data class MedicineState(
     val editing: Boolean = false,
     val default: Boolean = false,
     val id: Long = 0L,
-    val kits: SnapshotStateList<Kit> = mutableStateListOf(),
+    val kits: SnapshotStateSet<Kit> = mutableStateSetOf(),
     val cis: String = BLANK,
     val productName: String = BLANK,
     @StringRes val productNameError: Int? = null,

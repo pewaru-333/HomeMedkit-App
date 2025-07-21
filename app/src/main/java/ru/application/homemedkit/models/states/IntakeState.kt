@@ -5,16 +5,18 @@ package ru.application.homemedkit.models.states
 import androidx.annotation.StringRes
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.compose.runtime.toMutableStateList
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.model.IntakeAmountTime
 import ru.application.homemedkit.data.model.MedicineIntake
 import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.Preferences
 import ru.application.homemedkit.utils.enums.IntakeExtra
 import ru.application.homemedkit.utils.enums.Interval
 import ru.application.homemedkit.utils.enums.Period
-import ru.application.homemedkit.utils.Preferences
 import ru.application.homemedkit.utils.enums.SchemaType
 import java.time.DayOfWeek
 
@@ -47,7 +49,7 @@ data class IntakeState(
     val finalDate: String = BLANK,
     @StringRes val finalDateError: Int? = null,
     @StringRes val extraDesc: Int? = null,
-    val selectedExtras: SnapshotStateList<IntakeExtra> = mutableStateListOf(IntakeExtra.CANCELLABLE),
+    val selectedExtras: SnapshotStateSet<IntakeExtra> = mutableStateSetOf(IntakeExtra.CANCELLABLE),
     val showIntervalTypePicker: Boolean = false,
     val showDatePicker: Boolean = false,
     val showDateRangePicker: Boolean = false,

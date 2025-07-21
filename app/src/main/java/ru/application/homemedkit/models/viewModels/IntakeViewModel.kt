@@ -45,6 +45,7 @@ import ru.application.homemedkit.utils.enums.SchemaType
 import ru.application.homemedkit.utils.extensions.toIntake
 import ru.application.homemedkit.utils.extensions.toMedicineIntake
 import ru.application.homemedkit.utils.extensions.toState
+import ru.application.homemedkit.utils.extensions.toggle
 import ru.application.homemedkit.utils.getDateTime
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -524,7 +525,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                 _state.update {
                     it.copy(
                         pickedDays = it.pickedDays.apply {
-                            if (event.day in this) remove(event.day) else add(event.day)
+                            toggle(event.day)
                             if (isEmpty()) addAll(DayOfWeek.entries)
                             sort()
                         }
@@ -572,11 +573,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                     IntakeExtra.PREALARM -> _state.update { it.copy(preAlarm = !it.preAlarm) }
                 }.also {
                     _state.update {
-                        it.copy(
-                            selectedExtras = it.selectedExtras.apply {
-                                if (event.extra in this) remove(event.extra) else add(event.extra)
-                            }
-                        )
+                        it.copy(selectedExtras = it.selectedExtras.apply { toggle(event.extra) })
                     }
                 }
             }

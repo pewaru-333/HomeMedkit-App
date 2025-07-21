@@ -1,20 +1,19 @@
 Home Medkit
 
-An application that allows you to easily and quickly register and store information about medications taken.
+The application allows you to easily and quickly register and store information about medications taken.
 
 <b>Features</b>
 
-* Automatic addition of medications by scanning the label.
+* Automatically add the medicine by scanning the label (works only for Russian treatments).
 * The ability to add medications manually.
-* Update information about the medication if it was scanned without an internet connection.
-* Edit information about medications added manually.
-* Adding medication images.
-* Sorting of medications by expiration date.
-* Grouping of medications by categories.
-* Notifications for when to take medications.
-* Display of the nearest medications to be taken.
-* Reminder of the expiration date of medications.
+* Update information about the medicine if it was scanned without an internet connection.
+* Edit information about medicines added manually.
+* Adding a picture of the medicine.
+* Sorting of medicines by expiration dates.
+* Grouping of medicines by categories.
+* Sound notification of the need for medication.
+* Display of the nearest medication schedule.
+* Reminder of the expiration date of medicines.
 * Export and import the database to other devices.
 
-With it, you can track the expiration dates of medications, create a schedule for their intake and receive notifications about it.
-It is a reliable and convenient assistant that will help you monitor your health.
+Using the app, you can track the expiration dates of medicines, create a schedule for their intake and receive notifications about it. It is a reliable and convenient assistant that will help you monitor your health.

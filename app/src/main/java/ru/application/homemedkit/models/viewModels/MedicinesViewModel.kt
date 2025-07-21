@@ -1,6 +1,6 @@
 package ru.application.homemedkit.models.viewModels
 
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateSetOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +26,7 @@ import ru.application.homemedkit.utils.enums.MedicineTab
 import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.extensions.toMedicineList
 import ru.application.homemedkit.utils.extensions.toModel
+import ru.application.homemedkit.utils.extensions.toggle
 
 class MedicinesViewModel : ViewModel() {
     private val _state = MutableStateFlow(MedicinesState())
@@ -147,8 +148,6 @@ class MedicinesViewModel : ViewModel() {
     fun setSorting(sorting: Sorting) = _state.update { it.copy(sorting = sorting) }
 
     fun showFilter() = _state.update { it.copy(showFilter = !it.showFilter) }
-    fun clearFilter() = _state.update { it.copy(showFilter = false, kits = mutableStateListOf()) }
-    fun pickFilter(kit: Kit) = _state.update {
-        it.copy(kits = it.kits.apply { if (kit in this) remove(kit) else add(kit) })
-    }
+    fun clearFilter() = _state.update { it.copy(showFilter = false, kits = mutableStateSetOf()) }
+    fun pickFilter(kit: Kit) = _state.update { it.copy(kits = it.kits.apply { toggle(kit) }) }
 }

@@ -9,7 +9,7 @@ gradle = "8.11.1"
 kotlin = "2.2.0"
 kotlinx-serialization-json = "1.9.0"
 ktor = "3.2.2"
-material-preferences = "2.0.0"
+material-preferences = "2.1.0"
 room = "2.7.2"
 zxing = "3.5.3"
 

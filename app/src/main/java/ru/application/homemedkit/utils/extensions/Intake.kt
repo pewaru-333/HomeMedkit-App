@@ -5,6 +5,7 @@ package ru.application.homemedkit.utils.extensions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.text.intl.Locale
 import ru.application.homemedkit.R
@@ -73,7 +74,7 @@ fun IntakeFull.toState() = IntakeState(
     noSound = noSound,
     preAlarm = preAlarm,
     cancellable = cancellable,
-    selectedExtras = SnapshotStateList<IntakeExtra>().apply {
+    selectedExtras = SnapshotStateSet<IntakeExtra>().apply {
         if (cancellable) add(IntakeExtra.CANCELLABLE)
         if (fullScreen) add(IntakeExtra.FULLSCREEN)
         if (noSound) add(IntakeExtra.NO_SOUND)

@@ -1,7 +1,7 @@
 package ru.application.homemedkit.models.viewModels
 
 import android.net.Uri
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,6 +33,7 @@ import ru.application.homemedkit.utils.camera.ImageProcessing
 import ru.application.homemedkit.utils.enums.ImageEditing
 import ru.application.homemedkit.utils.extensions.toMedicine
 import ru.application.homemedkit.utils.extensions.toState
+import ru.application.homemedkit.utils.extensions.toggle
 import ru.application.homemedkit.utils.getMedicineImages
 import ru.application.homemedkit.utils.toExpDate
 import ru.application.homemedkit.utils.toTimestamp
@@ -226,14 +227,9 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             }
             is MedicineEvent.SetPhKinetics -> _state.update { it.copy(phKinetics = event.phKinetics) }
             is MedicineEvent.SetComment -> _state.update { it.copy(comment = event.comment) }
-            is MedicineEvent.PickKit -> _state.update {
-                it.copy(
-                    kits = it.kits.apply {
-                        if (event.kit in this) remove(event.kit) else add(event.kit)
-                    }
-                )
-            }
-            MedicineEvent.ClearKit -> _state.update { it.copy(kits = it.kits.apply(SnapshotStateList<Kit>::clear)) }
+            is MedicineEvent.PickKit -> _state.update { it.copy(kits = it.kits.apply { toggle(event.kit) }) }
+
+            MedicineEvent.ClearKit -> _state.update { it.copy(kits = it.kits.apply(SnapshotStateSet<Kit>::clear)) }
 
             is MedicineEvent.SetIcon -> _state.update {
                 it.copy(
