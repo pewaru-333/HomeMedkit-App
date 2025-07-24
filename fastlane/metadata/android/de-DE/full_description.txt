@@ -1,11 +1,11 @@
 Medkit
 
-Eine Anwendung, mit der Sie einfach und schnell Informationen über eingenommene Medikamente registrieren und speichern können.
+Die Anwendung lässt Sie einfach und schnell Informationen über eingenommene Medikamente registrieren und speichern.
 
 <b>Eigenschaften</b>
 
-* Automatisches Hinzufügen von Medikamenten durch Scannen des Etiketts.
-* Die Möglichkeit, Medikamente manuell hinzuzufügen.
+* Automatisches Hinzufügen von Medikamenten durch Scannen des Etiketts (nur für russische Produkte).
+* Darüber hinaus besteht die Möglichkeit, Medikamente manuell hinzuzufügen.
 * Aktualisieren der Informationen über das Medikament, falls es ohne Internetverbindung gescannt wurde.
 * Bearbeiten von Informationen zu manuell hinzugefügten Medikamenten.
 * Hinzufügen von Medikamentenbildern.
@@ -16,5 +16,4 @@ Eine Anwendung, mit der Sie einfach und schnell Informationen über eingenommene
 * Benachrichtigung zum Verfallsdatum von Medikamenten.
 * Exportieren und Importieren der Datenbank auf andere Geräte.
 
-Mit Medkit können Sie das Verfallsdatum von Medikamenten verfolgen, einen Zeitplan für deren Einnahme erstellen und Benachrichtigungen darüber erhalten.
-Medkit ist ein zuverlässiger und bequemer Assistent, der Ihnen helfen wird, Ihre Gesundheit zu überwachen.
+Mit Medkit können Sie das Verfallsdatum von Medikamenten verfolgen, einen Zeitplan für deren Einnahme erstellen und Benachrichtigungen darüber erhalten. Medkit ist ein zuverlässiger und bequemer Assistent, der Ihnen helfen wird, Ihre Gesundheit zu überwachen.
