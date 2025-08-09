@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <!-- Menu -->
     <string name="bottom_bar_medicines">Các loại thuốc</string>
     <string name="bottom_bar_intakes">Uống thuốc</string>
     <string name="bottom_bar_settings">Thiết đặt</string>
+
     <!-- Preferences -->
     <string name="preference_app_view">Chế độ xem ứng dụng</string>
     <string name="preference_kits_group">Các nhóm thuốc</string>
@@ -15,50 +17,77 @@
     <string name="preference_app_theme">Chủ đề ứng dụng</string>
     <string name="preference_dynamic_color">Màu động</string>
     <string name="preference_import_export">Nhập/Xuất</string>
+
+    <!-- Pages -->
+
     <!-- Sorting -->
     <string name="sorting_a_z">Theo thứ tự bảng chữ cái (A đến Z)</string>
     <string name="sorting_z_a">Theo thứ tự bảng chữ cái (Z đến A)</string>
     <string name="sorting_from_oldest">Ngày hết hạn (từ cũ nhất)</string>
     <string name="sorting_from_newest">Ngày hết hạn (từ mới nhất)</string>
+
+    <!-- Themes -->
+
     <!-- Notifications -->
     <string name="channel_name">Nhắc nhở uống thuốc</string>
     <string name="channel_intakes_desc">Âm thanh thông báo</string>
     <string name="text_attention">Lưu ý!</string>
     <string name="text_do_intake">Uống thuốc đi</string>
     <string name="text_expire_soon">Ngày hết hạn của %1$s sắp hết</string>
-    <string name="text_intake_time">Đã đến lúc uống thuốc %1$s\nSố lượng: %2$s %3$s</string>
     <string name="text_intake_amount_not_enough">Đã đến lúc uống thuốc %1$s nhưng số lượng ít hơn quy định! Tái tạo lượng tiêu thụ!</string>
+    <string name="text_intake_prealarm_text">Medication: %1$s Amount: %2$s %3$s Time: %4$s</string>
+    <string name="text_intake_time">Đã đến lúc uống thuốc %1$s\nSố lượng: %2$s %3$s</string>
+
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_time">Thời gian #%1$d</string>
-    <!-- Medicines -->
+
+    <!-- Medications -->
     <string name="text_exp_date">Ngày h.hạn</string>
     <string name="text_indications_for_use">Chỉ dẫn sử dụng</string>
     <string name="text_medicine_comment">Nhận xét</string>
     <string name="text_medicine_description">Mô tả</string>
     <string name="text_medicine_dose">Liều lượng</string>
     <string name="text_medicine_product_name">Tên thuốc</string>
-    <!-- Intakes -->
+
+    <!-- Medication types -->
+
+    <!-- Medication dose types -->
+
+    <!-- Tabs -->
     <string name="tab_list">Danh sách</string>
     <string name="tab_current">Hiện tại</string>
     <string name="tab_past">Uống</string>
+
+    <!-- Intakes -->
     <string name="intake_text_amount">Số lượng</string>
+    <string name="intake_text_food">Thực phẩm &amp; thuốc men</string>
     <string name="intake_text_food_after">Sau bữa ăn</string>
     <string name="intake_text_food_before">Trước bữa ăn</string>
     <string name="intake_text_food_during">Trong bữa ăn</string>
-    <string name="intake_text_food">Thực phẩm &amp; thuốc men</string>
     <string name="intake_text_interval">Khoảng thời gian</string>
     <string name="intake_text_period">Giai đoạn</string>
     <string name="intake_text_time">Thời gian</string>
+
+
+
+
+
+
     <!-- Dialogs -->
     <string name="manual_add">Bạn có muốn thêm thuốc thủ công?</string>
     <string name="text_connection_error">Lỗi kết nối!</string>
     <string name="text_duplicate">Thuốc này đã được thêm vào!</string>
     <string name="text_export_import_description">Đây là một tính năng thử nghiệm.\nKhi xuất, bạn có thể thay đổi tên tệp.\nKhi nhập, dữ liệu hiện tại sẽ bị xóa! Xin vui lòng khởi chạy lại ứng dụng sau đó!</string>
-    <string name="text_permission_grant_full">Cấp quyền</string>
     <string name="text_kit_title">Nhóm mới</string>
     <string name="text_request_camera">Để quét nhãn, ứng dụng phải được cấp quyền sử dụng máy ảnh</string>
     <string name="text_select_time">Chọn thời gian</string>
+
+    <!-- Permissions -->
+
+
+    <string name="text_permission_grant_full">Cấp quyền</string>
+
     <!-- Strings -->
     <string name="text_add">Thêm</string>
     <string name="text_amount">Số lượng</string>
@@ -66,29 +95,28 @@
     <string name="text_clear">Dọn</string>
     <string name="text_daily_at">Hằng ngày lúc 12 giờ</string>
     <string name="text_days_short">Ng.</string>
+    <string name="text_delete">Xóa</string>
+    <string name="text_edit">Chỉnh sửa</string>
     <string name="text_empty">Trống</string>
+    <string name="text_enter_product_name">Tìm</string>
     <string name="text_error">Lỗi!</string>
     <string name="text_every">"Mỗi "</string>
+    <string name="text_export">Xuất</string>
+    <string name="text_finish_date">Ngày kết thúc</string>
     <string name="text_import">Nhập</string>
-    <string name="text_no_data_found">Không tìm thấy thuốc. Thêm chúng hoặc thay đổi bộ lọc.</string>
     <string name="text_no">Không</string>
+    <string name="text_no_data_found">Không tìm thấy thuốc. Thêm chúng hoặc thay đổi bộ lọc.</string>
+    <string name="text_no_intakes_found">Không tìm thấy lượng tiêu thụ nào. Thêm chúng qua thẻ thông tin thuốc hoặc thay đổi giá trị tìm kiếm.</string>
     <string name="text_off">Đã tắt</string>
     <string name="text_on">Đã bật</string>
     <string name="text_save">Lưu</string>
     <string name="text_start_date">Ngày bắt đầu</string>
-    <string name="text_tap_to_view">Nhấn để xem</string>
-    <!-- Strings -->
-    <string name="text_delete">Xóa</string>
-    <string name="text_edit">Chỉnh sửa</string>
-    <string name="text_enter_product_name">Tìm</string>
-    <string name="text_export">Xuất</string>
-    <string name="text_finish_date">Ngày kết thúc</string>
-    <string name="text_no_intakes_found">Không tìm thấy lượng tiêu thụ nào. Thêm chúng qua thẻ thông tin thuốc hoặc thay đổi giá trị tìm kiếm.</string>
     <string name="text_success">Thành công!</string>
+    <string name="text_tap_to_view">Nhấn để xem</string>
     <string name="text_yes">Ừ</string>
+
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="other">%d lần một ngày</item>
     </plurals>
-    <string name="text_intake_prealarm_text">Medication: %1$s Amount: %2$s %3$s Time: %4$s</string>
 </resources>

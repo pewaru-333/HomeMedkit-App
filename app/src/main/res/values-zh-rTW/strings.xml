@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <!-- Menu -->
     <string name="bottom_bar_medicines">藥物</string>
     <string name="bottom_bar_intakes">攝取量</string>
     <string name="bottom_bar_settings">設定</string>
+
     <!-- Preferences -->
     <string name="preference_app_view">應用程式檢視</string>
     <string name="preference_kits_group">藥物群組</string>
@@ -15,70 +17,97 @@
     <string name="preference_app_theme">應用程式主題</string>
     <string name="preference_dynamic_color">動態色彩</string>
     <string name="preference_import_export">匯入／匯出</string>
+
+    <!-- Pages -->
+
     <!-- Sorting -->
     <string name="sorting_a_z">按字母順序（A 至 z）</string>
     <string name="sorting_z_a">按字母順序（z 至 A）</string>
     <string name="sorting_from_oldest">到期日（從最舊開始）</string>
     <string name="sorting_from_newest">到期日（從最新開始）</string>
+
+    <!-- Themes -->
+
     <!-- Notifications -->
     <string name="channel_name">藥物提醒</string>
     <string name="channel_intakes_desc">聲音通知</string>
     <string name="text_attention">注意！</string>
     <string name="text_expire_soon">%1$s 的到期日即將到期</string>
+    <string name="text_intake_prealarm_text">Medication: %1$s Amount: %2$s %3$s Time: %4$s</string>
+
     <!-- Placeholders -->
     <string name="placeholder_dose">0.5 mg + 84 mcg</string>
     <string name="placeholder_time">時間 #%1$d</string>
-    <!-- Medicines -->
+
+    <!-- Medications -->
     <string name="text_exp_date">到期日</string>
     <string name="text_indications_for_use">使用說明</string>
     <string name="text_medicine_comment">評論</string>
     <string name="text_medicine_description">描述</string>
     <string name="text_medicine_dose">劑量</string>
     <string name="text_medicine_product_name">產品名稱</string>
-    <!-- Intakes -->
+
+    <!-- Medication types -->
+
+    <!-- Medication dose types -->
+
+    <!-- Tabs -->
     <string name="tab_list">清單</string>
     <string name="tab_current">目前</string>
     <string name="tab_past">采取</string>
+
+    <!-- Intakes -->
     <string name="intake_text_amount">數量</string>
     <string name="intake_text_food_after">用餐後</string>
     <string name="intake_text_food_before">用餐前</string>
     <string name="intake_text_food_during">用餐期間</string>
     <string name="intake_text_interval">間隔</string>
     <string name="intake_text_time">時間</string>
+
+
+
+
+
+
     <!-- Dialogs -->
     <string name="text_connection_error">连接错误！</string>
-    <string name="text_permission_grant_full">授予權限</string>
     <string name="text_kit_title">新群組</string>
     <string name="text_request_camera">要掃描標籤，應用程式必須獲得使用相機的權限</string>
     <string name="text_select_time">選擇時間</string>
+
+    <!-- Permissions -->
+
+
+    <string name="text_permission_grant_full">授予權限</string>
+
     <!-- Strings -->
-    <string name="text_yes">是</string>
-    <string name="text_tap_to_view">點擊以檢視</string>
-    <string name="text_success">成功！</string>
-    <string name="text_start_date">開始日期</string>
-    <string name="text_save">儲存</string>
-    <string name="text_on">已開啟</string>
-    <string name="text_off">已關閉</string>
+    <string name="text_add">增加</string>
+    <string name="text_amount">數量</string>
+    <string name="text_cancel">取消</string>
+    <string name="text_clear">清除</string>
+    <string name="text_daily_at">每天 12:00</string>
+    <string name="text_days_short">天</string>
+    <string name="text_delete">刪除</string>
+    <string name="text_edit">編輯</string>
+    <string name="text_empty">空白</string>
+    <string name="text_enter_product_name">搜尋</string>
+    <string name="text_error">錯誤！</string>
+    <string name="text_every">"每 "</string>
+    <string name="text_export">匯出</string>
+    <string name="text_finish_date">完成日期</string>
+    <string name="text_import">匯入</string>
     <string name="text_no">否</string>
     <string name="text_no_data_found">找不到藥物。增加它們或變更過濾器。</string>
-    <string name="text_import">匯入</string>
-    <string name="text_finish_date">完成日期</string>
-    <string name="text_export">匯出</string>
-    <string name="text_every">"每 "</string>
-    <string name="text_error">錯誤！</string>
-    <string name="text_enter_product_name">搜尋</string>
-    <string name="text_empty">空白</string>
-    <string name="text_edit">編輯</string>
-    <string name="text_delete">刪除</string>
-    <string name="text_days_short">天</string>
-    <string name="text_daily_at">每天 12:00</string>
-    <string name="text_clear">清除</string>
-    <string name="text_cancel">取消</string>
-    <string name="text_amount">數量</string>
-    <string name="text_add">增加</string>
+    <string name="text_off">已關閉</string>
+    <string name="text_on">已開啟</string>
+    <string name="text_save">儲存</string>
+    <string name="text_start_date">開始日期</string>
+    <string name="text_success">成功！</string>
+    <string name="text_tap_to_view">點擊以檢視</string>
+    <string name="text_yes">是</string>
+
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="other">每天 %d 次</item>
     </plurals>
-    <string name="text_intake_prealarm_text">Medication: %1$s Amount: %2$s %3$s Time: %4$s</string>
 </resources>

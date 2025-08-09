@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Kit Médico</string>
+
+    <!-- Menu -->
     <string name="bottom_bar_medicines">Medicamentos</string>
     <string name="bottom_bar_intakes">Ingestão</string>
     <string name="bottom_bar_settings">Configurações</string>
+
+    <!-- Preferences -->
     <string name="preference_basic_settings">Configurações básicas</string>
     <string name="preference_app_view">Visualização da app</string>
     <string name="preference_kits_group">Grupos de medicamento</string>
+    <string name="preference_start_page">Página inicial</string>
     <string name="preference_sorting_type">Ordem dos medicamentos</string>
     <string name="preference_confirm_exit">Confirmar saída da app</string>
     <string name="preference_download_images">Descarregar imagens de medicamento</string>
@@ -19,13 +24,22 @@
     <string name="preference_import_export">Importar/Exportar</string>
     <string name="preference_fixing_notifications">Problemas com notificações?</string>
     <string name="preference_clear_app_cache">Limpar cache da app</string>
+
+    <!-- Pages -->
+    <string name="page_intake_settings">Configurações</string>
+
+    <!-- Sorting -->
     <string name="sorting_a_z">Alfabeticamente (A ao z)</string>
     <string name="sorting_z_a">Alfabeticamente (z ao A)</string>
     <string name="sorting_from_oldest">Data de validade (da mais antiga)</string>
     <string name="sorting_from_newest">Data de validade (da mais recente)</string>
+
+    <!-- Themes -->
     <string name="theme_system">Sistema</string>
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Escuro</string>
+
+    <!-- Notifications -->
     <string name="channel_name">Notificações de som</string>
     <string name="channel_exp_desc">Data de validade</string>
     <string name="channel_intakes_desc">Ingestão de medicamentos</string>
@@ -38,8 +52,12 @@
     <string name="text_intake_prealarm_title">Ingestão próxima</string>
     <string name="text_intake_time">Medicamento: %1$s\nQuantidade de ingestão: %2$s %3$s\nMedicamento sobrando: %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Não há suficiente sobrando</string>
+
+    <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_time">Tempo #%1$d</string>
+
+    <!-- Medications -->
     <string name="text_package_opened_date">Caixa aberta</string>
     <string name="text_indications_for_use">Indicações de uso</string>
     <string name="text_medicine_comment">Comentário</string>
@@ -55,6 +73,8 @@
     <string name="text_medicine_status_scanned">Scan feito, não-verificado</string>
     <string name="text_medicine_status_self_added">Adicionado manualmente</string>
     <string name="text_medicine_storage_conditions">Condições de armazenamento</string>
+
+    <!-- Medication types -->
     <string name="type_tablets">COMPRIMIDOS</string>
     <string name="type_capsules">CÁPSULAS</string>
     <string name="type_pills">PÍLULAS</string>
@@ -81,6 +101,8 @@
     <string name="type_patch">CURATIVO</string>
     <string name="type_bandage">BANDAGEM</string>
     <string name="type_napkins">LENÇOS</string>
+
+    <!-- Medication dose types -->
     <string name="dose_ed">ED</string>
     <string name="dose_pcs">uni</string>
     <string name="dose_sach">saché</string>
@@ -88,9 +110,13 @@
     <string name="dose_mg">mg</string>
     <string name="dose_l">L</string>
     <string name="dose_ml">ml</string>
+
+    <!-- Tabs -->
     <string name="tab_list">Lista</string>
     <string name="tab_current">Atual</string>
     <string name="tab_past">Passado</string>
+
+    <!-- Intakes -->
     <string name="intake_text_amount">Quantidade</string>
     <string name="intake_text_by_schedule">Agendado</string>
     <string name="intake_text_date">Data</string>
@@ -109,23 +135,30 @@
     <string name="intake_text_time">Tempo</string>
     <string name="intake_text_start">Iniciar</string>
     <string name="intake_text_finish">Concluir</string>
+
     <string name="intake_extra_cancellable">Notificação de tempo esgotado</string>
     <string name="intake_extra_fullscreen">Notificação em ecrã cheio</string>
     <string name="intake_extra_no_sound">Silencioso</string>
     <string name="intake_extra_prealarm">Notificação próxima</string>
+
     <string name="intake_extra_desc_cancellable">A notificação será cancelada automaticamente depois de 10 minutos</string>
     <string name="intake_extra_desc_fullscreen">Uma intenção para abrir em vez de postar uma notificação à barra de estado no ecrã de bloqueio</string>
     <string name="intake_extra_desc_no_sound">Silencia a notificação, independente das configurações de som e vibração</string>
     <string name="intake_extra_desc_prealarm">Um lembrete será enviado 30 minutes antes do agendamento normal</string>
+
     <string name="intake_interval_daily">diariamente</string>
     <string name="intake_interval_weekly">semanalmente</string>
     <string name="intake_interval_other">personalizado</string>
+
     <string name="intake_schema_type_indefinitely">Indefinitivamente</string>
     <string name="intake_schema_type_day_picker">Selecionador de dia</string>
     <string name="intake_schema_type_personal">Pessoal</string>
+
     <string name="intake_period_pick">por data</string>
     <string name="intake_period_other">por número de dias</string>
     <string name="intake_period_indef">por tempo indefinido</string>
+
+    <!-- Dialogs -->
     <string name="manual_add">Gostaria de adicionar o medicamento manualmente?</string>
     <string name="text_choose_from_gallery">Escolher da galeria</string>
     <string name="text_clear_app_cache_description">Esta ação limpará a cache da aplicação, como também fotos de medicamentos que já não são usados</string>
@@ -147,19 +180,25 @@
     <string name="text_set_image">Definir imagem</string>
     <string name="text_take_picture">Tirar foto com a câmara</string>
     <string name="text_try_again">Tente fazer scan da etiqueta novamente!</string>
+
+    <!-- Permissions -->
     <string name="text_permission_title_full_screen">Notificações em ecrã cheio</string>
     <string name="text_permission_title_ignore_battery">Ignorar otimizações de pilha</string>
     <string name="text_permission_title_notifications">Notificações</string>
     <string name="text_permission_title_reminders">Configurar lembretes</string>
+
     <string name="text_explain_camera">Para ler uma etiqueta, precisa conceder a permissão de câmara. Um exemplo de como a etiqueta deve se parecer está representado abaixo (só funciona com medicamentos russos)</string>
     <string name="text_explain_full_screen_intent">Permitir que notificações em ecrã cheio de ingestão sejam exibidas</string>
     <string name="text_expain_ignore_battery">Permita que uma app ignore as otimizações de pilha. Se não concedido, as notificações podem serem perdidas!</string>
     <string name="text_explain_notifications">Permitir mostrar todas as notificações da app</string>
     <string name="text_explain_reminders">Permitir que lembretes sejam definidos num horário preciso</string>
     <string name="text_explain_request_permissions">Para receber notificações, deve conceder as seguintes permissões</string>
+
     <string name="text_permission_grant">Permitir</string>
     <string name="text_permission_granted">Permitido</string>
     <string name="text_permission_grant_full">Conceder permissão</string>
+
+    <!-- Strings -->
     <string name="text_add">Adicionar</string>
     <string name="text_amount">Quantia</string>
     <string name="text_cancel">Cancelar</string>
@@ -202,11 +241,11 @@
     <string name="text_unspecified">Não especificado</string>
     <string name="text_update">Atualizar</string>
     <string name="text_yes">Sim</string>
+
+    <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="one">%d vez por dia</item>
         <item quantity="many">%d vezes por dia</item>
         <item quantity="other">%d vezes por dia</item>
     </plurals>
-    <string name="preference_start_page">Página inicial</string>
-    <string name="page_intake_settings">Configurações</string>
 </resources>

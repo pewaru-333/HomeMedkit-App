@@ -1,76 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Medkit</string>
+
     <!-- Menu -->
     <string name="bottom_bar_medicines">Medicinali</string>
     <string name="bottom_bar_intakes">Assunzioni</string>
     <string name="bottom_bar_settings">Impostazioni</string>
+
     <!-- Preferences -->
+    <string name="preference_basic_settings">Impostazioni di base</string>
     <string name="preference_app_view">Vista app</string>
     <string name="preference_kits_group">Gruppi di medicina</string>
+    <string name="preference_start_page">Pagina iniziale</string>
     <string name="preference_sorting_type">Ordinamento delle medicine</string>
     <string name="preference_download_images">Scarica le immagini della medicina</string>
     <string name="preference_check_expiration_date">Controllo della data di scadenza dei medicinali</string>
     <string name="preference_system">Sistema</string>
+    <string name="preference_permissions">Autorizzazioni</string>
     <string name="preference_language">Lingua dell\'app</string>
     <string name="preference_app_theme">Tema app </string>
     <string name="preference_dynamic_color">Colore dinamico</string>
     <string name="preference_import_export">Importa / Esporta</string>
-    <!-- Languages -->
+    <string name="preference_fixing_notifications">Problemi con le notifiche?</string>
+    <string name="preference_clear_app_cache">Pulisci la cache dell\'app</string>
+
+    <!-- Pages -->
+    <string name="page_medications">Medicines</string>
+
     <!-- Sorting -->
     <string name="sorting_a_z">Alfabeticamente (da A a z)</string>
     <string name="sorting_z_a">Alfabeticamente (z da A)</string>
     <string name="sorting_from_oldest">Data di scadenza (dal più antico)</string>
     <string name="sorting_from_newest">Data di scadenza (da più recente)</string>
+
+    <!-- Themes -->
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Chiaro</string>
+    <string name="theme_dark">Scuro</string>
+
     <!-- Notifications -->
     <string name="channel_name">Notifiche sonore</string>
+    <string name="channel_exp_desc">Data di scadenza</string>
     <string name="channel_intakes_desc">Assunzione di medicinali</string>
+    <string name="channel_pre_desc">Prossima assunzione</string>
     <string name="text_attention">Attenzione!</string>
     <string name="text_do_intake">Fare l\'assunzione</string>
     <string name="text_expire_soon">La data di scadenza di %1$s sta per scadere</string>
     <string name="text_intake_amount_not_enough">E \'tempo di assunzione %1$s, ma la sua quantità è meno che prescritto! Ricreare l\'assunzione!</string>
+    <string name="text_intake_prealarm_text">Medicine: %1$s\nQuantità: %2$s %3$s\nTime: %4$s</string>
+    <string name="text_intake_prealarm_title">Prossima assunzione</string>
     <string name="text_intake_time">Medicina: %1$s\nQuantità: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Non abbastanza importo lasciato</string>
+
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_time">Tempo #%1$d</string>
-    <!-- Medicines -->
+
+    <!-- Medications -->
     <string name="text_exp_date">Data di scadenza</string>
+    <string name="text_package_opened_date">Confezione aperta</string>
     <string name="text_indications_for_use">Indicazioni per uso</string>
     <string name="text_medicine_comment">Commento</string>
+    <string name="text_medicine_composition">Composizione</string>
     <string name="text_medicine_description">Descrizione</string>
     <string name="text_medicine_dose">Dose</string>
     <string name="text_medicine_form">Modulo di rilascio</string>
     <string name="text_medicine_group">Gruppo</string>
     <string name="text_medicine_product_name">Nome del prodotto</string>
+    <string name="text_medicine_recommendations">Indicazioni d\'uso</string>
     <string name="text_medicine_status_checked">Scansionato, controllato</string>
     <string name="text_medicine_status_scanned">Scansionato, non verificato</string>
     <string name="text_medicine_status_self_added">Aggiunto manualmente</string>
-    <!-- Intakes -->
-    <string name="tab_current">Corrente</string>
+    <string name="text_medicine_storage_conditions">Modalità di conservazione</string>
+
+    <!-- Medication types -->
+    <string name="type_tablets">COMPRESSE</string>
+    <string name="type_capsules">CAPSULE</string>
+    <string name="type_pills">PILLOLE</string>
+    <string name="type_dragee">CONFETTO</string>
+    <string name="type_granules">GRANULATI</string>
+    <string name="type_powder">POLVERE</string>
+    <string name="type_solution">SOLUZIONE</string>
+    <string name="type_tincture">TINTURA</string>
+    <string name="type_decoction">DECOTTO</string>
+    <string name="type_extract">ESTRATTO</string>
+    <string name="type_mixture">MIXTURE</string>
+    <string name="type_syrup">SCIROPPO</string>
+    <string name="type_emulsion">EMULSIONE</string>
+    <string name="type_suspension">SUSPENSION</string>
+    <string name="type_mix">MIX</string>
+    <string name="type_ointment">UNGUENTO</string>
+    <string name="type_gel">GEL</string>
+    <string name="type_paste">PASTE</string>
+    <string name="type_suppository">SUPPOSTA</string>
+    <string name="type_aerosol">AEROSOL</string>
+    <string name="type_spray">SPRAY</string>
+    <string name="type_drops">GOCCE</string>
+
+    <!-- Medication dose types -->
+    <string name="dose_ed">ED</string>
+    <string name="dose_pcs">pcs</string>
+    <string name="dose_g">g</string>
+    <string name="dose_mg">mg</string>
+    <string name="dose_l">l</string>
+    <string name="dose_ml">ml</string>
+
+    <!-- Tabs -->
     <string name="tab_list">Elenco</string>
+    <string name="tab_current">Corrente</string>
     <string name="tab_past">Preso</string>
+
+    <!-- Intakes -->
     <string name="intake_text_amount">Quantità</string>
+    <string name="intake_text_by_schedule">In base al programma</string>
     <string name="intake_text_date">Data</string>
+    <string name="intake_text_extra">Extra</string>
     <string name="intake_text_food">Cibo e medicine</string>
     <string name="intake_text_food_after">Dopo pasto</string>
     <string name="intake_text_food_before">Prima del pasto</string>
     <string name="intake_text_food_during">Durante il pasto</string>
+    <string name="intake_text_in_fact">Attuale</string>
     <string name="intake_text_interval">Intervallo</string>
     <string name="intake_text_not_taken">Non preso</string>
     <string name="intake_text_period">Periodo</string>
     <string name="intake_text_taken">Preso</string>
     <string name="intake_text_time">Tempo</string>
+
+    <string name="intake_extra_fullscreen">Fullscreen notification</string>
+    <string name="intake_extra_no_sound">No sound</string>
+    <string name="intake_extra_prealarm">Upcoming notification</string>
+
+    <string name="intake_extra_desc_prealarm">Notifica nella barra di stato 30 minuti prima dell\'assunzione.</string>
+
+    <string name="intake_interval_daily">quotidiano</string>
+    <string name="intake_interval_weekly">settimanale</string>
+    <string name="intake_interval_other">custom</string>
+
+
+    <string name="intake_period_pick">dates choice</string>
+    <string name="intake_period_other">days input</string>
+    <string name="intake_period_indef">indefinito</string>
+
     <!-- Dialogs -->
     <string name="manual_add">Vuoi aggiungere medicina manualmente?</string>
     <string name="text_connection_error">Errore di connessione!</string>
     <string name="text_duplicate">Questo farmaco è già stato aggiunto!</string>
+    <string name="text_error_not_medicine">Questo codice etichetta non è del medicinale!</string>
     <string name="text_export_import_description">Questa è una caratteristica sperimentale. \nQuando si esporta, è possibile modificare il nome del file. \nQuando l\'importazione, i dati attuali verranno cancellati! Si prega di rilanciare app dopo di esso!</string>
-    <string name="text_permission_grant_full">Il permesso di concessione</string>
-    <string name="text_medicine_deleted">La medicina è stata cancellata, impossibile cambiare lo stato di assunzione</string>
     <string name="text_kit_title">Nuovo gruppo</string>
+    <string name="text_medicine_deleted">La medicina è stata cancellata, impossibile cambiare lo stato di assunzione</string>
     <string name="text_request_camera">Per la scansione dell\'etichetta, l\'applicazione deve essere dato il permesso di utilizzare la fotocamera</string>
     <string name="text_select_time">Selezionare il tempo</string>
     <string name="text_try_again">Prova di nuovo a scansionare l\'etichetta!</string>
+
+    <!-- Permissions -->
+
+
+    <string name="text_permission_grant_full">Il permesso di concessione</string>
+
     <!-- Strings -->
     <string name="text_add">Aggiungi</string>
     <string name="text_amount">Numero</string>
@@ -79,6 +166,7 @@
     <string name="text_daily_at">Quotidiano alle 12:00</string>
     <string name="text_days_short">d.</string>
     <string name="text_delete">Cancella</string>
+    <string name="text_dismiss">Dismiss</string>
     <string name="text_edit">Modifica</string>
     <string name="text_empty">Vuoto</string>
     <string name="text_enter_product_name">Ricerca</string>
@@ -100,71 +188,11 @@
     <string name="text_unspecified">Non specificato</string>
     <string name="text_update">Aggiornamento</string>
     <string name="text_yes">Sì</string>
+
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="one">%d tempo al giorno</item>
         <item quantity="many">%d volte al giorno</item>
         <item quantity="other">%d volte al giorno</item>
     </plurals>
-    <string name="type_paste">PASTE</string>
-    <string name="type_emulsion">EMULSIONE</string>
-    <string name="type_aerosol">AEROSOL</string>
-    <string name="type_gel">GEL</string>
-    <string name="type_spray">SPRAY</string>
-    <string name="type_drops">GOCCE</string>
-    <string name="type_suppository">SUPPOSTA</string>
-    <string name="type_mix">MIX</string>
-    <string name="type_suspension">SUSPENSION</string>
-    <string name="type_ointment">UNGUENTO</string>
-    <string name="theme_light">Chiaro</string>
-    <string name="type_solution">SOLUZIONE</string>
-    <string name="theme_dark">Scuro</string>
-    <string name="theme_system">Sistema</string>
-    <string name="type_tablets">COMPRESSE</string>
-    <string name="type_powder">POLVERE</string>
-    <string name="type_granules">GRANULATI</string>
-    <string name="type_dragee">CONFETTO</string>
-    <string name="type_extract">ESTRATTO</string>
-    <string name="type_capsules">CAPSULE</string>
-    <string name="type_syrup">SCIROPPO</string>
-    <string name="type_decoction">DECOTTO</string>
-    <string name="type_mixture">MIXTURE</string>
-    <string name="type_pills">PILLOLE</string>
-    <string name="type_tincture">TINTURA</string>
-    <string name="intake_period_indef">indefinito</string>
-    <string name="intake_interval_other">custom</string>
-    <string name="intake_interval_daily">quotidiano</string>
-    <string name="intake_period_other">days input</string>
-    <string name="intake_interval_weekly">settimanale</string>
-    <string name="intake_period_pick">dates choice</string>
-    <string name="dose_l">l</string>
-    <string name="dose_ed">ED</string>
-    <string name="dose_ml">ml</string>
-    <string name="dose_g">g</string>
-    <string name="dose_mg">mg</string>
-    <string name="dose_pcs">pcs</string>
-    <string name="text_intake_prealarm_text">Medicine: %1$s\nQuantità: %2$s %3$s\nTime: %4$s</string>
-    <string name="text_dismiss">Dismiss</string>
-    <string name="intake_text_in_fact">Attuale</string>
-    <string name="intake_text_by_schedule">In base al programma</string>
-    <string name="intake_text_extra">Extra</string>
-    <string name="intake_extra_prealarm">Upcoming notification</string>
-    <string name="intake_extra_desc_prealarm">Notifica nella barra di stato 30 minuti prima dell\'assunzione.</string>
-    <string name="text_intake_prealarm_title">Prossima assunzione</string>
-    <string name="intake_extra_no_sound">No sound</string>
-    <string name="channel_exp_desc">Data di scadenza</string>
-    <string name="intake_extra_fullscreen">Fullscreen notification</string>
-    <string name="channel_pre_desc">Prossima assunzione</string>
-    <string name="text_medicine_recommendations">Indicazioni d\'uso</string>
-    <string name="text_error_not_medicine">Questo codice etichetta non è del medicinale!</string>
-    <string name="text_medicine_composition">Composizione</string>
-    <string name="text_medicine_storage_conditions">Modalità di conservazione</string>
-    <string name="app_name">Medkit</string>
-    <string name="preference_basic_settings">Impostazioni di base</string>
-    <string name="preference_permissions">Autorizzazioni</string>
-    <string name="preference_fixing_notifications">Problemi con le notifiche?</string>
-    <string name="preference_clear_app_cache">Pulisci la cache dell\'app</string>
-    <string name="text_package_opened_date">Confezione aperta</string>
-    <string name="preference_start_page">Pagina iniziale</string>
-    <string name="page_medications">Medicines</string>
 </resources>
