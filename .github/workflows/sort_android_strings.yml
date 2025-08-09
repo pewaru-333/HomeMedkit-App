@@ -20,6 +20,8 @@ jobs:
       - name: 'Checkout code'
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.ACCESS_TOKEN }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
@@ -41,4 +43,4 @@ jobs:
           git add '**/strings.xml'
           git commit -m "Workflow: сортировка строковых ресурсов"
           
-          git push origin HEAD:refs/heads/${{ github.event.pull_request.head.ref }}
+          git push origin HEAD:${{ github.head_ref }}
