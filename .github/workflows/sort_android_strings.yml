@@ -9,6 +9,7 @@ jobs:
   sort-strings:
     runs-on: ubuntu-latest
     permissions:
+      pull-requests: write
       contents: write
 
     steps:
@@ -34,6 +35,4 @@ jobs:
           
           git add '**/strings.xml'
           git commit -m "Workflow: сортировка строковых ресурсов"
-          
-          git pull --rebase origin ${{ github.head_ref }}
           git push origin HEAD:${{ github.head_ref }}
