@@ -16,7 +16,7 @@ jobs:
       - name: 'Checkout code'
         uses: actions/checkout@v4
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
+          ref: ${{ github.head_ref }}
 
       - name: 'Setup Python'
         uses: actions/setup-python@v4
@@ -35,4 +35,4 @@ jobs:
           
           git add '**/strings.xml'
           git commit -m "Workflow: сортировка строковых ресурсов"
-          git push origin HEAD:${{ github.head_ref }}
+          git push
