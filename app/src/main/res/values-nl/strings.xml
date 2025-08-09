@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">Medkit</string>
+
     <!-- Menu -->
     <string name="bottom_bar_medicines">Medicijnen</string>
     <string name="bottom_bar_intakes">Inname</string>
     <string name="bottom_bar_settings">Instellingen</string>
+
     <!-- Preferences -->
     <string name="preference_app_view">App-weergave</string>
     <string name="preference_kits_group">Geneesmiddelgroepen</string>
@@ -14,6 +17,7 @@
     <string name="preference_language">App-taal</string>
     <string name="preference_app_theme">App-thema</string>
     <string name="preference_dynamic_color">Dynamische kleur</string>
+
     <!-- Pages -->
 
     <!-- Sorting -->
@@ -21,10 +25,12 @@
     <string name="sorting_z_a">Alfabetisch (Z tot A)</string>
     <string name="sorting_from_oldest">Vervaldatum (van oudst)</string>
     <string name="sorting_from_newest">Vervaldatum (van nieuwst)</string>
+
     <!-- Themes -->
     <string name="theme_system">Systeem</string>
     <string name="theme_light">Licht</string>
     <string name="theme_dark">Donker</string>
+
     <!-- Notifications -->
     <string name="channel_exp_desc">Vervaldatum</string>
     <string name="channel_intakes_desc">Medicijninname</string>
@@ -37,8 +43,10 @@
     <string name="text_intake_prealarm_title">Aankomende inname</string>
     <string name="text_intake_time">Medicijn: %1$s\nHoeveelheid: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Niet genoeg hoeveelheid over</string>
+
     <!-- Placeholders -->
     <string name="placeholder_time">Tijd</string>
+
     <!-- Medications -->
     <string name="text_exp_date">Vertaling:</string>
     <string name="text_indications_for_use">Indicatie voor gebruik</string>
@@ -54,13 +62,16 @@
     <string name="text_medicine_status_scanned">Scanned, ongeoorloofd</string>
     <string name="text_medicine_status_self_added">Toegevoegd</string>
     <string name="text_medicine_storage_conditions">Opslag voorwaarden</string>
+
     <!-- Medication types -->
     <string name="type_granules">GRANULE</string>
     <string name="type_solution">SOLITIE</string>
     <string name="type_gel">GELED</string>
     <string name="type_bandage">BANDAG</string>
+
     <!-- Medication dose types -->
     <string name="dose_sach">sach</string>
+
     <!-- Tabs -->
 
     <!-- Intakes -->
@@ -79,5 +90,4 @@
     <!-- Strings -->
 
     <!-- Plurals -->
-<string name="app_name">Medkit</string>
 </resources>
