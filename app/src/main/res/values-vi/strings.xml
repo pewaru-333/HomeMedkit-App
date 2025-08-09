@@ -5,6 +5,7 @@
     <string name="bottom_bar_medicines">Các loại thuốc</string>
     <string name="bottom_bar_intakes">Uống thuốc</string>
     <string name="bottom_bar_settings">Thiết đặt</string>
+
     <!-- Preferences -->
     <string name="preference_app_view">Chế độ xem ứng dụng</string>
     <string name="preference_kits_group">Các nhóm thuốc</string>
@@ -16,13 +17,17 @@
     <string name="preference_app_theme">Chủ đề ứng dụng</string>
     <string name="preference_dynamic_color">Màu động</string>
     <string name="preference_import_export">Nhập/Xuất</string>
+
     <!-- Pages -->
+
     <!-- Sorting -->
     <string name="sorting_a_z">Theo thứ tự bảng chữ cái (A đến Z)</string>
     <string name="sorting_z_a">Theo thứ tự bảng chữ cái (Z đến A)</string>
     <string name="sorting_from_oldest">Ngày hết hạn (từ cũ nhất)</string>
     <string name="sorting_from_newest">Ngày hết hạn (từ mới nhất)</string>
+
     <!-- Themes -->
+
     <!-- Notifications -->
     <string name="channel_name">Nhắc nhở uống thuốc</string>
     <string name="channel_intakes_desc">Âm thanh thông báo</string>
@@ -32,6 +37,7 @@
     <string name="text_intake_amount_not_enough">Đã đến lúc uống thuốc %1$s nhưng số lượng ít hơn quy định! Tái tạo lượng tiêu thụ!</string>
     <string name="text_intake_prealarm_text">Medication: %1$s Amount: %2$s %3$s Time: %4$s</string>
     <string name="text_intake_time">Đã đến lúc uống thuốc %1$s\nSố lượng: %2$s %3$s</string>
+
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_time">Thời gian #%1$d</string>
