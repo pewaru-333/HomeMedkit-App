@@ -7,12 +7,6 @@
     <string name="bottom_bar_intakes">Assunzioni</string>
     <string name="bottom_bar_settings">Impostazioni</string>
 
-
-
-
-
-
-
     <!-- Preferences -->
     <string name="preference_basic_settings">Impostazioni di base</string>
     <string name="preference_app_view">Vista app</string>
@@ -32,11 +26,13 @@
 
     <!-- Pages -->
     <string name="page_medications">Medicines</string>
+
     <!-- Sorting -->
     <string name="sorting_a_z">Alfabeticamente (da A a z)</string>
     <string name="sorting_z_a">Alfabeticamente (z da A)</string>
     <string name="sorting_from_oldest">Data di scadenza (dal più antico)</string>
     <string name="sorting_from_newest">Data di scadenza (da più recente)</string>
+
     <!-- Themes -->
     <string name="theme_system">Sistema</string>
     <string name="theme_light">Chiaro</string>
@@ -55,9 +51,11 @@
     <string name="text_intake_prealarm_title">Prossima assunzione</string>
     <string name="text_intake_time">Medicina: %1$s\nQuantità: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Non abbastanza importo lasciato</string>
+
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_time">Tempo #%1$d</string>
+
     <!-- Medications -->
     <string name="text_exp_date">Data di scadenza</string>
     <string name="text_package_opened_date">Confezione aperta</string>

@@ -8,6 +8,7 @@
     <string name="bottom_bar_settings">Instellingen</string>
 
     <!-- Preferences -->
+    <string name="preference_basic_settings">Basis setting</string>
     <string name="preference_app_view">App-weergave</string>
     <string name="preference_kits_group">Geneesmiddelgroepen</string>
     <string name="preference_sorting_type">Medicijnen sortering</string>
