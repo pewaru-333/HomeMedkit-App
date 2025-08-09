@@ -16,8 +16,7 @@ jobs:
       - name: 'Checkout code'
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.ACCESS_TOKEN }}
-          ref: ${{ github.head_ref }}
+          ref: refs/pull/${{ github.event.pull_request.number }}/head
 
       - name: 'Setup Python'
         uses: actions/setup-python@v4
@@ -31,9 +30,11 @@ jobs:
       - name: 'Commit and push changes'
         if: steps.sort_script.outputs.changes_detected == 'true'
         run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          git remote set-url origin "https://x-access-token:${{ secrets.ACCESS_TOKEN }}@github.com/${{ github.repository }}"
           
           git add '**/strings.xml'
           git commit -m "Workflow: сортировка строковых ресурсов"
-          git push
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
