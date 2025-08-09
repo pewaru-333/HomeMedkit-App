@@ -166,4 +166,5 @@
     <string name="preference_clear_app_cache">Pulisci la cache dell\'app</string>
     <string name="text_package_opened_date">Confezione aperta</string>
     <string name="preference_start_page">Pagina iniziale</string>
+    <string name="page_medications">Medicines</string>
 </resources>
