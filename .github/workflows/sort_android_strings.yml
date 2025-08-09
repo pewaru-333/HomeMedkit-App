@@ -16,7 +16,7 @@ jobs:
       - name: 'Checkout code'
         uses: actions/checkout@v4
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: 'Setup Python'
         uses: actions/setup-python@v4
@@ -28,12 +28,12 @@ jobs:
         run: python .github/scripts/sort_android_strings.py
 
       - name: 'Commit and push changes'
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         if: steps.sort_script.outputs.changes_detected == 'true'
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          
-          git remote set-url origin "https://x-access-token:${{ secrets.ACCESS_TOKEN }}@github.com/${{ github.repository }}"
           
           git add '**/strings.xml'
           git commit -m "Workflow: сортировка строковых ресурсов"
