@@ -1,12 +1,17 @@
 name: Sort Android string resources
 
 on:
-  pull_request:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
     branches:
       - master
 
 jobs:
   sort-strings:
+    if: github.event.pull_request.head.repo.full_name == 'weblate/weblate-homemedkit-strings'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -15,7 +20,8 @@ jobs:
       - name: 'Checkout code'
         uses: actions/checkout@v4
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/head
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
 
       - name: 'Setup Python'
         uses: actions/setup-python@v4
@@ -32,8 +38,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          git remote set-url origin "https://x-access-token:${{ secrets.ACCESS_TOKEN }}@github.com/${{ github.repository }}"
-          
           git add '**/strings.xml'
           git commit -m "Workflow: сортировка строковых ресурсов"
+          
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
