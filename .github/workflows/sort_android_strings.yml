@@ -11,7 +11,7 @@ on:
 
 jobs:
   sort-strings:
-    if: github.event.pull_request.head.repo.full_name == 'weblate/weblate-homemedkit-strings'
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.title, 'Weblate') || contains(github.event.pull_request.user.login, 'weblate')
     runs-on: ubuntu-latest
     permissions:
       contents: write
