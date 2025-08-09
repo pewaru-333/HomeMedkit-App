@@ -9,7 +9,6 @@ jobs:
   sort-strings:
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
       contents: write
 
     steps:
@@ -28,12 +27,12 @@ jobs:
         run: python .github/scripts/sort_android_strings.py
 
       - name: 'Commit and push changes'
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         if: steps.sort_script.outputs.changes_detected == 'true'
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git remote set-url origin "https://x-access-token:${{ secrets.ACCESS_TOKEN }}@github.com/${{ github.repository }}"
           
           git add '**/strings.xml'
           git commit -m "Workflow: сортировка строковых ресурсов"
