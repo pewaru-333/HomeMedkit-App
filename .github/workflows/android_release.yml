@@ -48,7 +48,7 @@ jobs:
         run: |
           echo 'body<<EOF' >> $GITHUB_OUTPUT
           
-          python .github/generate_changelog.py ${{ needs.get-version.outputs.version_code }} >> $GITHUB_OUTPUT
+          python .github/scripts/generate_changelog.py ${{ needs.get-version.outputs.version_code }} >> $GITHUB_OUTPUT
           
           echo 'EOF' >> $GITHUB_OUTPUT
 
