@@ -2,7 +2,7 @@ import sys
 import subprocess
 
 def main():
-    version_code = sys.argv[0]
+    version_code = sys.argv[1]
 
     changelog_path = f"fastlane/metadata/android/ru/changelogs/{version_code}.txt"
     try:
