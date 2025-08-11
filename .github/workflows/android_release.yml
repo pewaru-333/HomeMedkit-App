@@ -46,12 +46,8 @@ jobs:
       - name: 'Generate changelog'
         id: generate_changelog
         run: |
-          echo 'body<<EOF' >> $GITHUB_OUTPUT
-          
-          python .github/scripts/generate_changelog.py \
-            ${{ needs.get-version.outputs.version_code }} >> $GITHUB_OUTPUT
-          
-          echo 'EOF' >> $GITHUB_OUTPUT
+          body="$(python .github/scripts/generate_changelog.py ${{ needs.get-version.outputs.version_code }})"
+          echo "${body//$'\n'/'%0A'}" >> $GITHUB_OUTPUT
 
   build:
     runs-on: ubuntu-latest
