@@ -6,16 +6,19 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.application.homemedkit.HomeMeds.Companion.database
@@ -53,10 +56,10 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     private val _state = MutableStateFlow(MedicineState())
     val state = _state
         .onStart { _state.emit(dao.getById(args.id)?.toState() ?: MedicineState(cis = args.cis)) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), MedicineState())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MedicineState())
 
     val kits = database.kitDAO().getFlow()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     init {
         if (args.duplicate) viewModelScope.launch {
@@ -65,13 +68,15 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun add() {
+        val currentValue = _state.value
+
         viewModelScope.launch {
-            val checkProductName = Validation.textNotEmpty(_state.value.productName)
+            val checkProductName = Validation.textNotEmpty(currentValue.productName)
 
             if (checkProductName.successful) {
-                val id = dao.insert(_state.value.toMedicine())
-                val kits = _state.value.kits.map { MedicineKit(id, it.kitId) }
-                val images = _state.value.images.mapIndexed { index, image ->
+                val id = dao.insert(currentValue.toMedicine())
+                val kits = currentValue.kits.map { MedicineKit(id, it.kitId) }
+                val images = currentValue.images.mapIndexed { index, image ->
                     Image(
                         medicineId = id,
                         position = index,
@@ -79,8 +84,14 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                     )
                 }
 
-                daoK.pinKit(kits)
-                dao.updateImages(images)
+                val jobOne = launch { daoK.pinKit(kits) }
+                val jobTwo = launch { dao.updateImages(images) }
+
+                try {
+                    joinAll(jobOne, jobTwo)
+                } catch (_: CancellationException) {
+
+                }
 
                 _state.update {
                     it.copy(
@@ -97,39 +108,50 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun fetch(dir: File) {
+        val currentState = _state.value
+
         viewModelScope.launch {
             _response.send(Response.Loading)
 
             try {
-                val response = Network.getMedicine(_state.value.cis)
+                val response = Network.getMedicine(currentState.cis)
 
-                when(val data = response) {
+                when (val data = response) {
                     is Response.Error -> {
                         _response.send(data)
                         delay(2500L)
                     }
+
                     is Response.Success -> {
                         val medicine = data.model.run {
                             drugsData?.toMedicine() ?: bioData?.toMedicine()
                         }?.copy(
-                            id = _state.value.id,
-                            cis = _state.value.cis,
-                            comment = _state.value.comment.ifEmpty { BLANK }
+                            id = currentState.id,
+                            cis = currentState.cis,
+                            comment = currentState.comment.ifEmpty { BLANK }
                         )
 
                         if (medicine == null) {
                             _response.send(Response.Error.UnknownError)
                         } else {
-                            val images = getMedicineImages(
-                                medicineId = _state.value.id,
-                                form = medicine.prodFormNormName,
-                                directory = dir,
-                                urls = data.model.drugsData?.vidalData?.images
-                            )
+                            val images = async {
+                                getMedicineImages(
+                                    medicineId = currentState.id,
+                                    form = medicine.prodFormNormName,
+                                    directory = dir,
+                                    urls = data.model.drugsData?.vidalData?.images
+                                )
+                            }
 
-                            dao.update(medicine)
-                            dao.updateImages(images)
-                            dao.getById(args.id)?.let { _state.value = it.toState() }
+                            val jobOne = launch { dao.update(medicine) }
+                            val jobTow = launch { dao.updateImages(images.await()) }
+
+                            joinAll(jobOne, jobTow)
+
+                            dao.getById(args.id)?.let { medicine ->
+                                _state.update { medicine.toState() }
+                            }
+
                             _response.send(Response.Success(data.model))
                         }
                     }
@@ -143,32 +165,29 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun update() {
+        val currentValue = _state.value
+
         viewModelScope.launch {
-            val checkProductName = Validation.textNotEmpty(_state.value.productName)
+            val checkProductName = Validation.textNotEmpty(currentValue.productName)
 
             if (checkProductName.successful) {
-                val kits = _state.value.kits.map { MedicineKit(_state.value.id, it.kitId) }
-                val images = _state.value.images.mapIndexed { index, image ->
+                val kits = currentValue.kits.map { MedicineKit(currentValue.id, it.kitId) }
+                val images = currentValue.images.mapIndexed { index, image ->
                     Image(
-                        medicineId = _state.value.id,
+                        medicineId = currentValue.id,
                         position = index,
                         image = image
                     )
                 }
 
-                daoK.deleteAll(_state.value.id)
+                daoK.deleteAll(currentValue.id)
                 daoK.pinKit(kits)
                 dao.updateImages(images)
 
-                dao.update(_state.value.toMedicine())
+                dao.update(currentValue.toMedicine())
 
-                _state.update {
-                    it.copy(
-                        adding = false,
-                        editing = false,
-                        default = true,
-                        productNameError = null
-                    )
+                dao.getById(currentValue.id)?.let { medicine ->
+                    _state.update { medicine.toState() }
                 }
             } else {
                 _state.update { it.copy(productNameError = checkProductName.errorMessage) }
@@ -177,13 +196,20 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun delete(dir: File) {
-        viewModelScope.launch {
-            dao.delete(_state.value.toMedicine())
+        val currentState = _state.value
 
-            withContext(Dispatchers.IO) {
-                _state.value.images.forEach {
+        viewModelScope.launch {
+            val jobOne = launch { dao.delete(currentState.toMedicine())  }
+            val jobTwo = launch(Dispatchers.IO) {
+                currentState.images.forEach {
                     File(dir, it).delete()
                 }
+            }
+
+            try {
+                joinAll(jobOne, jobTwo)
+            } catch (_: CancellationException) {
+
             }
 
             _state.update {

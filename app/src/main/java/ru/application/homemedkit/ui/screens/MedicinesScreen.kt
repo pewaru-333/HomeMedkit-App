@@ -4,9 +4,13 @@ import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,12 +31,13 @@ import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -42,22 +47,24 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight.Companion.W500
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -78,13 +85,14 @@ import ru.application.homemedkit.data.model.MedicineList
 import ru.application.homemedkit.models.states.MedicinesState
 import ru.application.homemedkit.models.viewModels.MedicinesViewModel
 import ru.application.homemedkit.ui.elements.BoxWithEmptyListText
+import ru.application.homemedkit.ui.navigation.Screen
 import ru.application.homemedkit.utils.Preferences
 import ru.application.homemedkit.utils.enums.MedicineTab
 import ru.application.homemedkit.utils.enums.Sorting
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) -> Unit) {
+fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
     val activity = LocalContext.current as Activity
 
     val model = viewModel<MedicinesViewModel>()
@@ -94,6 +102,10 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
     val kits by model.kits.collectAsStateWithLifecycle()
 
     val listStates = MedicineTab.entries.map { rememberLazyListState() }
+
+    LaunchedEffect(state.search, state.sorting, state.kits) {
+        listStates[state.tab.ordinal].animateScrollToItem(0)
+    }
 
     BackHandler { model.showExit(true) }
     Scaffold(
@@ -146,19 +158,28 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
                         }
                     }
 
-                    IconButton(model::showFilter) { Icon(painterResource(vector_filter), null) }
-
-                    IconButton(model::toggleView) {
-                        Icon(
-                            contentDescription = null,
-                            painter = painterResource(
-                                when (state.tab) {
-                                    MedicineTab.LIST -> R.drawable.vector_group
-                                    MedicineTab.GROUPS -> R.drawable.vector_list
-                                }
-                            )
+                    IconButton(model::showFilter) {
+                        BadgedBox(
+                            badge = { if (state.kits.isNotEmpty()) Badge() },
+                            content = { Icon(painterResource(vector_filter), null) }
                         )
                     }
+
+                    FilledTonalIconToggleButton(
+                        checked = true,
+                        onCheckedChange = { model.toggleView() },
+                        content = {
+                            Icon(
+                                contentDescription = null,
+                                painter = painterResource(
+                                    when (state.tab) {
+                                        MedicineTab.LIST -> R.drawable.vector_group
+                                        MedicineTab.GROUPS -> R.drawable.vector_list
+                                    }
+                                )
+                            )
+                        }
+                    )
                 }
             )
         },
@@ -168,37 +189,50 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
                 enter = slideInVertically(initialOffsetY = { it * 2 }),
                 exit = slideOutVertically(targetOffsetY = { it * 2 })
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    AnimatedVisibility(state.showAdding) {
-                        Column {
-                            ElevatedCard(
-                                onClick = navigateToScanner,
-                                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    AnimatedVisibility(
+                        visible = state.showAdding,
+                        enter = fadeIn() + slideInVertically() + scaleIn(),
+                        exit = fadeOut() + slideOutVertically() + scaleOut()
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.End,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            SmallFloatingActionButton(
+                                onClick = { onNavigate(Screen.Scanner) },
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
                             ) {
                                 Icon(
                                     painter = painterResource(vector_scanner),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .padding(4.dp)
+                                    contentDescription = null
                                 )
                             }
 
-                            ElevatedCard(
-                                onClick = { navigateToMedicine(0L) },
-                                colors = CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer)
+                            SmallFloatingActionButton(
+                                onClick = { onNavigate(Screen.Medicine()) },
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.Edit,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(36.dp)
-                                        .padding(4.dp)
+                                    contentDescription = null
                                 )
                             }
                         }
                     }
-                    FloatingActionButton(model::showAdding) { Icon(Icons.Outlined.Add, null) }
+
+                    FloatingActionButton(model::showAdding) {
+                        val rotation by animateFloatAsState(if (state.showAdding) 45f else 0f)
+
+                        Icon(
+                            imageVector = Icons.Outlined.Add,
+                            contentDescription = null,
+                            modifier = Modifier.rotate(rotation)
+                        )
+                    }
                 }
             }
         }
@@ -209,9 +243,15 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
                     if (list.isNotEmpty()) {
                         LazyColumn(Modifier.fillMaxSize(), listStates[0], values) {
                             items(list, MedicineList::id) {
-                                MedicineItem(it, Modifier.animateItem(), navigateToMedicine)
+                                MedicineItem(
+                                    medicine = it,
+                                    modifier = Modifier.animateItem(),
+                                    onClick = { onNavigate(Screen.Medicine(it)) }
+                                )
 
-                                if (it != list.lastOrNull()) HorizontalDivider()
+                                if (it != list.lastOrNull()) {
+                                    HorizontalDivider()
+                                }
                             }
                         }
                     } else {
@@ -229,25 +269,22 @@ fun MedicinesScreen(navigateToScanner: () -> Unit, navigateToMedicine: (Long) ->
                         LazyColumn(Modifier.fillMaxSize(), listStates[1], values) {
                             list.forEach { group ->
                                 item {
-                                    Text(
-                                        text = group.kit.title.asString(),
-                                        style = MaterialTheme.typography.titleLarge.copy(
-                                            fontWeight = W500
-                                        ),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .background(MaterialTheme.colorScheme.background)
-                                            .padding(12.dp, 24.dp)
-                                    )
+                                    TextDate(group.kit.title.asString())
                                 }
 
                                 items(
                                     items = group.medicines,
                                     key = { "${group.kit.id}_${it.id}" }
                                 ) {
-                                    MedicineItem(it, Modifier.animateItem(), navigateToMedicine)
+                                    MedicineItem(
+                                        medicine = it,
+                                        modifier = Modifier.animateItem(),
+                                        onClick = { onNavigate(Screen.Medicine(it)) }
+                                    )
 
-                                    if (it != group.medicines.lastOrNull()) HorizontalDivider()
+                                    if (it != group.medicines.lastOrNull()) {
+                                        HorizontalDivider()
+                                    }
                                 }
                             }
                         }
@@ -303,7 +340,7 @@ private fun MedicineItem(medicine: MedicineList, modifier: Modifier, onClick: (L
             }
         },
         colors = ListItemDefaults.colors(
-            when {
+            containerColor = when {
                 medicine.isExpired -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
                 !medicine.inStock -> MaterialTheme.colorScheme.scrim.copy(alpha = 0.15f)
                 else -> MaterialTheme.colorScheme.surfaceContainerLow
@@ -325,7 +362,7 @@ private fun DialogKits(
     title = { Text(stringResource(preference_kits_group)) },
     text = {
         LazyColumn {
-            items(kits) { kit ->
+            items(kits, Kit::kitId) { kit ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier

@@ -2,7 +2,6 @@
 
 package ru.application.homemedkit.models.viewModels
 
-import android.content.Context
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.app.NotificationManagerCompat
@@ -106,7 +105,7 @@ class IntakesViewModel : ViewModel() {
 
     fun onTakenEvent(event: TakenEvent) {
         when (event) {
-            is TakenEvent.SaveTaken -> saveTaken(event.context)
+            is TakenEvent.SaveTaken -> saveTaken(event.manager)
 
             is TakenEvent.SetSelection -> _takenState.update {
                 it.copy(
@@ -213,10 +212,10 @@ class IntakesViewModel : ViewModel() {
                 }
             }
 
-            is NewTakenEvent.SetTime -> _newTakenState.update {
-                it.copy(
-                    time = LocalTime.of(event.pickerState.hour, event.pickerState.minute).format(FORMAT_H_MM)
-                )
+            is NewTakenEvent.SetTime -> event.pickerState.let { time ->
+                _newTakenState.update {
+                    it.copy(time = LocalTime.of(time.hour, time.minute).format(FORMAT_H_MM))
+                }
             }
         }
     }
@@ -282,7 +281,7 @@ class IntakesViewModel : ViewModel() {
         val alarm = alarmDAO.getById(_scheduledState.value.alarmId) ?: return
         val intake = intakeDAO.getById(alarm.intakeId) ?: return
         val medicine = medicineDAO.getById(intake.medicineId) ?: return
-        val image = medicineDAO.getMedicineImages(medicine.id).firstOrNull() ?: BLANK
+        val image = medicineDAO.getMedicineImages(medicine.id).firstOrNull().orEmpty()
 
         viewModelScope.launch {
             alarmDAO.delete(alarm)
@@ -351,23 +350,25 @@ class IntakesViewModel : ViewModel() {
         }
     }
 
-    private fun saveTaken(context: Context) {
-        val takenId = _takenState.value.takenId
-        val takenNow = _takenState.value.selection == 1
-        val takenOld = _takenState.value.taken
+    private fun saveTaken(manager: NotificationManagerCompat) {
+        val state = _takenState.value
 
-        with(NotificationManagerCompat.from(context)) {
+        val takenId = state.takenId
+        val takenNow = state.selection == 1
+        val takenOld = state.taken
+
+        with(manager) {
             cancel(takenId.toInt())
-            cancel(_takenState.value.alarmId.toInt())
+            cancel(state.alarmId.toInt())
         }
 
-        takenDAO.setTaken(takenId, takenNow, if (takenNow) _takenState.value.inFact else 0L)
+        takenDAO.setTaken(takenId, takenNow, if (takenNow) state.inFact else 0L)
         takenDAO.setNotified(takenId)
 
-        _takenState.value.medicine?.let { medicine ->
+        state.medicine?.let { medicine ->
             medicineDAO.getById(medicine.id)?.let {
-                if (takenNow && !takenOld) medicineDAO.intakeMedicine(it.id, _takenState.value.amount)
-                if (!takenNow && takenOld) medicineDAO.untakeMedicine(it.id, _takenState.value.amount)
+                if (takenNow && !takenOld) medicineDAO.intakeMedicine(it.id, state.amount)
+                if (!takenNow && takenOld) medicineDAO.untakeMedicine(it.id, state.amount)
             }
         }
 

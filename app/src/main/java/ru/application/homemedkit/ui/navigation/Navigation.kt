@@ -39,30 +39,19 @@ import ru.application.homemedkit.ui.screens.SettingsScreen
 import ru.application.homemedkit.utils.Preferences
 import ru.application.homemedkit.utils.enums.Menu
 import ru.application.homemedkit.utils.extensions.isCurrentRoute
-import ru.application.homemedkit.utils.extensions.toBottomBarItem
 
 @Composable
 fun Navigation(navigator: NavHostController, modifier: Modifier) {
     NavHost(navigator, Preferences.startPage.route, modifier.consumeWindowInsets(WindowInsets.systemBars)) {
         // Bottom menu items //
         composable<Medicines> {
-            MedicinesScreen(
-                navigateToScanner = { navigator.navigate(Scanner) },
-                navigateToMedicine = { navigator.navigate(Medicine(it)) }
-            )
+            MedicinesScreen(navigator::navigate)
         }
-        composable<Intakes> { _ ->
-            IntakesScreen(
-                backClick = { navigator.toBottomBarItem(Medicines) },
-                navigateToIntake = { navigator.navigate(Intake(intakeId = it)) },
-            )
+        composable<Intakes> {
+            IntakesScreen { navigator.navigate(Intake(intakeId = it)) }
         }
         composable<Settings> {
-            SettingsScreen(
-                backClick = { navigator.toBottomBarItem(Intakes()) },
-                toKitsManager = { navigator.navigate(KitsManager) },
-                toPermissionsScreen = { navigator.navigate(PermissionsScreen) }
-            )
+            SettingsScreen(navigator::navigate)
         }
 
         // Settings screens //
@@ -77,7 +66,7 @@ fun Navigation(navigator: NavHostController, modifier: Modifier) {
             enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) },
             exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End) }
         ) {
-            PermissionsScreen(navigator::navigateUp, navigator::navigateUp)
+            PermissionsScreen(navigator::navigateUp)
         }
 
         // Screens //

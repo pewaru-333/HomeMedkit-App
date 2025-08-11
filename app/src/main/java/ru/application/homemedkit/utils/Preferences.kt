@@ -41,6 +41,12 @@ object Preferences : ViewModel() {
         get() = preferences.getEnum(KEY_ORDER, Sorting.IN_NAME)
         set(value) = preferences.edit { putEnum(KEY_ORDER, value) }
 
+    val kitsFilter: Set<Long>
+        get() = preferences.getStringSet(KEY_KITS_FILTER, emptySet())
+            .orEmpty()
+            .mapNotNull(String::toLongOrNull)
+            .toSet()
+
     val imageFetch: Boolean
         get() = preferences.getBoolean(KEY_DOWNLOAD, true)
 
@@ -61,6 +67,10 @@ object Preferences : ViewModel() {
     var isFirstLaunch: Boolean
         get() = preferences.getBoolean(KEY_FIRST_LAUNCH_INTAKE, true)
         set(_) = preferences.edit { putBoolean(KEY_FIRST_LAUNCH_INTAKE, false) }
+
+    fun saveKitsFilter(kitsId: Set<Long>) = preferences.edit {
+        putStringSet(KEY_KITS_FILTER, kitsId.map(Long::toString).toSet())
+    }
 
     fun getLanguage(context: Context?) = if (context == null) Locale.ENGLISH.language
     else preferences.getString(KEY_LANGUAGE, context.getSelectedLanguage()) ?: Locale.ENGLISH.language

@@ -41,6 +41,7 @@ data class MedicineState(
     val technical: TechnicalState = TechnicalState(),
     val snackbarHostState: SnackbarHostState = SnackbarHostState(),
     val imageEditing: ImageEditing = ImageEditing.ADDING,
+    val isOpened: Boolean = false,
     val showDialogKits: Boolean = false,
     val showDialogDate: Boolean = false,
     val showDialogPackageDate: Boolean = false,

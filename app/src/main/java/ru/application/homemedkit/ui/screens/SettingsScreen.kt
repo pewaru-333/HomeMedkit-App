@@ -11,7 +11,6 @@ import android.os.Build.VERSION
 import android.provider.Settings
 import android.webkit.MimeTypeMap
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
@@ -132,6 +131,7 @@ import ru.application.homemedkit.dialogs.dragHandle
 import ru.application.homemedkit.dialogs.draggableItems
 import ru.application.homemedkit.dialogs.rememberDraggableListState
 import ru.application.homemedkit.receivers.AlarmSetter
+import ru.application.homemedkit.ui.navigation.Screen
 import ru.application.homemedkit.ui.theme.isDynamicColorAvailable
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.KEY_APP_SYSTEM
@@ -160,18 +160,13 @@ import java.io.File
 import java.util.Locale
 
 @Composable
-fun SettingsScreen(
-    backClick: () -> Unit,
-    toKitsManager: () -> Unit,
-    toPermissionsScreen: () -> Unit
-) {
+fun SettingsScreen(onNavigate: (Screen) -> Unit) {
     val context = LocalContext.current
 
     var showExport by rememberSaveable { mutableStateOf(false) }
     var showFixing by rememberSaveable { mutableStateOf(false) }
     var showClearing by rememberSaveable { mutableStateOf(false) }
 
-    BackHandler(onBack = backClick)
     ProvidePreferenceLocals {
         LazyColumn {
             preferenceCategory(
@@ -182,8 +177,8 @@ fun SettingsScreen(
             preference(
                 key = KEY_KITS,
                 title = { Text(stringResource(preference_kits_group)) },
-                onClick = toKitsManager,
-                summary = { Text(stringResource(text_tap_to_view)) }
+                summary = { Text(stringResource(text_tap_to_view)) },
+                onClick = { onNavigate(Screen.KitsManager) }
             )
 
             item {
@@ -321,8 +316,8 @@ fun SettingsScreen(
             preference(
                 key = KEY_PERMISSIONS,
                 title = { Text(stringResource(preference_permissions)) },
-                onClick = toPermissionsScreen,
-                summary = { Text(stringResource(text_tap_to_view)) }
+                summary = { Text(stringResource(text_tap_to_view)) },
+                onClick = { onNavigate(Screen.PermissionsScreen) },
             )
 
             preference(
@@ -497,7 +492,7 @@ fun KitsManager(back: () -> Unit) {
 }
 
 @Composable
-fun PermissionsScreen(navigateUp: () -> Unit, exitFirstLaunch: () -> Unit) {
+fun PermissionsScreen(navigateUp: () -> Unit, exitFirstLaunch: () -> Unit = navigateUp) {
     val scheduleExactAlarms = rememberPermissionState(Manifest.permission.SCHEDULE_EXACT_ALARM)
     val postNotifications = rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
     val fullScreenIntent = rememberPermissionState(Manifest.permission.USE_FULL_SCREEN_INTENT)
@@ -569,10 +564,9 @@ fun PermissionsScreen(navigateUp: () -> Unit, exitFirstLaunch: () -> Unit) {
             TextButton(navigateUp) { Text(stringResource(text_exit)) }
             Button(
                 onClick = exitFirstLaunch,
-                enabled = listOf(scheduleExactAlarms, postNotifications).all(PermissionState::isGranted)
-            ) {
-                Text(stringResource(text_save))
-            }
+                enabled = listOf(scheduleExactAlarms, postNotifications).all(PermissionState::isGranted),
+                content = { Text(stringResource(text_save)) }
+            )
         }
     }
 }

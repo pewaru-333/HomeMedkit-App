@@ -70,12 +70,12 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                             medicine = medicine.toMedicineIntake(),
                             amountStock = medicine.prodAmount.toString(),
                             doseType = medicine.doseType.title,
-                            image = medicine.images.firstOrNull()?.image ?: BLANK
+                            image = medicine.images.firstOrNull()?.image.orEmpty()
                         )
                     }
                 }
             }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), IntakeState())
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), IntakeState())
 
     fun setAlarmSetter(alarmSetter: AlarmSetter) {
         setter = alarmSetter
@@ -257,10 +257,8 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun delete() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             dao.getAlarms(_state.value.intakeId).forEach { setter.removeAlarm(it.alarmId) }
-        }
-        viewModelScope.launch(Dispatchers.IO) {
             dao.delete(_state.value.toIntake())
         }
     }

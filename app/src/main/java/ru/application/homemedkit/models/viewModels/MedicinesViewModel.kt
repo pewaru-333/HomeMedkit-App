@@ -7,12 +7,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Kit
@@ -21,16 +22,20 @@ import ru.application.homemedkit.data.model.MedicineGrouped
 import ru.application.homemedkit.data.model.MedicineMain
 import ru.application.homemedkit.models.states.MedicinesState
 import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.Preferences
 import ru.application.homemedkit.utils.ResourceText
 import ru.application.homemedkit.utils.enums.MedicineTab
 import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.extensions.toMedicineList
 import ru.application.homemedkit.utils.extensions.toModel
+import ru.application.homemedkit.utils.extensions.toMutableStateSet
 import ru.application.homemedkit.utils.extensions.toggle
 
 class MedicinesViewModel : ViewModel() {
     private val _state = MutableStateFlow(MedicinesState())
-    val state = _state.asStateFlow()
+    val state = _state
+        .onStart { loadFilters() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MedicinesState())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val _medicines = _state.flatMapLatest { query ->
@@ -45,7 +50,7 @@ class MedicinesViewModel : ViewModel() {
     val medicines = _medicines
         .map { list -> list.map(MedicineMain::toMedicineList) }
         .flowOn(Dispatchers.Default)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -129,10 +134,10 @@ class MedicinesViewModel : ViewModel() {
             }
         }
     }.flowOn(Dispatchers.Default)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     val kits = database.kitDAO().getFlow()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     fun toggleView() = _state.update {
         it.copy(tab = MedicineTab.entries.getOrElse(it.tab.ordinal + 1) { MedicineTab.LIST })
@@ -147,7 +152,38 @@ class MedicinesViewModel : ViewModel() {
     fun showSort() = _state.update { it.copy(showSort = !it.showSort) }
     fun setSorting(sorting: Sorting) = _state.update { it.copy(sorting = sorting) }
 
-    fun showFilter() = _state.update { it.copy(showFilter = !it.showFilter) }
-    fun clearFilter() = _state.update { it.copy(showFilter = false, kits = mutableStateSetOf()) }
+    fun showFilter() {
+        _state.update { it.copy(showFilter = !it.showFilter) }
+
+        if (!_state.value.showFilter) {
+            Preferences.saveKitsFilter(_state.value.kits.map(Kit::kitId).toSet())
+        }
+    }
+
+    fun clearFilter() {
+        _state.update {
+            it.copy(
+                showFilter = false,
+                kits = mutableStateSetOf()
+            )
+        }
+
+        Preferences.saveKitsFilter(emptySet())
+    }
+
     fun pickFilter(kit: Kit) = _state.update { it.copy(kits = it.kits.apply { toggle(kit) }) }
+
+    private fun loadFilters() {
+        viewModelScope.launch {
+            Preferences.kitsFilter.let { list ->
+                if (list.isNotEmpty()) {
+                    val kits = database.kitDAO().getKitList(list.toList())
+
+                    _state.update {
+                        it.copy(kits = kits.toMutableStateSet())
+                    }
+                }
+            }
+        }
+    }
 }

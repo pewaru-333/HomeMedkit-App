@@ -1,6 +1,5 @@
 package ru.application.homemedkit.ui.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -73,7 +72,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -90,6 +88,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -131,7 +130,7 @@ import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
+fun IntakesScreen(onNavigate: (Long) -> Unit) {
     val context = LocalContext.current
     val model = viewModel<IntakesViewModel>()
 
@@ -154,7 +153,14 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
     )
     val listStates = IntakeTab.entries.map { rememberLazyListState() }
 
-    BackHandler(onBack = backClick)
+    LaunchedEffect(pagerState) {
+        snapshotFlow(pagerState::currentPage).collectLatest {
+            if (it != pagerState.settledPage) {
+                pagerState.animateScrollToPage(it)
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -189,7 +195,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                             Icon(Icons.Outlined.DateRange, null)
                         }
                     }
-                },
+                }
             )
         },
         floatingActionButton = {
@@ -237,22 +243,12 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                 }
             }
 
-            LaunchedEffect(pagerState) {
-                snapshotFlow(pagerState::targetPage).collectLatest {
-                    pagerState.animateScrollToPage(it)
-                }
-            }
-
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.Top
-            ) { index ->
+            HorizontalPager(pagerState) { index ->
                 when (index) {
                     0 -> if (intakes.isNotEmpty())
-                        LazyColumn(state = listStates[0]) {
+                        LazyColumn(Modifier.fillMaxSize(), listStates[0]) {
                             items(intakes, Intake::intakeId) {
-                                ItemIntake(it, Modifier.animateItem(), navigateToIntake)
+                                ItemIntake(it, Modifier.animateItem(), onNavigate)
                                 HorizontalDivider()
                             }
                         }
@@ -263,7 +259,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                             .padding(values)
                     )
 
-                    1 -> LazyColumn(state = listStates[1]) {
+                    1 -> LazyColumn(Modifier.fillMaxSize(),listStates[1]) {
                         schedule.forEach {
                             item {
                                 TextDate(it.date)
@@ -280,7 +276,9 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                                     showDialogScheduleToTaken = model::showDialogScheduleToTaken
                                 )
 
-                                if (index < it.intakes.lastIndex) HorizontalDivider()
+                                if (index < it.intakes.lastIndex) {
+                                    HorizontalDivider()
+                                }
                             }
                         }
                     }
@@ -303,7 +301,9 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
                                     showDialogDelete = model::showDialogDelete
                                 )
 
-                                if (index < it.intakes.lastIndex) HorizontalDivider()
+                                if (index < it.intakes.lastIndex) {
+                                    HorizontalDivider()
+                                }
                             }
                         }
                     }
@@ -339,7 +339,7 @@ fun IntakesScreen(navigateToIntake: (Long) -> Unit, backClick: () -> Unit) {
 }
 
 @Composable
-fun ItemIntake(intake: Intake, modifier: Modifier, navigateToIntake: (Long) -> Unit) =
+fun ItemIntake(intake: Intake, modifier: Modifier, onNavigate: (Long) -> Unit) =
     ListItem(
         overlineContent = {
             Text(
@@ -382,7 +382,7 @@ fun ItemIntake(intake: Intake, modifier: Modifier, navigateToIntake: (Long) -> U
             else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f)
         ),
         modifier = modifier.clickable {
-            navigateToIntake(intake.intakeId)
+            onNavigate(intake.intakeId)
         }
     )
 
@@ -397,8 +397,9 @@ private fun DialogGoToDate(show: () -> Unit, scroll: (Long) -> Unit) {
         confirmButton = {
             TextButton(
                 enabled = pickerState.selectedDateMillis != null,
-                onClick = { scroll(pickerState.selectedDateMillis!!) }
-            ) { Text(stringResource(text_go_to)) }
+                onClick = { scroll(pickerState.selectedDateMillis!!) },
+                content = { Text(stringResource(text_go_to)) }
+            )
         }
     ) {
         DatePicker(
@@ -656,26 +657,20 @@ private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
         },
         confirmButton = {
             TextButton(
-                onClick = { onEvent(TakenEvent.SaveTaken(context)) },
+                content = { Text(stringResource(text_save)) },
+                onClick = { onEvent(TakenEvent.SaveTaken(NotificationManagerCompat.from(context))) },
                 enabled = when {
                     intake.medicine == null -> false
                     intake.medicine.prodAmount < intake.amount && !intake.taken -> false
                     else -> true
                 }
-            ) {
-                Text(
-                    text = stringResource(text_save)
-                )
-            }
+            )
         },
         dismissButton = {
             TextButton(
-                onClick = { onEvent(TakenEvent.HideDialog) }
-            ) {
-                Text(
-                    text = stringResource(text_cancel)
-                )
-            }
+                onClick = { onEvent(TakenEvent.HideDialog) },
+                content = { Text(stringResource(text_cancel)) }
+            )
         },
         text = {
             Column(
@@ -748,7 +743,8 @@ private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
                                 selected = index == intake.selection,
                                 shape = MaterialTheme.shapes.extraSmall,
                                 onClick = { onEvent(TakenEvent.SetSelection(index)) },
-                            ) { Text(label) }
+                                label = { Text(label) }
+                            )
                         }
                     }
                 }
@@ -772,13 +768,13 @@ private fun DialogDeleteTaken(onDismiss: () -> Unit, onDelete: () -> Unit) = Ale
 )
 
 @Composable
-private fun TextDate(date: String) = Text(
+fun TextDate(date: String) = Text(
     text = date,
     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.W500),
     modifier = Modifier
         .fillMaxWidth()
         .background(MaterialTheme.colorScheme.background)
-        .padding(12.dp, 24.dp)
+        .padding(16.dp)
 )
 
 @OptIn(ExperimentalFoundationApi::class)

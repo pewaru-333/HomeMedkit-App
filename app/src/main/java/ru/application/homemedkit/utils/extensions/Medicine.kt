@@ -25,6 +25,7 @@ fun MedicineFull.toState() = MedicineState(
     adding = false,
     editing = false,
     default = true,
+    isOpened = packageOpenedDate > 0L,
     id = id,
     kits = kits.toMutableStateSet(),
     cis = cis,

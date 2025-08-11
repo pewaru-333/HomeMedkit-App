@@ -43,8 +43,7 @@ class HomeMeds : Application(), SingletonImageLoader.Factory {
         .memoryCachePolicy(CachePolicy.ENABLED)
         .memoryCache {
             MemoryCache.Builder()
-                .maxSizePercent(context, 0.3)
-                .strongReferencesEnabled(true)
+                .maxSizePercent(context, 0.25)
                 .build()
         }
         .diskCachePolicy(CachePolicy.ENABLED)

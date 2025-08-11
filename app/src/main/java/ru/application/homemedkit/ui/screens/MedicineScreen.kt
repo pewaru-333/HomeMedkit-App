@@ -507,7 +507,7 @@ private fun ProductKit(state: MedicineState, event: (MedicineEvent) -> Unit) = C
 @Composable
 private fun ProductExp(state: MedicineState, event: (MedicineEvent) -> Unit) = Column {
     when {
-        state.default || state.technical.verified -> {
+        state.default || !state.isOpened -> {
             Text(
                 text = stringResource(text_exp_date),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
@@ -518,21 +518,23 @@ private fun ProductExp(state: MedicineState, event: (MedicineEvent) -> Unit) = C
             )
         }
 
-        (state.adding || state.editing) && !state.technical.verified -> OutlinedTextField(
-            value = state.expDateString,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(stringResource(text_exp_date)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .pointerInput(Unit) {
-                    awaitEachGesture {
-                        awaitFirstDown(pass = PointerEventPass.Initial)
-                        val up = waitForUpOrCancellation(pass = PointerEventPass.Initial)
-                        up?.let { event(MedicineEvent.ShowDatePicker) }
+        state.adding || state.editing -> {
+            OutlinedTextField(
+                value = state.expDateString,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(text_exp_date)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .pointerInput(Unit) {
+                        awaitEachGesture {
+                            awaitFirstDown(pass = PointerEventPass.Initial)
+                            val up = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                            up?.let { event(MedicineEvent.ShowDatePicker) }
+                        }
                     }
-                }
-        )
+            )
+        }
     }
 }
 
