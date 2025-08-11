@@ -47,7 +47,7 @@ jobs:
         id: generate_changelog
         run: |
           body="$(python .github/scripts/generate_changelog.py ${{ needs.get-version.outputs.version_code }})"
-          echo "${body//$'\n'/'%0A'}" >> $GITHUB_OUTPUT
+          echo "body=${body//$'\n'/'%0A'}" >> $GITHUB_OUTPUT
 
   build:
     runs-on: ubuntu-latest
