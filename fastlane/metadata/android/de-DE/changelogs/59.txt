@@ -1,0 +1,2 @@
+— Es wurde die Möglichkeit hinzugefügt, das Verfallsdatum des Medikaments zu ändern, wenn das Datum des Öffnens der Packung festgelegt wurde.
+— Wenn Sie jetzt auf dem Tab „Medikamente“ Filter auswählen, werden diese automatisch gespeichert und bleiben nach einem Neustart der App angewendet.
