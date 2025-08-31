@@ -1,2 +1,0 @@
-— Added the ability to change the expiration date of the medicine if the date of opening the package was set for it.
-— Now, when you select filters on the list of all medications screen, they are automatically saved and applied even after restarting the application.

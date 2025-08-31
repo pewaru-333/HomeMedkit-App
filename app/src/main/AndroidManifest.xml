@@ -22,7 +22,6 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         tools:targetApi="36">
         <activity
             android:name=".MainActivity"
@@ -59,6 +58,10 @@
 
         <receiver
             android:name=".receivers.ActionReceiver"
+            android:enabled="true" />
+
+        <receiver
+            android:name=".receivers.ActionGroupReceiver"
             android:enabled="true" />
 
         <receiver

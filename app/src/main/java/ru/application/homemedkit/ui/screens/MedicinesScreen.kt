@@ -24,17 +24,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconToggleButton
@@ -50,17 +45,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -73,20 +63,18 @@ import ru.application.homemedkit.R
 import ru.application.homemedkit.R.drawable.vector_filter
 import ru.application.homemedkit.R.drawable.vector_scanner
 import ru.application.homemedkit.R.drawable.vector_sort
-import ru.application.homemedkit.R.string.preference_kits_group
-import ru.application.homemedkit.R.string.text_clear
-import ru.application.homemedkit.R.string.text_enter_product_name
 import ru.application.homemedkit.R.string.text_exit_app
 import ru.application.homemedkit.R.string.text_no
-import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.R.string.text_yes
-import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.model.MedicineList
-import ru.application.homemedkit.models.states.MedicinesState
 import ru.application.homemedkit.models.viewModels.MedicinesViewModel
 import ru.application.homemedkit.ui.elements.BoxWithEmptyListText
+import ru.application.homemedkit.ui.elements.DialogKits
+import ru.application.homemedkit.ui.elements.MedicineImage
+import ru.application.homemedkit.ui.elements.SearchAppBar
+import ru.application.homemedkit.ui.elements.TextDate
 import ru.application.homemedkit.ui.navigation.Screen
-import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.MedicineTab
 import ru.application.homemedkit.utils.enums.Sorting
 
@@ -104,38 +92,16 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
     val listStates = MedicineTab.entries.map { rememberLazyListState() }
 
     LaunchedEffect(state.search, state.sorting, state.kits) {
-        listStates[state.tab.ordinal].animateScrollToItem(0)
+        listStates[state.tab.ordinal].scrollToItem(0)
     }
 
     BackHandler { model.showExit(true) }
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    TextField(
-                        value = state.search,
-                        onValueChange = model::setSearch,
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(stringResource(text_enter_product_name)) },
-                        leadingIcon = { Icon(Icons.Outlined.Search, null) },
-                        singleLine = true,
-                        trailingIcon = {
-                            if (state.search.isNotEmpty())
-                                IconButton(model::clearSearch)
-                                { Icon(Icons.Outlined.Clear, null) }
-                        },
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            disabledIndicatorColor = Color.Transparent,
-                        )
-                    )
-                },
-                modifier = Modifier.drawBehind {
-                    drawLine(Color.LightGray, Offset(0f, size.height), Offset(size.width, size.height), 4f)
-                },
+            SearchAppBar(
+                search = state.search,
+                onSearch = model::setSearch,
+                onClear = model::clearSearch,
                 actions = {
                     IconButton(model::showSort) { Icon(painterResource(vector_sort), null) }
                     DropdownMenu(state.showSort, model::showSort) {
@@ -147,9 +113,9 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
                                     .height(56.dp)
                                     .padding(horizontal = 16.dp)
                                     .selectable(
+                                        role = Role.RadioButton,
                                         selected = entry == state.sorting,
-                                        onClick = { model.setSorting(entry) },
-                                        role = Role.RadioButton
+                                        onClick = { model.setSorting(entry) }
                                     )
                             ) {
                                 RadioButton(entry == state.sorting, null)
@@ -304,10 +270,10 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
     when {
         state.showFilter -> DialogKits(
             kits = kits,
-            state = state,
-            pick = model::pickFilter,
-            show = model::showFilter,
-            clear = model::clearFilter
+            isChecked = { it in state.kits },
+            onPick = model::pickFilter,
+            onDismiss = model::showFilter,
+            onClear = model::clearFilter
         )
 
         state.showExit -> if (!Preferences.confirmExit) activity.finishAndRemoveTask()
@@ -349,49 +315,11 @@ private fun MedicineItem(medicine: MedicineList, modifier: Modifier, onClick: (L
     )
 
 @Composable
-private fun DialogKits(
-    kits: List<Kit>,
-    state: MedicinesState,
-    pick: (Kit) -> Unit,
-    show: () -> Unit,
-    clear: () -> Unit
-) = AlertDialog(
-    onDismissRequest = show,
-    confirmButton = { TextButton(show) { Text(stringResource(text_save)) } },
-    dismissButton = { TextButton(clear) { Text(stringResource(text_clear)) } },
-    title = { Text(stringResource(preference_kits_group)) },
-    text = {
-        LazyColumn {
-            items(kits, Kit::kitId) { kit ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .toggleable(
-                            value = kit in state.kits,
-                            onValueChange = { pick(kit) },
-                            role = Role.Checkbox
-                        )
-                ) {
-                    Checkbox(kit in state.kits, null)
-                    Text(
-                        text = kit.title,
-                        modifier = Modifier.padding(start = 16.dp),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            }
-        }
-    }
-)
-
-@Composable
-private fun DialogExit(dismiss: () -> Unit, exit: () -> Unit) =
+private fun DialogExit(onDismiss: () -> Unit, onExit: () -> Unit) =
     AlertDialog(
-        onDismissRequest = dismiss,
-        confirmButton = { TextButton(exit) { Text(stringResource(text_yes)) } },
-        dismissButton = { TextButton(dismiss) { Text(stringResource(text_no)) } },
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onExit) { Text(stringResource(text_yes)) } },
+        dismissButton = { TextButton(onDismiss) { Text(stringResource(text_no)) } },
         text = {
             Text(
                 text = stringResource(text_exit_app),

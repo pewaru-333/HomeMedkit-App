@@ -35,11 +35,11 @@ fun TimePickerDialog(onCancel: () -> Unit, onConfirm: () -> Unit, content: @Comp
         ) {
             Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
+                    text = stringResource(R.string.text_select_time),
+                    style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 20.dp),
-                    text = stringResource(R.string.text_select_time),
-                    style = MaterialTheme.typography.labelMedium
+                        .padding(bottom = 20.dp)
                 )
                 content()
                 Row(Modifier.height(40.dp).fillMaxWidth()) {

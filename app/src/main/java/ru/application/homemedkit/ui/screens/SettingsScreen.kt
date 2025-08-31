@@ -9,12 +9,15 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION
 import android.provider.Settings
-import android.webkit.MimeTypeMap
-import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
@@ -70,8 +73,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import me.zhanghai.compose.preference.ListPreference
 import me.zhanghai.compose.preference.Preference
@@ -80,58 +82,14 @@ import me.zhanghai.compose.preference.SwitchPreference
 import me.zhanghai.compose.preference.preference
 import me.zhanghai.compose.preference.preferenceCategory
 import me.zhanghai.compose.preference.switchPreference
-import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
-import ru.application.homemedkit.R.string.preference_app_theme
-import ru.application.homemedkit.R.string.preference_app_view
-import ru.application.homemedkit.R.string.preference_basic_settings
-import ru.application.homemedkit.R.string.preference_check_expiration_date
-import ru.application.homemedkit.R.string.preference_clear_app_cache
-import ru.application.homemedkit.R.string.preference_confirm_exit
-import ru.application.homemedkit.R.string.preference_download_images
-import ru.application.homemedkit.R.string.preference_dynamic_color
-import ru.application.homemedkit.R.string.preference_fixing_notifications
-import ru.application.homemedkit.R.string.preference_import_export
-import ru.application.homemedkit.R.string.preference_kits_group
-import ru.application.homemedkit.R.string.preference_language
-import ru.application.homemedkit.R.string.preference_permissions
-import ru.application.homemedkit.R.string.preference_sorting_type
-import ru.application.homemedkit.R.string.preference_system
-import ru.application.homemedkit.R.string.text_add
-import ru.application.homemedkit.R.string.text_attention
-import ru.application.homemedkit.R.string.text_cancel
-import ru.application.homemedkit.R.string.text_clear_app_cache_description
-import ru.application.homemedkit.R.string.text_confirm
-import ru.application.homemedkit.R.string.text_daily_at
-import ru.application.homemedkit.R.string.text_exit
-import ru.application.homemedkit.R.string.text_expain_ignore_battery
-import ru.application.homemedkit.R.string.text_explain_full_screen_intent
-import ru.application.homemedkit.R.string.text_explain_notifications
-import ru.application.homemedkit.R.string.text_explain_reminders
-import ru.application.homemedkit.R.string.text_explain_request_permissions
-import ru.application.homemedkit.R.string.text_export
-import ru.application.homemedkit.R.string.text_export_import_description
-import ru.application.homemedkit.R.string.text_fix_notifications
-import ru.application.homemedkit.R.string.text_import
-import ru.application.homemedkit.R.string.text_kit_title
-import ru.application.homemedkit.R.string.text_off
-import ru.application.homemedkit.R.string.text_on
-import ru.application.homemedkit.R.string.text_pay_attention
-import ru.application.homemedkit.R.string.text_permission_grant
-import ru.application.homemedkit.R.string.text_permission_granted
-import ru.application.homemedkit.R.string.text_permission_title_full_screen
-import ru.application.homemedkit.R.string.text_permission_title_ignore_battery
-import ru.application.homemedkit.R.string.text_permission_title_notifications
-import ru.application.homemedkit.R.string.text_permission_title_reminders
-import ru.application.homemedkit.R.string.text_save
-import ru.application.homemedkit.R.string.text_success
-import ru.application.homemedkit.R.string.text_tap_to_view
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.dialogs.dragHandle
 import ru.application.homemedkit.dialogs.draggableItems
 import ru.application.homemedkit.dialogs.rememberDraggableListState
+import ru.application.homemedkit.models.viewModels.SettingsViewModel
 import ru.application.homemedkit.receivers.AlarmSetter
-import ru.application.homemedkit.ui.navigation.Screen
+import ru.application.homemedkit.ui.navigation.LocalBarVisibility
 import ru.application.homemedkit.ui.theme.isDynamicColorAvailable
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.KEY_APP_SYSTEM
@@ -145,7 +103,10 @@ import ru.application.homemedkit.utils.KEY_EXP_IMP
 import ru.application.homemedkit.utils.KEY_FIXING
 import ru.application.homemedkit.utils.KEY_KITS
 import ru.application.homemedkit.utils.KEY_PERMISSIONS
-import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.KEY_USE_ALARM_CLOCK
+import ru.application.homemedkit.utils.di.AlarmManager
+import ru.application.homemedkit.utils.di.Database
+import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.Page
 import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.enums.Theme
@@ -160,49 +121,56 @@ import java.io.File
 import java.util.Locale
 
 @Composable
-fun SettingsScreen(onNavigate: (Screen) -> Unit) {
+fun SettingsScreen() {
     val context = LocalContext.current
+    val barVisibility = LocalBarVisibility.current
 
-    var showExport by rememberSaveable { mutableStateOf(false) }
-    var showFixing by rememberSaveable { mutableStateOf(false) }
-    var showClearing by rememberSaveable { mutableStateOf(false) }
+    val model = viewModel<SettingsViewModel>()
+    val state by model.state.collectAsStateWithLifecycle()
+    val kits by model.kits.collectAsStateWithLifecycle()
+
+    val startPage by model.startPage.collectAsStateWithLifecycle()
+    val sorting by model.sortingType.collectAsStateWithLifecycle()
+    val checkExpiration by model.checkExpiration.collectAsStateWithLifecycle()
+    val theme by model.theme.collectAsStateWithLifecycle()
+
+    LaunchedEffect(state.showKits, state.showPermissions) {
+        if (state.showKits || state.showPermissions) barVisibility.hide()
+        else barVisibility.show()
+    }
 
     ProvidePreferenceLocals {
         LazyColumn {
             preferenceCategory(
                 key = KEY_BASIC_SETTINGS,
-                title = { Text(stringResource(preference_basic_settings)) }
+                title = { Text(stringResource(R.string.preference_basic_settings)) }
             )
 
             preference(
                 key = KEY_KITS,
-                title = { Text(stringResource(preference_kits_group)) },
-                summary = { Text(stringResource(text_tap_to_view)) },
-                onClick = { onNavigate(Screen.KitsManager) }
+                title = { Text(stringResource(R.string.preference_kits_group)) },
+                summary = { Text(stringResource(R.string.text_tap_to_view)) },
+                onClick = model::toggleKits
             )
 
             item {
-                var value by remember { mutableStateOf(Preferences.startPage) }
-
                 ListPreference(
-                    value = value,
-                    onValueChange = { value = it; Preferences.startPage = it },
+                    value = startPage,
+                    onValueChange = model::changeStartPage,
                     values = Page.entries,
                     title = { Text(stringResource(R.string.preference_start_page)) },
-                    summary = { Text(stringResource(value.title)) },
+                    summary = { Text(stringResource(startPage.title)) },
                     valueToText = { AnnotatedString(context.getString(it.title)) }
                 )
             }
 
             item {
-                var value by remember { mutableStateOf(Preferences.sortingOrder) }
-
                 ListPreference(
-                    value = value,
-                    onValueChange = { value = it; Preferences.sortingOrder = it },
+                    value = sorting,
+                    onValueChange = model::changeSortingType,
                     values = Sorting.entries,
-                    title = { Text(stringResource(preference_sorting_type)) },
-                    summary = { Text(stringResource(value.title)) },
+                    title = { Text(stringResource(R.string.preference_sorting_type)) },
+                    summary = { Text(stringResource(sorting.title)) },
                     valueToText = { AnnotatedString(context.getString(it.title)) }
                 )
             }
@@ -210,52 +178,46 @@ fun SettingsScreen(onNavigate: (Screen) -> Unit) {
             switchPreference(
                 key = KEY_CONFIRM_EXIT,
                 defaultValue = true,
-                title = { Text(stringResource(preference_confirm_exit)) },
-                summary = { Text(stringResource(if (it) text_on else text_off)) }
+                title = { Text(stringResource(R.string.preference_confirm_exit)) },
+                summary = { Text(stringResource(if (it) R.string.text_on else R.string.text_off)) }
             )
 
             switchPreference(
                 key = KEY_DOWNLOAD,
                 defaultValue = true,
-                title = { Text(stringResource(preference_download_images)) },
-                summary = { Text(stringResource(if (it) text_on else text_off)) }
+                title = { Text(stringResource(R.string.preference_download_images)) },
+                summary = { Text(stringResource(if (it) R.string.text_on else R.string.text_off)) }
             )
 
             item {
-                var value by remember { mutableStateOf(Preferences.checkExpiration) }
-
                 SwitchPreference(
-                    value = value,
-                    onValueChange = { value = it; Preferences.setCheckExpDate(context, it) },
-                    title = { Text(stringResource(preference_check_expiration_date)) },
-                    summary = { Text(stringResource(if (value) text_daily_at else text_off)) }
+                    value = checkExpiration,
+                    onValueChange = model::changeExpirationCheck,
+                    title = { Text(stringResource(R.string.preference_check_expiration_date)) },
+                    summary = { Text(stringResource(if (checkExpiration) R.string.text_daily_at else R.string.text_off)) }
                 )
             }
 
-            item {
-                var value by remember { mutableStateOf(Preferences.useAlarmClock) }
-
-                SwitchPreference(
-                    value = value,
-                    onValueChange = { value = it; Preferences.useAlarmClock = it },
-                    enabled = context.canScheduleExactAlarms(),
-                    title = { Text(stringResource(R.string.preference_use_alarm_clock)) },
-                    summary = {
-                        Text(
-                            text = stringResource(
-                                when {
-                                    context.canScheduleExactAlarms() -> if (value) text_on else text_off
-                                    else -> R.string.text_explain_disabled
-                                }
-                            )
+            switchPreference(
+                key = KEY_USE_ALARM_CLOCK,
+                defaultValue = false,
+                enabled = { context.canScheduleExactAlarms() },
+                title = { Text(stringResource(R.string.preference_use_alarm_clock)) },
+                summary = {
+                    Text(
+                        text = stringResource(
+                            when {
+                                context.canScheduleExactAlarms() -> if (it) R.string.text_on else R.string.text_off
+                                else -> R.string.text_explain_disabled
+                            }
                         )
-                    }
-                )
-            }
+                    )
+                }
+            )
 
             preferenceCategory(
                 key = KEY_APP_VIEW,
-                title = { Text(stringResource(preference_app_view)) },
+                title = { Text(stringResource(R.string.preference_app_view)) },
                 modifier = Modifier.drawBehind {
                     drawLine(Color.LightGray, Offset(0f, 0f), Offset(size.width, 0f), 2f)
                 }
@@ -269,12 +231,12 @@ fun SettingsScreen(onNavigate: (Screen) -> Unit) {
                         value = value,
                         onValueChange = { value = it; Preferences.setLocale(context, it) },
                         values = context.getLanguageList(),
-                        title = { Text(stringResource(preference_language)) },
+                        title = { Text(stringResource(R.string.preference_language)) },
                         summary = { Text(Locale.forLanguageTag(value).getDisplayRegionName()) },
                         valueToText = { AnnotatedString(Locale.forLanguageTag(it).getDisplayRegionName()) }
                     )
                 } else Preference(
-                    title = { Text(stringResource(preference_language)) },
+                    title = { Text(stringResource(R.string.preference_language)) },
                     onClick = {
                         context.startActivity(
                             Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
@@ -286,14 +248,12 @@ fun SettingsScreen(onNavigate: (Screen) -> Unit) {
             }
 
             item {
-                val value by Preferences.theme.collectAsStateWithLifecycle()
-
                 ListPreference(
-                    value = value,
+                    value = theme,
                     onValueChange = Preferences::setTheme,
                     values = Theme.entries,
-                    title = { Text(stringResource(preference_app_theme)) },
-                    summary = { Text(stringResource(value.title)) },
+                    title = { Text(stringResource(R.string.preference_app_theme)) },
+                    summary = { Text(stringResource(theme.title)) },
                     valueToText = { AnnotatedString(context.getString(it.title)) }
                 )
             }
@@ -301,13 +261,13 @@ fun SettingsScreen(onNavigate: (Screen) -> Unit) {
             switchPreference(
                 key = KEY_DYNAMIC_COLOR,
                 defaultValue = false,
-                title = { Text(stringResource(preference_dynamic_color)) },
+                title = { Text(stringResource(R.string.preference_dynamic_color)) },
                 enabled = { isDynamicColorAvailable() }
             )
 
             preferenceCategory(
                 key = KEY_APP_SYSTEM,
-                title = { Text(stringResource(preference_system)) },
+                title = { Text(stringResource(R.string.preference_system)) },
                 modifier = Modifier.drawBehind {
                     drawLine(Color.LightGray, Offset(0f, 0f), Offset(size.width, 0f), 2f)
                 }
@@ -315,180 +275,193 @@ fun SettingsScreen(onNavigate: (Screen) -> Unit) {
 
             preference(
                 key = KEY_PERMISSIONS,
-                title = { Text(stringResource(preference_permissions)) },
-                summary = { Text(stringResource(text_tap_to_view)) },
-                onClick = { onNavigate(Screen.PermissionsScreen) },
+                title = { Text(stringResource(R.string.preference_permissions)) },
+                summary = { Text(stringResource(R.string.text_tap_to_view)) },
+                onClick = model::togglePermissions,
             )
 
             preference(
                 key = KEY_EXP_IMP,
-                title = { Text(stringResource(preference_import_export)) },
-                onClick = { showExport = true }
+                title = { Text(stringResource(R.string.preference_import_export)) },
+                onClick = model::toggleExport
             )
 
             preference(
                 key = KEY_FIXING,
-                title = { Text(stringResource(preference_fixing_notifications)) },
-                onClick = { showFixing = true }
+                title = { Text(stringResource(R.string.preference_fixing_notifications)) },
+                onClick = model::toggleFixing
             )
 
             preference(
                 key = KEY_CLEAR_CACHE,
-                title = { Text(stringResource(preference_clear_app_cache)) },
-                onClick = { showClearing = true }
+                title = { Text(stringResource(R.string.preference_clear_app_cache)) },
+                onClick = model::toggleClearing
             )
         }
     }
+    
+    KitsManager(
+        isVisible = state.showKits,
+        kits = kits,
+        onSave = model::saveKitsPosition,
+        onUpsert = model::upsertKit,
+        onDelete = model::deleteKit,
+        onBack = model::toggleKits
+    )
+
+    AnimatedVisibility(state.showPermissions, Modifier) {
+        BackHandler(onBack = model::togglePermissions)
+        PermissionsScreen(model::togglePermissions)
+    }
 
     when {
-        showExport -> ExportImport { showExport = false }
-        showFixing -> DialogFixing { showFixing = false }
-        showClearing -> DialogClearing { showClearing = false }
+        state.showExport -> ExportImport(model::toggleExport)
+        state.showFixing -> DialogFixing(model::toggleFixing)
+        state.showClearing -> DialogClearing(model::clearCache, model::toggleClearing)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun KitsManager(back: () -> Unit) {
-    val scope = rememberCoroutineScope()
-    val dao = database.kitDAO()
+private fun KitsManager(
+    isVisible: Boolean,
+    kits: List<Kit>,
+    onSave: (List<Kit>) -> Unit,
+    onUpsert: (Kit) -> Unit,
+    onDelete: (Kit) -> Unit,
+    onBack: () -> Unit
+) {
+    var list by remember { mutableStateOf(emptyList<Kit>()) }
+    var kit by remember { mutableStateOf(Kit(position = list.size.toLong())) }
 
-    var list by remember { mutableStateOf(listOf<Kit>()) }
     var ordering by rememberSaveable { mutableStateOf(false) }
     var show by rememberSaveable { mutableStateOf(false) }
-    var kit by remember { mutableStateOf(Kit()) }
 
-    LaunchedEffect(Unit) {
-        dao.getFlow().collectLatest {
-            list = it
-            kit = Kit(position = list.size.toLong())
-        }
+    LaunchedEffect(kits) {
+        list = kits
+        kit = Kit(position = list.size.toLong())
     }
 
-    val draggableState = rememberDraggableListState(
-        onMove = { fromIndex, toIndex ->
-            list = list.toMutableList().apply { add(toIndex, removeAt(fromIndex)) }
-        }
-    )
+    val draggableState = rememberDraggableListState { fromIndex, toIndex ->
+        list = list.toMutableList().apply { add(toIndex, removeAt(fromIndex)) }
+    }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(preference_kits_group)) },
-                navigationIcon = {
-                    IconButton(back) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, null)
-                    }
-                },
-                actions = {
-                    if (!ordering) {
-                        IconButton(
-                            onClick = { ordering = true }
-                        ) {
-                            Icon(painterResource(R.drawable.vector_sort), null)
-                        }
-                    } else {
-                        IconButton(
-                            onClick = {
-                                list = list.mapIndexed { index, kit ->
-                                    Kit(
-                                        kitId = kit.kitId,
-                                        title = kit.title,
-                                        position = index.toLong()
-                                    )
-                                }
-
-                                scope.launch(Dispatchers.IO) {
-                                    dao.updatePositions(list)
-                                }
-
-                                ordering = false
-                            }
-                        ) {
-                            Icon(Icons.Outlined.Check, null)
-                        }
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            if (!ordering) ExtendedFloatingActionButton(
-                text = { Text(stringResource(text_add)) },
-                icon = { Icon(Icons.Outlined.Add, null) },
-                onClick = { show = true },
-            )
-        }
-    ) { values ->
-        LazyColumn(Modifier.fillMaxSize(), draggableState.listState, values) {
-            draggableItems(draggableState, list, Kit::kitId) { item, _ ->
-                ListItem(
-                    headlineContent = { Text(item.title) },
-                    leadingContent = ordering.let {
-                        {
-                            if (!it) IconButton(
-                                onClick = {
-                                    kit = Kit(item.kitId, item.title, item.position)
-                                    show = true
-                                }
-                            ) {
-                                Icon(Icons.Outlined.Edit, null)
-                            }
+    BackHandler(onBack = onBack)
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = slideInHorizontally(initialOffsetX = { it }),
+        exit = slideOutHorizontally(targetOffsetX = { it })
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.preference_kits_group)) },
+                    navigationIcon = {
+                        IconButton(onBack) {
+                            Icon(Icons.AutoMirrored.Outlined.ArrowBack, null)
                         }
                     },
-                    trailingContent = {
-                        if (!ordering) {
+                    actions = {
+                        if (ordering) {
                             IconButton(
-                                onClick = { scope.launch(Dispatchers.IO) { dao.delete(item) } }
-                            ) {
-                                Icon(Icons.Outlined.Delete, null)
-                            }
+                                content = { Icon(Icons.Outlined.Check, null) },
+                                onClick = {
+                                    onSave(list)
+                                    ordering = false
+                                }
+                            )
                         } else {
-                            Icon(
-                                imageVector = Icons.Outlined.Menu,
-                                contentDescription = null,
-                                modifier = Modifier.dragHandle(draggableState, item.kitId)
+                            IconButton(
+                                onClick = { ordering = true },
+                                content = { Icon(painterResource(R.drawable.vector_sort), null) }
                             )
                         }
                     }
                 )
+            },
+            floatingActionButton = {
+                if (!ordering) {
+                    ExtendedFloatingActionButton(
+                        text = { Text(stringResource(R.string.text_add)) },
+                        icon = { Icon(Icons.Outlined.Add, null) },
+                        onClick = { show = true },
+                    )
+                }
+            }
+        ) { values ->
+            LazyColumn(Modifier.fillMaxSize(), draggableState.listState, values) {
+                draggableItems(draggableState, list, Kit::kitId) { item, _ ->
+                    ListItem(
+                        headlineContent = { Text(item.title) },
+                        leadingContent = ordering.let {
+                            {
+                                if (!it) {
+                                    IconButton(
+                                        content = { Icon(Icons.Outlined.Edit, null) },
+                                        onClick = {
+                                            kit = Kit(item.kitId, item.title, item.position)
+                                            show = true
+                                        }
+                                    )
+                                }
+                            }
+                        },
+                        trailingContent = {
+                            if (ordering) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Menu,
+                                    contentDescription = null,
+                                    modifier = Modifier.dragHandle(draggableState, item.kitId)
+                                )
+                            } else {
+                                IconButton(
+                                    onClick = { onDelete(item) },
+                                    content = { Icon(Icons.Outlined.Delete, null) }
+                                )
+                            }
+                        }
+                    )
 
-                if (item.position > 0L) HorizontalDivider()
+                    if (item.position > 0L) {
+                        HorizontalDivider()
+                    }
+                }
             }
         }
-    }
 
-    if (show) AlertDialog(
-        title = { Text(stringResource(text_kit_title)) },
-        onDismissRequest = { show = false },
-        confirmButton = {
-            TextButton(
-                enabled = kit.title.isNotBlank(),
-                onClick = {
-                    scope.launch(Dispatchers.IO) { dao.upsert(kit) }
-                    show = false
+        if (show) {
+            AlertDialog(
+                title = { Text(stringResource(R.string.text_kit_title)) },
+                onDismissRequest = { show = false },
+                confirmButton = {
+                    TextButton(
+                        enabled = kit.title.isNotBlank(),
+                        content = { Text(stringResource(R.string.text_save)) },
+                        onClick = {
+                            onUpsert(kit)
+                            show = false
+                        }
+                    )
                 },
-            ) {
-                Text(stringResource(text_save))
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    show = false
-                    kit = Kit(position = list.size.toLong())
+                dismissButton = {
+                    TextButton(
+                        content = { Text(stringResource(R.string.text_cancel)) },
+                        onClick = {
+                            show = false
+                            kit = Kit(position = list.size.toLong())
+                        }
+                    )
+                },
+                text = {
+                    OutlinedTextField(
+                        value = kit.title,
+                        onValueChange = { kit = kit.copy(title = it) },
+                        keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
+                    )
                 }
-            ) {
-                Text(stringResource(text_cancel))
-            }
-        },
-        text = {
-            OutlinedTextField(
-                value = kit.title,
-                onValueChange = { kit = kit.copy(title = it) },
-                keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
             )
         }
-    )
+    }
 }
 
 @Composable
@@ -503,69 +476,70 @@ fun PermissionsScreen(navigateUp: () -> Unit, exitFirstLaunch: () -> Unit = navi
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(12.dp)
             .verticalScroll(rememberScrollState())
     ) {
         Column(Modifier, spacedBy(8.dp), Alignment.CenterHorizontally) {
             Image(painterResource(R.drawable.vector_bell), null, Modifier.size(64.dp))
             Text(
-                text = stringResource(text_pay_attention),
+                text = stringResource(R.string.text_pay_attention),
                 style = MaterialTheme.typography.titleLarge
             )
             Text(
-                text = stringResource(text_explain_request_permissions),
+                text = stringResource(R.string.text_explain_request_permissions),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
         Column {
             if (VERSION.SDK_INT >= Build.VERSION_CODES.S) ListItem(
-                headlineContent = { Text(stringResource(text_permission_title_reminders)) },
+                headlineContent = { Text(stringResource(R.string.text_permission_title_reminders)) },
                 trailingContent = { ButtonGrant(scheduleExactAlarms) },
                 supportingContent = {
                     Text(
-                        text = stringResource(text_explain_reminders),
+                        text = stringResource(R.string.text_explain_reminders),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
             )
             if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) ListItem(
-                headlineContent = { Text(stringResource(text_permission_title_notifications)) },
+                headlineContent = { Text(stringResource(R.string.text_permission_title_notifications)) },
                 trailingContent = { ButtonGrant(postNotifications) },
                 supportingContent = {
                     Text(
-                        text = stringResource(text_explain_notifications),
+                        text = stringResource(R.string.text_explain_notifications),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
             )
             if (VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) ListItem(
-                headlineContent = { Text(stringResource(text_permission_title_full_screen)) },
+                headlineContent = { Text(stringResource(R.string.text_permission_title_full_screen)) },
                 trailingContent = { ButtonGrant(fullScreenIntent) },
                 supportingContent = {
                     Text(
-                        text = stringResource(text_explain_full_screen_intent),
+                        text = stringResource(R.string.text_explain_full_screen_intent),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
             )
             ListItem(
-                headlineContent = { Text(stringResource(text_permission_title_ignore_battery)) },
+                headlineContent = { Text(stringResource(R.string.text_permission_title_ignore_battery)) },
                 trailingContent = { ButtonGrant(ignoreBattery) },
                 supportingContent = {
                     Text(
-                        text = stringResource(text_expain_ignore_battery),
+                        text = stringResource(R.string.text_expain_ignore_battery),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
             )
         }
         Row(Modifier.fillMaxWidth(), SpaceBetween, CenterVertically) {
-            TextButton(navigateUp) { Text(stringResource(text_exit)) }
+            TextButton(navigateUp) { Text(stringResource(R.string.text_exit)) }
             Button(
                 onClick = exitFirstLaunch,
                 enabled = listOf(scheduleExactAlarms, postNotifications).all(PermissionState::isGranted),
-                content = { Text(stringResource(text_save)) }
+                content = { Text(stringResource(R.string.text_save)) }
             )
         }
     }
@@ -574,11 +548,12 @@ fun PermissionsScreen(navigateUp: () -> Unit, exitFirstLaunch: () -> Unit = navi
 @Composable
 private fun ButtonGrant(permission: PermissionState, modifier: Modifier = Modifier) =
     TextButton(permission::launchRequest, modifier, !permission.isGranted) {
-        Text(stringResource(if (permission.isGranted) text_permission_granted else text_permission_grant))
+        Text(stringResource(if (permission.isGranted) R.string.text_permission_granted else R.string.text_permission_grant))
     }
 
 @Composable
 private fun ExportImport(onDismiss: () -> Unit) {
+    val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
     val queryC = "SELECT 1 FROM sqlite_master WHERE type = 'table' and name = 'room_master_table'"
@@ -593,8 +568,8 @@ private fun ExportImport(onDismiss: () -> Unit) {
         .use { return if (it.moveToNext()) it.getString(1) else BLANK }
 
     val exporter = rememberLauncherForActivityResult(CreateDocument(mimes[0])) { uri ->
-        val path = context.getDatabasePath(database.openHelper.databaseName)
-        database.close()
+        val path = context.getDatabasePath(Database.openHelper.databaseName)
+        Database.close()
 
         uri?.let { uriN ->
             context.contentResolver.openOutputStream(uriN).use { output ->
@@ -607,14 +582,14 @@ private fun ExportImport(onDismiss: () -> Unit) {
     }
 
     val importer = rememberLauncherForActivityResult(OpenDocument()) { uri ->
-        val path = context.getDatabasePath(database.openHelper.databaseName)
+        val path = context.getDatabasePath(Database.openHelper.databaseName)
 
         uri?.let { uriN ->
-            val cursor = database.openHelper.readableDatabase.query(queryG)
+            val cursor = Database.openHelper.readableDatabase.query(queryG)
             val currentHash = if (cursor.moveToNext()) cursor.getString(1) else BLANK
             val tempFile = File.createTempFile("temp", ".sqlite", context.cacheDir)
 
-            database.close()
+            Database.close()
             context.contentResolver.openInputStream(uriN).use { input ->
                 tempFile.outputStream().use { output -> input?.copyTo(output) }
             }
@@ -625,7 +600,9 @@ private fun ExportImport(onDismiss: () -> Unit) {
                 newDB.close()
 
                 if (currentHash == newHash) {
-                    AlarmSetter(context).cancelAll()
+                    scope.launch {
+                        AlarmSetter.getInstance(context).cancelAll()
+                    }
 
                     context.contentResolver.openInputStream(uriN).use { input ->
                         path.outputStream().use { output -> input?.copyTo(output) }
@@ -645,12 +622,12 @@ private fun ExportImport(onDismiss: () -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton({ importer.launch(mimes) }) { Text(stringResource(text_import)) } },
-        dismissButton = { TextButton({ exporter.launch(name) }) { Text(stringResource(text_export)) } },
-        title = { Text(stringResource(text_attention)) },
+        confirmButton = { TextButton({ importer.launch(mimes) }) { Text(stringResource(R.string.text_import)) } },
+        dismissButton = { TextButton({ exporter.launch(name) }) { Text(stringResource(R.string.text_export)) } },
+        title = { Text(stringResource(R.string.text_attention)) },
         text = {
             Text(
-                text = stringResource(text_export_import_description),
+                text = stringResource(R.string.text_export_import_description),
                 style = MaterialTheme.typography.bodyLarge
             )
         }
@@ -659,63 +636,50 @@ private fun ExportImport(onDismiss: () -> Unit) {
 
 @Composable
 private fun DialogFixing(back: () -> Unit) {
+    val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    fun onFix() {
+        scope.launch { AlarmManager.resetAll() }
+        context.restartApplication()
+    }
 
     AlertDialog(
         onDismissRequest = back,
-        dismissButton = { TextButton(back) { Text(stringResource(text_cancel)) } },
-        title = { Text(stringResource(text_attention)) },
+        dismissButton = { TextButton(back) { Text(stringResource(R.string.text_cancel)) } },
+        confirmButton = { TextButton(::onFix) { Text(stringResource(R.string.text_confirm)) } },
+        title = { Text(stringResource(R.string.text_attention)) },
         text = {
             Text(
-                text = stringResource(text_fix_notifications),
+                text = stringResource(R.string.text_fix_notifications),
                 style = MaterialTheme.typography.bodyLarge
             )
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    AlarmSetter(context).resetAll()
-                    context.restartApplication()
-                }
-            ) {
-                Text(stringResource(text_confirm))
-            }
         }
     )
 }
 
 @Composable
-private fun DialogClearing(onDismiss: () -> Unit) {
+private fun DialogClearing(onClear: (File, File) -> Unit, onDismiss: () -> Unit) {
     val context = LocalContext.current
-    val images = database.medicineDAO().getAllImages()
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        dismissButton = { TextButton(onDismiss) { Text(stringResource(text_cancel)) } },
-        title = { Text(stringResource(text_attention)) },
+        dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_cancel)) } },
+        title = { Text(stringResource(R.string.text_attention)) },
         text = {
             Text(
-                text = stringResource(text_clear_app_cache_description),
+                text = stringResource(R.string.text_clear_app_cache_description),
                 style = MaterialTheme.typography.bodyLarge
             )
         },
         confirmButton = {
             TextButton(
+                content = { Text(stringResource(R.string.text_confirm)) },
                 onClick = {
-                    context.cacheDir.deleteRecursively()
-                    context.filesDir.listFiles()?.forEach { file ->
-                        MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)?.let {
-                            if (file.name !in images && it.startsWith("image/"))
-                                file.deleteRecursively()
-                        }
-                    }
-
-                    onDismiss()
-                    Toast.makeText(context, text_success, Toast.LENGTH_SHORT).show()
+                    onClear(context.cacheDir, context.filesDir)
+                    context.showToast(R.string.text_success)
                 }
-            ) {
-                Text(stringResource(text_confirm))
-            }
+            )
         }
     )
 }

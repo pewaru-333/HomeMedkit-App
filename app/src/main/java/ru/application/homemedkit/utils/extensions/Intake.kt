@@ -4,9 +4,6 @@ package ru.application.homemedkit.utils.extensions
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.snapshots.SnapshotStateSet
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.text.intl.Locale
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.intake_text_not_taken
@@ -43,6 +40,7 @@ fun IntakeFull.toState() = IntakeState(
     adding = false,
     editing = false,
     default = true,
+    isLoading = false,
     intakeId = intakeId,
     medicineId = medicineId,
     medicine = medicine,
@@ -56,7 +54,7 @@ fun IntakeFull.toState() = IntakeState(
     period = period.toString(),
     periodType = Period.getValue(period),
     foodType = foodType,
-    pickedTime = pickedTime.mapTo(SnapshotStateList()) { pickedTime ->
+    pickedTime = pickedTime.map { pickedTime ->
         val localTime = LocalTime.parse(pickedTime.time, FORMAT_H_MM)
         val hour = localTime.hour
         val min = localTime.minute
@@ -67,14 +65,14 @@ fun IntakeFull.toState() = IntakeState(
             picker = TimePickerState(hour, min, true)
         )
     },
-    pickedDays = pickedDays.sorted().toMutableStateList(),
+    pickedDays = pickedDays.sorted(),
     startDate = startDate,
     finalDate = finalDate,
     fullScreen = fullScreen,
     noSound = noSound,
     preAlarm = preAlarm,
     cancellable = cancellable,
-    selectedExtras = SnapshotStateSet<IntakeExtra>().apply {
+    selectedExtras = mutableSetOf<IntakeExtra>().apply {
         if (cancellable) add(IntakeExtra.CANCELLABLE)
         if (fullScreen) add(IntakeExtra.FULLSCREEN)
         if (noSound) add(IntakeExtra.NO_SOUND)
@@ -191,3 +189,5 @@ fun IntakeTakenFull.toTakenState() = TakenState(
     selection = if (taken) 1 else 0,
     notified = notified
 )
+
+fun TakenState?.orDefault() = this ?: TakenState()

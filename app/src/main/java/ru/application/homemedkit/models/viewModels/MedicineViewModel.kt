@@ -1,9 +1,7 @@
 package ru.application.homemedkit.models.viewModels
 
 import android.net.Uri
-import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import kotlinx.coroutines.CancellationException
@@ -11,29 +9,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.data.dto.Image
-import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.MedicineKit
 import ru.application.homemedkit.models.events.MedicineEvent
 import ru.application.homemedkit.models.events.Response
+import ru.application.homemedkit.models.states.MedicineDialogState
 import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.validation.Validation
 import ru.application.homemedkit.network.Network
 import ru.application.homemedkit.ui.navigation.Screen.Medicine
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.camera.ImageProcessing
+import ru.application.homemedkit.utils.di.Database
 import ru.application.homemedkit.utils.enums.ImageEditing
+import ru.application.homemedkit.utils.extensions.concat
 import ru.application.homemedkit.utils.extensions.toMedicine
 import ru.application.homemedkit.utils.extensions.toState
 import ru.application.homemedkit.utils.extensions.toggle
@@ -42,9 +37,10 @@ import ru.application.homemedkit.utils.toExpDate
 import ru.application.homemedkit.utils.toTimestamp
 import java.io.File
 
-class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
-    private val dao = database.medicineDAO()
-    private val daoK = database.kitDAO()
+class MedicineViewModel(saved: SavedStateHandle) : BaseViewModel<MedicineState, MedicineEvent>() {
+    private val dao = Database.medicineDAO()
+    private val daoK = Database.kitDAO()
+
     private val args = saved.toRoute<Medicine>()
 
     private val _response = Channel<Response>()
@@ -53,30 +49,34 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     private val _deleted = Channel<Boolean>()
     val deleted = _deleted.receiveAsFlow()
 
-    private val _state = MutableStateFlow(MedicineState())
-    val state = _state
-        .onStart { _state.emit(dao.getById(args.id)?.toState() ?: MedicineState(cis = args.cis)) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MedicineState())
-
-    val kits = database.kitDAO().getFlow()
+    val kits = Database.kitDAO().getFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
-    init {
-        if (args.duplicate) viewModelScope.launch {
-            _response.send(Response.Duplicate)
+    override fun initState() = MedicineState()
+
+    override fun loadData() {
+        viewModelScope.launch {
+            val medicineState = with(dao.getById(args.id)) {
+                if (this == null) MedicineState(adding = true, isLoading = false, cis = args.cis)
+                else withContext(Dispatchers.Main) { toState() }
+            }
+
+            if (args.duplicate) {
+                _response.send(Response.Duplicate)
+            }
+
+            updateState { medicineState }
         }
     }
 
     fun add() {
-        val currentValue = _state.value
-
         viewModelScope.launch {
-            val checkProductName = Validation.textNotEmpty(currentValue.productName)
+            val checkProductName = Validation.textNotEmpty(currentState.productName)
 
             if (checkProductName.successful) {
-                val id = dao.insert(currentValue.toMedicine())
-                val kits = currentValue.kits.map { MedicineKit(id, it.kitId) }
-                val images = currentValue.images.mapIndexed { index, image ->
+                val id = dao.insert(currentState.toMedicine())
+                val kits = currentState.kits.map { MedicineKit(id, it.kitId) }
+                val images = currentState.images.mapIndexed { index, image ->
                     Image(
                         medicineId = id,
                         position = index,
@@ -93,7 +93,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
                 }
 
-                _state.update {
+                updateState {
                     it.copy(
                         id = id,
                         adding = false,
@@ -102,14 +102,12 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                     )
                 }
             } else {
-                _state.update { it.copy(productNameError = checkProductName.errorMessage) }
+                updateState { it.copy(productNameError = checkProductName.errorMessage) }
             }
         }
     }
 
     fun fetch(dir: File) {
-        val currentState = _state.value
-
         viewModelScope.launch {
             _response.send(Response.Loading)
 
@@ -149,7 +147,7 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
                             joinAll(jobOne, jobTow)
 
                             dao.getById(args.id)?.let { medicine ->
-                                _state.update { medicine.toState() }
+                                updateState { medicine.toState() }
                             }
 
                             _response.send(Response.Success(data.model))
@@ -165,39 +163,35 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun update() {
-        val currentValue = _state.value
-
         viewModelScope.launch {
-            val checkProductName = Validation.textNotEmpty(currentValue.productName)
+            val checkProductName = Validation.textNotEmpty(currentState.productName)
 
             if (checkProductName.successful) {
-                val kits = currentValue.kits.map { MedicineKit(currentValue.id, it.kitId) }
-                val images = currentValue.images.mapIndexed { index, image ->
+                val kits = currentState.kits.map { MedicineKit(currentState.id, it.kitId) }
+                val images = currentState.images.mapIndexed { index, image ->
                     Image(
-                        medicineId = currentValue.id,
+                        medicineId = currentState.id,
                         position = index,
                         image = image
                     )
                 }
 
-                daoK.deleteAll(currentValue.id)
+                daoK.deleteAll(currentState.id)
                 daoK.pinKit(kits)
                 dao.updateImages(images)
 
-                dao.update(currentValue.toMedicine())
+                dao.update(currentState.toMedicine())
 
-                dao.getById(currentValue.id)?.let { medicine ->
-                    _state.update { medicine.toState() }
+                dao.getById(currentState.id)?.let { medicine ->
+                    updateState { medicine.toState() }
                 }
             } else {
-                _state.update { it.copy(productNameError = checkProductName.errorMessage) }
+                updateState { it.copy(productNameError = checkProductName.errorMessage) }
             }
         }
     }
 
     fun delete(dir: File) {
-        val currentState = _state.value
-
         viewModelScope.launch {
             val jobOne = launch { dao.delete(currentState.toMedicine())  }
             val jobTwo = launch(Dispatchers.IO) {
@@ -212,136 +206,125 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
 
             }
 
-            _state.update {
-                it.copy(showDialogDelete = false)
+            updateState {
+                it.copy(dialogState = null)
             }
 
             _deleted.send(true)
         }
     }
 
-    fun onEvent(event: MedicineEvent) {
+     override fun onEvent(event: MedicineEvent) {
         when (event) {
-            is MedicineEvent.SetCis -> _state.update { it.copy(cis = event.cis) }
-            is MedicineEvent.SetProductName -> _state.update { it.copy(productName = event.productName) }
-            is MedicineEvent.SetNameAlias -> _state.update { it.copy(nameAlias = event.alias) }
-            is MedicineEvent.SetExpDate -> _state.update {
+            is MedicineEvent.SetProductName -> updateState { it.copy(productName = event.productName) }
+            is MedicineEvent.SetNameAlias -> updateState { it.copy(nameAlias = event.alias) }
+            is MedicineEvent.SetExpDate -> updateState {
                 it.copy(
                     expDate = toTimestamp(event.month, event.year),
                     expDateString = toExpDate(toTimestamp(event.month, event.year)),
-                    showDialogDate = false
+                    dialogState = null
                 )
             }
-            is MedicineEvent.SetPackageDate -> _state.update {
+            is MedicineEvent.SetPackageDate -> updateState {
                 it.copy(
                     dateOpened = event.timestamp,
                     dateOpenedString = toExpDate(event.timestamp),
-                    showDialogPackageDate = false
+                    dialogState = null,
+                    isOpened = event.timestamp > 0L
                 )
             }
-            is MedicineEvent.SetFormName -> _state.update { it.copy(prodFormNormName = event.formName) }
-            is MedicineEvent.SetDoseName -> _state.update { it.copy(prodDNormName = event.doseName) }
-            is MedicineEvent.SetDoseType -> _state.update {
-                it.copy(doseType = event.type, showMenuDose = false)
-            }
+            is MedicineEvent.SetFormName -> updateState { it.copy(prodFormNormName = event.formName) }
+            is MedicineEvent.SetDoseName -> updateState { it.copy(prodDNormName = event.doseName) }
+            is MedicineEvent.SetDoseType -> updateState { it.copy(doseType = event.type) }
             is MedicineEvent.SetAmount -> when {
                 event.amount.isNotEmpty() -> {
                     if (event.amount.replace(',', '.').toDoubleOrNull() != null)
-                        _state.update { it.copy(prodAmount = event.amount.replace(',', '.')) }
+                        updateState { it.copy(prodAmount = event.amount.replace(',', '.')) }
                 }
-                else -> _state.update { it.copy(prodAmount = BLANK) }
+                else -> updateState { it.copy(prodAmount = BLANK) }
             }
-            is MedicineEvent.SetPhKinetics -> _state.update { it.copy(phKinetics = event.phKinetics) }
-            is MedicineEvent.SetComment -> _state.update { it.copy(comment = event.comment) }
-            is MedicineEvent.PickKit -> _state.update { it.copy(kits = it.kits.apply { toggle(event.kit) }) }
+            is MedicineEvent.SetPhKinetics -> updateState { it.copy(phKinetics = event.phKinetics) }
+            is MedicineEvent.SetComment -> updateState { it.copy(comment = event.comment) }
+            is MedicineEvent.PickKit -> updateState { it.copy(kits = it.kits.toggle(event.kit)) }
 
-            MedicineEvent.ClearKit -> _state.update { it.copy(kits = it.kits.apply(SnapshotStateSet<Kit>::clear)) }
+            MedicineEvent.ClearKit -> updateState { it.copy(kits = emptySet()) }
 
-            is MedicineEvent.SetIcon -> _state.update {
+            is MedicineEvent.SetIcon -> updateState {
                 it.copy(
-                    showDialogIcons = false,
-                    showDialogPictureGrid = true,
-                    images = it.images.apply { add(event.icon) },
+                    dialogState = MedicineDialogState.PictureGrid,
+                    images = it.images.concat(event.icon),
                 )
             }
 
-            is MedicineEvent.SetFullImage -> _state.update { it.copy(fullImage = event.index) }
-
             is MedicineEvent.SetImage -> viewModelScope.launch {
-                _state.update {
+                val compressedImage = event.imageProcessing.compressImage(event.image)
+
+                updateState {
                     it.copy(
-                        showDialogPictureGrid = true,
-                        showDialogPictureChoose = false,
-                        showTakePhoto = false,
-                        showDialogIcons = false,
-                        images = it.images.apply {
-                            add(event.imageProcessing.compressImage(event.image))
-                        }
+                        dialogState = MedicineDialogState.PictureGrid,
+                        images = it.images.concat(compressedImage)
                     )
                 }
 
                 _response.send(Response.Initial)
             }
 
-            is MedicineEvent.OnImageReodering -> _state.update {
-                it.copy(images = it.images.apply { add(event.toIndex, removeAt(event.fromIndex)) })
+            is MedicineEvent.OnImageReodering -> {
+                val imagesMutable = currentState.images.toMutableList()
+                val removed = imagesMutable.removeAt(event.fromIndex)
+                imagesMutable.add(event.toIndex, removed)
+
+                updateState {
+                    it.copy(
+                        images = imagesMutable
+                    )
+                }
             }
 
-            is MedicineEvent.RemoveImage -> _state.update {
-                it.copy(images = it.images.apply { remove(event.image) })
+            is MedicineEvent.RemoveImage -> {
+                val images = currentState.images.toMutableList().apply {
+                    remove(event.image)
+                }
+
+                updateState {
+                    it.copy(images = images)
+                }
             }
 
-            MedicineEvent.EditImagesOrder -> _state.update {
+            MedicineEvent.EditImagesOrder -> updateState {
                 it.copy(imageEditing = ImageEditing.entries.getOrElse(it.imageEditing.ordinal + 1) { ImageEditing.ADDING })
+            }
+
+            is MedicineEvent.ToggleDialog -> updateState {
+                if (it.dialogState == event.dialog) {
+                    it.copy(
+                        dialogState = when (event.dialog) {
+                            MedicineDialogState.PictureChoose -> MedicineDialogState.PictureGrid
+                            MedicineDialogState.TakePhoto, MedicineDialogState.Icons -> MedicineDialogState.PictureChoose
+                            is MedicineDialogState.FullImage -> if (event.dialog.page == -1) null
+                            else MedicineDialogState.FullImage(event.dialog.page)
+                            else -> null
+                        }
+                    )
+                } else {
+                    it.copy(
+                        dialogState = if (event.dialog is MedicineDialogState.FullImage) {
+                            if (event.dialog.page == -1) null
+                            else MedicineDialogState.FullImage(event.dialog.page)
+                        } else {
+                            event.dialog
+                        }
+                    )
+                }
             }
 
             MedicineEvent.ShowLoading -> viewModelScope.launch {
                 _response.send(Response.Loading)
             }
-
-            MedicineEvent.ShowKitDialog -> _state.update { it.copy(showDialogKits = !it.showDialogKits) }
-
-            MedicineEvent.ShowDatePicker -> _state.update { it.copy(showDialogDate = !it.showDialogDate) }
-
-            MedicineEvent.ShowPackageDatePicker -> _state.update { it.copy(showDialogPackageDate = !it.showDialogPackageDate) }
-
-            MedicineEvent.ShowIconPicker -> _state.update {
-                it.copy(
-                    showDialogPictureChoose = false,
-                    showDialogIcons = !it.showDialogIcons
-                )
-            }
-
-            MedicineEvent.ShowDialogPictureGrid -> _state.update { it.copy(showDialogPictureGrid = !it.showDialogPictureGrid) }
-
-            MedicineEvent.ShowDialogPictureChoose -> _state.update {
-                it.copy(
-                    showDialogPictureGrid = !it.showDialogPictureGrid,
-                    showDialogPictureChoose = !it.showDialogPictureChoose
-                )
-            }
-
-            is MedicineEvent.ShowDialogFullImage -> _state.update {
-                it.copy(
-                    showDialogFullImage = !it.showDialogFullImage,
-                    fullImage = event.index
-                )
-            }
-
-            MedicineEvent.ShowDialogDelete -> _state.update { it.copy(showDialogDelete = !it.showDialogDelete) }
-
-            MedicineEvent.ShowDoseMenu -> _state.update { it.copy(showMenuDose = !it.showMenuDose) }
-
-            MedicineEvent.ShowTakePhoto -> _state.update {
-                it.copy(
-                    showTakePhoto = !it.showTakePhoto,
-                    showDialogPictureChoose = false
-                )
-            }
         }
     }
 
-    fun setEditing() = _state.update {
+    fun setEditing() = updateState {
         it.copy(
             editing = true,
             default = false
@@ -349,12 +332,8 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
     }
 
     fun compressImage(imageProcessing: ImageProcessing, images: List<Uri>) {
-        _state.update {
-            it.copy(
-                showDialogPictureChoose = false,
-                showTakePhoto = false,
-                showDialogIcons = false
-            )
+        updateState {
+            it.copy(dialogState = null)
         }
 
         viewModelScope.launch {
@@ -369,10 +348,14 @@ class MedicineViewModel(saved: SavedStateHandle) : ViewModel() {
             val compressedResult = compressed.mapNotNull { it.await() }
 
             withContext(Dispatchers.Main) {
-                _state.update {
+                val images = currentState.images.toMutableList().apply {
+                    addAll(compressedResult)
+                }
+
+                updateState {
                     it.copy(
-                        images = it.images.apply { addAll(compressedResult) },
-                        showDialogPictureGrid = true
+                        images = images,
+                        dialogState = MedicineDialogState.PictureGrid
                     )
                 }
             }

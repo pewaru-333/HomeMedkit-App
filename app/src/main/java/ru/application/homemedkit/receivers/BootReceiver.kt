@@ -5,14 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_BOOT_COMPLETED
 import ru.application.homemedkit.data.MedicineDatabase
+import ru.application.homemedkit.utils.extensions.goAsync
 
 class BootReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(context: Context, intent: Intent) = goAsync {
         if (intent.action == ACTION_BOOT_COMPLETED) {
-            val takenDAO = MedicineDatabase.getInstance(context).takenDAO()
-
-            AlarmSetter(context).resetAll()
-            takenDAO.getAll().forEach { takenDAO.setNotified(it.takenId) }
+            AlarmSetter.getInstance(context).resetAll()
+            MedicineDatabase.getInstance(context).takenDAO().setNotified()
         }
     }
 }

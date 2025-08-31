@@ -4,16 +4,11 @@ package ru.application.homemedkit.models.states
 
 import androidx.annotation.StringRes
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateSetOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.snapshots.SnapshotStateSet
-import androidx.compose.runtime.toMutableStateList
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.model.IntakeAmountTime
 import ru.application.homemedkit.data.model.MedicineIntake
 import ru.application.homemedkit.utils.BLANK
-import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.IntakeExtra
 import ru.application.homemedkit.utils.enums.Interval
 import ru.application.homemedkit.utils.enums.Period
@@ -21,9 +16,10 @@ import ru.application.homemedkit.utils.enums.SchemaType
 import java.time.DayOfWeek
 
 data class IntakeState(
-    val adding: Boolean = true,
+    val adding: Boolean = false,
     val editing: Boolean = false,
     val default: Boolean = false,
+    val isLoading: Boolean = true,
     val intakeId: Long = 0L,
     val medicineId: Long = 0L,
     val medicine: MedicineIntake = MedicineIntake(),
@@ -40,8 +36,8 @@ data class IntakeState(
     val periodType: Period = Period.PICK,
     @StringRes val periodError: Int? = null,
     val foodType: Int = -1,
-    val pickedDays: SnapshotStateList<DayOfWeek> = DayOfWeek.entries.toMutableStateList(),
-    val pickedTime: SnapshotStateList<IntakeAmountTime> = mutableStateListOf(IntakeAmountTime()),
+    val pickedDays: List<DayOfWeek> = DayOfWeek.entries,
+    val pickedTime: List<IntakeAmountTime> = listOf(IntakeAmountTime()),
     val timePickerIndex: Int = 0,
     @StringRes val timesError: Int? = null,
     val startDate: String = BLANK,
@@ -49,7 +45,7 @@ data class IntakeState(
     val finalDate: String = BLANK,
     @StringRes val finalDateError: Int? = null,
     @StringRes val extraDesc: Int? = null,
-    val selectedExtras: SnapshotStateSet<IntakeExtra> = mutableStateSetOf(IntakeExtra.CANCELLABLE),
+    val selectedExtras: Set<IntakeExtra> = setOf(IntakeExtra.CANCELLABLE),
     val showIntervalTypePicker: Boolean = false,
     val showDatePicker: Boolean = false,
     val showDateRangePicker: Boolean = false,

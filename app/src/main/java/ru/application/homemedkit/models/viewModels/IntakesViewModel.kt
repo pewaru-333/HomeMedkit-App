@@ -4,6 +4,7 @@ package ru.application.homemedkit.models.viewModels
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TimePickerState
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,7 +19,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ru.application.homemedkit.HomeMeds.Companion.database
+import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.data.model.IntakeList
 import ru.application.homemedkit.data.model.IntakeModel
@@ -29,15 +30,17 @@ import ru.application.homemedkit.models.states.IntakesState
 import ru.application.homemedkit.models.states.NewTakenState
 import ru.application.homemedkit.models.states.ScheduledState
 import ru.application.homemedkit.models.states.TakenState
-import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
 import ru.application.homemedkit.utils.FORMAT_H_MM
 import ru.application.homemedkit.utils.ResourceText
 import ru.application.homemedkit.utils.ZONE
 import ru.application.homemedkit.utils.decimalFormat
+import ru.application.homemedkit.utils.di.AlarmManager
+import ru.application.homemedkit.utils.di.Database
 import ru.application.homemedkit.utils.enums.IntakeTab
 import ru.application.homemedkit.utils.enums.Sorting
+import ru.application.homemedkit.utils.extensions.orDefault
 import ru.application.homemedkit.utils.extensions.toIntake
 import ru.application.homemedkit.utils.extensions.toIntakePast
 import ru.application.homemedkit.utils.extensions.toIntakeSchedule
@@ -49,10 +52,10 @@ import java.time.ZonedDateTime
 import kotlin.math.abs
 
 class IntakesViewModel : ViewModel() {
-    private val intakeDAO = database.intakeDAO()
-    private val medicineDAO = database.medicineDAO()
-    private val takenDAO = database.takenDAO()
-    private val alarmDAO = database.alarmDAO()
+    private val intakeDAO = Database.intakeDAO()
+    private val medicineDAO = Database.medicineDAO()
+    private val takenDAO = Database.takenDAO()
+    private val alarmDAO = Database.alarmDAO()
 
     private val _state = MutableStateFlow(IntakesState())
     val state = _state.asStateFlow()
@@ -67,7 +70,7 @@ class IntakesViewModel : ViewModel() {
     val scheduleState = _scheduledState.asStateFlow()
 
     val medicines = medicineDAO.getListFlow(BLANK, Sorting.IN_NAME, emptyList(), false)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val intakes = _state.flatMapLatest { query ->
@@ -76,8 +79,7 @@ class IntakesViewModel : ViewModel() {
                 list.map(IntakeList::toIntake)
             }
         }
-    }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val schedule = _state.flatMapLatest { query ->
@@ -88,8 +90,7 @@ class IntakesViewModel : ViewModel() {
                     .map(Map.Entry<Long, List<Schedule>>::toIntakeSchedule)
             }
         }
-    }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val taken = _state.flatMapLatest { query ->
@@ -100,18 +101,34 @@ class IntakesViewModel : ViewModel() {
                     .map(Map.Entry<Long, List<IntakeTaken>>::toIntakePast)
             }
         }
-    }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     fun onTakenEvent(event: TakenEvent) {
         when (event) {
             is TakenEvent.SaveTaken -> saveTaken(event.manager)
 
-            is TakenEvent.SetSelection -> _takenState.update {
-                it.copy(
-                    selection = event.index,
-                    inFact = if (event.index == 0) 0L else System.currentTimeMillis()
-                )
+            is TakenEvent.SetSelection -> {
+                if (event.index == 0) {
+                    _takenState.update {
+                        it.copy(
+                            selection = 0,
+                            inFact = 0L,
+                            actual = ResourceText.StringResource(R.string.intake_text_not_taken)
+                        )
+                    }
+                } else {
+                    val current = System.currentTimeMillis()
+                    val dateTime = getDateTime(current)
+
+                    _takenState.update {
+                        it.copy(
+                            selection = 1,
+                            inFact = current,
+                            actual = ResourceText.StaticString(dateTime.format(FORMAT_H_MM)),
+                            pickerState = TimePickerState(dateTime.hour, dateTime.minute, true)
+                        )
+                    }
+                }
             }
 
             TakenEvent.SetFactTime -> {
@@ -186,9 +203,11 @@ class IntakesViewModel : ViewModel() {
                     )
                 }
 
-                database.takenDAO().getSimilarAmount(event.medicine.id)?.let { amount ->
-                    _newTakenState.update {
-                        it.copy(amount = decimalFormat(amount))
+                viewModelScope.launch {
+                    Database.takenDAO().getSimilarAmount(event.medicine.id)?.let { amount ->
+                        _newTakenState.update {
+                            it.copy(amount = decimalFormat(amount))
+                        }
                     }
                 }
             }
@@ -226,15 +245,14 @@ class IntakesViewModel : ViewModel() {
     fun showDialog(takenId: Long) {
         viewModelScope.launch {
             val taken = takenDAO.getById(takenId)
+            val state = withContext(Dispatchers.Main) {
+                taken?.toTakenState().orDefault()
+            }
 
-            withContext(Dispatchers.Main) {
-                _takenState.update {
-                    taken?.toTakenState() ?: TakenState()
-                }
+            _takenState.update { state }
 
-                _state.update {
-                    it.copy(showDialog = true)
-                }
+            _state.update {
+                it.copy(showDialog = true)
             }
         }
     }
@@ -245,20 +263,22 @@ class IntakesViewModel : ViewModel() {
     }
 
     fun showDialogScheduleToTaken(item: IntakeModel? = null) {
-        item?.let { scheduled ->
-            val alarm = alarmDAO.getById(scheduled.alarmId) ?: return
-            val inStock = intakeDAO.getById(alarm.intakeId)?.let {
-                it.medicine.prodAmount >= alarm.amount
-            } ?: false
+        viewModelScope.launch {
+            item?.let { scheduled ->
+                val alarm = alarmDAO.getById(scheduled.alarmId) ?: return@launch
+                val inStock = intakeDAO.getById(alarm.intakeId)?.let {
+                    it.medicine.prodAmount >= alarm.amount
+                } ?: false
 
-            _scheduledState.update {
-                it.copy(
-                    id = scheduled.id,
-                    alarmId = scheduled.alarmId,
-                    title = scheduled.title,
-                    time = scheduled.time,
-                    taken = inStock
-                )
+                _scheduledState.update {
+                    it.copy(
+                        id = scheduled.id,
+                        alarmId = scheduled.alarmId,
+                        title = scheduled.title,
+                        time = scheduled.time,
+                        taken = inStock
+                    )
+                }
             }
         }
 
@@ -277,13 +297,14 @@ class IntakesViewModel : ViewModel() {
         }
     }
 
-    fun scheduleToTaken(setter: AlarmSetter) {
-        val alarm = alarmDAO.getById(_scheduledState.value.alarmId) ?: return
-        val intake = intakeDAO.getById(alarm.intakeId) ?: return
-        val medicine = medicineDAO.getById(intake.medicineId) ?: return
-        val image = medicineDAO.getMedicineImages(medicine.id).firstOrNull().orEmpty()
-
+    fun scheduleToTaken() {
         viewModelScope.launch {
+            val alarm = alarmDAO.getById(_scheduledState.value.alarmId) ?: return@launch
+            val intake = intakeDAO.getById(alarm.intakeId) ?: return@launch
+            val medicine = medicineDAO.getById(intake.medicineId) ?: return@launch
+            val image = medicineDAO.getMedicineImages(medicine.id).firstOrNull().orEmpty()
+
+
             alarmDAO.delete(alarm)
 
             takenDAO.insert(
@@ -305,7 +326,7 @@ class IntakesViewModel : ViewModel() {
 
             medicineDAO.intakeMedicine(medicine.id, alarm.amount)
 
-            setter.setPreAlarm(intake.intakeId)
+            AlarmManager.setPreAlarm(intake.intakeId)
         }
 
         _state.update {
@@ -362,13 +383,16 @@ class IntakesViewModel : ViewModel() {
             cancel(state.alarmId.toInt())
         }
 
-        takenDAO.setTaken(takenId, takenNow, if (takenNow) state.inFact else 0L)
-        takenDAO.setNotified(takenId)
 
-        state.medicine?.let { medicine ->
-            medicineDAO.getById(medicine.id)?.let {
-                if (takenNow && !takenOld) medicineDAO.intakeMedicine(it.id, state.amount)
-                if (!takenNow && takenOld) medicineDAO.untakeMedicine(it.id, state.amount)
+        viewModelScope.launch {
+            takenDAO.setTaken(takenId, takenNow, if (takenNow) state.inFact else 0L)
+            takenDAO.setNotified(takenId)
+
+            state.medicine?.let { medicine ->
+                medicineDAO.getById(medicine.id)?.let {
+                    if (takenNow && !takenOld) medicineDAO.intakeMedicine(it.id, state.amount)
+                    if (!takenNow && takenOld) medicineDAO.untakeMedicine(it.id, state.amount)
+                }
             }
         }
 

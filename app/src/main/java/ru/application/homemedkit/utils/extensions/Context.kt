@@ -3,6 +3,7 @@ package ru.application.homemedkit.utils.extensions
 import android.app.AlarmManager
 import android.content.Context
 import android.content.Context.*
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.res.XmlResourceParser
 import android.media.AudioAttributes
@@ -11,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
 import androidx.core.app.LocaleManagerCompat
 import androidx.core.app.NotificationChannelCompat
@@ -18,6 +20,12 @@ import androidx.core.app.NotificationManagerCompat
 import org.xmlpull.v1.XmlPullParser
 import ru.application.homemedkit.R
 import java.util.Locale
+
+fun Context.getActivity(): ComponentActivity? = when (this) {
+    is ComponentActivity -> this
+    is ContextWrapper -> baseContext.getActivity()
+    else -> null
+}
 
 fun Context.isIgnoringBatteryOptimizations() =
     (getSystemService(POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(packageName)

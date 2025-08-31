@@ -14,42 +14,44 @@ import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
 import ru.application.homemedkit.MainActivity
 import ru.application.homemedkit.R
-import ru.application.homemedkit.R.string.text_attention
-import ru.application.homemedkit.R.string.text_expire_soon
 import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.utils.CHANNEL_ID_EXP
+import ru.application.homemedkit.utils.extensions.goAsync
 import ru.application.homemedkit.utils.extensions.safeNotify
 
 class ExpirationReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(context: Context, intent: Intent) = goAsync {
         MedicineDatabase.getInstance(context).medicineDAO().getAll().forEach {
             if (it.expDate < System.currentTimeMillis() + 30 * INTERVAL_DAY && it.prodAmount > 0) {
                 NotificationManagerCompat.from(context).safeNotify(
-                    context,
-                    it.id.toInt(),
-                    Builder(context, CHANNEL_ID_EXP)
+                    context = context,
+                    code = it.id.toInt(),
+                    notification = Builder(context, CHANNEL_ID_EXP)
                         .setAutoCancel(true)
                         .setCategory(CATEGORY_REMINDER)
-                        .setContentIntent(TaskStackBuilder.create(context).run {
-                            addNextIntentWithParentStack(
-                                Intent(context, MainActivity::class.java).apply {
-                                    action = Intent.ACTION_VIEW
-                                    data = "app://medicines/${it.id}".toUri()
-                                }
-                            )
-                            getPendingIntent(it.id.toInt(), FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
-                        })
-                        .setContentText(
-                            context.getString(text_expire_soon, it.nameAlias.ifEmpty(it::productName))
+                        .setContentIntent(
+                            TaskStackBuilder.create(context).run {
+                                addNextIntentWithParentStack(
+                                    Intent(context, MainActivity::class.java).apply {
+                                        action = Intent.ACTION_VIEW
+                                        data = "app://medicines/${it.id}".toUri()
+                                    }
+                                )
+                                getPendingIntent(
+                                    it.id.toInt(),
+                                    FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
+                                )
+                            }
                         )
-                        .setContentTitle(context.getString(text_attention))
+                        .setContentText(context.getString(R.string.text_expire_soon, it.nameAlias.ifEmpty(it::productName)))
+                        .setContentTitle(context.getString(R.string.text_attention))
                         .setSmallIcon(R.drawable.ic_launcher_notification)
                         .setVisibility(VISIBILITY_PUBLIC)
                         .build()
                 )
-                AlarmSetter(context).checkExpiration(true)
             }
         }
+        AlarmSetter.getInstance(context).checkExpiration(true)
     }
 }
 

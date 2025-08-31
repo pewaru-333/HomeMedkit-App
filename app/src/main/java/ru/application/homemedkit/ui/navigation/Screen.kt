@@ -29,11 +29,4 @@ sealed interface Screen {
         val intakeId: Long = 0L,
         val medicineId: Long = 0L
     ) : Screen
-
-    // ===== Settings items ===== //
-    @Serializable
-    object KitsManager : Screen
-
-    @Serializable
-    object PermissionsScreen : Screen
 }

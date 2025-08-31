@@ -17,7 +17,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.Theme
 
 private val lightScheme = lightColorScheme(
@@ -100,8 +100,8 @@ private val darkScheme = darkColorScheme(
 fun AppTheme(content: @Composable () -> Unit) {
     val activity = LocalContext.current as ComponentActivity
 
-    val darkState by Preferences.theme.collectAsStateWithLifecycle()
-    val dynamicColor by Preferences.dynamicColors.collectAsStateWithLifecycle()
+    val darkState by Preferences.theme.collectAsStateWithLifecycle(Theme.SYSTEM)
+    val dynamicColor by Preferences.dynamicColors.collectAsStateWithLifecycle(false)
 
     val darkTheme = when (darkState) {
         Theme.LIGHT -> false

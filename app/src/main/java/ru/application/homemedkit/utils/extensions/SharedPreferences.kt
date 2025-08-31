@@ -3,45 +3,46 @@ package ru.application.homemedkit.utils.extensions
 import android.content.SharedPreferences
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import ru.application.homemedkit.utils.KEY_APP_THEME
-import ru.application.homemedkit.utils.KEY_DYNAMIC_COLOR
-import ru.application.homemedkit.utils.enums.Theme
+import kotlinx.coroutines.flow.map
 
 fun <E : Enum<E>> SharedPreferences.Editor.putEnum(key: String, value: E) {
     putString(key, value.name)
 }
 
-fun <E : Enum<E>> SharedPreferences.getEnum(key: String, enum: Class<E>): E? {
-    val stringValue = getString(key, null) ?: return null
-    return enum.enumConstants?.find {
-        it.name == stringValue
+inline fun <reified E : Enum<E>> SharedPreferences.getEnum(key: String, defaultValue: E) =
+    getString(key, defaultValue.name)?.let { enumValueOf<E>(it) } ?: defaultValue
+
+inline fun <reified E : Enum<E>> SharedPreferences.getEnumFlow(key: String, defaultValue: E) =
+    flow(key) { getString(key, defaultValue.name) }.map { stringValue ->
+        stringValue?.let { enumValueOf<E>(it) } ?: defaultValue
+    }
+
+inline fun <reified T> SharedPreferences.getFlow(key: String, defaultValue: T) = flow(key) {
+    when (defaultValue) {
+        is Boolean -> getBoolean(key, defaultValue as Boolean) as T
+        is Int -> getInt(key, defaultValue as Int) as T
+        is Float -> getFloat(key, defaultValue as Float) as T
+        is String -> getString(key, defaultValue as String) as T
+        is Set<*> -> getStringSet(key, defaultValue as Set<String>) as T
+        else -> throw IllegalArgumentException()
     }
 }
 
-fun <E : Enum<E>> SharedPreferences.getEnum(key: String, defaultValue: E): E {
-    return getEnum(key, defaultValue.javaClass) ?: defaultValue
-}
-
-fun SharedPreferences.getThemeFlow(changedKey: String = KEY_APP_THEME) = callbackFlow {
-    val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-        if (changedKey == key) trySend(getEnum(key, Theme.SYSTEM))
+inline fun <T> SharedPreferences.flow(
+    key: String,
+    crossinline mapper: SharedPreferences.(key: String) -> T
+) = callbackFlow {
+    val listener = SharedPreferences.OnSharedPreferenceChangeListener { preferences, changedKey ->
+        if (key == changedKey) {
+            trySend(preferences.mapper(changedKey))
+        }
     }
 
     registerOnSharedPreferenceChangeListener(listener)
 
-    if (contains(changedKey)) send(getEnum(changedKey, Theme.SYSTEM))
-
-    awaitClose { unregisterOnSharedPreferenceChangeListener(listener) }
-}
-
-fun SharedPreferences.getColorsFlow(changedKey: String = KEY_DYNAMIC_COLOR) = callbackFlow {
-    val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-        if (changedKey == key) trySend(getBoolean(key, false))
+    if (contains(key)) {
+        send(mapper(key))
     }
-
-    registerOnSharedPreferenceChangeListener(listener)
-
-    if (contains(changedKey)) send(getBoolean(changedKey, false))
 
     awaitClose { unregisterOnSharedPreferenceChangeListener(listener) }
 }

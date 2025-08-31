@@ -28,10 +28,10 @@ interface IntakeDAO : BaseDAO<Intake> {
 
     @Transaction
     @Query("SELECT * FROM intakes WHERE intakeId = :intakeId")
-    fun getById(intakeId: Long): IntakeFull?
+    suspend fun getById(intakeId: Long): IntakeFull?
 
     @Query("SELECT * FROM alarms WHERE intakeId = :intakeId")
-    fun getAlarms(intakeId: Long): List<Alarm>
+    suspend fun getAlarms(intakeId: Long): List<Alarm>
 
     // ============================== Insert ==============================
     @Insert

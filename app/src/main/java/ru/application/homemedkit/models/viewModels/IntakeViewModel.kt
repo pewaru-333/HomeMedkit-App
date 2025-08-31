@@ -4,20 +4,13 @@ package ru.application.homemedkit.models.viewModels
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
-import androidx.compose.runtime.toMutableStateList
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.application.homemedkit.HomeMeds.Companion.database
+import kotlinx.coroutines.withContext
 import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.IntakeDay
 import ru.application.homemedkit.data.dto.IntakeTime
@@ -25,13 +18,14 @@ import ru.application.homemedkit.data.model.IntakeAmountTime
 import ru.application.homemedkit.models.events.IntakeEvent
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.validation.Validation
-import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.ui.navigation.Screen.Intake
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
 import ru.application.homemedkit.utils.FORMAT_H_MM
-import ru.application.homemedkit.utils.Preferences
 import ru.application.homemedkit.utils.ZONE
+import ru.application.homemedkit.utils.di.AlarmManager
+import ru.application.homemedkit.utils.di.Database
+import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.IntakeExtra
 import ru.application.homemedkit.utils.enums.Interval
 import ru.application.homemedkit.utils.enums.Interval.CUSTOM
@@ -42,6 +36,7 @@ import ru.application.homemedkit.utils.enums.Period.INDEFINITE
 import ru.application.homemedkit.utils.enums.Period.OTHER
 import ru.application.homemedkit.utils.enums.Period.PICK
 import ru.application.homemedkit.utils.enums.SchemaType
+import ru.application.homemedkit.utils.extensions.concat
 import ru.application.homemedkit.utils.extensions.toIntake
 import ru.application.homemedkit.utils.extensions.toMedicineIntake
 import ru.application.homemedkit.utils.extensions.toState
@@ -53,70 +48,71 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZonedDateTime
 
-class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
-    private lateinit var setter: AlarmSetter
-
-    private val dao = database.intakeDAO()
+class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, IntakeEvent>() {
+    private val dao = Database.intakeDAO()
     private val args = saved.toRoute<Intake>()
 
-    private val _state = MutableStateFlow(IntakeState())
-    val state = _state
-        .onStart {
-            dao.getById(args.intakeId)?.let { _state.value = it.toState() } ?: run {
-                database.medicineDAO().getById(args.medicineId)?.let { medicine ->
-                    _state.update { state ->
-                        state.copy(
-                            medicineId = medicine.id,
-                            medicine = medicine.toMedicineIntake(),
-                            amountStock = medicine.prodAmount.toString(),
-                            doseType = medicine.doseType.title,
-                            image = medicine.images.firstOrNull()?.image.orEmpty()
-                        )
+    override fun initState() = IntakeState()
+
+    override fun loadData() {
+        viewModelScope.launch { 
+            with(dao.getById(args.intakeId)) {
+                if (this != null) {
+                    val state = withContext(Dispatchers.Main) { toState() }
+                    
+                    updateState { state }
+                } else {
+                    Database.medicineDAO().getById(args.medicineId)?.let { medicine ->
+                        updateState { 
+                            it.copy(
+                                adding = true,
+                                isLoading = false,
+                                medicineId = medicine.id,
+                                medicine = medicine.toMedicineIntake(),
+                                amountStock = medicine.prodAmount.toString(),
+                                doseType = medicine.doseType.title,
+                                image = medicine.images.firstOrNull()?.image.orEmpty()
+                            )
+                        }
                     }
                 }
             }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), IntakeState())
-
-    fun setAlarmSetter(alarmSetter: AlarmSetter) {
-        setter = alarmSetter
+        }
     }
 
     fun setExitFirstLaunch() {
-        Preferences.isFirstLaunch = false
-        _state.update { it.copy(isFirstLaunch = false) }
+        Preferences.setHasLaunched()
+        updateState { it.copy(isFirstLaunch = false) }
     }
 
     fun add() {
         if (validate()) {
-            viewModelScope.launch(Dispatchers.IO) {
-                val intakeId = dao.insert(_state.value.toIntake())
+            viewModelScope.launch {
+                val intakeId = dao.insert(currentState.toIntake())
 
-                val days = _state.value.pickedDays.map { IntakeDay(intakeId, it) }
-                database.intakeDayDAO().insert(days)
+                val days = currentState.pickedDays.map { IntakeDay(intakeId, it) }
+                Database.intakeDayDAO().insert(days)
+
+                val current = ZonedDateTime.now()
+                val startDate = LocalDate.parse(currentState.startDate, FORMAT_DD_MM_YYYY)
+                val finalDate = LocalDate.parse(currentState.finalDate, FORMAT_DD_MM_YYYY)
 
                 val scheduled = mutableListOf<Alarm>()
 
-                _state.value.pickedTime.forEach { pickedTime ->
-                    var initial = ZonedDateTime.of(
-                        LocalDate.parse(_state.value.startDate, FORMAT_DD_MM_YYYY),
-                        LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute),
-                        ZONE
-                    )
+                currentState.pickedTime.forEach { pickedTime ->
+                    val localTime = LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
 
-                    val finish = ZonedDateTime.of(
-                        LocalDate.parse(_state.value.finalDate, FORMAT_DD_MM_YYYY),
-                        LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute),
-                        ZONE
-                    )
+                    var initial = ZonedDateTime.of(startDate, localTime, ZONE)
+                    val finish = ZonedDateTime.of(finalDate, localTime, ZONE)
 
-                    initial = initial.let {
-                        var unix = it
+                    initial = if (initial.isAfter(current)) initial else {
+                        val todayTime = ZonedDateTime.of(current.toLocalDate(), localTime, ZONE)
 
-                        while (unix.toInstant().toEpochMilli() < System.currentTimeMillis()) {
-                            unix = unix.plusDays(1)
+                        if (todayTime.isAfter(current)) {
+                            todayTime
+                        } else {
+                            todayTime.plusDays(1)
                         }
-
-                        unix
                     }
 
                     dao.addIntakeTime(
@@ -128,26 +124,25 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                     )
 
                     while (!initial.isAfter(finish)) {
-                        if (initial.dayOfWeek in _state.value.pickedDays) {
+                        if (initial.dayOfWeek in currentState.pickedDays) {
                             scheduled.add(
                                 Alarm(
                                     intakeId = intakeId,
                                     trigger = initial.toInstant().toEpochMilli(),
                                     amount = pickedTime.amount.toDouble(),
-                                    preAlarm = _state.value.preAlarm
+                                    preAlarm = currentState.preAlarm
                                 )
                             )
                         }
 
-                        initial = initial.plusDays(_state.value.interval.toLong())
+                        initial = initial.plusDays(currentState.interval.toLong())
                     }
                 }
 
-                scheduled.sortedBy(Alarm::trigger)
-                database.alarmDAO().insert(scheduled)
-                setter.setPreAlarm(intakeId)
+                Database.alarmDAO().insert(scheduled.sortedBy(Alarm::trigger))
+                AlarmManager.setPreAlarm(intakeId)
 
-                _state.update {
+                updateState {
                     it.copy(
                         intakeId = intakeId,
                         adding = false,
@@ -167,79 +162,74 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
     fun update() {
         if (validate()) {
             val finalDate = LocalDateTime.of(
-                LocalDate.parse(_state.value.finalDate, FORMAT_DD_MM_YYYY),
-                LocalTime.parse(_state.value.pickedTime.last().time, FORMAT_H_MM)
+                LocalDate.parse(currentState.finalDate, FORMAT_DD_MM_YYYY),
+                LocalTime.parse(currentState.pickedTime.last().time, FORMAT_H_MM)
             )
 
-            viewModelScope.launch(Dispatchers.IO) {
-                setter.removeAlarm(_state.value.intakeId)
-                database.alarmDAO().deleteByIntakeId(_state.value.intakeId)
+            viewModelScope.launch {
+                AlarmManager.removeAlarm(currentState.intakeId)
+                Database.alarmDAO().deleteByIntakeId(currentState.intakeId)
 
-                database.intakeDayDAO().deleteByIntakeId(_state.value.intakeId)
+                Database.intakeDayDAO().deleteByIntakeId(currentState.intakeId)
 
-                val days = _state.value.pickedDays.map { IntakeDay(_state.value.intakeId, it) }
-                database.intakeDayDAO().insert(days)
-
-
+                val days = currentState.pickedDays.map { IntakeDay(currentState.intakeId, it) }
+                Database.intakeDayDAO().insert(days)
 
                 if (finalDate >= LocalDateTime.now()) {
-                    dao.deleteIntakeTime(_state.value.intakeId)
+                    dao.deleteIntakeTime(currentState.intakeId)
+
+                    val current = ZonedDateTime.now()
+                    val startDate = LocalDate.parse(currentState.startDate, FORMAT_DD_MM_YYYY)
+                    val finalDate = LocalDate.parse(currentState.finalDate, FORMAT_DD_MM_YYYY)
 
                     val scheduled = mutableListOf<Alarm>()
 
-                    _state.value.pickedTime.forEach { pickedTime ->
-                        var initial = ZonedDateTime.of(
-                            LocalDate.parse(_state.value.startDate, FORMAT_DD_MM_YYYY),
-                            LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute),
-                            ZONE
-                        )
+                    currentState.pickedTime.forEach { pickedTime ->
+                        val localTime = LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
 
-                        val finish = ZonedDateTime.of(
-                            LocalDate.parse(_state.value.finalDate, FORMAT_DD_MM_YYYY),
-                            LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute),
-                            ZONE
-                        )
+                        var initial = ZonedDateTime.of(startDate, localTime, ZONE)
+                        val finish = ZonedDateTime.of(finalDate, localTime, ZONE)
 
-                        initial = initial.let {
-                            var unix = it
+                        initial = if (initial.isAfter(current)) initial else {
+                            val todayTime = ZonedDateTime.of(current.toLocalDate(), localTime, ZONE)
 
-                            while (unix.toInstant().toEpochMilli() < System.currentTimeMillis()) {
-                                unix = unix.plusDays(1)
+                            if (todayTime.isAfter(current)) {
+                                todayTime
+                            } else {
+                                todayTime.plusDays(1)
                             }
-
-                            unix
                         }
 
                         dao.addIntakeTime(
                             IntakeTime(
-                                intakeId = _state.value.intakeId,
+                                intakeId = currentState.intakeId,
                                 time = pickedTime.time,
                                 amount = pickedTime.amount.toDouble()
                             )
                         )
 
                         while (!initial.isAfter(finish)) {
-                            if (initial.dayOfWeek in _state.value.pickedDays) {
+                            if (initial.dayOfWeek in currentState.pickedDays) {
                                 scheduled.add(
                                     Alarm(
-                                        intakeId = _state.value.intakeId,
+                                        intakeId = currentState.intakeId,
                                         trigger = initial.toInstant().toEpochMilli(),
                                         amount = pickedTime.amount.toDouble(),
-                                        preAlarm = _state.value.preAlarm
+                                        preAlarm = currentState.preAlarm
                                     )
                                 )
                             }
 
-                            initial = initial.plusDays(_state.value.interval.toLong())
+                            initial = initial.plusDays(currentState.interval.toLong())
                         }
                     }
 
-                    database.alarmDAO().insert(scheduled)
-                    setter.setPreAlarm(_state.value.intakeId)
+                    Database.alarmDAO().insert(scheduled)
+                    AlarmManager.setPreAlarm(currentState.intakeId)
                 }
 
-                dao.update(_state.value.toIntake())
-                _state.update {
+                dao.update(currentState.toIntake())
+                updateState {
                     it.copy(
                         adding = false,
                         editing = false,
@@ -256,50 +246,54 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
         }
     }
 
-    fun delete() {
+    fun delete(onBack: () -> Unit) {
         viewModelScope.launch {
-            dao.getAlarms(_state.value.intakeId).forEach { setter.removeAlarm(it.alarmId) }
-            dao.delete(_state.value.toIntake())
+            AlarmManager.removeAlarm(currentState.intakeId)
+            dao.delete(currentState.toIntake())
+
+            onBack()
         }
     }
 
-    fun onEvent(event: IntakeEvent) {
+    override fun onEvent(event: IntakeEvent) {
         when(event) {
             is IntakeEvent.SetAmount -> {
                 if (event.amount.isNotEmpty()) when(event.amount.replace(',','.').toDoubleOrNull()) {
                     null -> {}
-                    else -> _state.update {
-                        it.copy(
-                            pickedTime = it.pickedTime.apply {
-                                if (it.sameAmount) forEachIndexed { index, _ ->
-                                    this[index] = this[index].copy(
-                                        amount = event.amount.replace(',', '.')
-                                    )
-                                } else this[event.index] = this[event.index].copy(
-                                    amount = event.amount.replace(',', '.')
-                                )
+                    else -> {
+                        val pickedTime = with(currentState) {
+                            pickedTime.mapIndexed { index, time ->
+                                if (sameAmount) {
+                                    time.copy(amount = event.amount.replace(',', '.'))
+                                } else {
+                                    if (index != event.index) time
+                                    else time.copy(amount = event.amount.replace(',', '.'))
+                                }
                             }
-                        )
-                    }
-                } else _state.update {
-                    it.copy(
-                        pickedTime = it.pickedTime.apply {
-                            if (it.sameAmount) forEachIndexed { index, _ ->
-                                this[index] = this[index].copy(
-                                    amount = BLANK
-                                )
-                            } else this[event.index] = this[event.index].copy(
-                                amount = BLANK
-                            )
                         }
-                    )
+
+                        updateState { it.copy(pickedTime = pickedTime) }
+                    }
+                } else {
+                    val pickedTime = with(currentState) {
+                        pickedTime.mapIndexed { index, time ->
+                            if (sameAmount) {
+                                time.copy(amount = BLANK)
+                            } else {
+                                if (index != event.index) time
+                                else time.copy(amount = BLANK)
+                            }
+                        }
+                    }
+
+                    updateState { it.copy(pickedTime = pickedTime) }
                 }
             }
 
             is IntakeEvent.SetInterval -> {
                 when (val interval = event.interval) {
                     is Interval -> when (interval) {
-                        DAILY, WEEKLY -> _state.update {
+                        DAILY, WEEKLY -> updateState {
                             it.copy(
                                 interval = interval.days.toString(),
                                 intervalType = interval,
@@ -307,7 +301,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                             )
                         }
 
-                        CUSTOM -> _state.update {
+                        CUSTOM -> updateState {
                             it.copy(
                                 interval = BLANK,
                                 intervalType = interval,
@@ -317,14 +311,14 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                     }
 
                     is String -> if (interval.isDigitsOnly() && interval.length <= 2)
-                        _state.update { it.copy(interval = interval) }
+                        updateState { it.copy(interval = interval) }
                 }
             }
 
             is IntakeEvent.SetPeriod -> {
                 when (val period = event.period) {
                     is Period -> when(period) {
-                        PICK -> _state.update {
+                        PICK -> updateState {
                             it.copy(
                                 period = period.days.toString(),
                                 periodType = period,
@@ -334,7 +328,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                             )
                         }
 
-                        OTHER -> _state.update {
+                        OTHER -> updateState {
                             it.copy(
                                 period = BLANK,
                                 periodType = period,
@@ -344,7 +338,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                             )
                         }
 
-                        INDEFINITE -> _state.update {
+                        INDEFINITE -> updateState {
                             it.copy(
                                 startDate = LocalDate.now().format(FORMAT_DD_MM_YYYY),
                                 finalDate = LocalDate.now().plusDays(period.days.toLong()).format(FORMAT_DD_MM_YYYY),
@@ -355,16 +349,16 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                         }
                     }
 
-                    is String -> if (period.isEmpty()) _state.update {
+                    is String -> if (period.isEmpty()) updateState {
                         it.copy(startDate = BLANK, finalDate = BLANK, period = BLANK)
                     }
                     else if (period.isDigitsOnly() && period.length <= 3) {
-                        val start = _state.value.startDate.ifEmpty { LocalDate.now().format(FORMAT_DD_MM_YYYY) }
+                        val start = currentState.startDate.ifEmpty { LocalDate.now().format(FORMAT_DD_MM_YYYY) }
                         val finish = LocalDate.parse(start, FORMAT_DD_MM_YYYY)
                             .plusDays(period.toLong() - 1)
                             .format(FORMAT_DD_MM_YYYY)
 
-                        _state.update {
+                        updateState {
                             it.copy(
                                 startDate = start,
                                 finalDate = finish,
@@ -373,7 +367,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                         }
                     }
 
-                    is Pair<*, *> -> if (period.first != null && period.second != null) _state.update {
+                    is Pair<*, *> -> if (period.first != null && period.second != null) updateState {
                         it.copy(
                             startDate = getDateTime(period.first as Long).format(FORMAT_DD_MM_YYYY),
                             finalDate = getDateTime(period.second as Long).format(FORMAT_DD_MM_YYYY),
@@ -384,7 +378,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             }
 
             is IntakeEvent.SetStartDate -> {
-                val period = _state.value.period.let {
+                val period = currentState.period.let {
                     if (it.isEmpty()) 1L
                     else it.toLong() - 1
                 }
@@ -393,7 +387,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                     .plusDays(period)
                     .format(FORMAT_DD_MM_YYYY)
 
-                _state.update {
+                updateState {
                     it.copy(
                         startDate = start,
                         finalDate = finish,
@@ -403,36 +397,40 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             }
 
             is IntakeEvent.SetFoodType -> {
-                _state.update {
-                    it.copy(foodType = if (event.type == _state.value.foodType) -1 else event.type)
+                updateState {
+                    it.copy(foodType = if (event.type == currentState.foodType) -1 else event.type)
                 }
             }
 
             IntakeEvent.IncTime -> {
-                _state.update {
-                    it.copy(
-                        pickedTime = it.pickedTime.apply {
-                            add(
-                                IntakeAmountTime(
-                                    amount = it.pickedTime.first().amount,
-                                    time = BLANK,
-                                    picker = TimePickerState(12, 0, true)
-                                )
-                            )
-                        }
+                val pickedTime = with(currentState.pickedTime) {
+                    concat(
+                        IntakeAmountTime(
+                            amount = firstOrNull()?.amount.orEmpty(),
+                            time = BLANK,
+                            picker = TimePickerState(12, 0, true)
+                        )
                     )
+                }
+
+                updateState {
+                    it.copy(pickedTime = pickedTime)
                 }
             }
             IntakeEvent.DecTime -> {
-                if (_state.value.pickedTime.size > 1) _state.update {
-                    it.copy(
-                        pickedTime = it.pickedTime.apply { removeAt(size - 1) }
-                    )
+                val pickedTime = with(currentState.pickedTime) {
+                    if (size > 1) dropLast(1)
+                    else this
                 }
+
+                updateState {
+                    it.copy(pickedTime = pickedTime)
+                }
+
             }
 
             is IntakeEvent.ShowDialogDescription -> {
-                _state.update {
+                updateState {
                     it.copy(
                         extraDesc = event.description,
                         showDialogDescription = !it.showDialogDescription
@@ -440,37 +438,37 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                 }
             }
             is IntakeEvent.ShowDialogDelete -> {
-                _state.update { it.copy(showDialogDelete = !it.showDialogDelete) }
+                updateState { it.copy(showDialogDelete = !it.showDialogDelete) }
             }
             is IntakeEvent.ShowDialogDataLoss -> {
-                _state.update { it.copy(showDialogDataLoss = event.flag) }
+                updateState { it.copy(showDialogDataLoss = event.flag) }
             }
 
 
             is IntakeEvent.ShowSchemaTypePicker -> {
-                _state.update { it.copy(showSchemaTypePicker = !it.showSchemaTypePicker) }
+                updateState { it.copy(showSchemaTypePicker = !it.showSchemaTypePicker) }
             }
             is IntakeEvent.ShowDatePicker -> {
-                if (_state.value.periodType == PICK) {
-                    _state.update {
+                if (currentState.periodType == PICK) {
+                    updateState {
                         it.copy(showDateRangePicker = !it.showDateRangePicker)
                     }
                 }
 
-                if (_state.value.periodType == OTHER) {
-                    _state.update {
+                if (currentState.periodType == OTHER) {
+                    updateState {
                         it.copy(showDatePicker = !it.showDatePicker)
                     }
                 }
             }
             is IntakeEvent.ShowPeriodTypePicker -> {
-                _state.update { it.copy(showPeriodTypePicker = !it.showPeriodTypePicker) }
+                updateState { it.copy(showPeriodTypePicker = !it.showPeriodTypePicker) }
             }
             is IntakeEvent.ShowIntervalTypePicker -> {
-                _state.update { it.copy(showIntervalTypePicker = !it.showIntervalTypePicker) }
+                updateState { it.copy(showIntervalTypePicker = !it.showIntervalTypePicker) }
             }
             is IntakeEvent.ShowTimePicker -> {
-                _state.update {
+                updateState {
                     it.copy(
                         showTimePicker = !it.showTimePicker,
                         timePickerIndex = event.index
@@ -481,38 +479,38 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
             is IntakeEvent.SetSchemaType -> {
                 when (event.type) {
                     SchemaType.INDEFINITELY -> {
-                        _state.update {
+                        updateState {
                             it.copy(
                                 startDate = LocalDate.now().format(FORMAT_DD_MM_YYYY),
                                 finalDate = LocalDate.now().plusDays(INDEFINITE.days.toLong()).format(FORMAT_DD_MM_YYYY),
                                 interval = DAILY.days.toString(),
                                 period = INDEFINITE.days.toString(),
-                                pickedDays = DayOfWeek.entries.toMutableStateList(),
+                                pickedDays = DayOfWeek.entries,
                                 schemaType = event.type,
                                 showSchemaTypePicker = false
                             )
                         }
                     }
 
-                    SchemaType.BY_DAYS -> _state.update {
+                    SchemaType.BY_DAYS -> updateState {
                         it.copy(
                             startDate = BLANK,
                             finalDate = BLANK,
                             interval = DAILY.days.toString(),
                             period = BLANK,
-                            pickedDays = DayOfWeek.entries.toMutableStateList(),
+                            pickedDays = DayOfWeek.entries,
                             schemaType = event.type,
                             showSchemaTypePicker = false
                         )
                     }
 
-                    SchemaType.PERSONAL -> _state.update {
+                    SchemaType.PERSONAL -> updateState {
                         it.copy(
                             startDate = BLANK,
                             finalDate = BLANK,
                             interval = DAILY.days.toString(),
                             period = BLANK,
-                            pickedDays = DayOfWeek.entries.toMutableStateList(),
+                            pickedDays = DayOfWeek.entries,
                             schemaType = event.type,
                             showSchemaTypePicker = false
                         )
@@ -520,73 +518,73 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
                 }
             }
             is IntakeEvent.SetPickedDay -> {
-                _state.update {
+                val toggled = currentState.pickedDays.toggle(event.day)
+                val pickedDays = toggled.ifEmpty { DayOfWeek.entries }
+
+                updateState {
                     it.copy(
-                        pickedDays = it.pickedDays.apply {
-                            toggle(event.day)
-                            if (isEmpty()) addAll(DayOfWeek.entries)
-                            sort()
-                        }
+                        pickedDays = pickedDays.sorted()
                     )
                 }
             }
             is IntakeEvent.SetPickedTime -> {
-                val index = _state.value.timePickerIndex
-                val picker = _state.value.pickedTime[index].picker
-                val time = LocalTime.of(picker.hour, picker.minute).format(FORMAT_H_MM)
+                val pickerIndex = currentState.timePickerIndex
+                val picker = currentState.pickedTime[pickerIndex].picker
+                val pickerTime = LocalTime.of(picker.hour, picker.minute).format(FORMAT_H_MM)
 
-                _state.update {
+                val pickedTime = currentState.pickedTime.mapIndexed { index, time ->
+                    if (index != pickerIndex) time
+                    else time.copy(
+                        time = pickerTime,
+                        picker = picker
+                    )
+                }
+
+                updateState {
                     it.copy(
                         showTimePicker = false,
-                        pickedTime = it.pickedTime.apply {
-                            this[index] = this[index].copy(
-                                time = time,
-                                picker = picker
-                            )
-                        }
+                        pickedTime = pickedTime
                     )
                 }
             }
 
             is IntakeEvent.SetSameAmount -> {
-                _state.update {
+                val pickedTime = currentState.pickedTime.map {
+                    it.copy(amount = BLANK)
+                }
+
+                updateState {
                     it.copy(
                         sameAmount = event.flag,
-                        pickedTime = it.pickedTime.apply {
-                            forEachIndexed { index, _ ->
-                                this[index] = this[index].copy(
-                                    amount = BLANK
-                                )
-                            }
-                        }
+                        pickedTime = pickedTime
                     )
                 }
             }
 
             is IntakeEvent.SetIntakeExtra -> {
                 when (event.extra) {
-                    IntakeExtra.CANCELLABLE -> _state.update { it.copy(cancellable = !it.cancellable) }
-                    IntakeExtra.FULLSCREEN -> _state.update { it.copy(fullScreen = !it.fullScreen) }
-                    IntakeExtra.NO_SOUND -> _state.update { it.copy(noSound = !it.noSound) }
-                    IntakeExtra.PREALARM -> _state.update { it.copy(preAlarm = !it.preAlarm) }
-                }.also {
-                    _state.update {
-                        it.copy(selectedExtras = it.selectedExtras.apply { toggle(event.extra) })
-                    }
+                    IntakeExtra.CANCELLABLE -> updateState { it.copy(cancellable = !it.cancellable) }
+                    IntakeExtra.FULLSCREEN -> updateState { it.copy(fullScreen = !it.fullScreen) }
+                    IntakeExtra.NO_SOUND -> updateState { it.copy(noSound = !it.noSound) }
+                    IntakeExtra.PREALARM -> updateState { it.copy(preAlarm = !it.preAlarm) }
+                }
+
+                updateState {
+                    it.copy(selectedExtras = it.selectedExtras.toggle(event.extra))
                 }
             }
         }
     }
 
-    fun setEditing() = _state.update { it.copy(adding = false, editing = true, default = false) }
+    fun setEditing() = updateState { it.copy(adding = false, editing = true, default = false) }
 
     private fun validate() : Boolean {
-        val checkAmount = Validation.checkAmount(_state.value.pickedTime)
-        val checkInterval = Validation.textNotEmpty(_state.value.interval)
-        val checkPeriod = Validation.textNotEmpty(_state.value.period)
-        val checkDateS = Validation.textNotEmpty(_state.value.startDate)
-        val checkDateF = Validation.textNotEmpty(_state.value.finalDate)
-        val checkTime = Validation.checkTime(_state.value.pickedTime)
+        val checkAmount = Validation.checkAmount(currentState.pickedTime)
+        val checkInterval = Validation.textNotEmpty(currentState.interval)
+        val checkPeriod = Validation.textNotEmpty(currentState.period)
+        val checkDateS = Validation.textNotEmpty(currentState.startDate)
+        val checkDateF = Validation.textNotEmpty(currentState.finalDate)
+        val checkTime = Validation.checkTime(currentState.pickedTime)
 
         val hasError = listOf(
             checkAmount, checkInterval, checkPeriod, checkDateS, checkDateF, checkTime
@@ -594,7 +592,7 @@ class IntakeViewModel(saved: SavedStateHandle) : ViewModel() {
 
         return if (!hasError) true
         else {
-            _state.update {
+            updateState {
                 it.copy(
                     amountError = checkAmount.errorMessage,
                     intervalError = checkInterval.errorMessage,

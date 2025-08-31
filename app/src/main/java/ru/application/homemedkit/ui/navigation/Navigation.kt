@@ -1,6 +1,5 @@
 package ru.application.homemedkit.ui.navigation
 
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -22,21 +21,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import ru.application.homemedkit.ui.navigation.Screen.Intake
 import ru.application.homemedkit.ui.navigation.Screen.Intakes
-import ru.application.homemedkit.ui.navigation.Screen.KitsManager
 import ru.application.homemedkit.ui.navigation.Screen.Medicine
 import ru.application.homemedkit.ui.navigation.Screen.Medicines
-import ru.application.homemedkit.ui.navigation.Screen.PermissionsScreen
 import ru.application.homemedkit.ui.navigation.Screen.Scanner
 import ru.application.homemedkit.ui.navigation.Screen.Settings
 import ru.application.homemedkit.ui.screens.IntakeScreen
 import ru.application.homemedkit.ui.screens.IntakesScreen
-import ru.application.homemedkit.ui.screens.KitsManager
 import ru.application.homemedkit.ui.screens.MedicineScreen
 import ru.application.homemedkit.ui.screens.MedicinesScreen
-import ru.application.homemedkit.ui.screens.PermissionsScreen
 import ru.application.homemedkit.ui.screens.ScannerScreen
 import ru.application.homemedkit.ui.screens.SettingsScreen
-import ru.application.homemedkit.utils.Preferences
+import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.Menu
 import ru.application.homemedkit.utils.extensions.isCurrentRoute
 
@@ -51,22 +46,7 @@ fun Navigation(navigator: NavHostController, modifier: Modifier) {
             IntakesScreen { navigator.navigate(Intake(intakeId = it)) }
         }
         composable<Settings> {
-            SettingsScreen(navigator::navigate)
-        }
-
-        // Settings screens //
-        composable<KitsManager>(
-            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) },
-            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End) }
-        ) {
-            KitsManager(navigator::navigateUp)
-        }
-
-        composable<PermissionsScreen>(
-            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start) },
-            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End) }
-        ) {
-            PermissionsScreen(navigator::navigateUp)
+            SettingsScreen()
         }
 
         // Screens //
@@ -95,9 +75,9 @@ fun Navigation(navigator: NavHostController, modifier: Modifier) {
 }
 
 @Composable
-fun BottomNavigationBar(backStack: NavBackStackEntry?, onClick: (Screen) -> Unit) =
+fun BottomNavigationBar(backStack: NavBackStackEntry?, visibility: NavigationBarVisibility, onClick: (Screen) -> Unit) =
     AnimatedVisibility(
-        visible = Menu.entries.any { backStack.isCurrentRoute(it.route::class) },
+        visible = Menu.entries.any { backStack.isCurrentRoute(it.route::class) } && visibility.isVisible,
         enter = expandVertically(),
         exit = shrinkVertically()
     ) {

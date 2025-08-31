@@ -1,5 +1,6 @@
 package ru.application.homemedkit.receivers
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.AlarmManager.RTC_WAKEUP
 import android.app.PendingIntent.FLAG_CANCEL_CURRENT
@@ -17,7 +18,7 @@ import ru.application.homemedkit.utils.extensions.canScheduleExactAlarms
 import java.time.LocalTime
 import java.time.ZonedDateTime
 
-class AlarmSetter(private val context: Context) {
+class AlarmSetter private constructor(private val context: Context) {
     private val manager = context.getSystemService(AlarmManager::class.java)
     private val database = MedicineDatabase.getInstance(context)
 
@@ -34,9 +35,9 @@ class AlarmSetter(private val context: Context) {
 
         with(manager) {
             if (context.canScheduleExactAlarms()) {
-                Preferences.getInstance(context)
+                val preferences = Preferences.getInstance(context)
 
-                if (Preferences.useAlarmClock) {
+                if (preferences.useAlarmClock) {
                     setAlarmClock(AlarmManager.AlarmClockInfo(trigger, pending), pending)
                 } else {
                     setExactAndAllowWhileIdle(RTC_WAKEUP, trigger, pending)
@@ -47,7 +48,7 @@ class AlarmSetter(private val context: Context) {
         }
     }
 
-    fun setPreAlarm(intakeId: Long) {
+    suspend fun setPreAlarm(intakeId: Long) {
         val alarm = database.alarmDAO().getNextByIntakeId(intakeId) ?: return
         val preTrigger = alarm.trigger - 1800000L
 
@@ -60,9 +61,9 @@ class AlarmSetter(private val context: Context) {
 
         with(manager) {
             if (context.canScheduleExactAlarms()) {
-                Preferences.getInstance(context)
+                val preferences = Preferences.getInstance(context)
 
-                if (Preferences.useAlarmClock) {
+                if (preferences.useAlarmClock) {
                     setAlarmClock(AlarmManager.AlarmClockInfo(preTrigger, pending), pending)
                 } else {
                     setExactAndAllowWhileIdle(RTC_WAKEUP, preTrigger, pending)
@@ -73,7 +74,7 @@ class AlarmSetter(private val context: Context) {
         }
     }
 
-    fun removeAlarm(intakeId: Long) {
+    suspend fun removeAlarm(intakeId: Long) {
         val nextAlarm = database.alarmDAO().getNextByIntakeId(intakeId) ?: return
 
         val pendingA = getBroadcast(
@@ -96,13 +97,13 @@ class AlarmSetter(private val context: Context) {
         }
     }
 
-    fun resetAll() = database.alarmDAO().getAll()
+    suspend fun resetAll() = database.alarmDAO().getAll()
         .filter { it.trigger < System.currentTimeMillis() }
         .sortedBy(Alarm::trigger)
         .mapNotNull(Alarm::intakeId)
-        .forEach(::setPreAlarm)
+        .forEach { setPreAlarm(it) }
 
-    fun cancelAll() = database.alarmDAO().getAll().forEach {
+    suspend fun cancelAll() = database.alarmDAO().getAll().forEach {
         with(manager) {
             cancel(
                 getBroadcast(
@@ -140,9 +141,9 @@ class AlarmSetter(private val context: Context) {
                 val nextTime = nextNoon.toInstant().toEpochMilli()
 
                 if (context.canScheduleExactAlarms()) {
-                    Preferences.getInstance(context)
+                    val preferences = Preferences.getInstance(context)
 
-                    if (Preferences.useAlarmClock) {
+                    if (preferences.useAlarmClock) {
                         setAlarmClock(AlarmManager.AlarmClockInfo(nextTime, broadcast), broadcast)
                     } else {
                         setExactAndAllowWhileIdle(RTC_WAKEUP, nextTime, broadcast)
@@ -153,6 +154,16 @@ class AlarmSetter(private val context: Context) {
             } else {
                 cancel(broadcast)
             }
+        }
+    }
+
+    companion object {
+        @SuppressLint("StaticFieldLeak")
+        @Volatile
+        private var INSTANCE: AlarmSetter? = null
+
+        fun getInstance(context: Context) = INSTANCE ?: synchronized(this) {
+            AlarmSetter(context).also { INSTANCE = it }
         }
     }
 }

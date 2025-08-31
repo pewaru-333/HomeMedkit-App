@@ -10,9 +10,6 @@ import ru.application.homemedkit.data.model.IntakeTakenFull
 @Dao
 interface TakenDAO : BaseDAO<IntakeTaken> {
     // ============================== Queries ==============================
-    @Query("SELECT * FROM intakes_taken")
-    fun getAll(): List<IntakeTaken>
-
     @Query(
         """
         SELECT * FROM intakes_taken
@@ -24,7 +21,7 @@ interface TakenDAO : BaseDAO<IntakeTaken> {
 
     @Transaction
     @Query("SELECT * FROM intakes_taken WHERE takenId = :takenId")
-    fun getById(takenId: Long): IntakeTakenFull?
+    suspend fun getById(takenId: Long): IntakeTakenFull?
 
     @Query(
         """
@@ -34,11 +31,14 @@ interface TakenDAO : BaseDAO<IntakeTaken> {
         LIMIT 1
         """
     )
-    fun getSimilarAmount(medicineId: Long): Double?
+    suspend fun getSimilarAmount(medicineId: Long): Double?
 
     @Query("UPDATE intakes_taken SET taken = :taken, inFact = :inFact WHERE takenId = :id")
-    fun setTaken(id: Long, taken: Boolean, inFact: Long)
+    suspend fun setTaken(id: Long, taken: Boolean, inFact: Long)
 
     @Query("UPDATE intakes_taken SET notified = 1 WHERE takenId = :id")
-    fun setNotified(id: Long)
+    suspend fun setNotified(id: Long)
+
+    @Query("UPDATE intakes_taken SET notified = 1 WHERE notified = 0")
+    suspend fun setNotified()
 }

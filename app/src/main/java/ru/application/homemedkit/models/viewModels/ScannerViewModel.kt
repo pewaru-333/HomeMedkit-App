@@ -11,15 +11,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import ru.application.homemedkit.HomeMeds.Companion.database
-import ru.application.homemedkit.utils.extensions.toMedicine
-import ru.application.homemedkit.utils.getMedicineImages
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.network.Network
+import ru.application.homemedkit.utils.di.Database
+import ru.application.homemedkit.utils.extensions.toMedicine
+import ru.application.homemedkit.utils.getMedicineImages
 import java.io.File
 
 class ScannerViewModel : ViewModel() {
-    private val dao = database.medicineDAO()
+    private val dao = Database.medicineDAO()
     private val mutex = Mutex()
 
     private val _response = Channel<Response>()

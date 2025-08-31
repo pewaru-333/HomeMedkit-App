@@ -5,6 +5,7 @@ import android.icu.text.DecimalFormat
 import androidx.compose.ui.text.intl.Locale
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.network.Network
+import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.DrugType
 import java.io.File
 import java.time.Instant

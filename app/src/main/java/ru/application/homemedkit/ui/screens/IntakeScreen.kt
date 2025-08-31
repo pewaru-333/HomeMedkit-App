@@ -1,6 +1,8 @@
 package ru.application.homemedkit.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,9 +12,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,15 +27,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -58,10 +56,8 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -75,11 +71,8 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -87,29 +80,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.application.homemedkit.R
-import ru.application.homemedkit.R.drawable.vector_remove
-import ru.application.homemedkit.R.string.intake_text_amount
-import ru.application.homemedkit.R.string.intake_text_extra
-import ru.application.homemedkit.R.string.intake_text_food
-import ru.application.homemedkit.R.string.intake_text_interval
-import ru.application.homemedkit.R.string.intake_text_period
-import ru.application.homemedkit.R.string.intake_text_time
-import ru.application.homemedkit.R.string.placeholder_time
-import ru.application.homemedkit.R.string.text_confirm_deletion_int
-import ru.application.homemedkit.R.string.text_days_short
-import ru.application.homemedkit.R.string.text_delete
-import ru.application.homemedkit.R.string.text_dismiss
-import ru.application.homemedkit.R.string.text_edit
-import ru.application.homemedkit.R.string.text_empty
-import ru.application.homemedkit.R.string.text_every
-import ru.application.homemedkit.R.string.text_exit
-import ru.application.homemedkit.R.string.text_exp_date
-import ru.application.homemedkit.R.string.text_medicine_description
-import ru.application.homemedkit.R.string.text_medicine_form
-import ru.application.homemedkit.R.string.text_medicine_product_name
-import ru.application.homemedkit.R.string.text_not_saved_intake
-import ru.application.homemedkit.R.string.text_stay
-import ru.application.homemedkit.R.string.text_unspecified
 import ru.application.homemedkit.data.model.MedicineIntake
 import ru.application.homemedkit.dialogs.DatePicker
 import ru.application.homemedkit.dialogs.DateRangePicker
@@ -117,7 +87,11 @@ import ru.application.homemedkit.dialogs.TimePickerDialog
 import ru.application.homemedkit.models.events.IntakeEvent
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.viewModels.IntakeViewModel
-import ru.application.homemedkit.receivers.AlarmSetter
+import ru.application.homemedkit.ui.elements.DialogDelete
+import ru.application.homemedkit.ui.elements.MedicineImage
+import ru.application.homemedkit.ui.elements.NavigationIcon
+import ru.application.homemedkit.ui.elements.TopBarActions
+import ru.application.homemedkit.utils.DotCommaReplacer
 import ru.application.homemedkit.utils.decimalFormat
 import ru.application.homemedkit.utils.enums.FoodType
 import ru.application.homemedkit.utils.enums.IntakeExtra
@@ -125,6 +99,7 @@ import ru.application.homemedkit.utils.enums.Interval
 import ru.application.homemedkit.utils.enums.Period
 import ru.application.homemedkit.utils.enums.SchemaType
 import ru.application.homemedkit.utils.extensions.canUseFullScreenIntent
+import ru.application.homemedkit.utils.extensions.intake
 import ru.application.homemedkit.utils.formName
 import ru.application.homemedkit.utils.toExpDate
 import java.time.DayOfWeek
@@ -134,14 +109,20 @@ import java.time.format.TextStyle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IntakeScreen(navigateBack: () -> Unit) {
+    val focusManager = LocalFocusManager.current
+
     val model = viewModel<IntakeViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
 
-    model.setAlarmSetter(AlarmSetter(LocalContext.current))
+    LaunchedEffect(state.default) {
+        if (state.default) {
+            focusManager.clearFocus(true)
+        }
+    }
 
     BackHandler(!state.isFirstLaunch) {
-        if (state.adding || state.editing) model.onEvent(IntakeEvent.ShowDialogDataLoss(true))
-        else navigateBack()
+        if (state.default) navigateBack()
+        else model.onEvent(IntakeEvent.ShowDialogDataLoss(true))
     }
     if (state.isFirstLaunch) PermissionsScreen(navigateBack, model::setExitFirstLaunch)
     else Scaffold(
@@ -149,52 +130,18 @@ fun IntakeScreen(navigateBack: () -> Unit) {
             TopAppBar(
                 title = {},
                 navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            if (state.adding || state.editing) model.onEvent(IntakeEvent.ShowDialogDataLoss(true))
-                            else navigateBack()
-                        }
-                    ) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, null)
+                    NavigationIcon {
+                        if (state.default) navigateBack()
+                        else model.onEvent(IntakeEvent.ShowDialogDataLoss(true))
                     }
                 },
                 actions = {
-                    if (state.adding || state.editing) IconButton(
-                        onClick = if (state.adding) model::add else model::update
-                    ) {
-                        Icon(Icons.Outlined.Check, null)
-                    }
-                    else {
-                        LocalFocusManager.current.clearFocus(true)
-                        var expanded by remember { mutableStateOf(false) }
-
-                        IconButton({ expanded = true }) {
-                            Icon(Icons.Outlined.MoreVert, null)
-                        }
-                        DropdownMenu(expanded, { expanded = false }) {
-                            DropdownMenuItem(
-                                onClick = model::setEditing,
-                                text = {
-                                    Text(
-                                        text = stringResource(text_edit),
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                },
-                            )
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = stringResource(text_delete),
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )
-                                },
-                                onClick = {
-                                    model.onEvent(IntakeEvent.ShowDialogDelete)
-                                    expanded = false
-                                }
-                            )
-                        }
-                    }
+                    TopBarActions(
+                        isDefault = state.default,
+                        setModifiable = model::setEditing,
+                        onSave = if (state.adding) model::add else model::update,
+                        onShowDialog = { model.onEvent(IntakeEvent.ShowDialogDelete) }
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -204,31 +151,36 @@ fun IntakeScreen(navigateBack: () -> Unit) {
             )
         }
     ) { values ->
-        LazyColumn(
-            verticalArrangement = spacedBy(24.dp),
-            contentPadding = PaddingValues(8.dp, values.calculateTopPadding(), 8.dp, 8.dp),
-            modifier = Modifier.padding(top = 16.dp)
-        ) {
-            item { MedicineInfo(state.medicine, state.image) }
+        Crossfade(state.isLoading) { isLoading ->
+            if (isLoading) {
+                Box(Modifier.fillMaxSize())
+            } else {
+                LazyColumn(
+                    verticalArrangement = spacedBy(24.dp),
+                    contentPadding = values.intake()
+                ) {
+                    item { MedicineInfo(state.medicine, state.image) }
 
-            item { SchemaType(state, model::onEvent) }
+                    item { SchemaType(state, model::onEvent) }
 
-            if (state.schemaType == SchemaType.BY_DAYS) item {
-                DaysPicker(state, model::onEvent)
+                    if (state.schemaType == SchemaType.BY_DAYS) item {
+                        DaysPicker(state, model::onEvent)
+                    }
+
+                    if (state.schemaType != SchemaType.BY_DAYS) item {
+                        Interval(state, model::onEvent)
+                    }
+
+                    if (state.schemaType != SchemaType.INDEFINITELY) item {
+                        Period(state, model::onEvent)
+                    }
+
+                    item { Amount(state, model::onEvent) }
+                    item { Food(state, model::onEvent) }
+                    item { Time(state, model::onEvent) }
+                    item { Extra(state, model::onEvent) }
+                }
             }
-
-            if (state.schemaType != SchemaType.BY_DAYS) item {
-                Interval(state, model::onEvent)
-            }
-
-            if (state.schemaType != SchemaType.INDEFINITELY) item {
-                Period(state, model::onEvent)
-            }
-
-            item { Amount(state, model::onEvent) }
-            item { Food(state, model::onEvent) }
-            item { Time(state, model::onEvent) }
-            item { Extra(state, model::onEvent) }
         }
     }
 
@@ -236,9 +188,9 @@ fun IntakeScreen(navigateBack: () -> Unit) {
         state.showDialogDescription -> DialogDescription(state, model::onEvent)
         state.showDialogDataLoss -> DialogDataLoss(model::onEvent, navigateBack)
         state.showDialogDelete -> DialogDelete(
-            text = text_confirm_deletion_int,
-            cancel = { model.onEvent(IntakeEvent.ShowDialogDelete) },
-            confirm = { model.delete(); navigateBack() }
+            text = R.string.text_confirm_deletion_int,
+            onCancel = { model.onEvent(IntakeEvent.ShowDialogDelete) },
+            onConfirm = { model.delete(navigateBack) }
         )
 
         state.showDatePicker -> DatePicker(
@@ -255,20 +207,37 @@ fun IntakeScreen(navigateBack: () -> Unit) {
 
         state.showTimePicker -> TimePickerDialog(
             onCancel = { model.onEvent(IntakeEvent.ShowTimePicker()) },
-            onConfirm = { model.onEvent(IntakeEvent.SetPickedTime) }
-        ) {
-            TimePicker(state.pickedTime[state.timePickerIndex].picker)
-        }
+            onConfirm = { model.onEvent(IntakeEvent.SetPickedTime) },
+            content = { TimePicker(state.pickedTime[state.timePickerIndex].picker) }
+        )
     }
 }
 
 @Composable
-private fun MedicineInfo(medicine: MedicineIntake, image: String) =
+private fun MedicineInfo(medicine: MedicineIntake, image: String) {
+
+    @Composable
+    fun LocalInfo(@StringRes label: Int, text: String) = Column {
+        Text(
+            text = stringResource(label),
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.W400)
+        )
+
+        Text(
+            text = text.ifEmpty { stringResource(R.string.text_unspecified) },
+            style = MaterialTheme.typography.titleMedium,
+            softWrap = false,
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+        )
+    }
+
     Row(
         horizontalArrangement = spacedBy(12.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(144.dp)
+            .height(156.dp)
     ) {
         MedicineImage(
             image = image,
@@ -278,44 +247,18 @@ private fun MedicineInfo(medicine: MedicineIntake, image: String) =
                 .border(1.dp, MaterialTheme.colorScheme.onSurface, MaterialTheme.shapes.medium)
                 .padding(8.dp)
         )
-        Column(Modifier.verticalScroll(rememberScrollState()), Arrangement.SpaceAround) {
-            Column {
-                Text(
-                    text = stringResource(text_medicine_product_name),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
-                )
-
-                Text(
-                    text = medicine.nameAlias.ifEmpty(medicine::productName),
-                    softWrap = false,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W600),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                )
-            }
-            Column {
-                Text(
-                    text = stringResource(text_medicine_form),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
-                )
-                Text(
-                    text = formName(medicine.prodFormNormName).ifEmpty { stringResource(text_unspecified) },
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W600)
-                )
-            }
-            Column {
-                Text(
-                    text = stringResource(text_exp_date),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W400)
-                )
-                Text(
-                    text = toExpDate(medicine.expDate).ifEmpty { stringResource(text_unspecified) },
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.W600)
-                )
-            }
+        Column(
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState())
+        ) {
+            LocalInfo(R.string.text_medicine_product_name, medicine.nameAlias.ifEmpty(medicine::productName))
+            LocalInfo(R.string.text_medicine_form, formName(medicine.prodFormNormName))
+            LocalInfo(R.string.text_exp_date, toExpDate(medicine.expDate))
         }
     }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -327,11 +270,12 @@ private fun SchemaType(state: IntakeState, event: (IntakeEvent) -> Unit) = Outli
             supportingContent = { Text(stringResource(state.schemaType.title)) },
             trailingContent = state.default.let {
                 {
-                  if (!it) IconButton(
-                        onClick = { event(IntakeEvent.ShowSchemaTypePicker) }
-                    ) {
-                        ExposedDropdownMenuDefaults.TrailingIcon(state.showSchemaTypePicker)
-                    }
+                  if (!it) {
+                      IconButton(
+                          onClick = { event(IntakeEvent.ShowSchemaTypePicker) },
+                          content = { ExposedDropdownMenuDefaults.TrailingIcon(state.showSchemaTypePicker) }
+                      )
+                  }
                 }
             }
         )
@@ -398,7 +342,7 @@ private fun DaysPicker(state: IntakeState, event: (IntakeEvent) -> Unit) = Outli
 private fun Amount(state: IntakeState, event: (IntakeEvent) -> Unit) =
     OutlinedCard(Modifier.animateContentSize()) {
         ListItem(
-            headlineContent = { Text(stringResource(intake_text_amount)) },
+            headlineContent = { Text(stringResource(R.string.intake_text_amount)) },
             supportingContent = {
                 Text(
                     stringResource(
@@ -415,9 +359,7 @@ private fun Amount(state: IntakeState, event: (IntakeEvent) -> Unit) =
         ListItem(
             headlineContent = { Text(stringResource(R.string.text_same_amount)) },
             supportingContent = {
-                Text(
-                    stringResource(if (state.sameAmount) R.string.text_on else R.string.text_off)
-                )
+                Text(stringResource(if (state.sameAmount) R.string.text_on else R.string.text_off))
             },
             trailingContent = {
                 Switch(
@@ -437,22 +379,17 @@ private fun Amount(state: IntakeState, event: (IntakeEvent) -> Unit) =
                         onValueChange = { event(IntakeEvent.SetAmount(it)) },
                         readOnly = state.default,
                         isError = state.amountError != null && state.pickedTime.first().amount.isEmpty(),
-                        placeholder = { Text(stringResource(text_empty)) },
+                        placeholder = { Text(stringResource(R.string.text_empty)) },
                         suffix = { Text(stringResource(state.doseType)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        visualTransformation = DotCommaReplacer,
                         colors = TextFieldDefaults.colors().copy(
                             focusedContainerColor = ListItemDefaults.containerColor,
                             unfocusedContainerColor = ListItemDefaults.containerColor,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent
-                        ),
-                        visualTransformation = {
-                            TransformedText(
-                                AnnotatedString(it.text.replace('.', ',')),
-                                OffsetMapping.Identity
-                            )
-                        }
+                        )
                     )
                 }
             )
@@ -467,18 +404,15 @@ private fun Interval(state: IntakeState, event: (IntakeEvent) -> Unit) =
         ExposedDropdownMenuBox(state.showIntervalTypePicker, {}) {
             ListItem(
                 modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                headlineContent = {
-                    Text(stringResource(intake_text_interval))
-                },
-                supportingContent = {
-                    Text(stringResource(state.intervalType.title))
-                },
+                headlineContent = { Text(stringResource(R.string.intake_text_interval)) },
+                supportingContent = { Text(stringResource(state.intervalType.title)) },
                 trailingContent = state.default.let {
                     {
-                        if (!it) IconButton(
-                            onClick = { event(IntakeEvent.ShowIntervalTypePicker) }
-                        ) {
-                            ExposedDropdownMenuDefaults.TrailingIcon(state.showIntervalTypePicker)
+                        if (!it) {
+                            IconButton(
+                                onClick = { event(IntakeEvent.ShowIntervalTypePicker) },
+                                content = { ExposedDropdownMenuDefaults.TrailingIcon(state.showIntervalTypePicker) }
+                            )
                         }
                     }
                 }
@@ -497,14 +431,14 @@ private fun Interval(state: IntakeState, event: (IntakeEvent) -> Unit) =
         if (state.intervalType == Interval.CUSTOM) {
             HorizontalDivider()
             ListItem(
-                leadingContent = { Text(stringResource(text_every)) },
+                leadingContent = { Text(stringResource(R.string.text_every)) },
                 headlineContent = {
                     OutlinedTextField(
                         value = state.interval,
                         onValueChange = { event(IntakeEvent.SetInterval(it)) },
                         readOnly = state.default,
-                        placeholder = { Text(stringResource(text_empty)) },
-                        suffix = { Text(stringResource(text_days_short)) },
+                        placeholder = { Text(stringResource(R.string.text_empty)) },
+                        suffix = { Text(stringResource(R.string.text_days_short)) },
                         isError = state.intervalError != null,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
@@ -528,14 +462,15 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
             ExposedDropdownMenuBox(state.showPeriodTypePicker, {}, Modifier.weight(1f)) {
                 ListItem(
                     modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                    headlineContent = { Text(stringResource(intake_text_period)) },
+                    headlineContent = { Text(stringResource(R.string.intake_text_period)) },
                     supportingContent = { Text(stringResource(state.periodType.title)) },
                     trailingContent = state.default.let {
                         {
-                            if (!it) IconButton(
-                                onClick = { event(IntakeEvent.ShowPeriodTypePicker) }
-                            ) {
-                                ExposedDropdownMenuDefaults.TrailingIcon(state.showPeriodTypePicker)
+                            if (!it) {
+                                IconButton(
+                                    onClick = { event(IntakeEvent.ShowPeriodTypePicker) },
+                                    content = { ExposedDropdownMenuDefaults.TrailingIcon(state.showPeriodTypePicker) }
+                                )
                             }
                         }
                     }
@@ -557,9 +492,9 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                     onValueChange = { event(IntakeEvent.SetPeriod(it)) },
                     readOnly = state.default,
                     textStyle = MaterialTheme.typography.titleMedium,
-                    placeholder = { Text(stringResource(text_empty)) },
+                    placeholder = { Text(stringResource(R.string.text_empty)) },
                     leadingIcon = { Icon(painterResource(R.drawable.vector_period), null) },
-                    suffix = { Text(stringResource(text_days_short)) },
+                    suffix = { Text(stringResource(R.string.text_days_short)) },
                     isError = state.periodError != null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
@@ -598,7 +533,9 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                     modifier = Modifier
                         .weight(1f)
                         .clickable(
-                            enabled = !state.default && state.periodType in Period.entries.dropLast(1),
+                            enabled = !state.default && state.periodType in Period.entries.dropLast(
+                                1
+                            ),
                             onClick = { event(IntakeEvent.ShowDatePicker) }
                         ),
                     colors = ListItemDefaults.colors(
@@ -643,7 +580,7 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
 @Composable
 private fun Food(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCard {
     ListItem(
-        headlineContent = { Text(stringResource(intake_text_food)) },
+        headlineContent = { Text(stringResource(R.string.intake_text_food)) },
         supportingContent = {
             Text(
                 stringResource(
@@ -680,16 +617,8 @@ private fun Food(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCar
 private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
     OutlinedCard(Modifier.animateContentSize()) {
         ListItem(
-            headlineContent = { Text(stringResource(intake_text_time)) },
-            supportingContent = {
-                Text(
-                    pluralStringResource(
-                        R.plurals.intake_times_a_day,
-                        state.pickedTime.size,
-                        state.pickedTime.size
-                    )
-                )
-            }
+            headlineContent = { Text(stringResource(R.string.intake_text_time)) },
+            supportingContent = { Text(pluralStringResource(R.plurals.intake_times_a_day, state.pickedTime.size, state.pickedTime.size)) },
         )
 
         HorizontalDivider()
@@ -697,7 +626,7 @@ private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
         state.pickedTime.forEachIndexed { index, amountTime ->
             Row {
                 ListItem(
-                    headlineContent = { Text(stringResource(placeholder_time, index + 1)) },
+                    headlineContent = { Text(stringResource(R.string.placeholder_time, index + 1)) },
                     supportingContent = { Text(amountTime.time.ifEmpty { stringResource(R.string.text_not_selected) }) },
                     leadingContent = { Icon(painterResource(R.drawable.vector_time), null) },
                     colors = ListItemDefaults.colors(
@@ -722,23 +651,24 @@ private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
                                 Icon(
                                     contentDescription = null,
                                     imageVector = if (index == 0) Icons.Outlined.Add
-                                    else ImageVector.vectorResource(vector_remove)
+                                    else ImageVector.vectorResource(R.drawable.vector_remove)
                                 )
                             }
                         }
                     }
                 )
 
-                if (!state.sameAmount)
+                if (!state.sameAmount) {
                     TextField(
                         value = amountTime.amount,
                         onValueChange = { event(IntakeEvent.SetAmount(it, index)) },
                         readOnly = state.default,
                         isError = state.amountError != null && amountTime.amount.isEmpty(),
-                        placeholder = { Text(stringResource(text_empty)) },
+                        placeholder = { Text(stringResource(R.string.text_empty)) },
                         suffix = { Text(stringResource(state.doseType)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        visualTransformation = DotCommaReplacer,
                         modifier = Modifier
                             .height(72.dp)
                             .weight(0.6f),
@@ -747,15 +677,9 @@ private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
                             unfocusedIndicatorColor = Color.Transparent,
                             focusedContainerColor = ListItemDefaults.containerColor,
                             unfocusedContainerColor = ListItemDefaults.containerColor,
-
-                        ),
-                        visualTransformation = {
-                            TransformedText(
-                                AnnotatedString(it.text.replace('.', ',')),
-                                OffsetMapping.Identity
-                            )
-                        }
+                        )
                     )
+                }
             }
         }
     }
@@ -763,16 +687,8 @@ private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
 @Composable
 private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCard {
     ListItem(
-        headlineContent = { Text(stringResource(intake_text_extra)) },
-        supportingContent = {
-            Text(
-                stringResource(
-                    R.string.text_selected_of,
-                    state.selectedExtras.size,
-                    IntakeExtra.entries.size
-                )
-            )
-        }
+        headlineContent = { Text(stringResource(R.string.intake_text_extra)) },
+        supportingContent = { Text(stringResource(R.string.text_selected_of, state.selectedExtras.size, IntakeExtra.entries.size)) }
     )
 
     HorizontalDivider()
@@ -795,10 +711,9 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCa
                 },
                 trailingContent = {
                     IconButton(
-                        onClick = { event(IntakeEvent.ShowDialogDescription(extra.description)) }
-                    ) {
-                        Icon(Icons.Outlined.Info, null)
-                    }
+                        onClick = { event(IntakeEvent.ShowDialogDescription(extra.description)) },
+                        content = { Icon(Icons.Outlined.Info, null) }
+                    )
                 },
                 modifier = Modifier.toggleable(
                     enabled = !state.default,
@@ -818,7 +733,7 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCa
 @Composable
 private fun DialogDescription(state: IntakeState, event: (IntakeEvent) -> Unit) = AlertDialog(
     onDismissRequest = { event(IntakeEvent.ShowDialogDescription()) },
-    title = { Text(stringResource(text_medicine_description)) },
+    title = { Text(stringResource(R.string.text_medicine_description)) },
     confirmButton = {},
     text = state.extraDesc?.let {
         {
@@ -830,28 +745,26 @@ private fun DialogDescription(state: IntakeState, event: (IntakeEvent) -> Unit) 
     },
     dismissButton = {
         TextButton(
-            onClick = { event(IntakeEvent.ShowDialogDescription()) }
-        ) {
-            Text(stringResource(text_dismiss))
-        }
+            onClick = { event(IntakeEvent.ShowDialogDescription()) },
+            content = { Text(stringResource(R.string.text_dismiss)) }
+        )
     }
 )
 
 @Composable
 private fun DialogDataLoss(event: (IntakeEvent) -> Unit, navigateUp: () -> Unit) = AlertDialog(
     onDismissRequest = { event(IntakeEvent.ShowDialogDataLoss(false)) },
-    confirmButton = { TextButton(navigateUp) { Text(stringResource(text_exit)) } },
+    confirmButton = { TextButton(navigateUp) { Text(stringResource(R.string.text_exit)) } },
     text = {
         Text(
-            text = stringResource(text_not_saved_intake),
+            text = stringResource(R.string.text_not_saved_intake),
             style = MaterialTheme.typography.bodyLarge
         )
     },
     dismissButton = {
         TextButton(
-            onClick = { event(IntakeEvent.ShowDialogDataLoss(false)) }
-        ) {
-            Text(stringResource(text_stay))
-        }
+            onClick = { event(IntakeEvent.ShowDialogDataLoss(false)) },
+            content = { Text(stringResource(R.string.text_stay)) }
+        )
     }
 )

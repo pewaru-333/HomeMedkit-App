@@ -9,18 +9,17 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.NotificationManagerCompat
-import ru.application.homemedkit.R.string.intake_text_not_taken
-import ru.application.homemedkit.R.string.intake_text_taken
-import ru.application.homemedkit.R.string.text_do_intake
-import ru.application.homemedkit.R.string.text_intake_time
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import ru.application.homemedkit.data.MedicineDatabase
+import ru.application.homemedkit.ui.theme.AppTheme
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.ID
 import ru.application.homemedkit.utils.TAKEN_ID
 import ru.application.homemedkit.utils.decimalFormat
-import ru.application.homemedkit.ui.theme.AppTheme
 
 
 class IntakeDialogActivity : ComponentActivity() {
@@ -30,48 +29,44 @@ class IntakeDialogActivity : ComponentActivity() {
         window.addFlags(FLAG_KEEP_SCREEN_ON or FLAG_ALLOW_LOCK_WHILE_SCREEN_ON)
 
         val database = MedicineDatabase.getInstance(this)
-        val takenDAO = database.takenDAO()
+        val manager = NotificationManagerCompat.from(this)
 
         val medicineId = intent.getLongExtra(ID, 0L)
         val takenId = intent.getLongExtra(TAKEN_ID, 0L)
         val amount = intent.getDoubleExtra(BLANK, 0.0)
 
-        val medicine = database.medicineDAO().getById(medicineId) ?: return
+        val medicine = runBlocking { database.medicineDAO().getById(medicineId) } ?: return
 
         setContent {
             AppTheme {
-                AlertDialog(
-                    title = { Text(stringResource(text_do_intake)) },
-                    onDismissRequest = {
-                        takenDAO.setNotified(takenId)
-                        NotificationManagerCompat.from(this).cancel(takenId.toInt())
+                val scope = rememberCoroutineScope()
+
+                fun onDismiss() {
+                    scope.launch {
+                        database.takenDAO().setNotified(takenId)
+                        manager.cancel(takenId.toInt())
                         finishAndRemoveTask()
-                    },
-                    dismissButton = {
-                        Button(
-                            onClick = {
-                                takenDAO.setNotified(takenId)
-                                NotificationManagerCompat.from(this).cancel(takenId.toInt())
-                                finishAndRemoveTask()
-                            }
-                        ) { Text(stringResource(intake_text_not_taken)) }
-                    },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                takenDAO.setNotified(takenId)
-                                takenDAO.setTaken(takenId, true, System.currentTimeMillis())
-                                database.medicineDAO().intakeMedicine(medicineId, amount)
-                                NotificationManagerCompat.from(this).cancel(takenId.toInt())
-                                finishAndRemoveTask()
-                            }
-                        ) { Text(stringResource(intake_text_taken)) }
-                    },
+                    }
+                }
+
+                fun onConfirm() {
+                    scope.launch {
+                        database.takenDAO().setTaken(takenId, true, System.currentTimeMillis())
+                        database.medicineDAO().intakeMedicine(medicineId, amount)
+                        onDismiss()
+                    }
+                }
+
+                AlertDialog(
+                    onDismissRequest = ::onDismiss,
+                    dismissButton = { Button(::onDismiss) { Text(stringResource(R.string.intake_text_not_taken)) } },
+                    confirmButton = { Button(::onConfirm) { Text(stringResource(R.string.intake_text_taken)) } },
+                    title = { Text(stringResource(R.string.text_do_intake)) },
                     text = {
                         Text(
                             style = MaterialTheme.typography.bodyLarge,
                             text = stringResource(
-                                text_intake_time,
+                                R.string.text_intake_time,
                                 medicine.nameAlias.ifEmpty(medicine::productName),
                                 decimalFormat(amount),
                                 stringResource(medicine.doseType.title),

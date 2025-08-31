@@ -1,0 +1,3 @@
+— Now you can mark all medications taken when you receive notifications, if their stock amount allows you to do it.
+— The information entry fields in the medicines card now support multi-line.
+— Fixed a bug that sometimes affected the fact that it was impossible to set the expiration date of the medicine.

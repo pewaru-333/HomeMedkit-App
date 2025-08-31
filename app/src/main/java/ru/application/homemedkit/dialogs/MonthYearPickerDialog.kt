@@ -15,11 +15,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,12 +61,15 @@ fun MonthYear(
         Surface(shape = CardDefaults.shape) {
             Column(Modifier.padding(16.dp), Arrangement.spacedBy(16.dp)) {
                 Row(Modifier.fillMaxWidth(), Arrangement.Center, Alignment.CenterVertically) {
-                    Icon(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clickable { year-- },
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
-                        contentDescription = null
+                    IconButton(
+                        onClick = { year-- },
+                        content = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
+                                contentDescription = null,
+                                modifier = Modifier.size(36.dp)
+                            )
+                        }
                     )
 
                     Text(
@@ -75,12 +80,15 @@ fun MonthYear(
                         fontWeight = FontWeight.Bold
                     )
 
-                    Icon(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clickable { year++ },
-                        imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-                        contentDescription = null
+                    IconButton(
+                        onClick = { year++ },
+                        content = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                                contentDescription = null,
+                                modifier = Modifier.size(36.dp)
+                            )
+                        }
                     )
                 }
 
@@ -88,19 +96,21 @@ fun MonthYear(
                     FlowRow(Modifier.fillMaxWidth(), Arrangement.Center) {
                         months.forEach {
                             Box(
+                                contentAlignment = Alignment.Center,
                                 modifier = Modifier
+                                    .clip(CircleShape)
                                     .size(76.dp)
-                                    .clickable { month = it },
-                                contentAlignment = Alignment.Center
+                                    .clickable { month = it }
                             ) {
                                 val boxSize by animateDpAsState(if (month == it) 60.dp else 0.dp)
 
                                 Box(
-                                    Modifier
+                                    modifier = Modifier
                                         .size(boxSize)
                                         .background(
-                                            if (month == it) MaterialTheme.colorScheme.secondary
-                                            else Color.Transparent, CircleShape
+                                            shape = CircleShape,
+                                            color = if (month == it) MaterialTheme.colorScheme.secondary
+                                            else Color.Transparent
                                         )
                                 )
 

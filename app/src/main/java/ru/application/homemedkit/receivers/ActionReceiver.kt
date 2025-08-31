@@ -9,9 +9,10 @@ import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.ID
 import ru.application.homemedkit.utils.TAKEN_ID
 import ru.application.homemedkit.utils.TYPE
+import ru.application.homemedkit.utils.extensions.goAsync
 
 class ActionReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(context: Context, intent: Intent) = goAsync {
         val database = MedicineDatabase.getInstance(context)
 
         val medicineId = intent.getLongExtra(ID, 0L)

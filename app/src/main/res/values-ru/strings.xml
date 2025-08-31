@@ -50,12 +50,16 @@
     <string name="channel_exp_desc">Окончание срока годности</string>
     <string name="channel_intakes_desc">Приём лекарств</string>
     <string name="channel_pre_desc">Предстоящий приём</string>
+    <string name="text_action_intake_all_accept">Принять всё</string>
+    <string name="text_action_intake_all_decline">Очистить всё</string>
     <string name="text_attention">Внимание!</string>
     <string name="text_do_intake">Примите лекарство</string>
+    <string name="text_do_intake_all">Приём всех лекарств</string>
     <string name="text_expire_soon">Истекает срок годности лекарства %1$s</string>
     <string name="text_intake_amount_not_enough">Время приёма лекарства %1$s, но его оставшегося количества меньше предписанного!</string>
     <string name="text_intake_prealarm_text">Лекарство: %1$s\nДоза приёма: %2$s %3$s\nВремя: %4$s</string>
     <string name="text_intake_prealarm_title">Предстоящий приём</string>
+    <string name="text_intake_sure_to_intake_all">Вы уверены, что принимаете все назначенные лекарства в данный момент?</string>
     <string name="text_intake_time">Лекарство: %1$s\nДоза приёма: %2$s %3$s\nОстаток лекарства: %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Осталось недостаточно лекарства</string>
 

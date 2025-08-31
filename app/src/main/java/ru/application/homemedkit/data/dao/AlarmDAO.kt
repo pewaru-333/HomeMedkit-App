@@ -25,10 +25,10 @@ interface AlarmDAO : BaseDAO<Alarm> {
     fun getFlow(search: String): Flow<List<Schedule>>
 
     @Query("SELECT * FROM alarms")
-    fun getAll(): List<Alarm>
+    suspend fun getAll(): List<Alarm>
 
     @Query("SELECT * FROM alarms WHERE alarmId = :alarmId")
-    fun getById(alarmId: Long): Alarm?
+    suspend fun getById(alarmId: Long): Alarm?
 
     @Query(
         """
@@ -38,7 +38,7 @@ interface AlarmDAO : BaseDAO<Alarm> {
         LIMIT 1
         """
     )
-    fun getNextByIntakeId(intakeId: Long): Alarm?
+    suspend fun getNextByIntakeId(intakeId: Long): Alarm?
 
     @Query("DELETE FROM alarms WHERE intakeId = :intakeId")
     suspend fun deleteByIntakeId(intakeId: Long)

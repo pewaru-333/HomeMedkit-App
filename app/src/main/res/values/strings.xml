@@ -49,12 +49,16 @@
     <string name="channel_exp_desc">Expiration date</string>
     <string name="channel_intakes_desc">Medication intake</string>
     <string name="channel_pre_desc">Upcoming intake</string>
+    <string name="text_action_intake_all_accept">Intake all</string>
+    <string name="text_action_intake_all_decline">Clear all</string>
     <string name="text_attention">Attention!</string>
     <string name="text_do_intake">Intake</string>
+    <string name="text_do_intake_all">Intake all</string>
     <string name="text_expire_soon">The expiration date of %1$s is near</string>
     <string name="text_intake_amount_not_enough">It\'s time to take %1$s, but there\'s not enough!</string>
     <string name="text_intake_prealarm_text">Medication: %1$s\nIntake amount: %2$s %3$s\nTime: %4$s</string>
     <string name="text_intake_prealarm_title">Upcoming intake</string>
+    <string name="text_intake_sure_to_intake_all">Are you sure that you are taking all medications at the moment?</string>
     <string name="text_intake_time">Medication: %1$s\nIntake amount: %2$s %3$s\nLeftover medication: %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Not enough left</string>
 

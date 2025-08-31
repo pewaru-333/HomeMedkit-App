@@ -7,8 +7,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import ru.application.homemedkit.R.string.text_cancel
-import ru.application.homemedkit.R.string.text_save
+import ru.application.homemedkit.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -17,12 +16,12 @@ fun DatePicker(onSelect: (Long) -> Unit, onDismiss: () -> Unit) {
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
-        dismissButton = { TextButton(onDismiss) { Text(stringResource(text_cancel)) } },
+        dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_cancel)) } },
         confirmButton = {
             TextButton(
                 enabled = state.selectedDateMillis != null,
-                onClick = { state.selectedDateMillis?.let { onSelect(it) } }
-            ) { Text(stringResource(text_save)) }
+                onClick = { state.selectedDateMillis?.let { onSelect(it) } },
+                content = { Text(stringResource(R.string.text_save)) })
         }
     ) {
         androidx.compose.material3.DatePicker(

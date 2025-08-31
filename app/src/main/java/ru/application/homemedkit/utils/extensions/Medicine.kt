@@ -1,6 +1,5 @@
 package ru.application.homemedkit.utils.extensions
 
-import androidx.compose.runtime.toMutableStateList
 import androidx.core.text.HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH
 import androidx.core.text.HtmlCompat.fromHtml
 import ru.application.homemedkit.data.dto.Image
@@ -25,12 +24,13 @@ fun MedicineFull.toState() = MedicineState(
     adding = false,
     editing = false,
     default = true,
+    isLoading = false,
     isOpened = packageOpenedDate > 0L,
     id = id,
-    kits = kits.toMutableStateSet(),
+    kits = kits.toSet(),
     cis = cis,
     productName = productName,
-    nameAlias = nameAlias,
+    nameAlias = nameAlias.ifEmpty { productName },
     expDate = expDate,
     expDateString = toExpDate(expDate),
     dateOpened = packageOpenedDate,
@@ -44,7 +44,7 @@ fun MedicineFull.toState() = MedicineState(
     recommendations = fromHtml(recommendations, FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH).toString(),
     storageConditions = fromHtml(storageConditions, FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH).toString(),
     comment = comment,
-    images = images.sortedBy(Image::position).map(Image::image).toMutableStateList(),
+    images = images.sortedBy(Image::position).map(Image::image),
     technical = TechnicalState(
         scanned = scanned,
         verified = verified

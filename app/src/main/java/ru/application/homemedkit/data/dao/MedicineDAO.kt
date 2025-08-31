@@ -15,7 +15,7 @@ import ru.application.homemedkit.utils.enums.Sorting
 interface MedicineDAO : BaseDAO<Medicine> {
     // ============================== Queries ==============================
     @Query("SELECT * FROM medicines")
-    fun getAll(): List<Medicine>
+    suspend fun getAll(): List<Medicine>
 
     @Transaction
     @Query(
@@ -43,23 +43,27 @@ interface MedicineDAO : BaseDAO<Medicine> {
     fun getListFlow(search: String, sorting: Sorting, kitIds: List<Long>, kitsEnabled: Boolean): Flow<List<MedicineMain>>
 
     @Query("SELECT id FROM medicines WHERE :cis LIKE '%' || cis || '%' AND cis IS NOT NULL AND cis != '' LIMIT 1")
-    fun getIdByCis(cis: String): Long?
+    suspend fun getIdByCis(cis: String): Long?
 
     @Transaction
-    @Query("SELECT * FROM medicines WHERE id = :id ")
-    fun getById(id: Long): MedicineFull?
+    @Query("SELECT * FROM medicines WHERE id = :id")
+    fun getFlowById(id: Long): Flow<MedicineFull?>
+
+    @Transaction
+    @Query("SELECT * FROM medicines WHERE id = :id")
+    suspend fun getById(id: Long): MedicineFull?
 
     @Query("SELECT image FROM images")
-    fun getAllImages(): List<String>
+    suspend fun getAllImages(): List<String>
 
     @Query("SELECT image FROM images WHERE medicineId = :medicineId")
-    fun getMedicineImages(medicineId: Long): List<String>
+    suspend fun getMedicineImages(medicineId: Long): List<String>
 
     @Query("UPDATE medicines SET prodAmount = prodAmount - :amount WHERE id = :id")
-    fun intakeMedicine(id: Long, amount: Double)
+    suspend fun intakeMedicine(id: Long, amount: Double)
 
     @Query("UPDATE medicines SET prodAmount = prodAmount + :amount WHERE id = :id")
-    fun untakeMedicine(id: Long, amount: Double)
+    suspend fun untakeMedicine(id: Long, amount: Double)
 
     // ============================== Insert ==============================
     @Insert

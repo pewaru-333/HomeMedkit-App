@@ -21,10 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.application.homemedkit.R.string.text_cancel
-import ru.application.homemedkit.R.string.text_finish_date
-import ru.application.homemedkit.R.string.text_save
-import ru.application.homemedkit.R.string.text_start_date
+import ru.application.homemedkit.R
 import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
 import ru.application.homemedkit.utils.ZONE
 import ru.application.homemedkit.utils.getDateTime
@@ -64,7 +61,7 @@ fun DateRangePicker(
         selectableDates = if (initialStart != null) DatePickerDefaults.AllDates
         else object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long) =
-                getDateTime(utcTimeMillis).toLocalDate() >= LocalDate.now()
+                getDateTime(utcTimeMillis).toLocalDate() >= ZonedDateTime.now().toLocalDate()
 
             override fun isSelectableYear(year: Int) = LocalDate.now().year <= year
         }
@@ -72,15 +69,16 @@ fun DateRangePicker(
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
-        dismissButton = { TextButton(onDismiss) { Text(stringResource(text_cancel)) } },
+        dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_cancel)) } },
         confirmButton = {
             TextButton(
+                content = { Text(stringResource(R.string.text_save)) },
                 enabled = state.selectedStartDateMillis != null && state.selectedEndDateMillis != null,
                 onClick = {
                     onRangeSelected(state.selectedStartDateMillis to state.selectedEndDateMillis)
                     onDismiss()
                 }
-            ) { Text(stringResource(text_save)) }
+            )
         }
     ) {
         androidx.compose.material3.DateRangePicker(
@@ -96,11 +94,11 @@ fun DateRangePicker(
             },
             headline = {
                 Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp, CenterHorizontally),
+                    verticalAlignment = CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp, CenterHorizontally),
-                    verticalAlignment = CenterVertically
+                        .padding(8.dp)
                 ) {
                     val formattedStart = DatePickerDefaults.dateFormatter()
                         .formatDate(state.selectedStartDateMillis, Locale.current.platformLocale)
@@ -109,14 +107,14 @@ fun DateRangePicker(
                         .formatDate(state.selectedEndDateMillis, Locale.current.platformLocale)
 
                     Text(
-                        text = formattedStart ?: stringResource(text_start_date),
+                        text = formattedStart ?: stringResource(R.string.text_start_date),
                         style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp)
                     )
 
                     Text("-")
 
                     Text(
-                        text = formattedFinal ?: stringResource(text_finish_date),
+                        text = formattedFinal ?: stringResource(R.string.text_finish_date),
                         style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp)
                     )
                 }

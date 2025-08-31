@@ -7,5 +7,5 @@ import ru.application.homemedkit.data.dto.IntakeDay
 @Dao
 interface IntakeDayDAO : BaseDAO<IntakeDay> {
     @Query("DELETE FROM intake_days WHERE intakeId = :intakeId")
-    fun deleteByIntakeId(intakeId: Long)
+    suspend fun deleteByIntakeId(intakeId: Long)
 }

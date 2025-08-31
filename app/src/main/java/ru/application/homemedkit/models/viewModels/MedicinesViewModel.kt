@@ -1,20 +1,14 @@
 package ru.application.homemedkit.models.viewModels
 
-import androidx.compose.runtime.mutableStateSetOf
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import ru.application.homemedkit.HomeMeds.Companion.database
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.model.KitModel
@@ -22,24 +16,19 @@ import ru.application.homemedkit.data.model.MedicineGrouped
 import ru.application.homemedkit.data.model.MedicineMain
 import ru.application.homemedkit.models.states.MedicinesState
 import ru.application.homemedkit.utils.BLANK
-import ru.application.homemedkit.utils.Preferences
 import ru.application.homemedkit.utils.ResourceText
+import ru.application.homemedkit.utils.di.Database
+import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.MedicineTab
 import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.extensions.toMedicineList
 import ru.application.homemedkit.utils.extensions.toModel
-import ru.application.homemedkit.utils.extensions.toMutableStateSet
 import ru.application.homemedkit.utils.extensions.toggle
 
-class MedicinesViewModel : ViewModel() {
-    private val _state = MutableStateFlow(MedicinesState())
-    val state = _state
-        .onStart { loadFilters() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), MedicinesState())
-
+class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val _medicines = _state.flatMapLatest { query ->
-        database.medicineDAO().getListFlow(
+    private val _medicines = state.flatMapLatest { query ->
+        Database.medicineDAO().getListFlow(
             search = query.search,
             sorting = query.sorting,
             kitIds = query.kits.map(Kit::kitId),
@@ -54,15 +43,15 @@ class MedicinesViewModel : ViewModel() {
 
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val grouped = _state.flatMapLatest { state ->
+    val grouped = state.flatMapLatest { state ->
         _medicines.map { medicineList ->
             val selectedKits = state.kits.map(Kit::kitId).toSet()
             val filterIsEmpty = selectedKits.isEmpty()
 
             val kitsToGroup = if (filterIsEmpty) {
-                database.kitDAO().getKitList(medicineList.flatMap(MedicineMain::kitIds).distinct()).associateBy(Kit::kitId)
+                Database.kitDAO().getKitList(medicineList.flatMap(MedicineMain::kitIds).distinct()).associateBy(Kit::kitId)
             } else {
-                database.kitDAO().getKitList(selectedKits.toList()).associateBy(Kit::kitId)
+                Database.kitDAO().getKitList(selectedKits.toList()).associateBy(Kit::kitId)
             }
 
             val (toGroup, noGroup) = medicineList.partition { medicine ->
@@ -136,54 +125,58 @@ class MedicinesViewModel : ViewModel() {
     }.flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
-    val kits = database.kitDAO().getFlow()
+    val kits = Database.kitDAO().getFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
-    fun toggleView() = _state.update {
+    override fun initState() = MedicinesState()
+
+    override fun loadData() {
+        viewModelScope.launch {
+            Preferences.kitsFilter.let { list ->
+                if (list.isNotEmpty()) {
+                    val kits = Database.kitDAO().getKitList(list.toList())
+
+                    updateState {
+                        it.copy(kits = kits.toSet())
+                    }
+                }
+            }
+        }
+    }
+    
+    override fun onEvent(event: Unit) = Unit
+
+    fun toggleView() = updateState {
         it.copy(tab = MedicineTab.entries.getOrElse(it.tab.ordinal + 1) { MedicineTab.LIST })
     }
 
-    fun showAdding() = _state.update { it.copy(showAdding = !it.showAdding) }
-    fun showExit(flag: Boolean = false) = _state.update { it.copy(showExit = flag) }
+    fun showAdding() = updateState { it.copy(showAdding = !it.showAdding) }
+    fun showExit(flag: Boolean = false) = updateState { it.copy(showExit = flag) }
 
-    fun setSearch(text: String) = _state.update { it.copy(search = text) }
-    fun clearSearch() = _state.update { it.copy(search = BLANK) }
+    fun setSearch(text: String) = updateState { it.copy(search = text) }
+    fun clearSearch() = updateState { it.copy(search = BLANK) }
 
-    fun showSort() = _state.update { it.copy(showSort = !it.showSort) }
-    fun setSorting(sorting: Sorting) = _state.update { it.copy(sorting = sorting) }
+    fun showSort() = updateState { it.copy(showSort = !it.showSort) }
+    fun setSorting(sorting: Sorting) = updateState { it.copy(sorting = sorting) }
 
     fun showFilter() {
-        _state.update { it.copy(showFilter = !it.showFilter) }
+        updateState { it.copy(showFilter = !it.showFilter) }
 
-        if (!_state.value.showFilter) {
-            Preferences.saveKitsFilter(_state.value.kits.map(Kit::kitId).toSet())
+        if (!currentState.showFilter) {
+            Preferences.saveKitsFilter(currentState.kits.map(Kit::kitId).toSet())
         }
     }
 
     fun clearFilter() {
-        _state.update {
+        updateState {
             it.copy(
                 showFilter = false,
-                kits = mutableStateSetOf()
+                kits = emptySet()
             )
         }
 
         Preferences.saveKitsFilter(emptySet())
     }
 
-    fun pickFilter(kit: Kit) = _state.update { it.copy(kits = it.kits.apply { toggle(kit) }) }
-
-    private fun loadFilters() {
-        viewModelScope.launch {
-            Preferences.kitsFilter.let { list ->
-                if (list.isNotEmpty()) {
-                    val kits = database.kitDAO().getKitList(list.toList())
-
-                    _state.update {
-                        it.copy(kits = kits.toMutableStateSet())
-                    }
-                }
-            }
-        }
-    }
+    fun pickFilter(kit: Kit) = updateState { it.copy(kits = it.kits.toggle(kit)) }
 }
