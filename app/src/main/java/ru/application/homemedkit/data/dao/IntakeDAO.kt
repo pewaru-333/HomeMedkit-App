@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
-import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.data.dto.Intake
 import ru.application.homemedkit.data.dto.IntakeTime
 import ru.application.homemedkit.data.model.IntakeFull
@@ -29,9 +28,6 @@ interface IntakeDAO : BaseDAO<Intake> {
     @Transaction
     @Query("SELECT * FROM intakes WHERE intakeId = :intakeId")
     suspend fun getById(intakeId: Long): IntakeFull?
-
-    @Query("SELECT * FROM alarms WHERE intakeId = :intakeId")
-    suspend fun getAlarms(intakeId: Long): List<Alarm>
 
     // ============================== Insert ==============================
     @Insert

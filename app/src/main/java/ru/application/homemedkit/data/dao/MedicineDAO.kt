@@ -47,10 +47,6 @@ interface MedicineDAO : BaseDAO<Medicine> {
 
     @Transaction
     @Query("SELECT * FROM medicines WHERE id = :id")
-    fun getFlowById(id: Long): Flow<MedicineFull?>
-
-    @Transaction
-    @Query("SELECT * FROM medicines WHERE id = :id")
     suspend fun getById(id: Long): MedicineFull?
 
     @Query("SELECT image FROM images")

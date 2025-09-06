@@ -105,7 +105,6 @@ abstract class MedicineDatabase : RoomDatabase() {
                 )
                 .setQueryExecutor(Dispatchers.IO.asExecutor())
                 .setTransactionExecutor(Dispatchers.IO.asExecutor())
-                .allowMainThreadQueries()
                 .build()
                 .also { INSTANCE = it }
         }

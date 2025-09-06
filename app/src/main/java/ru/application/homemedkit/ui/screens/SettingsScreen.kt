@@ -310,7 +310,7 @@ fun SettingsScreen() {
     )
 
     AnimatedVisibility(state.showPermissions, Modifier) {
-        BackHandler(onBack = model::togglePermissions)
+        BackHandler(state.showPermissions, model::togglePermissions)
         PermissionsScreen(model::togglePermissions)
     }
 
@@ -346,7 +346,7 @@ private fun KitsManager(
         list = list.toMutableList().apply { add(toIndex, removeAt(fromIndex)) }
     }
 
-    BackHandler(onBack = onBack)
+    BackHandler(isVisible, onBack)
     AnimatedVisibility(
         visible = isVisible,
         enter = slideInHorizontally(initialOffsetX = { it }),
@@ -640,8 +640,10 @@ private fun DialogFixing(back: () -> Unit) {
     val context = LocalContext.current
 
     fun onFix() {
-        scope.launch { AlarmManager.resetAll() }
-        context.restartApplication()
+        scope.launch {
+            launch { AlarmManager.resetAll() }.join()
+            context.restartApplication()
+        }
     }
 
     AlertDialog(

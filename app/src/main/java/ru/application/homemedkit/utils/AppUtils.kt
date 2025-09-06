@@ -78,7 +78,7 @@ suspend fun getMedicineImages(
         emptyList()
     }
 
-    val images = if (imageList.isEmpty()) listOf(
+    return if (imageList.isEmpty()) listOf(
         Image(
             medicineId = medicineId,
             image = DrugType.setIcon(form)
@@ -89,6 +89,4 @@ suspend fun getMedicineImages(
             image = image
         )
     }
-
-    return images
 }

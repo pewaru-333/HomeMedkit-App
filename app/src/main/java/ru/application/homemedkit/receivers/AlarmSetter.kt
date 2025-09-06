@@ -163,7 +163,7 @@ class AlarmSetter private constructor(private val context: Context) {
         private var INSTANCE: AlarmSetter? = null
 
         fun getInstance(context: Context) = INSTANCE ?: synchronized(this) {
-            AlarmSetter(context).also { INSTANCE = it }
+            AlarmSetter(context.applicationContext).also { INSTANCE = it }
         }
     }
 }

@@ -133,6 +133,7 @@ import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.viewModels.MedicineViewModel
 import ru.application.homemedkit.ui.elements.DialogDelete
 import ru.application.homemedkit.ui.elements.DialogKits
+import ru.application.homemedkit.ui.elements.BoxLoading
 import ru.application.homemedkit.ui.elements.MedicineImage
 import ru.application.homemedkit.ui.elements.NavigationIcon
 import ru.application.homemedkit.ui.elements.TopBarActions
@@ -372,7 +373,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
     }
 
     when (val value = response) {
-        Response.Loading -> LoadingDialog(Modifier.zIndex(10f))
+        Response.Loading -> BoxLoading(Modifier.zIndex(10f))
 
         Response.Duplicate -> LaunchedEffect(snackbarHost) {
             snackbarHost.showSnackbar(context.getString(R.string.text_duplicate))

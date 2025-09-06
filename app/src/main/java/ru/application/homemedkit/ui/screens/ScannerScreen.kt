@@ -7,9 +7,7 @@ import androidx.camera.view.CameraController
 import androidx.camera.view.TransformExperimental
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -77,10 +74,11 @@ import ru.application.homemedkit.R.string.text_permission_grant_full
 import ru.application.homemedkit.R.string.text_request_camera
 import ru.application.homemedkit.R.string.text_yes
 import ru.application.homemedkit.models.events.Response
+import ru.application.homemedkit.models.viewModels.ScannerViewModel
+import ru.application.homemedkit.ui.elements.BoxLoading
+import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.camera.rememberCameraConfig
 import ru.application.homemedkit.utils.camera.rememberImageAnalyzer
-import ru.application.homemedkit.models.viewModels.ScannerViewModel
-import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.permissions.PermissionState
 import ru.application.homemedkit.utils.permissions.rememberPermissionState
 
@@ -143,7 +141,7 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
     else FirstTimeScreen(navigateUp, cameraPermission::launchRequest)
 
     when (val value = response) {
-        Response.Loading -> LoadingDialog()
+        Response.Loading -> BoxLoading()
         is Response.Error -> when (value) {
             is Response.Error.NetworkError -> AddMedicineDialog(model::setInitial) {
                 value.code?.let { navigateToMedicine(0L, it, false) }
@@ -236,15 +234,7 @@ private fun AddMedicineDialog(setDefault: () -> Unit, navigateWithCis: () -> Uni
 )
 
 @Composable
-fun LoadingDialog(modifier: Modifier = Modifier) = Box(
-    contentAlignment = Alignment.Center,
-    modifier = modifier
-        .fillMaxSize()
-        .background(Color.Black.copy(alpha = 0.45f))
-) { CircularProgressIndicator() }
-
-@Composable
-fun PermissionDialog(permission: PermissionState, onDismiss: () -> Unit) = Dialog(onDismiss) {
+private fun PermissionDialog(permission: PermissionState, onDismiss: () -> Unit) = Dialog(onDismiss) {
     ElevatedCard {
         Text(
             text = stringResource(text_request_camera),

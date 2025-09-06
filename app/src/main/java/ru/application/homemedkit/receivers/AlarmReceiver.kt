@@ -132,6 +132,7 @@ class AlarmReceiver : BroadcastReceiver() {
                             )
                                 .addAction(confirm)
                                 .addAction(decline)
+                                .setTimeoutAfter(600000L)
                                 .build()
                         )
                     } else {
