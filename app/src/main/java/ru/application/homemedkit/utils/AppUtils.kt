@@ -2,6 +2,10 @@ package ru.application.homemedkit.utils
 
 import android.icu.math.BigDecimal
 import android.icu.text.DecimalFormat
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldBuffer
+import androidx.compose.foundation.text.input.delete
 import androidx.compose.ui.text.intl.Locale
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.network.Network
@@ -88,5 +92,29 @@ suspend fun getMedicineImages(
             medicineId = medicineId,
             image = image
         )
+    }
+}
+
+object DecimalAmountInputTransformation : InputTransformation {
+    override fun TextFieldBuffer.transformInput() {
+        if (asCharSequence().isNotEmpty()) {
+            val decimalAmount = asCharSequence().toString().replace(',', '.')
+
+            if (decimalAmount.toDoubleOrNull() != null) {
+                replace(0, length, decimalAmount)
+            } else {
+                revertAllChanges()
+            }
+        } else {
+            delete(0, length)
+        }
+    }
+}
+
+object DecimalAmountOutputTransformation : OutputTransformation {
+    override fun TextFieldBuffer.transformOutput() {
+        val transformedText = asCharSequence().toString().replace('.', ',')
+
+        replace(0, length, transformedText)
     }
 }

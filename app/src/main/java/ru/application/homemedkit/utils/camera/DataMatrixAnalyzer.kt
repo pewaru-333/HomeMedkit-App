@@ -1,6 +1,5 @@
 package ru.application.homemedkit.utils.camera
 
-import android.graphics.ImageFormat
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.google.zxing.BarcodeFormat
@@ -8,7 +7,6 @@ import com.google.zxing.BinaryBitmap
 import com.google.zxing.DecodeHintType
 import com.google.zxing.MultiFormatReader
 import com.google.zxing.PlanarYUVLuminanceSource
-import com.google.zxing.ReaderException
 import com.google.zxing.common.HybridBinarizer
 import java.nio.ByteBuffer
 import kotlin.math.roundToInt
@@ -26,34 +24,28 @@ class DataMatrixAnalyzer(private val onResult: (String) -> Unit) : ImageAnalysis
     }
 
     override fun analyze(image: ImageProxy) {
-        if (image.format !in listOf(ImageFormat.YUV_420_888, ImageFormat.YUV_422_888, ImageFormat.YUV_444_888)) {
-            image.close()
+        image.use {
+            val plane = it.planes.first()
 
-            return
-        }
-
-        try {
-            val length = if (image.width > image.height) image.height * 0.5f else image.width * 0.7f
+            val size = it.width.coerceAtMost(it.height) * 0.7f
+            val left = (it.width - size) / 2f
+            val top = (it.height - size) / 2f
 
             val source = PlanarYUVLuminanceSource(
-                image.planes.first().buffer.toByteArray(),
-                image.planes.first().rowStride,
-                image.height,
-                ((image.width - length) / 2).roundToInt(),
-                ((image.height - length) / 2).roundToInt(),
-                length.roundToInt(),
-                length.roundToInt(),
+                plane.buffer.toByteArray(),
+                plane.rowStride,
+                it.height,
+                left.roundToInt(),
+                top.roundToInt(),
+                size.roundToInt(),
+                size.roundToInt(),
                 false
             )
 
-            try {
+            runCatching {
                 val result = reader.decodeWithState(BinaryBitmap(HybridBinarizer(source)))
                 onResult(result.text)
-            } catch (_: ReaderException) {
             }
-        } catch (_: Exception) {
-        } finally {
-            image.close()
         }
     }
 

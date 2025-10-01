@@ -15,6 +15,7 @@ import ru.application.homemedkit.R.string.channel_pre_desc
 import ru.application.homemedkit.utils.CHANNEL_ID_EXP
 import ru.application.homemedkit.utils.CHANNEL_ID_INTAKES
 import ru.application.homemedkit.utils.CHANNEL_ID_PRE
+import ru.application.homemedkit.utils.coil.IconMapper
 import ru.application.homemedkit.utils.di.AppModule
 import ru.application.homemedkit.utils.di.AppModuleInitializer
 import ru.application.homemedkit.utils.extensions.createNotificationChannel
@@ -39,6 +40,9 @@ class HomeMeds : Application(), SingletonImageLoader.Factory {
     }
 
     override fun newImageLoader(context: PlatformContext) = ImageLoader(context).newBuilder()
+        .components {
+            add(IconMapper(context))
+        }
         .crossfade(200)
         .memoryCachePolicy(CachePolicy.ENABLED)
         .memoryCache {

@@ -192,6 +192,7 @@
     <string name="text_kit_list_is_empty">There are no groups found. You can add groups in the application settings.</string>
     <string name="text_medicine_deleted">Medication has been deleted, it is impossible to change the intake status</string>
     <string name="text_not_saved_intake">The intake is not saved! Would you like to go back?</string>
+    <string name="text_not_saved_medicine">The medicine is not saved! Would you like to go back?</string>
     <string name="text_pay_attention">Pay attention!</string>
     <string name="text_pick_icon">Pick default icon</string>
     <string name="text_request_camera">To scan labels, the camera permission is necessary</string>

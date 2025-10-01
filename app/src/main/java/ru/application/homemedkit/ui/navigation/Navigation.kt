@@ -6,19 +6,18 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
+import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.ui.navigation.Screen.Intake
 import ru.application.homemedkit.ui.navigation.Screen.Intakes
 import ru.application.homemedkit.ui.navigation.Screen.Medicine
@@ -84,7 +83,7 @@ fun BottomNavigationBar(backStack: NavBackStackEntry?, visibility: NavigationBar
         NavigationBar {
             Menu.entries.forEach { screen ->
                 NavigationBarItem(
-                    icon = { Icon(painterResource(screen.icon), null) },
+                    icon = { VectorIcon(screen.icon) },
                     label = { Text(stringResource(screen.title)) },
                     selected = backStack.isCurrentRoute(screen.route::class),
                     onClick = { onClick(screen.route) }

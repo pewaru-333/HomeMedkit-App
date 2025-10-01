@@ -75,17 +75,24 @@ class MedicineViewModel(saved: SavedStateHandle) : BaseViewModel<MedicineState, 
 
             if (checkProductName.successful) {
                 val id = dao.insert(currentState.toMedicine())
-                val kits = currentState.kits.map { MedicineKit(id, it.kitId) }
-                val images = currentState.images.mapIndexed { index, image ->
-                    Image(
-                        medicineId = id,
-                        position = index,
-                        image = image
-                    )
+
+                val jobOne = launch {
+                    val kits = currentState.kits.map { MedicineKit(id, it.kitId) }
+
+                    daoK.pinKit(kits)
                 }
 
-                val jobOne = launch { daoK.pinKit(kits) }
-                val jobTwo = launch { dao.updateImages(images) }
+                val jobTwo = launch {
+                    val images = currentState.images.mapIndexed { index, image ->
+                        Image(
+                            medicineId = id,
+                            position = index,
+                            image = image
+                        )
+                    }
+
+                    dao.updateImages(images)
+                }
 
                 try {
                     joinAll(jobOne, jobTwo)
@@ -236,13 +243,7 @@ class MedicineViewModel(saved: SavedStateHandle) : BaseViewModel<MedicineState, 
             is MedicineEvent.SetFormName -> updateState { it.copy(prodFormNormName = event.formName) }
             is MedicineEvent.SetDoseName -> updateState { it.copy(prodDNormName = event.doseName) }
             is MedicineEvent.SetDoseType -> updateState { it.copy(doseType = event.type) }
-            is MedicineEvent.SetAmount -> when {
-                event.amount.isNotEmpty() -> {
-                    if (event.amount.replace(',', '.').toDoubleOrNull() != null)
-                        updateState { it.copy(prodAmount = event.amount.replace(',', '.')) }
-                }
-                else -> updateState { it.copy(prodAmount = BLANK) }
-            }
+            is MedicineEvent.SetAmount -> updateState { it.copy(prodAmount = event.amount) }
             is MedicineEvent.SetPhKinetics -> updateState { it.copy(phKinetics = event.phKinetics) }
             is MedicineEvent.SetComment -> updateState { it.copy(comment = event.comment) }
             is MedicineEvent.PickKit -> updateState { it.copy(kits = it.kits.toggle(event.kit)) }

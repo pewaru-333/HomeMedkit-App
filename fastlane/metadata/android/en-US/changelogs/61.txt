@@ -1,1 +1,0 @@
-— This update is aimed at improving the stability of the application.

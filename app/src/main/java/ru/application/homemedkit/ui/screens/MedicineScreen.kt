@@ -8,12 +8,9 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.annotation.StringRes
-import androidx.camera.view.CameraController
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,7 +20,6 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,30 +41,26 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -90,7 +82,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.CornerRadius
@@ -99,14 +90,12 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -131,13 +120,16 @@ import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.states.MedicineDialogState
 import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.viewModels.MedicineViewModel
+import ru.application.homemedkit.ui.elements.BoxLoading
 import ru.application.homemedkit.ui.elements.DialogDelete
 import ru.application.homemedkit.ui.elements.DialogKits
-import ru.application.homemedkit.ui.elements.BoxLoading
 import ru.application.homemedkit.ui.elements.MedicineImage
 import ru.application.homemedkit.ui.elements.NavigationIcon
 import ru.application.homemedkit.ui.elements.TopBarActions
-import ru.application.homemedkit.utils.DotCommaReplacer
+import ru.application.homemedkit.ui.elements.VectorIcon
+import ru.application.homemedkit.utils.DecimalAmountInputTransformation
+import ru.application.homemedkit.utils.DecimalAmountOutputTransformation
+import ru.application.homemedkit.utils.camera.CameraConfig
 import ru.application.homemedkit.utils.camera.ImageProcessing
 import ru.application.homemedkit.utils.camera.rememberCameraConfig
 import ru.application.homemedkit.utils.decimalFormat
@@ -180,6 +172,8 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
     BackHandler {
         if (state.dialogState == MedicineDialogState.TakePhoto) {
             model.onEvent(ToggleDialog(MedicineDialogState.TakePhoto))
+        } else if (!state.default) {
+            model.onEvent(ToggleDialog(MedicineDialogState.DataLoss))
         } else {
             navigateBack()
         }
@@ -189,7 +183,12 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
         topBar = {
             TopAppBar(
                 title = {},
-                navigationIcon = { NavigationIcon(navigateBack) },
+                navigationIcon = {
+                    NavigationIcon {
+                        if (state.default) navigateBack()
+                        else model.onEvent(ToggleDialog(MedicineDialogState.DataLoss))
+                    }
+                },
                 actions = {
                     TopBarActions(
                         isDefault = state.default,
@@ -219,7 +218,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
             if (state.technical.scanned && !state.technical.verified) {
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(R.string.text_update)) },
-                    icon = { Icon(Icons.Outlined.Refresh, null) },
+                    icon = { VectorIcon(R.drawable.vector_refresh) },
                     onClick = { model.fetch(filesDir) }
                 )
             }
@@ -255,9 +254,6 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
                             keyboardOptions = KeyboardOptions(
                                 capitalization = KeyboardCapitalization.Sentences,
                                 imeAction = ImeAction.Next
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onNext = { focusManager.moveFocus(FocusDirection.Down) }
                             )
                         )
                     }
@@ -297,7 +293,8 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
                                 modifier = Modifier.weight(0.5f),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                 emptyText = stringResource(R.string.text_empty),
-                                visualTransformation = DotCommaReplacer,
+                                inputTransformation = DecimalAmountInputTransformation,
+                                outputTransformation = DecimalAmountOutputTransformation,
                                 suffix = {
                                     DoseDropdownMenu(
                                         doseTitle = stringResource(state.doseType.title),
@@ -326,8 +323,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
                                 onValueChange = { model.onEvent(MedicineEvent.SetPhKinetics(it)) },
                                 keyboardOptions = KeyboardOptions(
                                     capitalization = KeyboardCapitalization.Sentences,
-                                    keyboardType = KeyboardType.Text,
-                                    imeAction = ImeAction.Default
+                                    keyboardType = KeyboardType.Text
                                 )
                             )
                         }
@@ -387,6 +383,11 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
     }
 
     when (state.dialogState) {
+        MedicineDialogState.DataLoss -> DialogDataLoss(
+            onDismiss = { model.onEvent(ToggleDialog(MedicineDialogState.DataLoss)) },
+            onBack = navigateBack
+        )
+
         MedicineDialogState.Kits -> DialogKits(
             kits = kits,
             isChecked = { it in state.kits },
@@ -520,8 +521,15 @@ private fun Summary(state: MedicineState, onEvent: (MedicineEvent) -> Unit) {
             label = { LocalLabel(R.string.text_medicine_product_name) },
             text = { LocalText(state.productName) },
             textField = {
+                val textFieldState = rememberTextFieldState(state.productName)
                 val focusRequester = remember(::FocusRequester)
                 val viewRequester = remember(::BringIntoViewRequester)
+
+                LaunchedEffect(textFieldState) {
+                    snapshotFlow { textFieldState.text.toString() }.collectLatest {
+                        onEvent(SetProductName(it))
+                    }
+                }
 
                 LaunchedEffect(state.productNameError) {
                     if (state.productNameError != null) {
@@ -534,12 +542,11 @@ private fun Summary(state: MedicineState, onEvent: (MedicineEvent) -> Unit) {
                 }
 
                 OutlinedTextField(
-                    value = state.productName,
-                    onValueChange = { onEvent(SetProductName(it)) },
+                    state = textFieldState,
                     label = { Text(stringResource(R.string.text_medicine_product_name)) },
                     supportingText = state.productNameError?.let { { Text(stringResource(it)) } },
                     isError = state.productNameError != null,
-                    singleLine = true,
+                    lineLimits = TextFieldLineLimits.SingleLine,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Sentences,
                         imeAction = ImeAction.Done
@@ -630,9 +637,19 @@ private fun ProductImage(images: List<String>, isDefault: Boolean, onShow: (Int)
                 else onDismiss()
             }
     ) {
-        HorizontalPager(pagerState) {
+        if (images.isNotEmpty()) {
+            HorizontalPager(pagerState) {
+                MedicineImage(
+                    image = images[it],
+                    editable = !isDefault,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(8.dp)
+                )
+            }
+        } else {
             MedicineImage(
-                image = images[it],
+                image = null,
                 editable = !isDefault,
                 modifier = Modifier
                     .fillMaxHeight()
@@ -650,7 +667,6 @@ private fun ProductImage(images: List<String>, isDefault: Boolean, onShow: (Int)
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun InfoTextField(
     title: String,
@@ -659,9 +675,9 @@ private fun InfoTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     emptyText: String = stringResource(R.string.text_empty),
-    visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    inputTransformation: InputTransformation? = null,
+    outputTransformation: OutputTransformation? = null,
     suffix: @Composable (() -> Unit)? = null
 ) = Column(modifier.animateContentSize(), Arrangement.spacedBy(8.dp)) {
     Text(
@@ -671,14 +687,19 @@ private fun InfoTextField(
 
     AnimatedContent(isEditing) { editing ->
         if (editing) {
+            val textFieldState = rememberTextFieldState(value)
+
+            LaunchedEffect(textFieldState) {
+                snapshotFlow { textFieldState.text.toString() }.collectLatest(onValueChange)
+            }
+
             OutlinedTextField(
-                value = value,
-                onValueChange = onValueChange,
+                state = textFieldState,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text(emptyText) },
-                visualTransformation = visualTransformation,
+                inputTransformation = inputTransformation,
+                outputTransformation = outputTransformation,
                 keyboardOptions = keyboardOptions,
-                keyboardActions = keyboardActions,
                 suffix = suffix
             )
         } else {
@@ -703,10 +724,14 @@ private fun DialogFullImage(images: List<String>, initialPage: Int, onDismiss: (
                 .padding(vertical = 120.dp)
         ) {
             Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
-                HorizontalPager(pagerState) { page ->
-                    Box(Modifier.fillMaxWidth(), Alignment.Center) {
-                        MedicineImage(images[page], Modifier.size(240.dp, 340.dp))
+                if (images.isNotEmpty()) {
+                    HorizontalPager(pagerState) { page ->
+                        Box(Modifier.fillMaxWidth(), Alignment.Center) {
+                            MedicineImage(images[page], Modifier.size(240.dp, 340.dp))
+                        }
                     }
+                } else {
+                    MedicineImage(null, Modifier.size(240.dp, 340.dp))
                 }
 
                 Spacer(Modifier.height(16.dp))
@@ -786,7 +811,7 @@ private fun DialogPictureGrid(state: MedicineState, event: (MedicineEvent) -> Un
                                         event(ToggleDialog(MedicineDialogState.PictureChoose))
                                     }
                             ) {
-                                Icon(Icons.Outlined.Add, null)
+                                VectorIcon(R.drawable.vector_add)
                             }
                         }
                     }
@@ -806,7 +831,7 @@ private fun DialogPictureGrid(state: MedicineState, event: (MedicineEvent) -> Un
                                         if (state.images.size > 1) {
                                             IconButton(
                                                 onClick = { event(MedicineEvent.RemoveImage(image)) },
-                                                content = { Icon(Icons.Outlined.Delete, null) }
+                                                content = { VectorIcon(R.drawable.vector_delete) }
                                             )
                                         }
 
@@ -818,9 +843,8 @@ private fun DialogPictureGrid(state: MedicineState, event: (MedicineEvent) -> Un
                                     }
                                 },
                                 trailingContent = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Menu,
-                                        contentDescription = null,
+                                    VectorIcon(
+                                        icon = R.drawable.vector_menu,
                                         modifier = Modifier.dragHandle(draggableState, index)
                                     )
                                 },
@@ -902,7 +926,6 @@ private fun DialogPictureChoose(
     )
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun IconPicker(onDismiss: () -> Unit, onPick: (String) -> Unit) = Dialog(onDismiss) {
     Surface(Modifier.padding(vertical = 64.dp), CardDefaults.shape) {
@@ -917,9 +940,8 @@ private fun IconPicker(onDismiss: () -> Unit, onPick: (String) -> Unit) = Dialog
                     onClick = { onPick(type.value) },
                     colors = CardDefaults.cardColors(MaterialTheme.colorScheme.secondaryContainer)
                 ) {
-                    Image(
-                        painter = painterResource(type.icon),
-                        contentDescription = null,
+                    MedicineImage(
+                        image = type.icon,
                         modifier = Modifier
                             .size(128.dp)
                             .padding(16.dp)
@@ -941,7 +963,7 @@ private fun IconPicker(onDismiss: () -> Unit, onPick: (String) -> Unit) = Dialog
 @Composable
 private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
     val context = LocalContext.current
-    val controller = rememberCameraConfig(CameraController.IMAGE_CAPTURE)
+    val controller = rememberCameraConfig(CameraConfig.UseCases.IMAGE_CAPTURE)
 
     Box {
         CameraPreview(controller, Modifier.fillMaxSize())
@@ -949,10 +971,10 @@ private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
         Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
             IconButton(
                 onClick = { event(ToggleDialog(MedicineDialogState.TakePhoto)) },
-                content = { Icon(Icons.AutoMirrored.Outlined.ArrowBack, null, Modifier, Color.White) }           )
+                content = { VectorIcon(R.drawable.vector_arrow_back, Modifier, Color.White) } )
 
             IconButton(controller::toggleTorch) {
-                Icon(painterResource(R.drawable.vector_flash), null, Modifier, Color.White)
+                VectorIcon(R.drawable.vector_flash, Modifier, Color.White)
             }
         }
 
@@ -972,9 +994,8 @@ private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
                     )
                 }
         ) {
-            Icon(
-                painter = painterResource(R.drawable.vector_add_photo),
-                contentDescription = null,
+            VectorIcon(
+                icon = R.drawable.vector_add_photo,
                 modifier = Modifier.size(40.dp),
                 tint = Color.Black
             )
@@ -996,7 +1017,7 @@ private fun DoseDropdownMenu(doseTitle: String, setDoseType: (DoseType) -> Unit)
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                 .fillMaxWidth()
         ) {
             Text(doseTitle)
@@ -1041,3 +1062,16 @@ private fun PageIndicator(pageCount: Int, currentPage: Int, modifier: Modifier =
         }
     }
 }
+
+@Composable
+private fun DialogDataLoss(onDismiss: () -> Unit, onBack: () -> Unit) = AlertDialog(
+    onDismissRequest = onDismiss,
+    confirmButton = { TextButton(onBack) { Text(stringResource(R.string.text_exit)) } },
+    dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_stay)) } },
+    text = {
+        Text(
+            text = stringResource(R.string.text_not_saved_medicine),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+)

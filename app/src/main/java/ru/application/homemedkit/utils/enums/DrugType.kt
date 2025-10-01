@@ -197,7 +197,7 @@ enum class DrugType(
     );
 
     companion object {
-        fun getIcon(value: String) = entries.find { it.value == value }?.icon
+        val iconMap = entries.associate { it.value to it.icon }
 
         fun setIcon(value: String) =
             entries.find { value.contains(it.ruValue.dropLast(1), true) }?.value ?: BLANK

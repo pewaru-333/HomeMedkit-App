@@ -1,22 +1,22 @@
 [versions]
-camera2 = "1.4.2"
+camera2 = "1.5.0"
 coil = "3.3.0"
-compose-bom = "2025.08.01"
-compose-lifecycle = "2.9.3"
-compose-navigation = "2.9.3"
-google-ksp = "2.2.10-2.0.2"
+compose-bom = "2025.09.01"
+compose-lifecycle = "2.9.4"
+compose-navigation = "2.9.5"
+google-ksp = "2.2.20-2.0.3"
 gradle = "8.11.1"
-kotlin = "2.2.10"
+kotlin = "2.2.20"
 kotlinx-serialization-json = "1.9.0"
-ktor = "3.2.3"
+ktor = "3.3.0"
 material-preferences = "2.1.0"
-room = "2.7.2"
+room = "2.8.1"
 zxing = "3.5.3"
 
 [libraries]
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camera2" }
+androidx-camera-compose = { group = "androidx.camera", name = "camera-compose", version.ref = "camera2" }
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camera2" }
-androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camera2" }
 
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "compose-lifecycle" }
@@ -44,8 +44,8 @@ zxing = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 [bundles]
 camera = [
     "androidx-camera-camera2",
-    "androidx-camera-lifecycle",
-    "androidx-camera-view"
+    "androidx-camera-compose",
+    "androidx-camera-lifecycle"
 ]
 ktor = [
     "ktor-client-android",

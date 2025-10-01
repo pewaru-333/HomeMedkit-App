@@ -191,6 +191,7 @@
     <string name="text_kit_list_is_empty">Список групп пуст. Вы можете добавить группы в настройках приложения.</string>
     <string name="text_medicine_deleted">Лекарство было удалено из списка, невозможно изменить статус приёма</string>
     <string name="text_not_saved_intake">Настройки данного приёма не сохранены! Вы действительно хотите выйти?</string>
+    <string name="text_not_saved_medicine">Информация о лекарстве не сохранена! Вы действительно хотите выйти?</string>
     <string name="text_pay_attention">Обратите внимание!</string>
     <string name="text_pick_icon">Подобрать иконку</string>
     <string name="text_request_camera">Для сканировании маркировки приложению необходимо выдать разрешение на использовании камеры</string>

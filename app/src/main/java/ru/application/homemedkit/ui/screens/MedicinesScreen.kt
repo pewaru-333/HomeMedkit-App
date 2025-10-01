@@ -24,9 +24,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -35,7 +32,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -52,7 +48,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,9 +55,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.application.homemedkit.R
-import ru.application.homemedkit.R.drawable.vector_filter
-import ru.application.homemedkit.R.drawable.vector_scanner
-import ru.application.homemedkit.R.drawable.vector_sort
 import ru.application.homemedkit.R.string.text_exit_app
 import ru.application.homemedkit.R.string.text_no
 import ru.application.homemedkit.R.string.text_yes
@@ -73,6 +65,7 @@ import ru.application.homemedkit.ui.elements.DialogKits
 import ru.application.homemedkit.ui.elements.MedicineImage
 import ru.application.homemedkit.ui.elements.SearchAppBar
 import ru.application.homemedkit.ui.elements.TextDate
+import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.ui.navigation.Screen
 import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.MedicineTab
@@ -103,7 +96,7 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
                 onSearch = model::setSearch,
                 onClear = model::clearSearch,
                 actions = {
-                    IconButton(model::showSort) { Icon(painterResource(vector_sort), null) }
+                    IconButton(model::showSort) { VectorIcon(R.drawable.vector_sort) }
                     DropdownMenu(state.showSort, model::showSort) {
                         Sorting.entries.forEach { entry ->
                             Row(
@@ -127,7 +120,7 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
                     IconButton(model::showFilter) {
                         BadgedBox(
                             badge = { if (state.kits.isNotEmpty()) Badge() },
-                            content = { Icon(painterResource(vector_filter), null) }
+                            content = { VectorIcon(R.drawable.vector_filter) }
                         )
                     }
 
@@ -135,14 +128,11 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
                         checked = true,
                         onCheckedChange = { model.toggleView() },
                         content = {
-                            Icon(
-                                contentDescription = null,
-                                painter = painterResource(
-                                    when (state.tab) {
-                                        MedicineTab.LIST -> R.drawable.vector_group
-                                        MedicineTab.GROUPS -> R.drawable.vector_list
-                                    }
-                                )
+                            VectorIcon(
+                                icon = when (state.tab) {
+                                    MedicineTab.LIST -> R.drawable.vector_group
+                                    MedicineTab.GROUPS -> R.drawable.vector_list
+                                }
                             )
                         }
                     )
@@ -170,32 +160,23 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
                         ) {
                             SmallFloatingActionButton(
                                 onClick = { onNavigate(Screen.Scanner) },
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer
-                            ) {
-                                Icon(
-                                    painter = painterResource(vector_scanner),
-                                    contentDescription = null
-                                )
-                            }
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                content = { VectorIcon(R.drawable.vector_scanner) }
+                            )
 
                             SmallFloatingActionButton(
                                 onClick = { onNavigate(Screen.Medicine()) },
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Edit,
-                                    contentDescription = null
-                                )
-                            }
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                content = { VectorIcon(R.drawable.vector_edit) }
+                            )
                         }
                     }
 
                     FloatingActionButton(model::showAdding) {
                         val rotation by animateFloatAsState(if (state.showAdding) 45f else 0f)
 
-                        Icon(
-                            imageVector = Icons.Outlined.Add,
-                            contentDescription = null,
+                        VectorIcon(
+                            icon = R.drawable.vector_add,
                             modifier = Modifier.rotate(rotation)
                         )
                     }

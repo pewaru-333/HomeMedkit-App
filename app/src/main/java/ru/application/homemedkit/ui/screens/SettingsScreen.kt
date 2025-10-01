@@ -30,19 +30,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -89,6 +81,8 @@ import ru.application.homemedkit.dialogs.draggableItems
 import ru.application.homemedkit.dialogs.rememberDraggableListState
 import ru.application.homemedkit.models.viewModels.SettingsViewModel
 import ru.application.homemedkit.receivers.AlarmSetter
+import ru.application.homemedkit.ui.elements.NavigationIcon
+import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.ui.navigation.LocalBarVisibility
 import ru.application.homemedkit.ui.theme.isDynamicColorAvailable
 import ru.application.homemedkit.utils.BLANK
@@ -356,15 +350,11 @@ private fun KitsManager(
             topBar = {
                 TopAppBar(
                     title = { Text(stringResource(R.string.preference_kits_group)) },
-                    navigationIcon = {
-                        IconButton(onBack) {
-                            Icon(Icons.AutoMirrored.Outlined.ArrowBack, null)
-                        }
-                    },
+                    navigationIcon = { NavigationIcon(onBack) },
                     actions = {
                         if (ordering) {
                             IconButton(
-                                content = { Icon(Icons.Outlined.Check, null) },
+                                content = { VectorIcon(R.drawable.vector_confirm) },
                                 onClick = {
                                     onSave(list)
                                     ordering = false
@@ -373,7 +363,7 @@ private fun KitsManager(
                         } else {
                             IconButton(
                                 onClick = { ordering = true },
-                                content = { Icon(painterResource(R.drawable.vector_sort), null) }
+                                content = { VectorIcon(R.drawable.vector_sort) }
                             )
                         }
                     }
@@ -383,7 +373,7 @@ private fun KitsManager(
                 if (!ordering) {
                     ExtendedFloatingActionButton(
                         text = { Text(stringResource(R.string.text_add)) },
-                        icon = { Icon(Icons.Outlined.Add, null) },
+                        icon = { VectorIcon(R.drawable.vector_add) },
                         onClick = { show = true },
                     )
                 }
@@ -397,7 +387,7 @@ private fun KitsManager(
                             {
                                 if (!it) {
                                     IconButton(
-                                        content = { Icon(Icons.Outlined.Edit, null) },
+                                        content = { VectorIcon(R.drawable.vector_edit) },
                                         onClick = {
                                             kit = Kit(item.kitId, item.title, item.position)
                                             show = true
@@ -408,15 +398,14 @@ private fun KitsManager(
                         },
                         trailingContent = {
                             if (ordering) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Menu,
-                                    contentDescription = null,
+                                VectorIcon(
+                                    icon = R.drawable.vector_menu,
                                     modifier = Modifier.dragHandle(draggableState, item.kitId)
                                 )
                             } else {
                                 IconButton(
                                     onClick = { onDelete(item) },
-                                    content = { Icon(Icons.Outlined.Delete, null) }
+                                    content = { VectorIcon(R.drawable.vector_delete) }
                                 )
                             }
                         }

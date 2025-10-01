@@ -24,27 +24,24 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults.MinHeight
 import androidx.compose.material3.OutlinedTextFieldDefaults.MinWidth
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -52,7 +49,6 @@ import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -79,10 +75,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.R
-import ru.application.homemedkit.R.string.text_cancel
-import ru.application.homemedkit.R.string.text_edit
-import ru.application.homemedkit.R.string.text_go_to
-import ru.application.homemedkit.R.string.text_save
 import ru.application.homemedkit.data.model.Intake
 import ru.application.homemedkit.data.model.IntakeModel
 import ru.application.homemedkit.data.model.MedicineMain
@@ -99,12 +91,13 @@ import ru.application.homemedkit.ui.elements.BoxWithEmptyListText
 import ru.application.homemedkit.ui.elements.MedicineImage
 import ru.application.homemedkit.ui.elements.SearchAppBar
 import ru.application.homemedkit.ui.elements.TextDate
+import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.ui.navigation.Screen
 import ru.application.homemedkit.utils.DotCommaReplacer
 import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.IntakeTab
 import ru.application.homemedkit.utils.getDateTime
-import java.time.ZonedDateTime
+import java.time.ZoneOffset
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -153,7 +146,7 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
                 actions = {
                     AnimatedVisibility(IntakeTab.entries[pagerState.currentPage] != IntakeTab.LIST) {
                         IconButton(model::showDialogDate) {
-                            Icon(Icons.Outlined.DateRange, null)
+                            VectorIcon(R.drawable.vector_date_range)
                         }
                     }
                 }
@@ -162,13 +155,13 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
         floatingActionButton = {
             AnimatedVisibility(IntakeTab.entries[pagerState.currentPage] == IntakeTab.PAST) {
                 FloatingActionButton(model::showDialogAddTaken) {
-                    Icon(Icons.Outlined.Add, null)
+                    VectorIcon(R.drawable.vector_add)
                 }
             }
         }
     ) { values ->
         Column(Modifier.padding(values)) {
-            TabRow(pagerState.currentPage) {
+            PrimaryTabRow(pagerState.currentPage) {
                 IntakeTab.entries.forEach { tab ->
                     Tab(
                         selected = pagerState.currentPage == tab.ordinal,
@@ -334,12 +327,12 @@ private fun DialogGoToDate(onDismiss: () -> Unit, onScroll: (Long) -> Unit) {
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
-        dismissButton = { TextButton(onDismiss) { Text(stringResource(text_cancel)) } },
+        dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_cancel)) } },
         confirmButton = {
             TextButton(
                 enabled = pickerState.selectedDateMillis != null,
                 onClick = { onScroll(pickerState.selectedDateMillis!!) },
-                content = { Text(stringResource(text_go_to)) }
+                content = { Text(stringResource(R.string.text_go_to)) }
             )
         }
     ) {
@@ -382,19 +375,20 @@ private fun DialogAddTaken(
     onEvent: (NewTakenEvent) -> Unit,
     onHide: () -> Unit
 ) {
-    val currentTime = getDateTime(System.currentTimeMillis())
+    val now = remember { getDateTime(System.currentTimeMillis()) }
+    val today = remember { now.toLocalDate() }
 
     val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = currentTime.toInstant().toEpochMilli(),
+        initialSelectedDateMillis = today.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
         selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long) =
-                getDateTime(utcTimeMillis) <= ZonedDateTime.now()
+                !getDateTime(utcTimeMillis).toLocalDate().isAfter(today)
         }
     )
 
     val timePickerState = rememberTimePickerState(
-        initialHour = currentTime.hour,
-        initialMinute = currentTime.minute,
+        initialHour = now.hour,
+        initialMinute = now.minute,
         is24Hour = true
     )
 
@@ -478,7 +472,7 @@ private fun DialogAddTaken(
                     LocalTextField(
                         value = newTaken.title,
                         label = R.string.text_medicine_product_name,
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                        modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                         readOnly = true
                     )
@@ -548,7 +542,7 @@ private fun DialogAddTaken(
             dismissButton = {
                 TextButton(
                     onClick = { showDate = false },
-                    content = { Text(stringResource(text_cancel)) }
+                    content = { Text(stringResource(R.string.text_cancel)) }
                 )
             },
             confirmButton = {
@@ -628,13 +622,13 @@ private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
         onDismissRequest = { onEvent(TakenEvent.HideDialog) },
         title = {
             Text(
-                text = stringResource(text_edit),
+                text = stringResource(R.string.text_edit),
                 modifier = Modifier.width(MinWidth)
             )
         },
         confirmButton = {
             TextButton(
-                content = { Text(stringResource(text_save)) },
+                content = { Text(stringResource(R.string.text_save)) },
                 onClick = { onEvent(TakenEvent.SaveTaken(NotificationManagerCompat.from(context))) },
                 enabled = when {
                     intake.medicine == null -> false
@@ -646,7 +640,7 @@ private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
         dismissButton = {
             TextButton(
                 onClick = { onEvent(TakenEvent.HideDialog) },
-                content = { Text(stringResource(text_cancel)) }
+                content = { Text(stringResource(R.string.text_cancel)) }
             )
         },
         text = {
@@ -711,7 +705,7 @@ private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
 @Composable
 private fun DialogDeleteTaken(onDismiss: () -> Unit, onDelete: () -> Unit) = AlertDialog(
     onDismissRequest = onDismiss,
-    dismissButton = { TextButton(onDismiss) { Text(stringResource(text_cancel)) } },
+    dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_cancel)) } },
     confirmButton = { TextButton(onDelete) { Text(stringResource(R.string.text_confirm)) } },
     title = { Text(stringResource(R.string.text_attention)) },
     text = {

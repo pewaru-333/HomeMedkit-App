@@ -26,24 +26,19 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -63,13 +58,10 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -91,6 +83,7 @@ import ru.application.homemedkit.ui.elements.DialogDelete
 import ru.application.homemedkit.ui.elements.MedicineImage
 import ru.application.homemedkit.ui.elements.NavigationIcon
 import ru.application.homemedkit.ui.elements.TopBarActions
+import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.utils.DotCommaReplacer
 import ru.application.homemedkit.utils.decimalFormat
 import ru.application.homemedkit.utils.enums.FoodType
@@ -265,7 +258,7 @@ private fun MedicineInfo(medicine: MedicineIntake, image: String) {
 private fun SchemaType(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCard {
     ExposedDropdownMenuBox(state.showSchemaTypePicker, {}) {
         ListItem(
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
             headlineContent = { Text(stringResource(R.string.intake_text_schema_type)) },
             supportingContent = { Text(stringResource(state.schemaType.title)) },
             trailingContent = state.default.let {
@@ -372,7 +365,7 @@ private fun Amount(state: IntakeState, event: (IntakeEvent) -> Unit) =
         if (state.sameAmount) {
             HorizontalDivider()
             ListItem(
-                leadingContent = { Icon(painterResource(R.drawable.vector_medicine), null) },
+                leadingContent = { VectorIcon(R.drawable.vector_medicine) },
                 headlineContent = {
                     TextField(
                         value = state.pickedTime.first().amount,
@@ -403,7 +396,7 @@ private fun Interval(state: IntakeState, event: (IntakeEvent) -> Unit) =
     OutlinedCard(Modifier.animateContentSize()) {
         ExposedDropdownMenuBox(state.showIntervalTypePicker, {}) {
             ListItem(
-                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                 headlineContent = { Text(stringResource(R.string.intake_text_interval)) },
                 supportingContent = { Text(stringResource(state.intervalType.title)) },
                 trailingContent = state.default.let {
@@ -461,7 +454,7 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
         Row(Modifier.fillMaxWidth(), Arrangement.Start, CenterVertically) {
             ExposedDropdownMenuBox(state.showPeriodTypePicker, {}, Modifier.weight(1f)) {
                 ListItem(
-                    modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                    modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                     headlineContent = { Text(stringResource(R.string.intake_text_period)) },
                     supportingContent = { Text(stringResource(state.periodType.title)) },
                     trailingContent = state.default.let {
@@ -493,7 +486,7 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                     readOnly = state.default,
                     textStyle = MaterialTheme.typography.titleMedium,
                     placeholder = { Text(stringResource(R.string.text_empty)) },
-                    leadingIcon = { Icon(painterResource(R.drawable.vector_period), null) },
+                    leadingIcon = { VectorIcon(R.drawable.vector_period) },
                     suffix = { Text(stringResource(R.string.text_days_short)) },
                     isError = state.periodError != null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -527,15 +520,13 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                     trailingContent = state.let {
                         {
                             if (!it.default && it.periodType in Period.entries.dropLast(1))
-                                Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null)
+                                VectorIcon(R.drawable.vector_keyboard_arrow_right)
                         }
                     },
                     modifier = Modifier
                         .weight(1f)
                         .clickable(
-                            enabled = !state.default && state.periodType in Period.entries.dropLast(
-                                1
-                            ),
+                            enabled = !state.default && state.periodType in Period.entries.dropLast(1),
                             onClick = { event(IntakeEvent.ShowDatePicker) }
                         ),
                     colors = ListItemDefaults.colors(
@@ -558,7 +549,7 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                     trailingContent = state.let {
                         {
                             if (!it.default && it.periodType == Period.PICK)
-                                Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null)
+                                VectorIcon(R.drawable.vector_keyboard_arrow_right)
                         }
                     },
                     modifier = Modifier
@@ -628,7 +619,7 @@ private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
                 ListItem(
                     headlineContent = { Text(stringResource(R.string.placeholder_time, index + 1)) },
                     supportingContent = { Text(amountTime.time.ifEmpty { stringResource(R.string.text_not_selected) }) },
-                    leadingContent = { Icon(painterResource(R.drawable.vector_time), null) },
+                    leadingContent = { VectorIcon(R.drawable.vector_time) },
                     colors = ListItemDefaults.colors(
                         containerColor = if (state.timesError != null && amountTime.time.isEmpty())
                             MaterialTheme.colorScheme.errorContainer
@@ -648,10 +639,9 @@ private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
                                     else event(IntakeEvent.DecTime)
                                 }
                             ) {
-                                Icon(
-                                    contentDescription = null,
-                                    imageVector = if (index == 0) Icons.Outlined.Add
-                                    else ImageVector.vectorResource(R.drawable.vector_remove)
+                                VectorIcon(
+                                    icon = if (index == 0) R.drawable.vector_add
+                                    else R.drawable.vector_remove
                                 )
                             }
                         }
@@ -712,7 +702,7 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCa
                 trailingContent = {
                     IconButton(
                         onClick = { event(IntakeEvent.ShowDialogDescription(extra.description)) },
-                        content = { Icon(Icons.Outlined.Info, null) }
+                        content = { VectorIcon(R.drawable.vector_info) }
                     )
                 },
                 modifier = Modifier.toggleable(

@@ -1,7 +1,5 @@
 package ru.application.homemedkit.utils.extensions
 
-import androidx.core.text.HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH
-import androidx.core.text.HtmlCompat.fromHtml
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.Technical
@@ -40,9 +38,9 @@ fun MedicineFull.toState() = MedicineState(
     prodDNormName = prodDNormName,
     prodAmount = prodAmount.toString(),
     doseType = doseType,
-    phKinetics = fromHtml(phKinetics, FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH).toString(),
-    recommendations = fromHtml(recommendations, FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH).toString(),
-    storageConditions = fromHtml(storageConditions, FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH).toString(),
+    phKinetics = phKinetics,
+    recommendations = recommendations,
+    storageConditions = storageConditions,
     comment = comment,
     images = images.sortedBy(Image::position).map(Image::image),
     technical = TechnicalState(
@@ -100,7 +98,7 @@ fun DrugsData.toMedicine() = Medicine(
     prodFormNormName = foiv.prodFormNormName,
     prodDNormName = foiv.prodDNormName.orEmpty(),
     doseType = DrugType.getDoseType(foiv.prodFormNormName),
-    phKinetics = vidalData?.phKinetics.orEmpty(),
+    phKinetics = vidalData?.phKinetics.orEmpty().asHtml(),
     technical = Technical(scanned = true, verified = true),
     prodAmount = foiv.prodPack1Size?.let { it.toDouble() * (foiv.prodPack12?.toDoubleOrNull() ?: 1.0) } ?: 0.0
 )
@@ -110,10 +108,10 @@ fun BioData.toMedicine() = Medicine(
     expDate = expireDate,
     prodDNormName = productProperty.unitVolumeWeight.orEmpty(),
     prodAmount = productProperty.quantityInPack ?: 0.0,
-    phKinetics = productProperty.applicationArea.orEmpty(),
-    recommendations = productProperty.recommendForUse.orEmpty(),
-    storageConditions = productProperty.storageConditions.orEmpty(),
-    structure = productProperty.structure.orEmpty(),
+    phKinetics = productProperty.applicationArea.orEmpty().asHtml(),
+    recommendations = productProperty.recommendForUse.orEmpty().asHtml(),
+    storageConditions = productProperty.storageConditions.orEmpty().asHtml(),
+    structure = productProperty.structure.orEmpty().asHtml(),
     prodFormNormName = productProperty.releaseForm.orEmpty().substringBefore(" ").uppercase(),
     doseType = DrugType.getDoseType(productProperty.releaseForm.orEmpty()),
     technical = Technical(

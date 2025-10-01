@@ -3,17 +3,10 @@ package ru.application.homemedkit.ui.elements
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Clear
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,11 +44,11 @@ fun SearchAppBar(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 label = { Text(stringResource(R.string.text_enter_product_name)) },
-                leadingIcon = { Icon(Icons.Outlined.Search, null) },
+                leadingIcon = { VectorIcon(R.drawable.vector_search) },
                 trailingIcon = {
                     if (search.isNotEmpty()) {
                         IconButton(onClear) {
-                            Icon(Icons.Outlined.Clear, null)
+                            VectorIcon(R.drawable.vector_clear)
                         }
                     }
                 },
@@ -95,12 +88,12 @@ fun TopBarActions(
         var expanded by remember { mutableStateOf(false) }
 
         if (onNavigate != null) {
-            IconButton(onNavigate) { Icon(Icons.Outlined.Notifications, null) }
+            IconButton(onNavigate) { VectorIcon(R.drawable.vector_notification) }
         }
 
         IconButton(
             onClick = { expanded = !expanded },
-            content = { Icon(Icons.Outlined.MoreVert, null) }
+            content = { VectorIcon(R.drawable.vector_dropdown_more) }
         )
 
         DropdownMenu(
@@ -111,6 +104,6 @@ fun TopBarActions(
             LocalDropDownItem(R.string.text_delete, onShowDialog)
         }
     } else {
-        IconButton(onSave) { Icon(Icons.Outlined.Check, null) }
+        IconButton(onSave) { VectorIcon(R.drawable.vector_confirm) }
     }
 }

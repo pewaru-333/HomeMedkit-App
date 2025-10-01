@@ -1,0 +1,3 @@
+— A dialog has been added to confirm exiting the medicine card without saving the changes.
+— The text fields of the medicine information are now multi-line.
+— Fixed an issue where sometimes, when changing the date, a new day could not be selected in the date selection dialog box.

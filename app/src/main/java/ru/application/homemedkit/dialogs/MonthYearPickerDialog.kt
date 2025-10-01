@@ -14,12 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -40,11 +36,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.text_cancel
 import ru.application.homemedkit.R.string.text_save
+import ru.application.homemedkit.ui.elements.VectorIcon
 import java.time.LocalDate
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MonthYear(
     confirm: (Int, Int) -> Unit,
@@ -64,9 +61,8 @@ fun MonthYear(
                     IconButton(
                         onClick = { year-- },
                         content = {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowLeft,
-                                contentDescription = null,
+                            VectorIcon(
+                                icon = R.drawable.vector_keyboard_arrow_left,
                                 modifier = Modifier.size(36.dp)
                             )
                         }
@@ -83,9 +79,8 @@ fun MonthYear(
                     IconButton(
                         onClick = { year++ },
                         content = {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                                contentDescription = null,
+                            VectorIcon(
+                                icon = R.drawable.vector_keyboard_arrow_right,
                                 modifier = Modifier.size(36.dp)
                             )
                         }

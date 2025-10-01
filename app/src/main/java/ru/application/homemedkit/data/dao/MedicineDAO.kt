@@ -68,7 +68,9 @@ interface MedicineDAO : BaseDAO<Medicine> {
     // ============================== Update ==============================
     @Transaction
     suspend fun updateImages(images: Iterable<Image>) {
-        deleteImages(images.first().medicineId)
+        if (images.count() > 0) {
+            deleteImages(images.first().medicineId)
+        }
         addImage(images)
     }
 
