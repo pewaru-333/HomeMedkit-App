@@ -1,0 +1,3 @@
+— Es wurde ein Dialogfeld hinzugefügt, um das Verlassen der Medikamentenkarte ohne Speichern der Änderungen zu bestätigen.
+— Die Textfelder der Medikamenteninformationen können jetzt mehrere Zeilen umfassen.
+— Es wurde ein Problem behoben, bei dem manchmal beim Ändern des Datums kein neuer Tag im Dialogfeld zur Datumsauswahl ausgewählt werden konnte.
