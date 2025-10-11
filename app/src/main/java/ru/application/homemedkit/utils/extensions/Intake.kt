@@ -8,6 +8,7 @@ import androidx.compose.ui.text.intl.Locale
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.intake_text_not_taken
 import ru.application.homemedkit.data.dto.IntakeTaken
+import ru.application.homemedkit.data.model.Intake
 import ru.application.homemedkit.data.model.IntakeAmountTime
 import ru.application.homemedkit.data.model.IntakeFull
 import ru.application.homemedkit.data.model.IntakeList
@@ -19,7 +20,6 @@ import ru.application.homemedkit.data.model.ScheduleModel
 import ru.application.homemedkit.data.model.TakenModel
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.states.TakenState
-import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
 import ru.application.homemedkit.utils.FORMAT_D_MMMM_E
 import ru.application.homemedkit.utils.FORMAT_H_MM
@@ -44,7 +44,7 @@ fun IntakeFull.toState() = IntakeState(
     intakeId = intakeId,
     medicineId = medicineId,
     medicine = medicine,
-    image = images.firstOrNull() ?: BLANK,
+    image = images.firstOrNull().orEmpty(),
     schemaType = schemaType,
     amountStock = medicine.prodAmount.toString(),
     sameAmount = sameAmount,
@@ -96,31 +96,35 @@ fun IntakeState.toIntake() = ru.application.homemedkit.data.dto.Intake(
     cancellable = cancellable
 )
 
-fun IntakeList.toIntake() = ru.application.homemedkit.data.model.Intake(
-    intakeId = intakeId,
-    title = nameAlias.ifEmpty(::productName),
-    image = image.firstOrNull() ?: BLANK,
-    time = time.sortedBy { LocalTime.parse(it, FORMAT_H_MM) }.joinToString(),
-    days = days.sorted().run {
+fun IntakeList.toIntake(): Intake {
+    val timeText = if (time.size == 1) time.first()
+    else time.map { LocalTime.parse(it, FORMAT_H_MM) }
+        .sorted()
+        .joinToString()
+
+    val daysText = with(days.sorted()) {
         when {
             size == DayOfWeek.entries.size -> ResourceText.StringResource(R.string.text_every_day)
-            equals(DayOfWeek.entries.drop(5)) -> ResourceText.StringResource(R.string.text_weekend)
-            equals(DayOfWeek.entries.dropLast(2)) -> ResourceText.StringResource(R.string.text_weekdays)
+            this == DayOfWeek.entries.weekdays -> ResourceText.StringResource(R.string.text_weekdays)
+            this == DayOfWeek.entries.weekends -> ResourceText.StringResource(R.string.text_weekend)
             else -> ResourceText.StaticString(
-                joinToString {
-                    it.getDisplayName(
-                        TextStyle.SHORT,
-                        Locale.current.platformLocale
-                    )
+                joinToString { day ->
+                    day.getDisplayName(TextStyle.SHORT, Locale.current.platformLocale)
                 }
             )
         }
-    },
-    interval = time.run {
-        ResourceText.PluralStringResource(R.plurals.intake_times_a_day, size, size)
-    },
-    active = LocalDate.parse(finalDate, FORMAT_DD_MM_YYYY) >= LocalDate.now()
-)
+    }
+
+    return Intake(
+        intakeId = intakeId,
+        title = nameAlias.ifEmpty(::productName),
+        image = image.firstOrNull().orEmpty(),
+        time = timeText,
+        days = daysText,
+        interval = ResourceText.PluralStringResource(R.plurals.intake_times_a_day, time.size, time.size),
+        active = LocalDate.parse(finalDate, FORMAT_DD_MM_YYYY) >= LocalDate.now()
+    )
+}
 
 fun IntakeTaken.toTakenModel() = TakenModel(
     id = takenId,
@@ -140,10 +144,10 @@ fun IntakeTaken.toTakenModel() = TakenModel(
     )
 )
 
-fun Map.Entry<Long, List<IntakeTaken>>.toIntakePast() = IntakePast(
+fun Map.Entry<Long, List<IntakeTaken>>.toIntakePast(currentYear: Int) = IntakePast(
     epochDay = key,
     date = LocalDate.ofEpochDay(key).run {
-        format(if (LocalDate.now().year == year) FORMAT_D_MMMM_E else FORMAT_LONG)
+        format(if (currentYear == year) FORMAT_D_MMMM_E else FORMAT_LONG)
     },
     intakes = value.map(IntakeTaken::toTakenModel)
 )
@@ -165,29 +169,34 @@ fun Schedule.toScheduleModel() = ScheduleModel(
     )
 )
 
-fun Map.Entry<Long, List<Schedule>>.toIntakeSchedule() = IntakeSchedule(
+fun Map.Entry<Long, List<Schedule>>.toIntakeSchedule(currentYear: Int) = IntakeSchedule(
     epochDay = key,
     date = LocalDate.ofEpochDay(key).run {
-        format(if (LocalDate.now().year == year) FORMAT_D_MMMM_E else FORMAT_LONG)
+        format(if (currentYear == year) FORMAT_D_MMMM_E else FORMAT_LONG)
     },
     intakes = value.map(Schedule::toScheduleModel)
 )
 
-fun IntakeTakenFull.toTakenState() = TakenState(
-    takenId = takenId,
-    alarmId = alarmId,
-    medicine = medicine,
-    productName = productName,
-    amount = amount,
-    date = getDateTime(trigger).format(FORMAT_LONG),
-    scheduled = getDateTime(trigger).format(FORMAT_H_MM),
-    actual = if (taken) ResourceText.StaticString(getDateTime(inFact).format(FORMAT_H_MM))
-    else ResourceText.StringResource(intake_text_not_taken),
-    inFact = inFact,
-    pickerState = getDateTime(inFact).run { TimePickerState(hour, minute, true) },
-    taken = taken,
-    selection = if (taken) 1 else 0,
-    notified = notified
-)
+fun IntakeTakenFull.toTakenState(): TakenState {
+    val triggerZoned = getDateTime(trigger)
+    val actualZoned = getDateTime(inFact)
+
+    return TakenState(
+        takenId = takenId,
+        alarmId = alarmId,
+        medicine = medicine,
+        productName = productName,
+        amount = amount,
+        date = triggerZoned.format(FORMAT_LONG),
+        scheduled = triggerZoned.format(FORMAT_H_MM),
+        actual = if (taken) ResourceText.StaticString(actualZoned.format(FORMAT_H_MM))
+        else ResourceText.StringResource(intake_text_not_taken),
+        inFact = inFact,
+        pickerState = actualZoned.run { TimePickerState(hour, minute, true) },
+        taken = taken,
+        selection = if (taken) 1 else 0,
+        notified = notified
+    )
+}
 
 fun TakenState?.orDefault() = this ?: TakenState()

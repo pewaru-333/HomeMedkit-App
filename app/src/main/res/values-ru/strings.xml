@@ -178,7 +178,7 @@
     <string name="text_code_not_found">Код не найден!</string>
     <string name="text_confirm_deletion_int">Вы подтверждаете удаление этого приёма лекарства?</string>
     <string name="text_confirm_deletion_med">Вы подтверждаете удаление этого лекарства?</string>
-    <string name="text_confirm_schedule_to_taken">Вы подтверждаете, что уже приняли %1$s в %2$s?</string>
+    <string name="text_confirm_schedule_to_taken">Вы подтверждаете, что приняли «%1$s» %2$s в %3$s?</string>
     <string name="text_connection_error">Ошибка при подключении!</string>
     <string name="text_duplicate">Лекарство уже было добавлено!</string>
     <string name="text_error_not_medicine">Это не код лекарства!</string>

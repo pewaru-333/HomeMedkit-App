@@ -3,7 +3,6 @@ package ru.application.homemedkit.utils.enums
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import ru.application.homemedkit.R
-import ru.application.homemedkit.utils.BLANK
 
 
 enum class DrugType(
@@ -200,7 +199,7 @@ enum class DrugType(
         val iconMap = entries.associate { it.value to it.icon }
 
         fun setIcon(value: String) =
-            entries.find { value.contains(it.ruValue.dropLast(1), true) }?.value ?: BLANK
+            entries.find { value.contains(it.ruValue.dropLast(1), true) }?.value.orEmpty()
 
         fun getDoseType(value: String) = entries.find {
             value.contains(it.ruValue.dropLast(1), true)

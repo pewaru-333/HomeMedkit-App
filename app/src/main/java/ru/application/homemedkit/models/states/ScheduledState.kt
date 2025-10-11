@@ -12,5 +12,6 @@ data class ScheduledState(
     override val doseAmount: ResourceText.StringResource = ResourceText.StringResource(R.string.blank),
     override val image: String = BLANK,
     override val time: String = BLANK,
+    val date: String = BLANK,
     override val taken: Boolean = false
 ) : IntakeModel

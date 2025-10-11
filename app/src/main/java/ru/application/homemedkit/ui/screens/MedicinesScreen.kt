@@ -1,6 +1,5 @@
 package ru.application.homemedkit.ui.screens
 
-import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -24,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -44,6 +44,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -52,6 +54,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.application.homemedkit.R
@@ -70,11 +73,12 @@ import ru.application.homemedkit.ui.navigation.Screen
 import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.MedicineTab
 import ru.application.homemedkit.utils.enums.Sorting
+import ru.application.homemedkit.utils.extensions.getActivity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
-    val activity = LocalContext.current as Activity
+    val activity = LocalContext.current.getActivity()
 
     val model = viewModel<MedicinesViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
@@ -83,9 +87,21 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
     val kits by model.kits.collectAsStateWithLifecycle()
 
     val listStates = MedicineTab.entries.map { rememberLazyListState() }
+    val listState = remember { listStates[state.tab.ordinal] }
 
-    LaunchedEffect(state.search, state.sorting, state.kits) {
-        listStates[state.tab.ordinal].scrollToItem(0)
+    val currentParams = remember(state.search, state.sorting, state.kits) {
+        Triple(state.search, state.sorting, state.kits)
+    }
+    val oldParams = remember { mutableStateOf(currentParams) }
+
+    LaunchedEffect(medicines) {
+        if (oldParams.value != currentParams) {
+            if (medicines.isNotEmpty()) {
+                listState.scrollToItem(0)
+            }
+
+            oldParams.value = currentParams
+        }
     }
 
     BackHandler { model.showExit(true) }
@@ -93,11 +109,10 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
         topBar = {
             SearchAppBar(
                 search = state.search,
-                onSearch = model::setSearch,
-                onClear = model::clearSearch,
+                onSearch = model::onSearch,
                 actions = {
-                    IconButton(model::showSort) { VectorIcon(R.drawable.vector_sort) }
-                    DropdownMenu(state.showSort, model::showSort) {
+                    IconButton(model::toggleSorting) { VectorIcon(R.drawable.vector_sort) }
+                    DropdownMenu(state.showSort, model::toggleSorting, Modifier.selectableGroup()) {
                         Sorting.entries.forEach { entry ->
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -117,7 +132,7 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
                         }
                     }
 
-                    IconButton(model::showFilter) {
+                    IconButton(model::toggleFilter) {
                         BadgedBox(
                             badge = { if (state.kits.isNotEmpty()) Badge() },
                             content = { VectorIcon(R.drawable.vector_filter) }
@@ -172,7 +187,7 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
                         }
                     }
 
-                    FloatingActionButton(model::showAdding) {
+                    FloatingActionButton(model::toggleAdding) {
                         val rotation by animateFloatAsState(if (state.showAdding) 45f else 0f)
 
                         VectorIcon(
@@ -189,14 +204,14 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
                 MedicineTab.LIST -> medicines.let { list ->
                     if (list.isNotEmpty()) {
                         LazyColumn(Modifier.fillMaxSize(), listStates[0], values) {
-                            items(list, MedicineList::id) {
+                            items(list, MedicineList::id) { medicine ->
                                 MedicineItem(
-                                    medicine = it,
+                                    medicine = medicine,
                                     modifier = Modifier.animateItem(),
                                     onClick = { onNavigate(Screen.Medicine(it)) }
                                 )
 
-                                if (it != list.lastOrNull()) {
+                                if (medicine != list.lastOrNull()) {
                                     HorizontalDivider()
                                 }
                             }
@@ -214,7 +229,7 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
                 MedicineTab.GROUPS -> grouped.let { list ->
                     if (list.isNotEmpty()) {
                         LazyColumn(Modifier.fillMaxSize(), listStates[1], values) {
-                            list.forEach { group ->
+                            list.fastForEach { group ->
                                 item {
                                     TextDate(group.kit.title.asString())
                                 }
@@ -222,14 +237,14 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
                                 items(
                                     items = group.medicines,
                                     key = { "${group.kit.id}_${it.id}" }
-                                ) {
+                                ) { medicine ->
                                     MedicineItem(
-                                        medicine = it,
+                                        medicine = medicine,
                                         modifier = Modifier.animateItem(),
                                         onClick = { onNavigate(Screen.Medicine(it)) }
                                     )
 
-                                    if (it != group.medicines.lastOrNull()) {
+                                    if (medicine != group.medicines.lastOrNull()) {
                                         HorizontalDivider()
                                     }
                                 }
@@ -253,12 +268,12 @@ fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
             kits = kits,
             isChecked = { it in state.kits },
             onPick = model::pickFilter,
-            onDismiss = model::showFilter,
+            onDismiss = model::toggleFilter,
             onClear = model::clearFilter
         )
 
-        state.showExit -> if (!Preferences.confirmExit) activity.finishAndRemoveTask()
-        else DialogExit(model::showExit, activity::finishAndRemoveTask)
+        state.showExit -> if (!Preferences.confirmExit) activity?.finishAndRemoveTask()
+        else activity?.let { DialogExit(model::showExit, it::finishAndRemoveTask) }
     }
 }
 

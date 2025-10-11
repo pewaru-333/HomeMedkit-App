@@ -14,6 +14,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
@@ -54,9 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -105,6 +105,7 @@ import ru.application.homemedkit.utils.enums.Page
 import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.enums.Theme
 import ru.application.homemedkit.utils.extensions.canScheduleExactAlarms
+import ru.application.homemedkit.utils.extensions.drawHorizontalDivider
 import ru.application.homemedkit.utils.extensions.getDisplayRegionName
 import ru.application.homemedkit.utils.extensions.getLanguageList
 import ru.application.homemedkit.utils.extensions.restartApplication
@@ -118,6 +119,8 @@ import java.util.Locale
 fun SettingsScreen() {
     val context = LocalContext.current
     val barVisibility = LocalBarVisibility.current
+
+    val underlineColor = MaterialTheme.colorScheme.outlineVariant
 
     val model = viewModel<SettingsViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
@@ -212,9 +215,11 @@ fun SettingsScreen() {
             preferenceCategory(
                 key = KEY_APP_VIEW,
                 title = { Text(stringResource(R.string.preference_app_view)) },
-                modifier = Modifier.drawBehind {
-                    drawLine(Color.LightGray, Offset(0f, 0f), Offset(size.width, 0f), 2f)
-                }
+                modifier = Modifier.drawHorizontalDivider(
+                    color = underlineColor,
+                    start = { Offset(0f, 0f) },
+                    end = { Offset(size.width, 0f) }
+                )
             )
 
             item {
@@ -262,9 +267,11 @@ fun SettingsScreen() {
             preferenceCategory(
                 key = KEY_APP_SYSTEM,
                 title = { Text(stringResource(R.string.preference_system)) },
-                modifier = Modifier.drawBehind {
-                    drawLine(Color.LightGray, Offset(0f, 0f), Offset(size.width, 0f), 2f)
-                }
+                modifier = Modifier.drawHorizontalDivider(
+                    color = underlineColor,
+                    start = { Offset(0f, 0f) },
+                    end = { Offset(size.width, 0f) }
+                )
             )
 
             preference(
@@ -303,7 +310,11 @@ fun SettingsScreen() {
         onBack = model::toggleKits
     )
 
-    AnimatedVisibility(state.showPermissions, Modifier) {
+    AnimatedVisibility(
+        visible = state.showPermissions,
+        enter = scaleIn(),
+        exit = scaleOut()
+    ) {
         BackHandler(state.showPermissions, model::togglePermissions)
         PermissionsScreen(model::togglePermissions)
     }

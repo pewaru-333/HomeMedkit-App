@@ -20,6 +20,7 @@ interface AlarmDAO : BaseDAO<Alarm> {
         JOIN images ON images.medicineId = medicines.id
         WHERE (:search = '' OR LOWER(medicines.productName) LIKE '%' || LOWER(:search) || '%')
         GROUP BY alarms.alarmId
+        ORDER BY alarms.`trigger`
         """
     )
     fun getFlow(search: String): Flow<List<Schedule>>

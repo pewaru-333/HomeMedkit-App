@@ -32,6 +32,9 @@ val FORMAT_D_MMMM_E: DateTimeFormatter
 val FORMAT_DD_MM_YYYY: DateTimeFormatter
     get() = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
+val FORMAT_DD_MM: DateTimeFormatter
+    get() = DateTimeFormatter.ofPattern("dd MMMM")
+
 val FORMAT_H_MM: DateTimeFormatter
     get() = DateTimeFormatter.ofPattern("H:mm")
 

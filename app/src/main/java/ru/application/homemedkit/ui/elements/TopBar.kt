@@ -1,50 +1,81 @@
 package ru.application.homemedkit.ui.elements
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import ru.application.homemedkit.R
+import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.extensions.collectLatestChanged
+import ru.application.homemedkit.utils.extensions.drawHorizontalDivider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchAppBar(
     search: String,
     onSearch: (String) -> Unit,
-    onClear: () -> Unit,
+    onClear: () -> Unit = { onSearch(BLANK) },
     actions: @Composable (RowScope.() -> Unit) = {},
 ) {
+    val textFieldState = rememberTextFieldState(search)
+
+    LaunchedEffect(textFieldState) {
+        snapshotFlow { textFieldState.text.toString() }.collectLatestChanged(onSearch)
+    }
+
+    LaunchedEffect(search) {
+        if (search.isEmpty()) {
+            textFieldState.clearText()
+        }
+    }
+
     CenterAlignedTopAppBar(
         actions = actions,
-        modifier = Modifier.drawBehind {
-            drawLine(Color.LightGray, Offset(0f, size.height), Offset(size.width, size.height), 4f)
+        modifier = Modifier.drawHorizontalDivider(MaterialTheme.colorScheme.outlineVariant),
+        navigationIcon = {
+            Box(
+                content = { VectorIcon(R.drawable.vector_search) },
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .minimumInteractiveComponentSize()
+                    .size(40.dp)
+                    .clip(IconButtonDefaults.standardShape)
+            )
         },
         title = {
             TextField(
-                value = search,
-                onValueChange = onSearch,
+                state = textFieldState,
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                label = { Text(stringResource(R.string.text_enter_product_name)) },
-                leadingIcon = { VectorIcon(R.drawable.vector_search) },
+                lineLimits = TextFieldLineLimits.SingleLine,
+                placeholder = { Text(stringResource(R.string.text_enter_product_name)) },
                 trailingIcon = {
                     if (search.isNotEmpty()) {
                         IconButton(onClear) {

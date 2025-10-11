@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import ru.application.homemedkit.utils.BLANK
 
 @Stable
 interface NavigationBarVisibility {
@@ -29,9 +28,7 @@ private class InitialNavigationBarVisibility : NavigationBarVisibility {
     }
 }
 
-val LocalBarVisibility = staticCompositionLocalOf<NavigationBarVisibility> {
-    error(BLANK)
-}
+val LocalBarVisibility = staticCompositionLocalOf<NavigationBarVisibility>(::InitialNavigationBarVisibility)
 
 @Composable
 fun rememberNavigationBarVisibility(): NavigationBarVisibility {

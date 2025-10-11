@@ -11,11 +11,11 @@ import kotlin.reflect.KClass
 fun <T : Any> NavBackStackEntry?.isCurrentRoute(route: KClass<T>) =
     this?.destination?.hierarchy?.any { it.hasRoute(route) } == true
 
-fun NavHostController.toBottomBarItem(route: Screen) = navigate(route) {
+fun NavHostController.onBottomItemClick(route: Screen) = navigate(route) {
     launchSingleTop = true
     restoreState = true
 
-    popUpTo(this@toBottomBarItem.graph.findStartDestination().id) {
+    popUpTo(this@onBottomItemClick.graph.findStartDestination().id) {
         saveState = true
     }
 }

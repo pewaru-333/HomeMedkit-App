@@ -12,7 +12,6 @@ import ru.application.homemedkit.R
 import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.utils.ALARM_ID
-import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.CHANNEL_ID_PRE
 import ru.application.homemedkit.utils.FORMAT_H_MM
 import ru.application.homemedkit.utils.decimalFormat
@@ -29,7 +28,7 @@ class PreAlarmReceiver : BroadcastReceiver() {
         val alarm = database.alarmDAO().getById(alarmId) ?: return@goAsync
         val intake = database.intakeDAO().getById(alarm.intakeId) ?: return@goAsync
         val medicine = database.medicineDAO().getById(intake.medicineId) ?: return@goAsync
-        val image = database.medicineDAO().getMedicineImages(medicine.id).firstOrNull() ?: BLANK
+        val image = database.medicineDAO().getMedicineImages(medicine.id).firstOrNull().orEmpty()
 
         database.alarmDAO().delete(alarm)
 

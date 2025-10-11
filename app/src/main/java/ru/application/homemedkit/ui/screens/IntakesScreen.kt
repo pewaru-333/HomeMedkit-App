@@ -16,13 +16,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
@@ -66,9 +70,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -76,13 +80,14 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.model.Intake
+import ru.application.homemedkit.data.model.IntakeListScheme
 import ru.application.homemedkit.data.model.IntakeModel
 import ru.application.homemedkit.data.model.MedicineMain
-import ru.application.homemedkit.data.model.ScheduleModel
-import ru.application.homemedkit.data.model.TakenModel
 import ru.application.homemedkit.dialogs.TimePickerDialog
+import ru.application.homemedkit.models.events.IntakesEvent
 import ru.application.homemedkit.models.events.NewTakenEvent
 import ru.application.homemedkit.models.events.TakenEvent
+import ru.application.homemedkit.models.states.IntakesDialogState
 import ru.application.homemedkit.models.states.NewTakenState
 import ru.application.homemedkit.models.states.ScheduledState
 import ru.application.homemedkit.models.states.TakenState
@@ -93,7 +98,8 @@ import ru.application.homemedkit.ui.elements.SearchAppBar
 import ru.application.homemedkit.ui.elements.TextDate
 import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.ui.navigation.Screen
-import ru.application.homemedkit.utils.DotCommaReplacer
+import ru.application.homemedkit.utils.DecimalAmountInputTransformation
+import ru.application.homemedkit.utils.DecimalAmountOutputTransformation
 import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.IntakeTab
 import ru.application.homemedkit.utils.getDateTime
@@ -105,13 +111,15 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
     val model = viewModel<IntakesViewModel>()
 
     val state by model.state.collectAsStateWithLifecycle()
+
     val medicines by model.medicines.collectAsStateWithLifecycle()
     val intakes by model.intakes.collectAsStateWithLifecycle()
     val schedule by model.schedule.collectAsStateWithLifecycle()
-    val scheduledState by model.scheduleState.collectAsStateWithLifecycle()
     val taken by model.taken.collectAsStateWithLifecycle()
-    val takenState by model.takenState.collectAsStateWithLifecycle()
-    val newTaken by model.newTakenState.collectAsStateWithLifecycle()
+
+    val scheduledState by model.scheduledManager.state.collectAsStateWithLifecycle()
+    val takenState by model.takenManager.state.collectAsStateWithLifecycle()
+    val newTakenState by model.newTakenManager.state.collectAsStateWithLifecycle()
 
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
@@ -122,6 +130,10 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
         }
     )
     val listStates = IntakeTab.entries.map { rememberLazyListState() }
+
+    fun toggleDialog(state: IntakesDialogState) {
+        model.onEvent(IntakesEvent.ToggleDialog(state))
+    }
 
     fun onScroll(page: Int) {
         scope.launch {
@@ -141,22 +153,23 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
         topBar = {
             SearchAppBar(
                 search = state.search,
-                onSearch = model::setSearch,
-                onClear = model::clearSearch,
+                onSearch = { model.onEvent(IntakesEvent.SetSearch(it)) },
                 actions = {
-                    AnimatedVisibility(IntakeTab.entries[pagerState.currentPage] != IntakeTab.LIST) {
-                        IconButton(model::showDialogDate) {
-                            VectorIcon(R.drawable.vector_date_range)
-                        }
+                    if (IntakeTab.entries[pagerState.currentPage] != IntakeTab.LIST) {
+                        IconButton(
+                            onClick = { toggleDialog(IntakesDialogState.DatePicker) },
+                            content = { VectorIcon(R.drawable.vector_date_range) }
+                        )
                     }
                 }
             )
         },
         floatingActionButton = {
             AnimatedVisibility(IntakeTab.entries[pagerState.currentPage] == IntakeTab.PAST) {
-                FloatingActionButton(model::showDialogAddTaken) {
-                    VectorIcon(R.drawable.vector_add)
-                }
+                FloatingActionButton(
+                    onClick = { toggleDialog(IntakesDialogState.TakenAdd) },
+                    content = { VectorIcon(R.drawable.vector_add) }
+                )
             }
         }
     ) { values ->
@@ -193,81 +206,93 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
                             .padding(values)
                     )
 
-                    IntakeTab.CURRENT -> LazyColumn(Modifier.fillMaxSize(),listStates[1]) {
-                        schedule.forEach {
-                            item {
-                                TextDate(it.date)
-                            }
+                    IntakeTab.CURRENT -> IntakeList(
+                        items = schedule,
+                        modifier = Modifier.fillMaxSize(),
+                        state = listStates[1],
+                        showDialogScheduleToTaken = { toggleDialog(IntakesDialogState.ScheduleToTaken(it)) }
+                    )
 
-                            itemsIndexed(
-                                items = it.intakes,
-                                key = { _, item -> item.id },
-                                contentType = { _, item -> ScheduleModel::class }
-                            ) { index, item ->
-                                ItemSchedule(
-                                    item = item,
-                                    modifier = Modifier.animateItem(),
-                                    showDialogScheduleToTaken = model::showDialogScheduleToTaken
-                                )
-
-                                if (index < it.intakes.lastIndex) {
-                                    HorizontalDivider()
-                                }
-                            }
-                        }
-                    }
-
-                    IntakeTab.PAST -> LazyColumn(Modifier.fillMaxSize(), listStates[2]) {
-                        taken.forEach {
-                            item {
-                                TextDate(it.date)
-                            }
-
-                            itemsIndexed(
-                                items = it.intakes.reversed(),
-                                key = { _, item -> item.id },
-                                contentType = { _, item -> TakenModel::class }
-                            ) { index, item ->
-                                ItemSchedule(
-                                    item = item,
-                                    modifier = Modifier.animateItem(),
-                                    showDialog = model::showDialog,
-                                    showDialogDelete = model::showDialogDelete
-                                )
-
-                                if (index < it.intakes.lastIndex) {
-                                    HorizontalDivider()
-                                }
-                            }
-                        }
-                    }
+                    IntakeTab.PAST -> IntakeList(
+                        items = taken,
+                        modifier = Modifier.fillMaxSize(),
+                        state = listStates[2],
+                        showDialog = { toggleDialog(IntakesDialogState.TakenInfo(it)) },
+                        showDialogDelete = { toggleDialog(IntakesDialogState.TakenDelete(it)) }
+                    )
                 }
             }
         }
+    }
 
-        when {
-            state.showDialog -> DialogTaken(takenState, model::onTakenEvent)
-            state.showDialogDelete -> DialogDeleteTaken(model::showDialogDelete, model::deleteTaken)
-            state.showDialogDate -> DialogGoToDate(model::showDialogDate) { time ->
-                model.scrollToClosest(
-                    tab = IntakeTab.entries[pagerState.currentPage],
-                    listState = listStates[pagerState.currentPage],
-                    time = time
+    when (state.dialogState) {
+        IntakesDialogState.TakenAdd -> DialogAddTaken(
+            medicines = medicines,
+            newTaken = newTakenState,
+            onEvent = model.newTakenManager::onEvent,
+            onDismiss = { model.onEvent(IntakesEvent.ToggleDialog()) },
+        )
+
+        is IntakesDialogState.TakenDelete -> DialogDeleteTaken(
+            onDelete = { model.takenManager.onEvent(TakenEvent.Delete) },
+            onDismiss = { model.onEvent(IntakesEvent.ToggleDialog()) }
+        )
+
+        is IntakesDialogState.TakenInfo -> DialogTaken(
+            intake = takenState,
+            onEvent = model.takenManager::onEvent,
+            onDismiss = { model.onEvent(IntakesEvent.ToggleDialog()) }
+        )
+
+        is IntakesDialogState.ScheduleToTaken -> DialogScheduleToTaken(
+            item = scheduledState,
+            onConfirm = model.scheduledManager::scheduleToTaken,
+            onDismiss = { model.onEvent(IntakesEvent.ToggleDialog()) }
+        )
+
+        IntakesDialogState.DatePicker -> DialogGoToDate(
+            onDismiss = { model.onEvent(IntakesEvent.ToggleDialog()) },
+            onScroll = { time ->
+                model.onEvent(
+                    event = IntakesEvent.ScrollToDate(
+                        tab = IntakeTab.entries[pagerState.currentPage],
+                        listState = listStates[pagerState.currentPage],
+                        time = time
+                    )
                 )
             }
+        )
 
-            state.showDialogScheduleToTaken -> DialogScheduleToTaken(
-                item = scheduledState,
-                onDismiss = model::showDialogScheduleToTaken,
-                onConfirm = model::scheduleToTaken
+        null -> Unit
+    }
+}
+
+@Composable
+private fun <T : IntakeModel> IntakeList(
+    items: List<IntakeListScheme<T>>,
+    modifier: Modifier,
+    state: LazyListState,
+    showDialog: ((Long) -> Unit)? = null,
+    showDialogDelete: ((Long) -> Unit)? = null,
+    showDialogScheduleToTaken: ((IntakeModel) -> Unit)? = null
+) = LazyColumn(modifier, state) {
+    items.fastForEach { group ->
+        item {
+            TextDate(group.date)
+        }
+
+        items(group.intakes, IntakeModel::id) { item ->
+            ItemSchedule(
+                item = item,
+                modifier = Modifier.animateItem(),
+                showDialog = showDialog,
+                showDialogDelete = showDialogDelete,
+                showDialogScheduleToTaken = showDialogScheduleToTaken
             )
 
-            state.showDialogAddTaken -> DialogAddTaken(
-                medicines = medicines,
-                newTaken = newTaken,
-                onEvent = model::onNewTakenEvent,
-                onHide = model::showDialogAddTaken,
-            )
+            if (item != group.intakes.lastOrNull()) {
+                HorizontalDivider()
+            }
         }
     }
 }
@@ -360,7 +385,7 @@ private fun DialogScheduleToTaken(
     },
     text = {
         Text(
-            text = if (item.taken) stringResource(R.string.text_confirm_schedule_to_taken, item.title, item.time)
+            text = if (item.taken) stringResource(R.string.text_confirm_schedule_to_taken, item.title, item.date, item.time)
             else stringResource(R.string.text_medicine_not_in_stock, item.title),
             style = MaterialTheme.typography.bodyLarge
         )
@@ -373,7 +398,7 @@ private fun DialogAddTaken(
     medicines: List<MedicineMain>,
     newTaken: NewTakenState,
     onEvent: (NewTakenEvent) -> Unit,
-    onHide: () -> Unit
+    onDismiss: () -> Unit
 ) {
     val now = remember { getDateTime(System.currentTimeMillis()) }
     val today = remember { now.toLocalDate() }
@@ -399,20 +424,30 @@ private fun DialogAddTaken(
 
     @Composable
     fun LocalTextField(
+        @StringRes label: Int,
         value: String,
         onValueChange: (String) -> Unit = {},
         onEvent: () -> Unit = {},
         modifier: Modifier = Modifier,
         readOnly: Boolean = false,
-        singleLine: Boolean = true,
         suffix: @Composable (() -> Unit)? = null,
         trailingIcon: @Composable (() -> Unit)? = null,
-        @StringRes label: Int,
-        @StringRes placeholder: Int = R.string.text_empty,
         keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-        visualTransformation: VisualTransformation = VisualTransformation.None
+        inputTransformation: InputTransformation? = null,
+        outputTransformation: OutputTransformation? = null,
     ) {
+        val textFieldState = rememberTextFieldState(value)
         val interactionSource = remember(::MutableInteractionSource)
+
+        LaunchedEffect(textFieldState) {
+            snapshotFlow { textFieldState.text.toString() }.collectLatest(onValueChange)
+        }
+
+        LaunchedEffect(value) {
+            if (value != textFieldState.text) {
+                textFieldState.edit { replace(0, length, value) }
+            }
+        }
 
         LaunchedEffect(interactionSource) {
             if (readOnly) {
@@ -425,16 +460,15 @@ private fun DialogAddTaken(
         }
 
         OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
+            state = textFieldState,
             modifier = modifier,
             readOnly = readOnly,
-            singleLine = singleLine,
+            lineLimits = TextFieldLineLimits.SingleLine,
             label = { Text(stringResource(label)) },
-            placeholder = { Text(stringResource(placeholder)) },
             keyboardOptions = keyboardOptions,
-            visualTransformation = visualTransformation,
             interactionSource = interactionSource,
+            inputTransformation = inputTransformation,
+            outputTransformation = outputTransformation,
             suffix = suffix,
             trailingIcon = trailingIcon
         )
@@ -445,8 +479,8 @@ private fun DialogAddTaken(
     var showTime by remember { mutableStateOf(false) }
 
     AlertDialog(
-        onDismissRequest = onHide,
-        dismissButton = { TextButton(onHide) { Text(stringResource(R.string.text_cancel)) } },
+        onDismissRequest = onDismiss,
+        dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_cancel)) } },
         confirmButton = {
             TextButton(
                 enabled = newTaken.medicine != null && newTaken.amount.isNotEmpty(),
@@ -480,7 +514,7 @@ private fun DialogAddTaken(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        medicines.forEach { item ->
+                        medicines.fastForEach { item ->
                             DropdownMenuItem(
                                 onClick = {
                                     onEvent(NewTakenEvent.PickMedicine(item))
@@ -505,7 +539,8 @@ private fun DialogAddTaken(
                         label = R.string.text_amount,
                         modifier = Modifier.weight(0.5f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        visualTransformation = DotCommaReplacer
+                        inputTransformation = DecimalAmountInputTransformation,
+                        outputTransformation = DecimalAmountOutputTransformation
                     )
                     LocalTextField(
                         value = newTaken.inStock,
@@ -575,7 +610,7 @@ private fun DialogAddTaken(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
+private fun DialogTaken(intake: TakenState, onDismiss: () -> Unit, onEvent: (TakenEvent) -> Unit) {
     val context = LocalContext.current
     val items = listOf(R.string.intake_text_not_taken, R.string.intake_text_taken)
 
@@ -587,7 +622,12 @@ private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
         eventEnabled: Boolean = false,
         onEvent: () -> Unit = {}
     ) {
+        val textFieldState = rememberTextFieldState(value)
         val interactionSource = remember(::MutableInteractionSource)
+
+        LaunchedEffect(value) {
+            textFieldState.edit { replace(0, length, value) }
+        }
 
         LaunchedEffect(interactionSource, eventEnabled) {
             if (eventEnabled) {
@@ -600,13 +640,12 @@ private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
         }
 
         OutlinedTextField(
-            value = value,
-            onValueChange = {},
+            state = textFieldState,
             modifier = modifier,
-            label = { Text(stringResource(label)) },
+            interactionSource = interactionSource,
+            lineLimits = TextFieldLineLimits.SingleLine,
             readOnly = true,
-            singleLine = true,
-            interactionSource = interactionSource
+            label = { Text(stringResource(label)) }
         )
     }
 
@@ -619,7 +658,7 @@ private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
     }
 
     AlertDialog(
-        onDismissRequest = { onEvent(TakenEvent.HideDialog) },
+        onDismissRequest = onDismiss,
         title = {
             Text(
                 text = stringResource(R.string.text_edit),
@@ -629,7 +668,7 @@ private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
         confirmButton = {
             TextButton(
                 content = { Text(stringResource(R.string.text_save)) },
-                onClick = { onEvent(TakenEvent.SaveTaken(NotificationManagerCompat.from(context))) },
+                onClick = { onEvent(TakenEvent.Save(NotificationManagerCompat.from(context))) },
                 enabled = when {
                     intake.medicine == null -> false
                     intake.medicine.prodAmount < intake.amount && !intake.taken -> false
@@ -638,10 +677,7 @@ private fun DialogTaken(intake: TakenState, onEvent: (TakenEvent) -> Unit) {
             )
         },
         dismissButton = {
-            TextButton(
-                onClick = { onEvent(TakenEvent.HideDialog) },
-                content = { Text(stringResource(R.string.text_cancel)) }
-            )
+            TextButton(onDismiss) { Text(stringResource(R.string.text_cancel)) }
         },
         text = {
             Column(Modifier.verticalScroll(rememberScrollState()), Arrangement.spacedBy(8.dp)) {

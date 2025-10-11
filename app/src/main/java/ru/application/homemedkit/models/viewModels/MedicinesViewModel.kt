@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.model.KitModel
@@ -19,7 +20,6 @@ import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.ResourceText
 import ru.application.homemedkit.utils.di.Database
 import ru.application.homemedkit.utils.di.Preferences
-import ru.application.homemedkit.utils.enums.MedicineTab
 import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.extensions.toMedicineList
 import ru.application.homemedkit.utils.extensions.toModel
@@ -131,13 +131,15 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
     override fun initState() = MedicinesState()
 
     override fun loadData() {
-        viewModelScope.launch {
-            Preferences.kitsFilter.let { list ->
-                if (list.isNotEmpty()) {
-                    val kits = Database.kitDAO().getKitList(list.toList())
+        with(Preferences.kitsFilter) {
+            if (isNotEmpty()) {
+                viewModelScope.launch {
+                    val kits = Database.kitDAO().getKitList(toList())
 
-                    updateState {
-                        it.copy(kits = kits.toSet())
+                    withContext(Dispatchers.Main) {
+                        updateState {
+                            it.copy(kits = kits.toSet())
+                        }
                     }
                 }
             }
@@ -146,20 +148,17 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
     
     override fun onEvent(event: Unit) = Unit
 
-    fun toggleView() = updateState {
-        it.copy(tab = MedicineTab.entries.getOrElse(it.tab.ordinal + 1) { MedicineTab.LIST })
-    }
+    fun toggleView() = updateState { it.copy(tab = it.tab.nextTab) }
 
-    fun showAdding() = updateState { it.copy(showAdding = !it.showAdding) }
+    fun toggleAdding() = updateState { it.copy(showAdding = !it.showAdding) }
     fun showExit(flag: Boolean = false) = updateState { it.copy(showExit = flag) }
 
-    fun setSearch(text: String) = updateState { it.copy(search = text) }
-    fun clearSearch() = updateState { it.copy(search = BLANK) }
+    fun onSearch(text: String = BLANK) = updateState { it.copy(search = text) }
 
-    fun showSort() = updateState { it.copy(showSort = !it.showSort) }
+    fun toggleSorting() = updateState { it.copy(showSort = !it.showSort) }
     fun setSorting(sorting: Sorting) = updateState { it.copy(sorting = sorting) }
 
-    fun showFilter() {
+    fun toggleFilter() {
         updateState { it.copy(showFilter = !it.showFilter) }
 
         if (!currentState.showFilter) {

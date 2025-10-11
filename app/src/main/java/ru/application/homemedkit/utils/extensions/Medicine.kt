@@ -11,7 +11,6 @@ import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.states.TechnicalState
 import ru.application.homemedkit.network.models.bio.BioData
 import ru.application.homemedkit.network.models.medicine.DrugsData
-import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.decimalFormat
 import ru.application.homemedkit.utils.enums.DrugType
 import ru.application.homemedkit.utils.formName
@@ -65,7 +64,7 @@ fun MedicineMain.toMedicineList() = MedicineList(
     doseType = doseType.title,
     expDateS = inCard(expDate),
     formName = formName(prodFormNormName),
-    image =  image.firstOrNull() ?: BLANK,
+    image =  image.firstOrNull().orEmpty(),
     inStock = prodAmount >= 0.1,
     isExpired = expDate < System.currentTimeMillis()
 )
