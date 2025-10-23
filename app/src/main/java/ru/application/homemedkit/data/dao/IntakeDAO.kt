@@ -16,11 +16,14 @@ interface IntakeDAO : BaseDAO<Intake> {
     @Transaction
     @Query(
         """
-        SELECT intakeId, medicineId, interval, finalDate, productName, nameAlias
+        SELECT  intakeId, medicineId, productName, nameAlias, finalDate
         FROM intakes
         JOIN medicines ON medicines.id = intakes.medicineId
-        WHERE (:searchQuery = '' OR LOWER(productName) LIKE '%' || LOWER(:searchQuery) || '%'
-               OR LOWER(nameAlias) LIKE '%' || LOWER(:searchQuery) || '%')
+        WHERE (
+            :searchQuery = ''
+            OR LOWER(productName) LIKE '%' || LOWER(:searchQuery) || '%'
+            OR LOWER(nameAlias) LIKE '%' || LOWER(:searchQuery) || '%'
+          )
         """
     )
     fun getFlow(searchQuery: String): Flow<List<IntakeList>>

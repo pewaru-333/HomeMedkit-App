@@ -42,6 +42,9 @@ class Preferences(context: Context) {
     val confirmExit: Boolean
         get() = preferences.getBoolean(KEY_CONFIRM_EXIT, true)
 
+    val useVibrationScan: Boolean
+        get() = preferences.getBoolean(KEY_USE_VIBRATION_SCAN, false)
+
     val imageFetch: Boolean
         get() = preferences.getBoolean(KEY_DOWNLOAD, true)
 

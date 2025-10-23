@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
 class CameraConfig(val context: Context) {
@@ -90,7 +91,7 @@ class CameraConfig(val context: Context) {
     }
 
     internal fun setImageAnalyzer(onResult: (String) -> Unit) = with(ImageAnalysis.config) {
-        setAnalyzer(Executors.newSingleThreadExecutor(), DataMatrixAnalyzer(onResult))
+        setAnalyzer(Executors.newSingleThreadExecutor(), CodeAnalyzer(onResult))
     }
 
     fun takePicture(onStart: () -> Unit, onResult: (ImageProxy) -> Unit) = with(ImageCapture.config) {
@@ -99,7 +100,9 @@ class CameraConfig(val context: Context) {
 
     fun tapToFocus(coordinates: Offset) {
         val point = surfaceMeteringPointFactory.createPoint(coordinates.x, coordinates.y)
-        val meteringAction = FocusMeteringAction.Builder(point).build()
+        val meteringAction = FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF)
+            .setAutoCancelDuration(2, TimeUnit.SECONDS)
+            .build()
 
         camera.cameraControl.startFocusAndMetering(meteringAction)
     }
@@ -139,13 +142,14 @@ class CameraConfig(val context: Context) {
         private val size = Size(720, 1280)
 
         override val resolutionSelector = ResolutionSelector.Builder()
-            .setAspectRatioStrategy(AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY)
+            .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
             .setResolutionStrategy(ResolutionStrategy(size, FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
             .build()
 
         override val config = androidx.camera.core.ImageAnalysis.Builder()
             .setBackgroundExecutor(Dispatchers.Default.asExecutor())
             .setResolutionSelector(resolutionSelector)
+            .setOutputImageRotationEnabled(true)
             .build()
     }
 

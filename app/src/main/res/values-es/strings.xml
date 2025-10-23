@@ -186,7 +186,7 @@
 
     <string name="text_explain_camera">Para escanear una etiqueta, debe darle permiso a la cámara. A continuación se muestra un ejemplo de cómo se ve la marca (solo funciona para tratamientos rusos)</string>
     <string name="text_explain_full_screen_intent">To receive a full-screen notification, you must grant the appropriate permission</string>
-    <string name="text_expain_ignore_battery">Allow an app to ignore battery optimizations. If not granted, notifications can be lost!</string>
+    <string name="text_explain_ignore_battery">Allow an app to ignore battery optimizations. If not granted, notifications can be lost!</string>
     <string name="text_explain_notifications">Allow to show all app notifications</string>
     <string name="text_explain_reminders">Allow reminders to be set at a precise time</string>
     <string name="text_explain_request_permissions">To receive intake notifications, you must give the following permissions</string>

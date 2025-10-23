@@ -181,7 +181,7 @@
 
     <string name="text_explain_camera">Etiket taramak için kamerayı kullanma izni vermelisiniz. Aşağıda işaretlemenin nasıl görünmesi gerektiğine dair bir örnek gösterilmektedir (yalnızca Rus ilaçları için çalışır)</string>
     <string name="text_explain_full_screen_intent">Alım bildirimlerinin tam ekran görüntülenmesine izin verin</string>
-    <string name="text_expain_ignore_battery">Uygulamanın pil optimizasyonlarını yok saymasına izin verin. Eğer izin verilmezse, bildirimler kaybolabilir!</string>
+    <string name="text_explain_ignore_battery">Uygulamanın pil optimizasyonlarını yok saymasına izin verin. Eğer izin verilmezse, bildirimler kaybolabilir!</string>
     <string name="text_explain_notifications">Tüm uygulama bildirimlerinin gösterilmesine izin verin</string>
     <string name="text_explain_reminders">Hatırlatıcıların belirli bir zamanda ayarlanmasına izin verin</string>
     <string name="text_explain_request_permissions">Bildirim almak için aşağıdaki izinleri vermelisiniz</string>

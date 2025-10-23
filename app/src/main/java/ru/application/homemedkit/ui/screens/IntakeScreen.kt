@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package ru.application.homemedkit.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -12,19 +15,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.then
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -33,6 +42,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
@@ -46,20 +56,17 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -69,8 +76,10 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.model.MedicineIntake
 import ru.application.homemedkit.dialogs.DatePicker
@@ -82,9 +91,12 @@ import ru.application.homemedkit.models.viewModels.IntakeViewModel
 import ru.application.homemedkit.ui.elements.DialogDelete
 import ru.application.homemedkit.ui.elements.MedicineImage
 import ru.application.homemedkit.ui.elements.NavigationIcon
+import ru.application.homemedkit.ui.elements.TextFieldListItemColors
 import ru.application.homemedkit.ui.elements.TopBarActions
 import ru.application.homemedkit.ui.elements.VectorIcon
-import ru.application.homemedkit.utils.DotCommaReplacer
+import ru.application.homemedkit.utils.DaysInputTransformation
+import ru.application.homemedkit.utils.DecimalAmountInputTransformation
+import ru.application.homemedkit.utils.DecimalAmountOutputTransformation
 import ru.application.homemedkit.utils.decimalFormat
 import ru.application.homemedkit.utils.enums.FoodType
 import ru.application.homemedkit.utils.enums.IntakeExtra
@@ -92,26 +104,17 @@ import ru.application.homemedkit.utils.enums.Interval
 import ru.application.homemedkit.utils.enums.Period
 import ru.application.homemedkit.utils.enums.SchemaType
 import ru.application.homemedkit.utils.extensions.canUseFullScreenIntent
+import ru.application.homemedkit.utils.extensions.defined
 import ru.application.homemedkit.utils.extensions.intake
 import ru.application.homemedkit.utils.formName
 import ru.application.homemedkit.utils.toExpDate
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IntakeScreen(navigateBack: () -> Unit) {
-    val focusManager = LocalFocusManager.current
-
     val model = viewModel<IntakeViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
-
-    LaunchedEffect(state.default) {
-        if (state.default) {
-            focusManager.clearFocus(true)
-        }
-    }
 
     BackHandler(!state.isFirstLaunch) {
         if (state.default) navigateBack()
@@ -253,7 +256,6 @@ private fun MedicineInfo(medicine: MedicineIntake, image: String) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SchemaType(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCard {
     ExposedDropdownMenuBox(state.showSchemaTypePicker, {}) {
@@ -290,43 +292,32 @@ private fun DaysPicker(state: IntakeState, event: (IntakeEvent) -> Unit) = Outli
         headlineContent = { Text(stringResource(R.string.text_repeat)) },
         supportingContent = {
             Text(
-                if (state.pickedDays.size == DayOfWeek.entries.size) stringResource(R.string.text_every_day)
+                text = if (state.pickedDays.size == DayOfWeek.entries.size) stringResource(R.string.text_every_day)
                 else state.pickedDays.joinToString {
                     it.getDisplayName(TextStyle.SHORT, Locale.current.platformLocale)
                 }
             )
-        },
+        }
     )
     Row(
         horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = CenterVertically,
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .background(ListItemDefaults.containerColor)
-            .padding(vertical = 8.dp)
     ) {
         DayOfWeek.entries.forEach { day ->
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .border(1.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
-                    .background(
-                        if (day !in state.pickedDays) MaterialTheme.colorScheme.surface
-                        else MaterialTheme.colorScheme.tertiaryContainer
+            FilterChip(
+                shape = CircleShape,
+                selected = day in state.pickedDays,
+                onClick = { if (!state.default) event(IntakeEvent.SetPickedDay(day)) },
+                label = {
+                    Text(
+                        text = day.getDisplayName(TextStyle.NARROW_STANDALONE, Locale.current.platformLocale),
+                        textAlign = TextAlign.Center
                     )
-                    .clickable(
-                        enabled = !state.default,
-                        onClick = { event(IntakeEvent.SetPickedDay(day)) }
-                    )
-            ) {
-                Text(
-                    text = day.getDisplayName(TextStyle.NARROW, Locale.current.platformLocale),
-                    color = if (day !in state.pickedDays) MaterialTheme.colorScheme.onSurface
-                    else MaterialTheme.colorScheme.onTertiaryContainer
-                )
-            }
+                }
+            )
         }
     }
 }
@@ -338,10 +329,12 @@ private fun Amount(state: IntakeState, event: (IntakeEvent) -> Unit) =
             headlineContent = { Text(stringResource(R.string.intake_text_amount)) },
             supportingContent = {
                 Text(
-                    stringResource(
-                        R.string.intake_text_in_stock_params,
-                        decimalFormat(state.amountStock),
-                        stringResource(state.doseType)
+                    text = stringResource(
+                        id = R.string.intake_text_in_stock_params,
+                        formatArgs = arrayOf(
+                            decimalFormat(state.amountStock),
+                            stringResource(state.doseType)
+                        )
                     )
                 )
             }
@@ -363,34 +356,37 @@ private fun Amount(state: IntakeState, event: (IntakeEvent) -> Unit) =
         )
 
         if (state.sameAmount) {
+            val textFieldState = rememberTextFieldState(state.pickedTime.first().amount)
+
+            LaunchedEffect(textFieldState) {
+                snapshotFlow { textFieldState.text.toString() }.collectLatest {
+                    event(IntakeEvent.SetAmount(it))
+                }
+            }
+
             HorizontalDivider()
             ListItem(
                 leadingContent = { VectorIcon(R.drawable.vector_medicine) },
                 headlineContent = {
                     TextField(
-                        value = state.pickedTime.first().amount,
-                        onValueChange = { event(IntakeEvent.SetAmount(it)) },
+                        state = textFieldState,
                         readOnly = state.default,
                         isError = state.amountError != null && state.pickedTime.first().amount.isEmpty(),
                         placeholder = { Text(stringResource(R.string.text_empty)) },
                         suffix = { Text(stringResource(state.doseType)) },
-                        singleLine = true,
+                        lineLimits = TextFieldLineLimits.SingleLine,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        visualTransformation = DotCommaReplacer,
-                        colors = TextFieldDefaults.colors().copy(
-                            focusedContainerColor = ListItemDefaults.containerColor,
-                            unfocusedContainerColor = ListItemDefaults.containerColor,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        )
+                        outputTransformation = DecimalAmountOutputTransformation,
+                        colors = TextFieldListItemColors,
+                        inputTransformation = InputTransformation
+                            .maxLength(8)
+                            .then(DecimalAmountInputTransformation),
                     )
                 }
             )
         }
     }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Interval(state: IntakeState, event: (IntakeEvent) -> Unit) =
     OutlinedCard(Modifier.animateContentSize()) {
@@ -422,36 +418,44 @@ private fun Interval(state: IntakeState, event: (IntakeEvent) -> Unit) =
         }
 
         if (state.intervalType == Interval.CUSTOM) {
+            val textFieldState = rememberTextFieldState(state.interval)
+
+            LaunchedEffect(textFieldState) {
+                snapshotFlow { textFieldState.text.toString() }.collectLatest {
+                    event(IntakeEvent.SetInterval(it))
+                }
+            }
+
             HorizontalDivider()
             ListItem(
                 leadingContent = { Text(stringResource(R.string.text_every)) },
                 headlineContent = {
                     OutlinedTextField(
-                        value = state.interval,
-                        onValueChange = { event(IntakeEvent.SetInterval(it)) },
+                        state = textFieldState,
                         readOnly = state.default,
-                        placeholder = { Text(stringResource(R.string.text_empty)) },
-                        suffix = { Text(stringResource(R.string.text_days_short)) },
                         isError = state.intervalError != null,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        colors = TextFieldDefaults.colors().copy(
-                            focusedContainerColor = ListItemDefaults.containerColor,
-                            unfocusedContainerColor = ListItemDefaults.containerColor,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        )
+                        placeholder = { Text(stringResource(R.string.text_empty)) },
+                        suffix = { Text(stringResource(R.string.text_days_short)) },
+                        lineLimits = TextFieldLineLimits.SingleLine,
+                        colors = TextFieldListItemColors,
+                        inputTransformation = InputTransformation
+                            .maxLength(2)
+                            .then(DaysInputTransformation),
                     )
-                }
+                },
+                colors = ListItemDefaults.colors(
+                    containerColor = if (state.intervalError == null) ListItemDefaults.containerColor
+                    else MaterialTheme.colorScheme.errorContainer
+                )
             )
         }
     }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
     OutlinedCard(Modifier.animateContentSize()) {
-        Row(Modifier.fillMaxWidth(), Arrangement.Start, CenterVertically) {
+        Row(Modifier.height(IntrinsicSize.Max), verticalAlignment = Alignment.CenterVertically) {
             ExposedDropdownMenuBox(state.showPeriodTypePicker, {}, Modifier.weight(1f)) {
                 ListItem(
                     modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
@@ -479,28 +483,48 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                 }
             }
 
-            if (state.periodType == Period.OTHER)
+            if (state.periodType == Period.OTHER) {
+                val textFieldState = rememberTextFieldState(state.period)
+
+                LaunchedEffect(textFieldState) {
+                    snapshotFlow { textFieldState.text.toString() }.collectLatest {
+                        event(IntakeEvent.SetPeriod(it))
+                    }
+                }
+
                 TextField(
-                    value = state.period,
-                    onValueChange = { event(IntakeEvent.SetPeriod(it)) },
+                    state = textFieldState,
                     readOnly = state.default,
-                    textStyle = MaterialTheme.typography.titleMedium,
-                    placeholder = { Text(stringResource(R.string.text_empty)) },
-                    leadingIcon = { VectorIcon(R.drawable.vector_period) },
-                    suffix = { Text(stringResource(R.string.text_days_short)) },
                     isError = state.periodError != null,
+                    lineLimits = TextFieldLineLimits.SingleLine,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
+                    colors = TextFieldListItemColors,
+                    suffix = { Text(stringResource(R.string.text_days_short)) },
                     modifier = Modifier
-                        .height(72.dp)
-                        .weight(1f),
-                    colors = TextFieldDefaults.colors().copy(
-                        focusedContainerColor = ListItemDefaults.containerColor,
-                        unfocusedContainerColor = ListItemDefaults.containerColor,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    )
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    placeholder = {
+                        Text(
+                            text = stringResource(R.string.text_empty),
+                            maxLines = 1,
+                            autoSize = TextAutoSize.StepBased(
+                                minFontSize = 8.sp,
+                                maxFontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                                stepSize = (0.25).sp
+                            )
+                        )
+                    },
+                    prefix = {
+                        VectorIcon(
+                            icon = R.drawable.vector_period,
+                            modifier = Modifier.padding(end = 12.dp)
+                        )
+                    },
+                    inputTransformation = InputTransformation
+                        .maxLength(3)
+                        .then(DaysInputTransformation),
                 )
+            }
         }
 
         if (state.periodType != Period.INDEFINITE) {
@@ -512,27 +536,31 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                         Text(
                             softWrap = false,
                             overflow = TextOverflow.Visible,
-                            text = if (state.periodType == Period.PICK)
+                            text = if (state.periodType == Period.PICK) {
                                 state.startDate.ifEmpty { stringResource(R.string.text_not_selected) }
-                            else state.startDate.ifEmpty { stringResource(R.string.text_today) }
+                            } else {
+                                state.startDate.ifEmpty { stringResource(R.string.text_today) }
+                            }
                         )
                     },
                     trailingContent = state.let {
                         {
-                            if (!it.default && it.periodType in Period.entries.dropLast(1))
+                            if (!it.default && it.periodType in Period.entries.defined)
                                 VectorIcon(R.drawable.vector_keyboard_arrow_right)
                         }
                     },
                     modifier = Modifier
                         .weight(1f)
                         .clickable(
-                            enabled = !state.default && state.periodType in Period.entries.dropLast(1),
+                            enabled = !state.default && state.periodType in Period.entries.defined,
                             onClick = { event(IntakeEvent.ShowDatePicker) }
                         ),
                     colors = ListItemDefaults.colors(
-                        containerColor = if (state.periodError != null && state.startDate.isEmpty())
+                        containerColor = if (state.periodError != null && state.startDate.isEmpty()) {
                             MaterialTheme.colorScheme.errorContainer
-                        else ListItemDefaults.containerColor
+                        } else {
+                            ListItemDefaults.containerColor
+                        }
                     )
                 )
                 ListItem(
@@ -541,9 +569,11 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                         Text(
                             softWrap = false,
                             overflow = TextOverflow.Visible,
-                            text = if (state.periodType == Period.PICK)
+                            text = if (state.periodType == Period.PICK) {
                                 state.finalDate.ifEmpty { stringResource(R.string.text_not_selected) }
-                            else state.finalDate.ifEmpty { stringResource(R.string.text_tomorrow) }
+                            } else {
+                                state.finalDate.ifEmpty { stringResource(R.string.text_tomorrow) }
+                            }
                         )
                     },
                     trailingContent = state.let {
@@ -559,9 +589,11 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                             onClick = { event(IntakeEvent.ShowDatePicker) }
                         ),
                     colors = ListItemDefaults.colors(
-                        containerColor = if (state.periodError != null && state.finalDate.isEmpty())
+                        containerColor = if (state.periodError != null && state.finalDate.isEmpty()) {
                             MaterialTheme.colorScheme.errorContainer
-                        else ListItemDefaults.containerColor
+                        } else {
+                            ListItemDefaults.containerColor
+                        }
                     )
                 )
             }
@@ -574,8 +606,8 @@ private fun Food(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCar
         headlineContent = { Text(stringResource(R.string.intake_text_food)) },
         supportingContent = {
             Text(
-                stringResource(
-                    if (state.foodType == -1) R.string.text_not_selected
+                text = stringResource(
+                    id = if (state.foodType == -1) R.string.text_not_selected
                     else R.string.text_selected
                 )
             )
@@ -583,7 +615,7 @@ private fun Food(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCar
     )
     ListItem(
         headlineContent = {
-            Row(Modifier.fillMaxWidth(), Arrangement.SpaceAround, CenterVertically) {
+            Row(Modifier.fillMaxWidth(), Arrangement.SpaceAround, Alignment.CenterVertically) {
                 FoodType.entries.forEach { type ->
                     FilterChip(
                         modifier = Modifier.width(100.dp),
@@ -609,7 +641,31 @@ private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
     OutlinedCard(Modifier.animateContentSize()) {
         ListItem(
             headlineContent = { Text(stringResource(R.string.intake_text_time)) },
-            supportingContent = { Text(pluralStringResource(R.plurals.intake_times_a_day, state.pickedTime.size, state.pickedTime.size)) },
+            supportingContent = {
+                Text(
+                    text = pluralStringResource(
+                        id = R.plurals.intake_times_a_day,
+                        count = state.pickedTime.size,
+                        formatArgs = arrayOf(state.pickedTime.size)
+                    )
+                )
+            },
+            trailingContent = {
+                AnimatedVisibility(!state.default) {
+                    Row {
+                        FilledTonalIconButton(
+                            enabled = state.pickedTime.size > 1,
+                            onClick = { event(IntakeEvent.DecTime) },
+                            content = { VectorIcon(R.drawable.vector_remove) }
+                        )
+
+                        FilledTonalIconButton(
+                            onClick = { event(IntakeEvent.IncTime) },
+                            content = { VectorIcon(R.drawable.vector_add) }
+                        )
+                    }
+                }
+            }
         )
 
         HorizontalDivider()
@@ -617,56 +673,82 @@ private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
         state.pickedTime.forEachIndexed { index, amountTime ->
             Row {
                 ListItem(
-                    headlineContent = { Text(stringResource(R.string.placeholder_time, index + 1)) },
-                    supportingContent = { Text(amountTime.time.ifEmpty { stringResource(R.string.text_not_selected) }) },
                     leadingContent = { VectorIcon(R.drawable.vector_time) },
+                    headlineContent = {
+                        Text(
+                            text = stringResource(R.string.placeholder_time, index + 1),
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                            autoSize = TextAutoSize.StepBased(
+                                minFontSize = 8.sp,
+                                maxFontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                                stepSize = (0.25).sp
+                            )
+                        )
+                    },
+                    supportingContent = {
+                        Text(
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            autoSize = TextAutoSize.StepBased(
+                                minFontSize = 8.sp,
+                                maxFontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                                stepSize = (0.25).sp
+                            ),
+                            text = amountTime.time.ifEmpty {
+                                stringResource(R.string.text_not_selected)
+                            }
+                        )
+                    },
                     colors = ListItemDefaults.colors(
-                        containerColor = if (state.timesError != null && amountTime.time.isEmpty())
+                        containerColor = if (state.timesError != null && amountTime.time.isEmpty()) {
                             MaterialTheme.colorScheme.errorContainer
-                        else ListItemDefaults.containerColor
+                        } else {
+                            ListItemDefaults.containerColor
+                        }
                     ),
                     modifier = Modifier
                         .weight(1f)
                         .clickable(
                             enabled = !state.default,
                             onClick = { event(IntakeEvent.ShowTimePicker(index)) }
-                        ),
-                    trailingContent = index.let {
-                        {
-                            if (!state.default && (it == 0 || it == state.pickedTime.lastIndex)) IconButton(
-                                onClick = {
-                                    if (index == 0) event(IntakeEvent.IncTime)
-                                    else event(IntakeEvent.DecTime)
-                                }
-                            ) {
-                                VectorIcon(
-                                    icon = if (index == 0) R.drawable.vector_add
-                                    else R.drawable.vector_remove
-                                )
-                            }
-                        }
-                    }
+                        )
                 )
 
                 if (!state.sameAmount) {
-                    TextField(
-                        value = amountTime.amount,
-                        onValueChange = { event(IntakeEvent.SetAmount(it, index)) },
-                        readOnly = state.default,
-                        isError = state.amountError != null && amountTime.amount.isEmpty(),
-                        placeholder = { Text(stringResource(R.string.text_empty)) },
-                        suffix = { Text(stringResource(state.doseType)) },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        visualTransformation = DotCommaReplacer,
-                        modifier = Modifier
-                            .height(72.dp)
-                            .weight(0.6f),
-                        colors = TextFieldDefaults.colors().copy(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedContainerColor = ListItemDefaults.containerColor,
-                            unfocusedContainerColor = ListItemDefaults.containerColor,
+                    val textFieldState = rememberTextFieldState(amountTime.amount)
+
+                    LaunchedEffect(textFieldState) {
+                        snapshotFlow { textFieldState.text.toString() }.collectLatest {
+                            event(IntakeEvent.SetAmount(it, index))
+                        }
+                    }
+
+                    ListItem(
+                        modifier = Modifier.weight(1f),
+                        headlineContent = {
+                            TextField(
+                                state = textFieldState,
+                                modifier = Modifier.fillMaxHeight(),
+                                readOnly = state.default,
+                                isError = state.amountError != null && amountTime.amount.isEmpty(),
+                                placeholder = { Text(stringResource(R.string.text_empty)) },
+                                suffix = { Text(stringResource(state.doseType)) },
+                                lineLimits = TextFieldLineLimits.SingleLine,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                outputTransformation = DecimalAmountOutputTransformation,
+                                colors = TextFieldListItemColors,
+                                inputTransformation = InputTransformation
+                                    .maxLength(8)
+                                    .then(DecimalAmountInputTransformation)
+                            )
+                        },
+                        colors = ListItemDefaults.colors(
+                            containerColor = if (state.amountError != null && amountTime.amount.isEmpty()) {
+                                MaterialTheme.colorScheme.errorContainer
+                            } else {
+                                ListItemDefaults.containerColor
+                            }
                         )
                     )
                 }
@@ -675,28 +757,50 @@ private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
     }
 
 @Composable
-private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCard {
-    ListItem(
-        headlineContent = { Text(stringResource(R.string.intake_text_extra)) },
-        supportingContent = { Text(stringResource(R.string.text_selected_of, state.selectedExtras.size, IntakeExtra.entries.size)) }
+private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) {
+    val context = LocalContext.current
+
+    val extrasFiltered = remember {
+        IntakeExtra.entries.filter { extra ->
+            !(extra == IntakeExtra.FULLSCREEN && !context.canUseFullScreenIntent())
+        }
+    }
+
+    val extraAssociated = mapOf(
+        IntakeExtra.CANCELLABLE to state.cancellable,
+        IntakeExtra.FULLSCREEN to state.fullScreen,
+        IntakeExtra.NO_SOUND to state.noSound,
+        IntakeExtra.PREALARM to state.preAlarm,
     )
 
-    HorizontalDivider()
+    OutlinedCard {
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.intake_text_extra)) },
+            supportingContent = {
+                Text(
+                    text = stringResource(
+                        id = R.string.text_selected_of,
+                        formatArgs = arrayOf(state.selectedExtras.size, extrasFiltered.size)
+                    )
+                )
+            }
+        )
 
-    IntakeExtra.entries
-        .filter { !(it == IntakeExtra.FULLSCREEN && !LocalContext.current.canUseFullScreenIntent()) }
-        .forEach { extra ->
+        HorizontalDivider()
+
+        extrasFiltered.forEach { extra ->
             ListItem(
-                headlineContent = { Text(stringResource(extra.title)) },
+                headlineContent = {
+                    Text(
+                        text = stringResource(extra.title),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2
+                    )
+                },
                 leadingContent = {
                     Checkbox(
                         onCheckedChange = null,
-                        checked = when (extra) {
-                            IntakeExtra.CANCELLABLE -> state.cancellable
-                            IntakeExtra.FULLSCREEN -> state.fullScreen
-                            IntakeExtra.NO_SOUND -> state.noSound
-                            IntakeExtra.PREALARM -> state.preAlarm
-                        }
+                        checked = extraAssociated.getOrDefault(extra, false)
                     )
                 },
                 trailingContent = {
@@ -708,16 +812,12 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCa
                 modifier = Modifier.toggleable(
                     enabled = !state.default,
                     role = Role.Checkbox,
-                    onValueChange = { event(IntakeEvent.SetIntakeExtra(extra)) },
-                    value = when (extra) {
-                        IntakeExtra.CANCELLABLE -> state.cancellable
-                        IntakeExtra.FULLSCREEN -> state.fullScreen
-                        IntakeExtra.NO_SOUND -> state.noSound
-                        IntakeExtra.PREALARM -> state.preAlarm
-                    }
+                    value = extraAssociated.getOrDefault(extra, false),
+                    onValueChange = { event(IntakeEvent.SetIntakeExtra(extra)) }
                 )
             )
         }
+    }
 }
 
 @Composable

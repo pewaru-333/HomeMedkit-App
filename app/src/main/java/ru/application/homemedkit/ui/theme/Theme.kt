@@ -3,7 +3,6 @@ package ru.application.homemedkit.ui.theme
 import android.graphics.Color
 import android.graphics.Color.argb
 import android.os.Build
-import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -19,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.Theme
+import ru.application.homemedkit.utils.extensions.getActivity
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -98,7 +98,7 @@ private val darkScheme = darkColorScheme(
 
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
-    val activity = LocalContext.current as ComponentActivity
+    val activity = LocalContext.current.getActivity() ?: return
 
     val darkState by Preferences.theme.collectAsStateWithLifecycle(Theme.SYSTEM)
     val dynamicColor by Preferences.dynamicColors.collectAsStateWithLifecycle(false)

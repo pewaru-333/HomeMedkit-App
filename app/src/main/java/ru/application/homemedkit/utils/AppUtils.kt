@@ -121,3 +121,17 @@ object DecimalAmountOutputTransformation : OutputTransformation {
         replace(0, length, transformedText)
     }
 }
+
+object DaysInputTransformation : InputTransformation {
+    override fun TextFieldBuffer.transformInput() {
+        if (asCharSequence().toString().isNotEmpty()) {
+            val newValue = asCharSequence().toString().toIntOrNull()
+
+            if (newValue == null || newValue <= 0) {
+                revertAllChanges()
+            }
+        } else {
+            delete(0, length)
+        }
+    }
+}

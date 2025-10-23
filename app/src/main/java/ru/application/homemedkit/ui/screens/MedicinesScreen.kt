@@ -28,7 +28,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -75,7 +74,6 @@ import ru.application.homemedkit.utils.enums.MedicineTab
 import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.extensions.getActivity
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicinesScreen(onNavigate: (Screen) -> Unit) {
     val activity = LocalContext.current.getActivity()
@@ -303,8 +301,8 @@ private fun MedicineItem(medicine: MedicineList, modifier: Modifier, onClick: (L
         },
         colors = ListItemDefaults.colors(
             containerColor = when {
-                medicine.isExpired -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
                 !medicine.inStock -> MaterialTheme.colorScheme.scrim.copy(alpha = 0.15f)
+                medicine.isExpired -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
                 else -> MaterialTheme.colorScheme.surfaceContainerLow
             }
         )

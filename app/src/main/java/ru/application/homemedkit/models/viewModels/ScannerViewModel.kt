@@ -50,30 +50,26 @@ class ScannerViewModel : ViewModel() {
 
                             is Response.Success -> {
                                 val medicine = data.model.run {
-                                    drugsData?.toMedicine() ?: bioData?.toMedicine()
-                                }?.copy(
+                                    drugsData?.toMedicine() ?: bioData?.toMedicine() ?: toMedicine()
+                                }.copy(
                                     cis = code
                                 )
 
-                                if (medicine == null) {
-                                    _response.send(Response.Error.UnknownError)
-                                } else {
-                                    val id = dao.insert(medicine)
-                                    val images = getMedicineImages(
-                                        medicineId = id,
-                                        form = medicine.prodFormNormName,
-                                        directory = dir,
-                                        urls = data.model.drugsData?.vidalData?.images
-                                    )
+                                val id = dao.insert(medicine)
+                                val images = getMedicineImages(
+                                    medicineId = id,
+                                    form = medicine.prodFormNormName,
+                                    directory = dir,
+                                    urls = data.model.imageUrls
+                                )
 
-                                    dao.updateImages(images)
-                                    _response.send(Response.Navigate(id))
-                                }
+                                dao.updateImages(images)
+                                _response.send(Response.Navigate(id))
                             }
 
                             else -> Unit
                         }
-                    } catch (_: Throwable) {
+                    } catch (_: Exception) {
                         _response.send(Response.Error.UnknownError)
                         delay(2500L)
                     }

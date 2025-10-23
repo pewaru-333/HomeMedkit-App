@@ -178,7 +178,7 @@
     <string name="text_explain_camera">Kamera-Erlaubnis erforderlich. Ein Muster für das Aussehen der Markierung wird unterhalb gezeigt (funktioniert nur für russische Präparate).</string>
     <string name="text_explain_disabled">Die erforderliche Berechtigung wurde nicht gewährt</string>
     <string name="text_explain_full_screen_intent">Anzeige von Einnahme-Benachrichtigungen im Vollbildmodus zulassen</string>
-    <string name="text_expain_ignore_battery">Erlaubt der Anwendung, Akku-Optimierungen zu ignorieren. Wenn dies nicht erlaubt ist, können Benachrichtigungen verloren gehen!</string>
+    <string name="text_explain_ignore_battery">Erlaubt der Anwendung, Akku-Optimierungen zu ignorieren. Wenn dies nicht erlaubt ist, können Benachrichtigungen verloren gehen!</string>
     <string name="text_explain_notifications">Sämtliche App-Benachrichtigungen zulassen</string>
     <string name="text_explain_reminders">Erlaubt Benachrichtigungen zu präzisen Zeitpunkten</string>
     <string name="text_explain_request_permissions">Um Benachrichtigungen anzuzeigen, müssen folgende Erlaubnisse gewährt werden</string>

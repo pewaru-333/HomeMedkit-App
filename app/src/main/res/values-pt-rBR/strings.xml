@@ -189,7 +189,7 @@
 
     <string name="text_explain_camera">Para ler uma etiqueta, você precisa conceder a permissão de câmera. Um exemplo de como a etiqueta deve se parecer está representado abaixo (só funciona com medicamentos russos)</string>
     <string name="text_explain_full_screen_intent">Permitir que notificações em tela cheia de ingestão sejam exibidas</string>
-    <string name="text_expain_ignore_battery">Permita que um app ignore as otimizações de bateria. Se não concedido, as notificações podem serem perdidas!</string>
+    <string name="text_explain_ignore_battery">Permita que um app ignore as otimizações de bateria. Se não concedido, as notificações podem serem perdidas!</string>
     <string name="text_explain_notifications">Permitir mostrar todas as notificações do app</string>
     <string name="text_explain_reminders">Permitir que lembretes sejam definidos em um horário preciso</string>
     <string name="text_explain_request_permissions">Para receber notificações, você deve conceder as seguintes permissões</string>

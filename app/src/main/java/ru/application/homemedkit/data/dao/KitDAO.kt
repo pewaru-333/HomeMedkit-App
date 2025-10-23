@@ -21,6 +21,9 @@ interface KitDAO : BaseDAO<Kit> {
     suspend fun deleteAll(medicineId: Long)
 
     // ============================== Insert ==============================
+    @Upsert
+    suspend fun upsert(item: Kit)
+
     @Insert
     suspend fun pinKit(kits: Iterable<MedicineKit>)
 

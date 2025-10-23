@@ -18,10 +18,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import ru.application.homemedkit.utils.CIS
-import ru.application.homemedkit.utils.extensions.toSHA256
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.network.models.MainModel
+import ru.application.homemedkit.utils.extensions.toSHA256
 import java.io.File
 
 object Network {
@@ -41,8 +40,12 @@ object Network {
         }
     }
 
-    suspend fun getMedicine(cis: String) = try {
-        val response = ktor.get("mobile/check") { parameter(CIS, cis) }
+    suspend fun getMedicine(code: String) = try {
+        val codeType = if (code.length == 13) "ean13" else "datamatrix"
+        val response = ktor.get("mobile/check") {
+            parameter("code", code)
+            parameter("codeType", codeType)
+        }
 
         if (response.status == HttpStatusCode.OK) {
             val model = response.body<MainModel>()
@@ -58,7 +61,7 @@ object Network {
     } catch (e: Throwable) {
         when (e) {
             is NoTransformationFoundException -> Response.Error.IncorrectCode
-            else -> Response.Error.NetworkError(cis)
+            else -> Response.Error.NetworkError(code)
         }
     }
 

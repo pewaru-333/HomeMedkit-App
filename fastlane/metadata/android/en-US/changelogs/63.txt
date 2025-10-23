@@ -1,3 +1,0 @@
-— Now the sorting of intakes in the "Current" and "Past" tabs is always correct.
-— Added more information when opening some dialogs.
-— The appearance of several components has been changed.

@@ -186,7 +186,7 @@
 
     <string name="text_explain_camera">要扫描药品的标签码，你必须授予相机权限. 标签示例如下（仅适用于俄罗斯药品）</string>
     <string name="text_explain_full_screen_intent">允许使用全屏用药提醒</string>
-    <string name="text_expain_ignore_battery">在电池优化（MIUI/澎湃 “省电策略” ColorOS ‘后台行为“）设置为无限制. 否则可能会导致你错过通知</string>
+    <string name="text_explain_ignore_battery">在电池优化（MIUI/澎湃 “省电策略” ColorOS ‘后台行为“）设置为无限制. 否则可能会导致你错过通知</string>
     <string name="text_explain_notifications">显示所有此软件的通知</string>
     <string name="text_explain_reminders">允许提醒被设置至一个准确的时间</string>
     <string name="text_explain_request_permissions">要接收通知，你必须授予通知权限</string>

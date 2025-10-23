@@ -1,7 +1,6 @@
 package ru.application.homemedkit.models.states
 
 import androidx.annotation.StringRes
-import androidx.compose.material3.SnackbarHostState
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.enums.DoseType
@@ -16,7 +15,7 @@ data class MedicineState(
     val isLoading: Boolean = true,
     val id: Long = 0L,
     val kits: Set<Kit> = emptySet(),
-    val cis: String = BLANK,
+    val code: String = BLANK,
     val productName: String = BLANK,
     @StringRes val productNameError: Int? = null,
     val nameAlias: String = BLANK,
@@ -35,7 +34,6 @@ data class MedicineState(
     val comment: String = BLANK,
     val images: List<String> = listOf(DrugType.entries[Random.nextInt(DrugType.entries.size)].value),
     val technical: TechnicalState = TechnicalState(),
-    val snackbarHostState: SnackbarHostState = SnackbarHostState(),
     val imageEditing: ImageEditing = ImageEditing.ADDING,
     val isOpened: Boolean = false,
     val dialogState: MedicineDialogState? = null

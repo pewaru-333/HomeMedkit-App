@@ -57,7 +57,7 @@ class MedicineViewModel(saved: SavedStateHandle) : BaseViewModel<MedicineState, 
     override fun loadData() {
         viewModelScope.launch {
             val medicineState = with(dao.getById(args.id)) {
-                if (this == null) MedicineState(adding = true, isLoading = false, cis = args.cis)
+                if (this == null) MedicineState(adding = true, isLoading = false, code = args.cis)
                 else withContext(Dispatchers.Main) { toState() }
             }
 
@@ -119,7 +119,7 @@ class MedicineViewModel(saved: SavedStateHandle) : BaseViewModel<MedicineState, 
             _response.send(Response.Loading)
 
             try {
-                val response = Network.getMedicine(currentState.cis)
+                val response = Network.getMedicine(currentState.code)
 
                 when (val data = response) {
                     is Response.Error -> {
@@ -129,36 +129,32 @@ class MedicineViewModel(saved: SavedStateHandle) : BaseViewModel<MedicineState, 
 
                     is Response.Success -> {
                         val medicine = data.model.run {
-                            drugsData?.toMedicine() ?: bioData?.toMedicine()
-                        }?.copy(
+                            drugsData?.toMedicine() ?: bioData?.toMedicine() ?: toMedicine()
+                        }.copy(
                             id = currentState.id,
-                            cis = currentState.cis,
+                            cis = currentState.code,
                             comment = currentState.comment.ifEmpty { BLANK }
                         )
 
-                        if (medicine == null) {
-                            _response.send(Response.Error.UnknownError)
-                        } else {
-                            val images = async {
-                                getMedicineImages(
-                                    medicineId = currentState.id,
-                                    form = medicine.prodFormNormName,
-                                    directory = dir,
-                                    urls = data.model.drugsData?.vidalData?.images
-                                )
-                            }
-
-                            val jobOne = launch { dao.update(medicine) }
-                            val jobTow = launch { dao.updateImages(images.await()) }
-
-                            joinAll(jobOne, jobTow)
-
-                            dao.getById(args.id)?.let { medicine ->
-                                updateState { medicine.toState() }
-                            }
-
-                            _response.send(Response.Success(data.model))
+                        val images = async {
+                            getMedicineImages(
+                                medicineId = currentState.id,
+                                form = medicine.prodFormNormName,
+                                directory = dir,
+                                urls = data.model.imageUrls
+                            )
                         }
+
+                        val jobOne = launch { dao.update(medicine) }
+                        val jobTow = launch { dao.updateImages(images.await()) }
+
+                        joinAll(jobOne, jobTow)
+
+                        dao.getById(args.id)?.let { medicine ->
+                            updateState { medicine.toState() }
+                        }
+
+                        _response.send(Response.Success(data.model))
                     }
 
                     else -> Unit

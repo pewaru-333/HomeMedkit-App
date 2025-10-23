@@ -4,7 +4,6 @@ package ru.application.homemedkit.models.viewModels
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
-import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -256,38 +255,20 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
     }
 
     override fun onEvent(event: IntakeEvent) {
-        when(event) {
+        when (event) {
             is IntakeEvent.SetAmount -> {
-                if (event.amount.isNotEmpty()) when(event.amount.replace(',','.').toDoubleOrNull()) {
-                    null -> {}
-                    else -> {
-                        val pickedTime = with(currentState) {
-                            pickedTime.mapIndexed { index, time ->
-                                if (sameAmount) {
-                                    time.copy(amount = event.amount.replace(',', '.'))
-                                } else {
-                                    if (index != event.index) time
-                                    else time.copy(amount = event.amount.replace(',', '.'))
-                                }
-                            }
-                        }
-
-                        updateState { it.copy(pickedTime = pickedTime) }
-                    }
-                } else {
-                    val pickedTime = with(currentState) {
-                        pickedTime.mapIndexed { index, time ->
-                            if (sameAmount) {
-                                time.copy(amount = BLANK)
-                            } else {
-                                if (index != event.index) time
-                                else time.copy(amount = BLANK)
-                            }
+                val pickedTime = with(currentState) {
+                    pickedTime.mapIndexed { index, time ->
+                        if (sameAmount) {
+                            time.copy(amount = event.amount)
+                        } else {
+                            if (index != event.index) time
+                            else time.copy(amount = event.amount)
                         }
                     }
-
-                    updateState { it.copy(pickedTime = pickedTime) }
                 }
+
+                updateState { it.copy(pickedTime = pickedTime) }
             }
 
             is IntakeEvent.SetInterval -> {
@@ -310,8 +291,7 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
                         }
                     }
 
-                    is String -> if (interval.isDigitsOnly() && interval.length <= 2)
-                        updateState { it.copy(interval = interval) }
+                    is String -> updateState { it.copy(interval = interval) }
                 }
             }
 
@@ -349,10 +329,7 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
                         }
                     }
 
-                    is String -> if (period.isEmpty()) updateState {
-                        it.copy(startDate = BLANK, finalDate = BLANK, period = BLANK)
-                    }
-                    else if (period.isDigitsOnly() && period.length <= 3) {
+                    is String -> if (period.isNotEmpty()) {
                         val start = currentState.startDate.ifEmpty { LocalDate.now().format(FORMAT_DD_MM_YYYY) }
                         val finish = LocalDate.parse(start, FORMAT_DD_MM_YYYY)
                             .plusDays(period.toLong() - 1)
@@ -364,6 +341,10 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
                                 finalDate = finish,
                                 period = period
                             )
+                        }
+                    } else {
+                        updateState {
+                            it.copy(startDate = BLANK, finalDate = BLANK, period = BLANK)
                         }
                     }
 

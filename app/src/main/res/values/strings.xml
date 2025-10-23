@@ -13,6 +13,7 @@
     <string name="preference_start_page">Start page</string>
     <string name="preference_sorting_type">Medication sorting</string>
     <string name="preference_confirm_exit">Confirm exit from app</string>
+    <string name="preference_use_vibration_scan">Use a vibration response when scanning medication codes</string>
     <string name="preference_download_images">Download medication images</string>
     <string name="preference_check_expiration_date">Check the expiration date of medications</string>
     <string name="preference_use_alarm_clock">Use alarm clock instead of notifications</string>
@@ -207,10 +208,12 @@
     <string name="text_permission_title_notifications">Notifications</string>
     <string name="text_permission_title_reminders">Setting reminders</string>
     
-    <string name="text_explain_camera">To scan a label, you must grant the permission to use the camera. An example of what the marking should look like is shown below (it only works for Russian medication)</string>
+    <string name="text_explain_camera">To scan a label, you must grant the permission to use camera. The EAN-13 and DataMatrix codes are accepted. Below is an example of what they might look like (this only works for Russian medications)</string>
+    <string name="text_explain_datamatrix">Full medicine information</string>
     <string name="text_explain_disabled">The necessary permission is not granted</string>
+    <string name="text_explain_ean_13">Only product name</string>
     <string name="text_explain_full_screen_intent">Allow full-screen notifications of intake to be displayed</string>
-    <string name="text_expain_ignore_battery">Allow an app to ignore battery optimizations. If not granted, notifications can be lost!</string>
+    <string name="text_explain_ignore_battery">Allow an app to ignore battery optimizations. If not granted, notifications can be lost!</string>
     <string name="text_explain_notifications">Allow to show all app notifications</string>
     <string name="text_explain_reminders">Allow reminders to be set at a precise time</string>
     <string name="text_explain_request_permissions">To receive notifications, you must grant the following permissions</string>

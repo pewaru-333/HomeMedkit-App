@@ -1,15 +1,19 @@
 package ru.application.homemedkit.ui.screens
 
 import android.Manifest
+import android.os.VibrationEffect
+import android.os.Vibrator
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -58,6 +62,7 @@ import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.camera.CameraConfig
 import ru.application.homemedkit.utils.camera.rememberCameraConfig
+import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.permissions.PermissionState
 import ru.application.homemedkit.utils.permissions.rememberPermissionState
 
@@ -122,17 +127,39 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
 
     when (val value = response) {
         Response.Loading -> BoxLoading()
-        is Response.Error -> when (value) {
-            is Response.Error.NetworkError -> AddMedicineDialog(model::setInitial) {
-                value.code?.let { navigateToMedicine(0L, it, false) }
+
+        is Response.Navigate, is Response.Error -> {
+            fun vibrate(time: Long) {
+                if (Preferences.useVibrationScan) {
+                    context.getSystemService(Vibrator::class.java)
+                        .vibrate(VibrationEffect.createOneShot(time, VibrationEffect.DEFAULT_AMPLITUDE))
+                }
             }
 
-            else -> LaunchedEffect(snackbarHost) {
-                snackbarHost.showSnackbar(context.getString(value.message))
+            when (value) {
+                is Response.Error -> when (value) {
+                    is Response.Error.NetworkError -> {
+                        vibrate(300L)
+
+                        AddMedicineDialog(model::setInitial) {
+                            value.code?.let { navigateToMedicine(0L, it, false) }
+                        }
+                    }
+
+                    else -> LaunchedEffect(snackbarHost) {
+                        vibrate(200L)
+                        snackbarHost.showSnackbar(context.getString(value.message))
+                    }
+                }
+
+                is Response.Navigate -> {
+                    vibrate(150L)
+                    navigateToMedicine(value.id, BLANK, value.duplicate)
+                }
+
+                else -> Unit
             }
         }
-
-        is Response.Navigate -> navigateToMedicine(value.id, BLANK, value.duplicate)
 
         else -> Unit
     }
@@ -161,30 +188,33 @@ private fun FirstTimeScreen(navigateUp: () -> Unit, onPermissionGrant: () -> Uni
             )
         }
         Row(Modifier.fillMaxWidth(), Arrangement.SpaceAround, Alignment.CenterVertically) {
-            Column(Modifier, Arrangement.spacedBy(12.dp), Alignment.CenterHorizontally) {
+            Column(Modifier.weight(1f), Arrangement.spacedBy(12.dp), Alignment.CenterHorizontally) {
                 Image(
                     image = R.drawable.vector_barcode,
                     modifier = Modifier.size(128.dp),
                     contentScale = ContentScale.Crop,
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                 )
-                Image(
-                    image = R.drawable.vector_wrong,
-                    modifier = Modifier.size(64.dp),
-                    contentScale = ContentScale.Crop
+                Text(
+                    text = stringResource(R.string.text_explain_ean_13),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelLarge
                 )
             }
-            Column(Modifier, Arrangement.spacedBy(12.dp), Alignment.CenterHorizontally) {
+
+            Spacer(Modifier.width(8.dp))
+
+            Column(Modifier.weight(1f), Arrangement.spacedBy(12.dp), Alignment.CenterHorizontally) {
                 Image(
                     image = R.drawable.vector_datamatrix,
                     modifier = Modifier.size(128.dp),
                     contentScale = ContentScale.Crop,
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface)
                 )
-                Image(
-                    image = R.drawable.vector_check,
-                    modifier = Modifier.size(64.dp),
-                    contentScale = ContentScale.Crop
+                Text(
+                    text = stringResource(R.string.text_explain_datamatrix),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelLarge
                 )
             }
         }

@@ -8,8 +8,7 @@ import java.time.DayOfWeek
 
 data class IntakeList(
     val intakeId: Long,
-    val medicineId: Long,
-    val interval: Int,
+    val medicineId: Long, // needed for relation
     val productName: String,
     val nameAlias: String,
     val finalDate: String,

@@ -11,12 +11,12 @@ import com.google.zxing.common.HybridBinarizer
 import java.nio.ByteBuffer
 import kotlin.math.roundToInt
 
-class DataMatrixAnalyzer(private val onResult: (String) -> Unit) : ImageAnalysis.Analyzer {
+class CodeAnalyzer(private val onResult: (String) -> Unit) : ImageAnalysis.Analyzer {
 
     private val reader = MultiFormatReader().apply {
         setHints(
             mapOf(
-                DecodeHintType.POSSIBLE_FORMATS to setOf(BarcodeFormat.DATA_MATRIX),
+                DecodeHintType.POSSIBLE_FORMATS to setOf(BarcodeFormat.DATA_MATRIX, BarcodeFormat.EAN_13),
                 DecodeHintType.ALSO_INVERTED to true,
                 DecodeHintType.TRY_HARDER to true
             )

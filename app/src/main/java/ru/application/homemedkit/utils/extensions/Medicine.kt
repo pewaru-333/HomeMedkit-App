@@ -9,6 +9,7 @@ import ru.application.homemedkit.data.model.MedicineList
 import ru.application.homemedkit.data.model.MedicineMain
 import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.states.TechnicalState
+import ru.application.homemedkit.network.models.MainModel
 import ru.application.homemedkit.network.models.bio.BioData
 import ru.application.homemedkit.network.models.medicine.DrugsData
 import ru.application.homemedkit.utils.decimalFormat
@@ -25,7 +26,7 @@ fun MedicineFull.toState() = MedicineState(
     isOpened = packageOpenedDate > 0L,
     id = id,
     kits = kits.toSet(),
-    cis = cis,
+    code = cis,
     productName = productName,
     nameAlias = nameAlias.ifEmpty { productName },
     expDate = expDate,
@@ -71,7 +72,7 @@ fun MedicineMain.toMedicineList() = MedicineList(
 
 fun MedicineState.toMedicine() = Medicine(
     id = id,
-    cis = cis,
+    cis = code,
     productName = productName,
     nameAlias = nameAlias,
     expDate = expDate,
@@ -86,7 +87,7 @@ fun MedicineState.toMedicine() = Medicine(
     storageConditions = storageConditions,
     comment = comment,
     technical = Technical(
-        scanned = cis.isNotBlank(),
+        scanned = code.isNotBlank(),
         verified = technical.verified
     )
 )
@@ -104,15 +105,24 @@ fun DrugsData.toMedicine() = Medicine(
 
 fun BioData.toMedicine() = Medicine(
     productName = productName,
-    expDate = expireDate,
-    prodDNormName = productProperty.unitVolumeWeight.orEmpty(),
-    prodAmount = productProperty.quantityInPack ?: 0.0,
-    phKinetics = productProperty.applicationArea.orEmpty().asHtml(),
-    recommendations = productProperty.recommendForUse.orEmpty().asHtml(),
-    storageConditions = productProperty.storageConditions.orEmpty().asHtml(),
-    structure = productProperty.structure.orEmpty().asHtml(),
-    prodFormNormName = productProperty.releaseForm.orEmpty().substringBefore(" ").uppercase(),
-    doseType = DrugType.getDoseType(productProperty.releaseForm.orEmpty()),
+    expDate = expireDate ?: 0L,
+    prodDNormName = productProperty?.unitVolumeWeight.orEmpty(),
+    prodAmount = productProperty?.quantityInPack ?: 0.0,
+    phKinetics = productProperty?.applicationArea.orEmpty().asHtml(),
+    recommendations = productProperty?.recommendForUse.orEmpty().asHtml(),
+    storageConditions = productProperty?.storageConditions.orEmpty().asHtml(),
+    structure = productProperty?.structure.orEmpty().asHtml(),
+    prodFormNormName = productProperty?.releaseForm.orEmpty().substringBefore(" ").uppercase(),
+    doseType = DrugType.getDoseType(productProperty?.releaseForm.orEmpty()),
+    technical = Technical(
+        scanned = true,
+        verified = true
+    )
+)
+
+fun MainModel.toMedicine() = Medicine(
+    productName = productName,
+    prodAmount = 0.0,
     technical = Technical(
         scanned = true,
         verified = true

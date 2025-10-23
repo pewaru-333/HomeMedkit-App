@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package ru.application.homemedkit.ui.screens
 
 import android.Manifest
@@ -7,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
@@ -49,6 +52,7 @@ import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
@@ -89,17 +93,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -139,13 +140,10 @@ import ru.application.homemedkit.utils.enums.ImageEditing
 import ru.application.homemedkit.utils.extensions.medicine
 import ru.application.homemedkit.utils.permissions.rememberPermissionState
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
     val context = LocalContext.current
     val filesDir = context.filesDir
-    val focusManager = LocalFocusManager.current
 
     val model = viewModel<MedicineViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
@@ -160,12 +158,6 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
     LaunchedEffect(Unit) {
         model.deleted.collectLatest {
             if (it) navigateBack()
-        }
-    }
-
-    LaunchedEffect(state.default) {
-        if (state.default) {
-            focusManager.clearFocus(true)
         }
     }
 
@@ -251,6 +243,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
                             title = stringResource(R.string.text_medicine_display_name),
                             value = state.nameAlias,
                             onValueChange = { model.onEvent(MedicineEvent.SetNameAlias(it)) },
+                            emptyText = state.productName,
                             keyboardOptions = KeyboardOptions(
                                 capitalization = KeyboardCapitalization.Sentences,
                                 imeAction = ImeAction.Next
@@ -260,7 +253,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
                     item {
                         InfoTextField(
                             isEditing = !state.default && !state.technical.verified,
-                            title = stringResource(R.string.text_medicine_description),
+                            title = stringResource(R.string.text_medicine_form),
                             value = state.prodFormNormName,
                             onValueChange = { model.onEvent(MedicineEvent.SetFormName(it)) },
                             modifier = Modifier.fillMaxWidth(),
@@ -280,7 +273,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
                                 onValueChange = { model.onEvent(MedicineEvent.SetDoseName(it)) },
                                 modifier = Modifier.weight(0.5f),
                                 title = stringResource(R.string.text_medicine_dose),
-                                emptyText = stringResource(R.string.placeholder_dose),
+                                placeholder = stringResource(R.string.placeholder_dose),
                                 keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
                             )
 
@@ -674,6 +667,7 @@ private fun InfoTextField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    placeholder: String = stringResource(R.string.text_empty),
     emptyText: String = stringResource(R.string.text_empty),
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     inputTransformation: InputTransformation? = null,
@@ -696,7 +690,7 @@ private fun InfoTextField(
             OutlinedTextField(
                 state = textFieldState,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(emptyText) },
+                placeholder = { Text(placeholder) },
                 inputTransformation = inputTransformation,
                 outputTransformation = outputTransformation,
                 keyboardOptions = keyboardOptions,
@@ -891,11 +885,20 @@ private fun DialogPictureChoose(
     }
 
     @Composable
-    fun LocalText(@StringRes text: Int) = Text(
-        text = stringResource(text),
-        textAlign = TextAlign.Start,
-        modifier = Modifier.fillMaxWidth(),
-        style = MaterialTheme.typography.labelLarge.copy(fontSize = 16.sp)
+    fun LocalButton(@StringRes text: Int, @DrawableRes icon: Int, onClick: () -> Unit) = ListItem(
+        modifier = Modifier.clickable(onClick = onClick),
+        leadingContent = { VectorIcon(icon, Modifier.size(24.dp)) },
+        headlineContent = {
+            Text(
+                text = stringResource(text),
+                style = MaterialTheme.typography.labelLarge
+            )
+        },
+        colors = ListItemDefaults.colors().copy(
+            containerColor = ButtonDefaults.textButtonColors().containerColor,
+            headlineColor = ButtonDefaults.textButtonColors().contentColor,
+            leadingIconColor = ButtonDefaults.textButtonColors().contentColor
+        )
     )
 
     AlertDialog(
@@ -905,22 +908,17 @@ private fun DialogPictureChoose(
         title = { Text(stringResource(R.string.text_set_image)) },
         text = {
             Column {
-                TextButton(
-                    content = { LocalText(R.string.text_take_picture) },
-                    onClick = {
-                        if (permissionState.isGranted) event(ToggleDialog(MedicineDialogState.TakePhoto))
-                        else if (permissionState.showRationale) permissionState.openSettings()
-                        else permissionState.launchRequest()
-                    }
-                )
-                TextButton(
-                    content = { LocalText(R.string.text_choose_from_gallery) },
-                    onClick = { picker.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) }
-                )
-                TextButton(
-                    content = { LocalText(R.string.text_pick_icon) },
-                    onClick = { event(ToggleDialog(MedicineDialogState.Icons)) }
-                )
+                LocalButton(R.string.text_take_picture, R.drawable.vector_add_photo) {
+                    if (permissionState.isGranted) event(ToggleDialog(MedicineDialogState.TakePhoto))
+                    else if (permissionState.showRationale) permissionState.openSettings()
+                    else permissionState.launchRequest()
+                }
+                LocalButton(R.string.text_choose_from_gallery, R.drawable.vector_add_from_gallery) {
+                    picker.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+                }
+                LocalButton(R.string.text_pick_icon, R.drawable.vector_medicine) {
+                    event(ToggleDialog(MedicineDialogState.Icons))
+                }
             }
         }
     )
@@ -928,7 +926,7 @@ private fun DialogPictureChoose(
 
 @Composable
 private fun IconPicker(onDismiss: () -> Unit, onPick: (String) -> Unit) = Dialog(onDismiss) {
-    Surface(Modifier.padding(vertical = 64.dp), CardDefaults.shape) {
+    ElevatedCard(Modifier.padding(vertical = 64.dp)) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(128.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -1003,7 +1001,6 @@ private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DoseDropdownMenu(doseTitle: String, setDoseType: (DoseType) -> Unit) {
     var isExpanded by remember { mutableStateOf(false) }

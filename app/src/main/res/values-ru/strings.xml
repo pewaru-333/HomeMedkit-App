@@ -14,6 +14,7 @@
     <string name="preference_start_page">Стартовая страница</string>
     <string name="preference_sorting_type">Сортировка лекарств по</string>
     <string name="preference_confirm_exit">Подтверждать выход из приложения</string>
+    <string name="preference_use_vibration_scan">Использовать виброотклик при сканировании кодов лекарств</string>
     <string name="preference_download_images">Загружать изображения лекарств</string>
     <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
     <string name="preference_use_alarm_clock">Использовать будильник вместо уведомлений</string>
@@ -206,10 +207,12 @@
     <string name="text_permission_title_notifications">Уведомления</string>
     <string name="text_permission_title_reminders">Установка напоминаний</string>
 
-    <string name="text_explain_camera">Для сканирования маркировки необходимо выдать разрешение на использование камеры. Пример того, как выглядит маркировка, представлен ниже</string>
+    <string name="text_explain_camera">Для сканирования кодов лекарств необходимо выдать разрешение на использование камеры. Принимаются коды EAN-13 и DataMatrix. Ниже представлен пример того, как они могут выглядеть</string>
+    <string name="text_explain_datamatrix">Полная информация о лекарстве</string>
     <string name="text_explain_disabled">Необходимое разрешение не выдано</string>
+    <string name="text_explain_ean_13">Только название лекарства</string>
     <string name="text_explain_full_screen_intent">Разрешить показывать полноэкранные уведомления о приёме лекарства</string>
-    <string name="text_expain_ignore_battery">Разрешить игнорировать оптимизацию батареи. Если отключено, уведомления могут быть потеряны!</string>
+    <string name="text_explain_ignore_battery">Разрешить игнорировать оптимизацию батареи. Если отключено, уведомления могут быть потеряны!</string>
     <string name="text_explain_notifications">Разрешить показывать все уведомления приложения</string>
     <string name="text_explain_reminders">Разрешить устанавливать напоминания на точное время</string>
     <string name="text_explain_request_permissions">Для получения уведомлений необходимо выдать соответствующие разрешения</string>

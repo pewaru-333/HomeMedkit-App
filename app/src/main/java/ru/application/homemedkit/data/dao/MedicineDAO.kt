@@ -22,22 +22,53 @@ interface MedicineDAO : BaseDAO<Medicine> {
         """
         SELECT id, productName, nameAlias, prodAmount, doseType, expDate, prodFormNormName, structure, phKinetics
         FROM medicines
-        WHERE (:search = '' OR LOWER(productName) LIKE '%' || LOWER(:search) || '%'
-               OR LOWER(nameAlias) LIKE '%' || LOWER(:search) || '%'
-               OR LOWER(structure) LIKE '%' || LOWER(:search) || '%'
-               OR LOWER(phKinetics) LIKE '%' || LOWER(:search) || '%')
-        AND (:kitsEnabled = 0 OR EXISTS (
-            SELECT 1
-            FROM medicines_kits
-            WHERE medicines_kits.medicineId = medicines.id
-              AND medicines_kits.kitId IN (:kitIds)
-        ))
+        WHERE (
+            :search = ''
+            OR LOWER(productName) LIKE '%' || LOWER(:search) || '%'
+            OR LOWER(nameAlias) LIKE '%' || LOWER(:search) || '%'
+            OR LOWER(prodFormNormName) LIKE '%' || LOWER(:search) || '%'
+            OR LOWER(structure) LIKE '%' || LOWER(:search) || '%'
+            OR LOWER(comment) LIKE '%' || LOWER(:search) || '%'
+            OR LOWER(phKinetics) LIKE '%' || LOWER(:search) || '%'
+        )
+          AND (
+            :kitsEnabled = 0
+            OR EXISTS (
+              SELECT 1
+              FROM medicines_kits
+              WHERE
+                medicines_kits.medicineId = medicines.id
+                AND medicines_kits.kitId IN (:kitIds)
+            )
+          )
         ORDER BY
-            CASE WHEN :sorting = 'IN_NAME' THEN (CASE WHEN nameAlias = '' THEN productName ELSE nameAlias END) COLLATE NOCASE ELSE NULL END ASC,
-            CASE WHEN :sorting = 'RE_NAME' THEN (CASE WHEN nameAlias = '' THEN productName ELSE nameAlias END) COLLATE NOCASE ELSE NULL END DESC,
-            CASE WHEN :sorting = 'IN_DATE' THEN expDate ELSE NULL END ASC,
-            CASE WHEN :sorting = 'RE_DATE' THEN expDate ELSE NULL END DESC,
-            id ASC -- Дополнительная сортировка для разрешения конфликтов (id уникальный)
+          CASE
+            WHEN :sorting = 'IN_NAME' THEN (
+              CASE
+                WHEN nameAlias = '' THEN productName
+                ELSE nameAlias
+              END
+            ) COLLATE NOCASE
+            ELSE NULL
+          END ASC,
+          CASE
+            WHEN :sorting = 'RE_NAME' THEN (
+              CASE
+                WHEN nameAlias = '' THEN productName
+                ELSE nameAlias
+              END
+            ) COLLATE NOCASE
+            ELSE NULL
+          END DESC,
+          CASE
+            WHEN :sorting = 'IN_DATE' THEN expDate
+            ELSE NULL
+          END ASC,
+          CASE
+            WHEN :sorting = 'RE_DATE' THEN expDate
+            ELSE NULL
+          END DESC,
+          id ASC -- Дополнительная сортировка для разрешения конфликтов (id уникальный)
     """
     )
     fun getListFlow(search: String, sorting: Sorting, kitIds: List<Long>, kitsEnabled: Boolean): Flow<List<MedicineMain>>

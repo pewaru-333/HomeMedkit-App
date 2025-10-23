@@ -9,7 +9,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.navigation.compose.rememberNavController
 import ru.application.homemedkit.ui.navigation.LocalBarVisibility
 import ru.application.homemedkit.ui.navigation.Navigation
 import ru.application.homemedkit.ui.navigation.rememberNavigationBarVisibility
@@ -24,12 +23,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            val navigator = rememberNavController()
             val barVisibility = rememberNavigationBarVisibility()
 
             CompositionLocalProvider(LocalBarVisibility provides barVisibility) {
                 AppTheme {
-                    Navigation(navigator)
+                    Navigation()
                 }
             }
 

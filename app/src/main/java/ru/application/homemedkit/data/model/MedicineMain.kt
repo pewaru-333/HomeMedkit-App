@@ -13,8 +13,6 @@ data class MedicineMain(
     val doseType: DoseType,
     val expDate: Long,
     val prodFormNormName: String,
-    val structure: String,
-    val phKinetics: String,
 
     @Relation(
         parentColumn = "id",

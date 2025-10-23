@@ -18,6 +18,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
 import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.ui.navigation.Screen.Intake
@@ -39,8 +40,10 @@ import ru.application.homemedkit.utils.extensions.onBottomItemClick
 import kotlin.reflect.KClass
 
 @Composable
-fun Navigation(navigator: NavHostController) {
+fun Navigation() {
     val barVisibility = LocalBarVisibility.current
+
+    val navigator = rememberNavController()
     val backStack by navigator.currentBackStackEntryAsState()
 
     val routes = remember { Menu.entries.map { it.route::class } }

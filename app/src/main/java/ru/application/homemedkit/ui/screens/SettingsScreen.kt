@@ -98,6 +98,7 @@ import ru.application.homemedkit.utils.KEY_FIXING
 import ru.application.homemedkit.utils.KEY_KITS
 import ru.application.homemedkit.utils.KEY_PERMISSIONS
 import ru.application.homemedkit.utils.KEY_USE_ALARM_CLOCK
+import ru.application.homemedkit.utils.KEY_USE_VIBRATION_SCAN
 import ru.application.homemedkit.utils.di.AlarmManager
 import ru.application.homemedkit.utils.di.Database
 import ru.application.homemedkit.utils.di.Preferences
@@ -176,6 +177,13 @@ fun SettingsScreen() {
                 key = KEY_CONFIRM_EXIT,
                 defaultValue = true,
                 title = { Text(stringResource(R.string.preference_confirm_exit)) },
+                summary = { Text(stringResource(if (it) R.string.text_on else R.string.text_off)) }
+            )
+
+            switchPreference(
+                key = KEY_USE_VIBRATION_SCAN,
+                defaultValue = false,
+                title = { Text(stringResource(R.string.preference_use_vibration_scan)) },
                 summary = { Text(stringResource(if (it) R.string.text_on else R.string.text_off)) }
             )
 
@@ -528,7 +536,7 @@ fun PermissionsScreen(navigateUp: () -> Unit, exitFirstLaunch: () -> Unit = navi
                 trailingContent = { ButtonGrant(ignoreBattery) },
                 supportingContent = {
                     Text(
-                        text = stringResource(R.string.text_expain_ignore_battery),
+                        text = stringResource(R.string.text_explain_ignore_battery),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
