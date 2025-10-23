@@ -14,7 +14,7 @@ def main():
     transformed_lines = []
     for line in lines:
         if line.strip().startswith(('-', '—')):
-            transformed_lines.append(line.strip().replace("-", "*").replace("—", "*"))
+            transformed_lines.append(line.strip().replace("—", "*"))
         else:
             transformed_lines.append(line)
 
