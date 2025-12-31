@@ -20,13 +20,13 @@ data class MedicineMain(
         projection = ["image"],
         entity = Image::class
     )
-    val image: List<String>,
+    val image: Set<String>,
 
     @Relation(
         parentColumn = "id",
         entityColumn = "medicineId",
-        entity = MedicineKit::class,
-        projection = ["kitId"]
+        projection = ["kitId"],
+        entity = MedicineKit::class
     )
-    val kitIds: List<Long>
+    val kitIds: Set<Long>
 )

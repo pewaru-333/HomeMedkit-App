@@ -23,6 +23,7 @@ import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.data.model.IntakeList
 import ru.application.homemedkit.data.model.IntakeModel
+import ru.application.homemedkit.data.queries.MedicinesQueryBuilder
 import ru.application.homemedkit.models.events.IntakesEvent
 import ru.application.homemedkit.models.events.NewTakenEvent
 import ru.application.homemedkit.models.events.TakenEvent
@@ -32,32 +33,24 @@ import ru.application.homemedkit.models.states.NewTakenState
 import ru.application.homemedkit.models.states.ScheduledState
 import ru.application.homemedkit.models.states.TakenState
 import ru.application.homemedkit.utils.BLANK
-import ru.application.homemedkit.utils.FORMAT_DD_MM
-import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
-import ru.application.homemedkit.utils.FORMAT_H_MM
+import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.ResourceText
-import ru.application.homemedkit.utils.ZONE
-import ru.application.homemedkit.utils.decimalFormat
 import ru.application.homemedkit.utils.di.AlarmManager
 import ru.application.homemedkit.utils.di.Database
 import ru.application.homemedkit.utils.enums.IntakeTab
-import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.extensions.orDefault
 import ru.application.homemedkit.utils.extensions.toIntake
 import ru.application.homemedkit.utils.extensions.toIntakePast
 import ru.application.homemedkit.utils.extensions.toIntakeSchedule
 import ru.application.homemedkit.utils.extensions.toTakenState
-import ru.application.homemedkit.utils.getDateTime
 import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZonedDateTime
 import kotlin.math.abs
 
 class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
-    private val intakeDAO = Database.intakeDAO()
-    private val medicineDAO = Database.medicineDAO()
-    private val takenDAO = Database.takenDAO()
-    private val alarmDAO = Database.alarmDAO()
+    private val intakeDAO by lazy { Database.intakeDAO() }
+    private val medicineDAO by lazy { Database.medicineDAO() }
+    private val takenDAO by lazy { Database.takenDAO() }
+    private val alarmDAO by lazy { Database.alarmDAO() }
 
     private val currentYear by lazy { LocalDate.now().year }
 
@@ -65,7 +58,7 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
     val takenManager by lazy(::TakenManager)
     val newTakenManager by lazy(::NewTakenManager)
 
-    val medicines = medicineDAO.getListFlow(BLANK, Sorting.IN_NAME, emptyList(), false)
+    val medicines = medicineDAO.getFlow(MedicinesQueryBuilder.selectAll)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     val intakes = state.flatMapLatest { query ->
@@ -77,7 +70,7 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
     val schedule = state.flatMapLatest { query ->
         alarmDAO.getFlow(query.search)
             .map { list ->
-                list.groupBy { getDateTime(it.trigger).toLocalDate().toEpochDay() }
+                list.groupBy { Formatter.getDateTime(it.trigger).toLocalDate().toEpochDay() }
                     .entries
                     .sortedBy { it.key }
                     .map { it.toIntakeSchedule(currentYear) }
@@ -88,7 +81,7 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
     val taken = state.flatMapLatest { query ->
         takenDAO.getFlow(query.search)
             .map { list ->
-                list.groupBy { getDateTime(it.trigger).toLocalDate().toEpochDay() }
+                list.groupBy { Formatter.getDateTime(it.trigger).toLocalDate().toEpochDay() }
                     .entries
                     .sortedByDescending { it.key }
                     .map { it.toIntakePast(currentYear) }
@@ -134,7 +127,7 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
             return
         }
 
-        val day = getDateTime(time).toLocalDate().toEpochDay()
+        val day = Formatter.getDateTime(time).toLocalDate().toEpochDay()
         val value = list.map { it.epochDay }.minByOrNull { abs(day - it) } ?: list.first().epochDay
         val itemsIndex = list.indexOfFirst { it.epochDay == value }
 
@@ -171,7 +164,7 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
 
         internal suspend fun getScheduled(item: IntakeModel) {
             val alarm = alarmDAO.getById(item.alarmId) ?: return
-            val date = getDateTime(alarm.trigger).toLocalDate().format(FORMAT_DD_MM)
+            val date = Formatter.getDateTime(alarm.trigger).toLocalDate().format(Formatter.FORMAT_DD_MM)
             val inStock = intakeDAO.getById(alarm.intakeId)?.let {
                 it.medicine.prodAmount >= alarm.amount
             } ?: false
@@ -247,13 +240,13 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
                     }
                 } else {
                     val current = System.currentTimeMillis()
-                    val dateTime = getDateTime(current)
+                    val dateTime = Formatter.getDateTime(current)
 
                     updateState {
                         it.copy(
                             selection = 1,
                             inFact = current,
-                            actual = ResourceText.StaticString(dateTime.format(FORMAT_H_MM)),
+                            actual = ResourceText.StaticString(dateTime.format(Formatter.FORMAT_H_MM)),
                             pickerState = TimePickerState(dateTime.hour, dateTime.minute, true)
                         )
                     }
@@ -261,17 +254,16 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
             }
 
             TakenEvent.SetFactTime -> {
-                val trigger = ZonedDateTime.of(
-                    LocalDate.now(),
-                    LocalTime.of(currentState.pickerState.hour, currentState.pickerState.minute),
-                    ZONE
-                ).toInstant().toEpochMilli()
+                val trigger = Formatter.toTimestamp(
+                    hour = currentState.pickerState.hour,
+                    minute = currentState.pickerState.minute
+                )
 
                 updateState {
                     it.copy(
                         showPicker = false,
                         inFact = trigger,
-                        actual = ResourceText.StaticString(getDateTime(trigger).format(FORMAT_H_MM))
+                        actual = ResourceText.StaticString(Formatter.timeFormat(trigger))
                     )
                 }
             }
@@ -324,11 +316,7 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
         override fun onEvent(event: NewTakenEvent) {
             when (event) {
                 NewTakenEvent.AddNewTaken -> {
-                    val trigger = ZonedDateTime.of(
-                        LocalDate.parse(currentState.date, FORMAT_DD_MM_YYYY),
-                        LocalTime.parse(currentState.time, FORMAT_H_MM),
-                        ZONE
-                    ).toInstant().toEpochMilli()
+                    val trigger = Formatter.toTimestamp(currentState.date, currentState.time)
 
                     val medicine = currentState.medicine ?: return
 
@@ -363,7 +351,7 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
                             title = event.medicine.nameAlias.ifEmpty(event.medicine::productName),
                             amount = BLANK,
                             doseType = ResourceText.StringResource(event.medicine.doseType.title),
-                            inStock = decimalFormat(event.medicine.prodAmount),
+                            inStock = Formatter.decimalFormat(event.medicine.prodAmount),
                             medicine = event.medicine
                         )
                     }
@@ -371,7 +359,7 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
                     viewModelScope.launch {
                         takenDAO.getSimilarAmount(event.medicine.id)?.let { amount ->
                             updateState {
-                                it.copy(amount = decimalFormat(amount))
+                                it.copy(amount = Formatter.decimalFormat(amount))
                             }
                         }
                     }
@@ -381,13 +369,13 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
 
                 is NewTakenEvent.SetDate -> event.pickerState.selectedDateMillis?.let { millis ->
                     updateState {
-                        it.copy(date = getDateTime(millis).format(FORMAT_DD_MM_YYYY))
+                        it.copy(date = Formatter.dateFormat(millis, Formatter.FORMAT_DD_MM_YYYY))
                     }
                 }
 
                 is NewTakenEvent.SetTime -> event.pickerState.run {
                     updateState {
-                        it.copy(time = LocalTime.of(hour, minute).format(FORMAT_H_MM))
+                        it.copy(time = Formatter.timeFormat(hour, minute))
                     }
                 }
             }

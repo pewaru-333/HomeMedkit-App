@@ -6,7 +6,9 @@ import coil3.request.Options
 import ru.application.homemedkit.utils.enums.DrugType
 import java.io.File
 
-class IconMapper(private val context: Context) : Mapper<String, Any> {
+class IconMapper(context: Context) : Mapper<String, Any> {
+    private val filesDir = context.filesDir
+
     override fun map(data: String, options: Options) =
-        DrugType.iconMap[data] ?: File(context.filesDir, data)
+        DrugType.iconMap[data] ?: File(filesDir, data)
 }

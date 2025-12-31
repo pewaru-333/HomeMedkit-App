@@ -1,28 +1,25 @@
-package ru.application.homemedkit.utils.enums
+package ru.application.homemedkit.ui.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import ru.application.homemedkit.R
-import ru.application.homemedkit.ui.navigation.Screen
 
-enum class Menu(
-    val route: Screen,
+data class BottomBarItem(
     @StringRes val title: Int,
     @DrawableRes val icon: Int
-) {
-    MEDICINES(
-        route = Screen.Medicines,
+)
+
+val TOP_LEVEL_DESTINATIONS = mapOf(
+    Screen.Medicines to BottomBarItem(
         title = R.string.bottom_bar_medicines,
         icon = R.drawable.vector_medicine
     ),
-    INTAKES(
-        route = Screen.Intakes(),
+    Screen.Intakes to BottomBarItem(
         title = R.string.bottom_bar_intakes,
         icon = R.drawable.vector_time
     ),
-    SETTINGS(
-        route = Screen.Settings,
+    Screen.Settings to BottomBarItem(
         title = R.string.bottom_bar_settings,
         icon = R.drawable.vector_settings
     )
-}
+)

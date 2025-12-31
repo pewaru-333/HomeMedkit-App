@@ -1,32 +1,28 @@
 package ru.application.homemedkit.ui.navigation
 
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ShortNavigationBar
+import androidx.compose.material3.ShortNavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navDeepLink
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
+import ru.application.homemedkit.models.viewModels.IntakeViewModel
+import ru.application.homemedkit.models.viewModels.MedicineViewModel
 import ru.application.homemedkit.ui.elements.VectorIcon
-import ru.application.homemedkit.ui.navigation.Screen.Intake
-import ru.application.homemedkit.ui.navigation.Screen.Intakes
-import ru.application.homemedkit.ui.navigation.Screen.Medicine
-import ru.application.homemedkit.ui.navigation.Screen.Medicines
-import ru.application.homemedkit.ui.navigation.Screen.Scanner
-import ru.application.homemedkit.ui.navigation.Screen.Settings
 import ru.application.homemedkit.ui.screens.IntakeScreen
 import ru.application.homemedkit.ui.screens.IntakesScreen
 import ru.application.homemedkit.ui.screens.MedicineScreen
@@ -34,32 +30,25 @@ import ru.application.homemedkit.ui.screens.MedicinesScreen
 import ru.application.homemedkit.ui.screens.ScannerScreen
 import ru.application.homemedkit.ui.screens.SettingsScreen
 import ru.application.homemedkit.utils.di.Preferences
-import ru.application.homemedkit.utils.enums.Menu
-import ru.application.homemedkit.utils.extensions.isCurrentRoute
-import ru.application.homemedkit.utils.extensions.onBottomItemClick
-import kotlin.reflect.KClass
 
 @Composable
 fun Navigation() {
     val barVisibility = LocalBarVisibility.current
 
-    val navigator = rememberNavController()
-    val backStack by navigator.currentBackStackEntryAsState()
+    val navigationState = rememberNavigationState(
+        startRoute = Preferences.startPage.route,
+        topLevelRoutes = TOP_LEVEL_DESTINATIONS.keys
+    )
 
-    val routes = remember { Menu.entries.map { it.route::class } }
-
-    LaunchedEffect(backStack, barVisibility) {
-        if (routes.any { backStack.isCurrentRoute(it) }) barVisibility.show()
-        else barVisibility.hide()
-    }
+    val navigator = remember { Navigator(navigationState) }
 
     Scaffold(
-        content = { AppNavHost(navigator, Modifier.padding(it)) },
+        content = { AppNavDisplay(navigator, navigationState, Modifier.padding(it)) },
         bottomBar = {
-            if (barVisibility.isVisible) {
+            if (barVisibility.isVisible && navigationState.currentRoute in TOP_LEVEL_DESTINATIONS.keys) {
                 BottomNavigationBar(
-                    selected = { backStack.isCurrentRoute(it) },
-                    onClick = { navigator.onBottomItemClick(it) }
+                    selected = navigationState.topLevelRoute,
+                    onSelect = navigator::navigate
                 )
             }
         }
@@ -67,52 +56,79 @@ fun Navigation() {
 }
 
 @Composable
-private fun AppNavHost(navigator: NavHostController, modifier: Modifier) =
-    NavHost(navigator, Preferences.startPage.route, modifier.consumeWindowInsets(WindowInsets.systemBars)) {
-        // Bottom menu items //
-        composable<Medicines> {
-            MedicinesScreen(navigator::navigate)
-        }
-        composable<Intakes> {
-            IntakesScreen { navigator.navigate(Intake(intakeId = it)) }
-        }
-        composable<Settings> {
-            SettingsScreen()
-        }
-
-        // Screens //
-        composable<Scanner> {
-            ScannerScreen(
-                navigateUp = navigator::navigateUp,
-                navigateToMedicine = { id, cis, duplicate ->
-                    navigator.navigate(Medicine(id, cis, duplicate))
+private fun AppNavDisplay(navigator: Navigator, state: NavigationState, modifier: Modifier) =
+    NavDisplay(
+        modifier = modifier.consumeWindowInsets(WindowInsets.systemBars),
+        onBack = navigator::goBack,
+        entries = state.toEntries(
+            entryProvider = entryProvider {
+                // Bottom menu items //
+                entry<Screen.Medicines>(
+                    metadata = NavDisplay.predictivePopTransitionSpec {
+                        ContentTransform(
+                            targetContentEnter = fadeIn(animationSpec = tween()),
+                            initialContentExit = fadeOut(animationSpec = tween()),
+                        )
+                    }
+                ) {
+                    MedicinesScreen(onNavigate = navigator::navigate)
                 }
-            )
-        }
-        composable<Medicine>(
-            deepLinks = listOf(
-                navDeepLink<Medicine>("app://medicines/{id}")
-            )
-        ) {
-            MedicineScreen(
-                navigateBack = { navigator.popBackStack(Medicines, false) },
-                navigateToIntake = { navigator.navigate(Intake(medicineId = it)) }
-            )
-        }
-        composable<Intake> {
-            IntakeScreen(navigator::popBackStack)
-        }
-    }
+                entry<Screen.Intakes>(
+                    metadata = NavDisplay.predictivePopTransitionSpec {
+                        ContentTransform(
+                            targetContentEnter = fadeIn(animationSpec = tween()),
+                            initialContentExit = fadeOut(animationSpec = tween()),
+                        )
+                    }
+                ) {
+                    IntakesScreen { navigator.navigate(Screen.Intake(intakeId = it)) }
+                }
+                entry<Screen.Settings>(
+                    metadata = NavDisplay.predictivePopTransitionSpec {
+                        ContentTransform(
+                            targetContentEnter = fadeIn(animationSpec = tween()),
+                            initialContentExit = fadeOut(animationSpec = tween()),
+                        )
+                    }
+                ) {
+                    SettingsScreen()
+                }
+
+                // Screens //
+                entry<Screen.Scanner> {
+                    ScannerScreen(
+                        onBack = navigator::goBack,
+                        onGoToMedicine = { id, cis, duplicate ->
+                            navigator.navigate(Screen.Medicine(id, cis, duplicate))
+                        }
+                    )
+                }
+                entry<Screen.Medicine> { (id, cis, duplicate) ->
+                    MedicineScreen(
+                        model = viewModel { MedicineViewModel(id, cis, duplicate) },
+                        onBack = { navigator.navigateAndClearStack(Screen.Medicines) },
+                        onGoToIntake = { navigator.navigate(Screen.Intake(medicineId = it)) }
+                    )
+                }
+                entry<Screen.Intake> { (intakeId, medicineId) ->
+                    IntakeScreen(
+                        model = viewModel { IntakeViewModel(intakeId, medicineId) },
+                        onBack = navigator::goBack
+                    )
+                }
+            }
+        )
+    )
 
 @Composable
-private fun BottomNavigationBar(selected: (route: KClass<*>) -> Boolean, onClick: (Screen) -> Unit) =
-    NavigationBar {
-        Menu.entries.forEach { screen ->
-            NavigationBarItem(
-                icon = { VectorIcon(screen.icon) },
-                label = { Text(stringResource(screen.title)) },
-                selected = selected(screen.route::class),
-                onClick = { onClick(screen.route) }
+private fun BottomNavigationBar(selected: NavKey, onSelect: (NavKey) -> Unit) =
+    ShortNavigationBar {
+        TOP_LEVEL_DESTINATIONS.forEach { (screen, bottomBarItem) ->
+            ShortNavigationBarItem(
+                icon = { VectorIcon(bottomBarItem.icon) },
+                label = { Text(stringResource(bottomBarItem.title)) },
+                selected = screen == selected,
+                onClick = { onSelect(screen) }
             )
         }
     }

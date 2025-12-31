@@ -12,8 +12,8 @@ import android.content.Intent
 import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.data.dto.Alarm
 import ru.application.homemedkit.utils.ALARM_ID
+import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.Preferences
-import ru.application.homemedkit.utils.ZONE
 import ru.application.homemedkit.utils.extensions.canScheduleExactAlarms
 import java.time.LocalTime
 import java.time.ZonedDateTime
@@ -135,8 +135,8 @@ class AlarmSetter private constructor(private val context: Context) {
 
         with(manager) {
             if (check) {
-                val now = ZonedDateTime.now(ZONE)
-                val noonToday = ZonedDateTime.of(now.toLocalDate(), LocalTime.NOON, ZONE)
+                val now = ZonedDateTime.now(Formatter.ZONE)
+                val noonToday = ZonedDateTime.of(now.toLocalDate(), LocalTime.NOON, Formatter.ZONE)
                 val nextNoon = if (now.isBefore(noonToday)) noonToday else noonToday.plusDays(1)
                 val nextTime = nextNoon.toInstant().toEpochMilli()
 

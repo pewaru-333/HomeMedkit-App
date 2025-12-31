@@ -20,11 +20,11 @@ import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.utils.ALARM_ID
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.CHANNEL_ID_INTAKES
+import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.ID
 import ru.application.homemedkit.utils.IS_ENOUGH_IN_STOCK
 import ru.application.homemedkit.utils.TAKEN_ID
 import ru.application.homemedkit.utils.TYPE
-import ru.application.homemedkit.utils.decimalFormat
 import ru.application.homemedkit.utils.extensions.goAsync
 import ru.application.homemedkit.utils.extensions.safeNotify
 
@@ -65,9 +65,9 @@ class AlarmReceiver : BroadcastReceiver() {
                         text = context.getString(
                             if (flag) R.string.text_intake_time else R.string.text_intake_amount_not_enough,
                             medicine.nameAlias.ifEmpty(medicine::productName),
-                            decimalFormat(taken.amount),
+                            Formatter.decimalFormat(taken.amount),
                             context.getString(medicine.doseType.title),
-                            decimalFormat(medicine.prodAmount - taken.amount)
+                            Formatter.decimalFormat(medicine.prodAmount - taken.amount)
                         ),
                         flag = flag,
                         actions = listOf(confirm, decline)

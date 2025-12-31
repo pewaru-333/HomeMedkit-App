@@ -7,6 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.DefaultAlpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import coil3.compose.AsyncImage
@@ -34,8 +35,9 @@ fun Image(
 fun MedicineImage(image: Any?, modifier: Modifier = Modifier, editable: Boolean = false) =
     AsyncImage(
         model = image,
-        modifier = modifier,
         contentDescription = null,
         error = painterResource(R.drawable.vector_type_unknown),
-        alpha = if (editable) 0.4f else 1f
+        modifier = modifier.graphicsLayer {
+            alpha = if (editable) 0.4f else 1f
+        }
     )

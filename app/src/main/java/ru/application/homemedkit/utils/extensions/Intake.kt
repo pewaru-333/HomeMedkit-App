@@ -20,17 +20,11 @@ import ru.application.homemedkit.data.model.ScheduleModel
 import ru.application.homemedkit.data.model.TakenModel
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.states.TakenState
-import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
-import ru.application.homemedkit.utils.FORMAT_D_MMMM_E
-import ru.application.homemedkit.utils.FORMAT_H_MM
-import ru.application.homemedkit.utils.FORMAT_LONG
+import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.ResourceText
-import ru.application.homemedkit.utils.decimalFormat
 import ru.application.homemedkit.utils.enums.IntakeExtra
 import ru.application.homemedkit.utils.enums.Interval
 import ru.application.homemedkit.utils.enums.Period
-import ru.application.homemedkit.utils.formName
-import ru.application.homemedkit.utils.getDateTime
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -55,7 +49,7 @@ fun IntakeFull.toState() = IntakeState(
     periodType = Period.getValue(period),
     foodType = foodType,
     pickedTime = pickedTime.map { pickedTime ->
-        val localTime = LocalTime.parse(pickedTime.time, FORMAT_H_MM)
+        val localTime = LocalTime.parse(pickedTime.time, Formatter.FORMAT_H_MM)
         val hour = localTime.hour
         val min = localTime.minute
 
@@ -98,7 +92,7 @@ fun IntakeState.toIntake() = ru.application.homemedkit.data.dto.Intake(
 
 fun IntakeList.toIntake(): Intake {
     val timeText = if (time.size == 1) time.first()
-    else time.map { LocalTime.parse(it, FORMAT_H_MM) }
+    else time.map { LocalTime.parse(it, Formatter.FORMAT_H_MM) }
         .sorted()
         .joinToString()
 
@@ -108,7 +102,7 @@ fun IntakeList.toIntake(): Intake {
             this == DayOfWeek.entries.weekdays -> ResourceText.StringResource(R.string.text_weekdays)
             this == DayOfWeek.entries.weekends -> ResourceText.StringResource(R.string.text_weekend)
             else -> ResourceText.StaticString(
-                joinToString { day ->
+                value = joinToString { day ->
                     day.getDisplayName(TextStyle.SHORT, Locale.current.platformLocale)
                 }
             )
@@ -122,7 +116,7 @@ fun IntakeList.toIntake(): Intake {
         time = timeText,
         days = daysText,
         interval = ResourceText.PluralStringResource(R.plurals.intake_times_a_day, time.size, time.size),
-        active = LocalDate.parse(finalDate, FORMAT_DD_MM_YYYY) >= LocalDate.now()
+        active = LocalDate.parse(finalDate, Formatter.FORMAT_DD_MM_YYYY) >= LocalDate.now()
     )
 }
 
@@ -131,15 +125,15 @@ fun IntakeTaken.toTakenModel() = TakenModel(
     alarmId = alarmId,
     title = productName,
     image = image,
-    time = getDateTime(trigger).format(FORMAT_H_MM),
+    time = Formatter.timeFormat(trigger),
     taken = taken,
     doseAmount = ResourceText.StringResource(
         R.string.intake_text_quantity,
         formName.run {
-            if (isNotEmpty()) formName(this)
+            if (isNotEmpty()) Formatter.formFormat(this)
             else ResourceText.StringResource(R.string.text_amount)
         },
-        decimalFormat(amount),
+        Formatter.decimalFormat(amount),
         ResourceText.StringResource(doseType.title)
     )
 )
@@ -147,7 +141,7 @@ fun IntakeTaken.toTakenModel() = TakenModel(
 fun Map.Entry<Long, List<IntakeTaken>>.toIntakePast(currentYear: Int) = IntakePast(
     epochDay = key,
     date = LocalDate.ofEpochDay(key).run {
-        format(if (currentYear == year) FORMAT_D_MMMM_E else FORMAT_LONG)
+        format(if (currentYear == year) Formatter.FORMAT_D_MMMM_E else Formatter.FORMAT_LONG)
     },
     intakes = value.map(IntakeTaken::toTakenModel)
 )
@@ -157,14 +151,14 @@ fun Schedule.toScheduleModel() = ScheduleModel(
     alarmId = alarmId,
     title = nameAlias.ifEmpty(::productName),
     image = image,
-    time = getDateTime(trigger).format(FORMAT_H_MM),
+    time = Formatter.timeFormat(trigger),
     doseAmount = ResourceText.StringResource(
         R.string.intake_text_quantity,
         prodFormNormName.run {
-            if (isNotEmpty()) formName(this)
+            if (isNotEmpty()) Formatter.formFormat(this)
             else ResourceText.StringResource(R.string.text_amount)
         },
-        decimalFormat(amount),
+        Formatter.decimalFormat(amount),
         ResourceText.StringResource(doseType.title)
     )
 )
@@ -172,14 +166,14 @@ fun Schedule.toScheduleModel() = ScheduleModel(
 fun Map.Entry<Long, List<Schedule>>.toIntakeSchedule(currentYear: Int) = IntakeSchedule(
     epochDay = key,
     date = LocalDate.ofEpochDay(key).run {
-        format(if (currentYear == year) FORMAT_D_MMMM_E else FORMAT_LONG)
+        format(if (currentYear == year) Formatter.FORMAT_D_MMMM_E else Formatter.FORMAT_LONG)
     },
     intakes = value.map(Schedule::toScheduleModel)
 )
 
 fun IntakeTakenFull.toTakenState(): TakenState {
-    val triggerZoned = getDateTime(trigger)
-    val actualZoned = getDateTime(inFact)
+    val triggerZoned = Formatter.getDateTime(trigger)
+    val actualZoned = Formatter.getDateTime(inFact)
 
     return TakenState(
         takenId = takenId,
@@ -187,9 +181,9 @@ fun IntakeTakenFull.toTakenState(): TakenState {
         medicine = medicine,
         productName = productName,
         amount = amount,
-        date = triggerZoned.format(FORMAT_LONG),
-        scheduled = triggerZoned.format(FORMAT_H_MM),
-        actual = if (taken) ResourceText.StaticString(actualZoned.format(FORMAT_H_MM))
+        date = triggerZoned.format(Formatter.FORMAT_LONG),
+        scheduled = triggerZoned.format(Formatter.FORMAT_H_MM),
+        actual = if (taken) ResourceText.StaticString(actualZoned.format(Formatter.FORMAT_H_MM))
         else ResourceText.StringResource(intake_text_not_taken),
         inFact = inFact,
         pickerState = actualZoned.run { TimePickerState(hour, minute, true) },

@@ -4,9 +4,7 @@ import androidx.annotation.StringRes
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.enums.DoseType
-import ru.application.homemedkit.utils.enums.DrugType
 import ru.application.homemedkit.utils.enums.ImageEditing
-import kotlin.random.Random
 
 data class MedicineState(
     val adding: Boolean = false,
@@ -32,7 +30,7 @@ data class MedicineState(
     val recommendations: String = BLANK,
     val storageConditions: String = BLANK,
     val comment: String = BLANK,
-    val images: List<String> = listOf(DrugType.entries[Random.nextInt(DrugType.entries.size)].value),
+    val images: List<String> = emptyList(),
     val technical: TechnicalState = TechnicalState(),
     val imageEditing: ImageEditing = ImageEditing.ADDING,
     val isOpened: Boolean = false,

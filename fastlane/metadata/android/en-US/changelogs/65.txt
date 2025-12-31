@@ -1,0 +1,3 @@
+— Added a faster search in the list of medicines.
+— The appearance of many interface components has been changed.
+— Many improvements and optimizations.

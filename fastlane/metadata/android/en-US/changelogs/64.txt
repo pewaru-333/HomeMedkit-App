@@ -1,5 +1,0 @@
-— Added the ability to scan EAN-13 barcodes (only for Russian treatments).
-— Added the ability to activate device vibration when scanning medications codes. This feature can be enabled in the application settings.
-— Added image loading of dietary supplements.
-— Now you can search for medicines both by their description and by their comments.
-— Fixed an error when entering the medication period, saving the dosage example, and incorrect color priority in the medicines list.

@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -21,11 +22,8 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.application.homemedkit.R
-import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
-import ru.application.homemedkit.utils.ZONE
-import ru.application.homemedkit.utils.getDateTime
+import ru.application.homemedkit.utils.Formatter
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.ZonedDateTime
 
 @Composable
@@ -35,35 +33,38 @@ fun DateRangePicker(
     onRangeSelected: (Pair<Long?, Long?>) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val currentYear = remember { LocalDate.now().year }
+
+    val todayMillis = remember {
+        ZonedDateTime.now()
+            .toLocalDate()
+            .atStartOfDay(Formatter.ZONE)
+            .toInstant()
+            .toEpochMilli()
+    }
+
     val initialStart = startDate.let {
-        if (it.isNotEmpty()) ZonedDateTime.of(
-            LocalDate.parse(it, FORMAT_DD_MM_YYYY),
-            LocalTime.of(12, 0, 0),
-            ZONE
-        ).toInstant().toEpochMilli() else null
+        if (it.isNotEmpty()) Formatter.toTimestamp(date = it) else null
     }
 
     val initialFinal = finalDate.let {
-        if (it.isNotEmpty()) ZonedDateTime.of(
-            LocalDate.parse(it, FORMAT_DD_MM_YYYY),
-            LocalTime.of(12, 0, 0),
-            ZONE
-        ).toInstant().toEpochMilli() else null
+        if (it.isNotEmpty()) Formatter.toTimestamp(date = it) else null
     }
 
     val state = rememberDateRangePickerState(
         initialSelectedStartDateMillis = initialStart,
         initialSelectedEndDateMillis = initialFinal,
         yearRange = if (initialStart != null) DatePickerDefaults.YearRange
-        else IntRange(LocalDate.now().year, LocalDate.now().year + 10),
+        else IntRange(currentYear, currentYear + 10),
         selectableDates = if (initialStart != null) DatePickerDefaults.AllDates
         else object : SelectableDates {
-            override fun isSelectableDate(utcTimeMillis: Long) =
-                getDateTime(utcTimeMillis).toLocalDate() >= ZonedDateTime.now().toLocalDate()
-
-            override fun isSelectableYear(year: Int) = LocalDate.now().year <= year
+            override fun isSelectableDate(utcTimeMillis: Long) = utcTimeMillis >= todayMillis
+            override fun isSelectableYear(year: Int) = currentYear <= year
         }
     )
+
+    val dateFormatter = DatePickerDefaults.dateFormatter()
+    fun onFormat(millis: Long?) = dateFormatter.formatDate(millis, Locale.current.platformLocale)
 
     DatePickerDialog(
         onDismissRequest = onDismiss,
@@ -98,21 +99,15 @@ fun DateRangePicker(
                         .fillMaxWidth()
                         .padding(8.dp)
                 ) {
-                    val formattedStart = DatePickerDefaults.dateFormatter()
-                        .formatDate(state.selectedStartDateMillis, Locale.current.platformLocale)
-
-                    val formattedFinal = DatePickerDefaults.dateFormatter()
-                        .formatDate(state.selectedEndDateMillis, Locale.current.platformLocale)
-
                     Text(
-                        text = formattedStart ?: stringResource(R.string.text_start_date),
+                        text = onFormat(state.selectedStartDateMillis) ?: stringResource(R.string.text_start_date),
                         style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp)
                     )
 
                     Text("-")
 
                     Text(
-                        text = formattedFinal ?: stringResource(R.string.text_finish_date),
+                        text = onFormat(state.selectedEndDateMillis) ?: stringResource(R.string.text_finish_date),
                         style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp)
                     )
                 }

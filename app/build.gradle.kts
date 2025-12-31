@@ -15,8 +15,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 36
-        versionCode = 64
-        versionName = "1.8.9"
+        versionCode = 65
+        versionName = "1.9.0"
     }
 
     dependenciesInfo {
@@ -71,7 +71,9 @@ dependencies {
     implementation(libs.bundles.ktor)
 
     // ==================== Navigation ====================
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.kotlinx.serialization.json)
 
     // ==================== Scanner ====================

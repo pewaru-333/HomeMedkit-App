@@ -1,4 +1,6 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalUuidApi::class
+)
 
 package ru.application.homemedkit.ui.screens
 
@@ -14,6 +16,8 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,10 +38,13 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -51,22 +58,22 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -92,6 +99,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -104,16 +112,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.dialogs.DatePicker
+import ru.application.homemedkit.dialogs.DraggableItem
 import ru.application.homemedkit.dialogs.MonthYear
-import ru.application.homemedkit.dialogs.dragHandle
-import ru.application.homemedkit.dialogs.draggableItemsIndexed
-import ru.application.homemedkit.dialogs.rememberDraggableListState
+import ru.application.homemedkit.dialogs.dragContainer
+import ru.application.homemedkit.dialogs.rememberDragDropState
 import ru.application.homemedkit.models.events.MedicineEvent
 import ru.application.homemedkit.models.events.MedicineEvent.SetProductName
 import ru.application.homemedkit.models.events.MedicineEvent.ToggleDialog
@@ -124,28 +131,29 @@ import ru.application.homemedkit.models.viewModels.MedicineViewModel
 import ru.application.homemedkit.ui.elements.BoxLoading
 import ru.application.homemedkit.ui.elements.DialogDelete
 import ru.application.homemedkit.ui.elements.DialogKits
+import ru.application.homemedkit.ui.elements.IconButton
 import ru.application.homemedkit.ui.elements.MedicineImage
 import ru.application.homemedkit.ui.elements.NavigationIcon
 import ru.application.homemedkit.ui.elements.TopBarActions
 import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.utils.DecimalAmountInputTransformation
 import ru.application.homemedkit.utils.DecimalAmountOutputTransformation
+import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.camera.CameraConfig
 import ru.application.homemedkit.utils.camera.ImageProcessing
 import ru.application.homemedkit.utils.camera.rememberCameraConfig
-import ru.application.homemedkit.utils.decimalFormat
 import ru.application.homemedkit.utils.enums.DoseType
 import ru.application.homemedkit.utils.enums.DrugType
 import ru.application.homemedkit.utils.enums.ImageEditing
 import ru.application.homemedkit.utils.extensions.medicine
 import ru.application.homemedkit.utils.permissions.rememberPermissionState
+import kotlin.uuid.ExperimentalUuidApi
 
 @Composable
-fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
+fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (Long) -> Unit) {
     val context = LocalContext.current
     val filesDir = context.filesDir
 
-    val model = viewModel<MedicineViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
     val kits by model.kits.collectAsStateWithLifecycle()
     val response by model.response.collectAsStateWithLifecycle(
@@ -157,7 +165,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
 
     LaunchedEffect(Unit) {
         model.deleted.collectLatest {
-            if (it) navigateBack()
+            if (it) onBack()
         }
     }
 
@@ -167,7 +175,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
         } else if (!state.default) {
             model.onEvent(ToggleDialog(MedicineDialogState.DataLoss))
         } else {
-            navigateBack()
+            onBack()
         }
     }
 
@@ -175,9 +183,10 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
         topBar = {
             TopAppBar(
                 title = {},
+                subtitle = {},
                 navigationIcon = {
                     NavigationIcon {
-                        if (state.default) navigateBack()
+                        if (state.default) onBack()
                         else model.onEvent(ToggleDialog(MedicineDialogState.DataLoss))
                     }
                 },
@@ -187,7 +196,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
                         setModifiable = model::setEditing,
                         onSave = if (state.adding) model::add else model::update,
                         onShowDialog = { model.onEvent(ToggleDialog(MedicineDialogState.Delete)) },
-                        onNavigate = { navigateToIntake(state.id) }
+                        onNavigate = { onGoToIntake(state.id) }
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -281,7 +290,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
                                 isEditing = !state.default,
                                 title = stringResource(R.string.text_amount),
                                 value = if (!state.default) state.prodAmount
-                                else "${decimalFormat(state.prodAmount)} ${stringResource(state.doseType.title)}",
+                                else "${Formatter.decimalFormat(state.prodAmount)} ${stringResource(state.doseType.title)}",
                                 onValueChange = { model.onEvent(MedicineEvent.SetAmount(it)) },
                                 modifier = Modifier.weight(0.5f),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -378,7 +387,7 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
     when (state.dialogState) {
         MedicineDialogState.DataLoss -> DialogDataLoss(
             onDismiss = { model.onEvent(ToggleDialog(MedicineDialogState.DataLoss)) },
-            onBack = navigateBack
+            onBack = onBack
         )
 
         MedicineDialogState.Kits -> DialogKits(
@@ -390,11 +399,12 @@ fun MedicineScreen(navigateBack: () -> Unit, navigateToIntake: (Long) -> Unit) {
         )
 
         MedicineDialogState.Icons -> IconPicker(
+            isEnabled = { it.value !in state.images },
             onDismiss = { model.onEvent(ToggleDialog(MedicineDialogState.Icons)) },
             onPick = { model.onEvent(MedicineEvent.SetIcon(it)) }
         )
 
-        MedicineDialogState.PictureGrid -> DialogPictureGrid(state, model::onEvent)
+        MedicineDialogState.PictureGrid -> DialogPictureGrid(state.images, state.imageEditing, model::onEvent)
         MedicineDialogState.PictureChoose -> DialogPictureChoose(state.images.size, model::onEvent, model::compressImage)
 
         is MedicineDialogState.FullImage -> DialogFullImage(
@@ -600,7 +610,7 @@ private fun Summary(state: MedicineState, onEvent: (MedicineEvent) -> Unit) {
 
                 LocalText(
                     text = stringResource(
-                        if (state.technical.verified) R.string.text_medicine_status_checked
+                        id = if (state.technical.verified) R.string.text_medicine_status_checked
                         else if (state.technical.scanned && !state.technical.verified) R.string.text_medicine_status_scanned
                         else R.string.text_medicine_status_self_added
                     ),
@@ -618,7 +628,7 @@ private fun Summary(state: MedicineState, onEvent: (MedicineEvent) -> Unit) {
 
 @Composable
 private fun ProductImage(images: List<String>, isDefault: Boolean, onShow: (Int) -> Unit, onDismiss: () -> Unit) {
-    val pagerState = rememberPagerState(pageCount = images::count)
+    val pagerState = rememberPagerState(pageCount = images::size)
 
     Box(
         modifier = Modifier
@@ -704,7 +714,7 @@ private fun InfoTextField(
 
 @Composable
 private fun DialogFullImage(images: List<String>, initialPage: Int, onDismiss: () -> Unit, onShow: (Int) -> Unit) {
-    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = images::count)
+    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = images::size)
 
     LaunchedEffect(pagerState) {
         snapshotFlow(pagerState::currentPage).collectLatest(onShow)
@@ -737,7 +747,7 @@ private fun DialogFullImage(images: List<String>, initialPage: Int, onDismiss: (
 }
 
 @Composable
-private fun DialogPictureGrid(state: MedicineState, event: (MedicineEvent) -> Unit) {
+private fun DialogPictureGrid(images: List<String>, imageEditing: ImageEditing, event: (MedicineEvent) -> Unit) {
     val borderColor = MaterialTheme.colorScheme.onSurface
 
     AlertDialog(
@@ -755,7 +765,7 @@ private fun DialogPictureGrid(state: MedicineState, event: (MedicineEvent) -> Un
                 content = {
                     Text(
                         text = stringResource(
-                            when (state.imageEditing) {
+                            id = when (imageEditing) {
                                 ImageEditing.ADDING -> R.string.text_edit
                                 ImageEditing.REORDERING -> R.string.text_add
                             }
@@ -765,13 +775,13 @@ private fun DialogPictureGrid(state: MedicineState, event: (MedicineEvent) -> Un
             )
         },
         text = {
-            when (state.imageEditing) {
+            when (imageEditing) {
                 ImageEditing.ADDING -> LazyVerticalGrid(
                     columns = GridCells.FixedSize(80.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(state.images) { image ->
+                    items(images) { image ->
                         MedicineImage(
                             image = image,
                             editable = false,
@@ -782,9 +792,10 @@ private fun DialogPictureGrid(state: MedicineState, event: (MedicineEvent) -> Un
                         )
                     }
 
-                    if (state.images.size < 5) {
+                    if (images.size < 5) {
                         item {
                             Box(
+                                content = { VectorIcon(R.drawable.vector_add) },
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier
                                     .size(80.dp, 120.dp)
@@ -804,48 +815,72 @@ private fun DialogPictureGrid(state: MedicineState, event: (MedicineEvent) -> Un
                                     .clickable {
                                         event(ToggleDialog(MedicineDialogState.PictureChoose))
                                     }
-                            ) {
-                                VectorIcon(R.drawable.vector_add)
-                            }
+                            )
                         }
                     }
                 }
 
                 ImageEditing.REORDERING -> {
-                    val draggableState = rememberDraggableListState { fromIndex, toIndex ->
+                    val listState = rememberLazyListState()
+                    val dragState = rememberDragDropState(listState) { fromIndex, toIndex ->
                         event(MedicineEvent.OnImageReodering(fromIndex, toIndex))
                     }
 
-                    LazyColumn(state = draggableState.listState) {
-                        draggableItemsIndexed(draggableState, state.images) { index, image, _ ->
-                            ListItem(
-                                headlineContent = {},
-                                leadingContent = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        if (state.images.size > 1) {
-                                            IconButton(
-                                                onClick = { event(MedicineEvent.RemoveImage(image)) },
-                                                content = { VectorIcon(R.drawable.vector_delete) }
-                                            )
-                                        }
+                    LazyColumn(
+                        modifier = Modifier.dragContainer(dragState),
+                        state = listState,
+                        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap)
+                    ) {
+                        itemsIndexed(
+                            items = images,
+                            key = { _, item -> item }
+                        ) { index, item ->
+                            DraggableItem(dragState, index) { isDragging ->
+                                val itemShape = ListItemDefaults.segmentedShapes(index, images.size)
+                                val scale by animateFloatAsState(if (isDragging) 1.05f else 1.0f)
+                                val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
+                                val translationX by animateFloatAsState(if (isDragging) 20f else 0f)
+                                val translationY by animateFloatAsState(if (isDragging) -10f else 0f)
 
-                                        MedicineImage(
-                                            image = image,
-                                            editable = false,
-                                            modifier = Modifier.size(64.dp)
+                                Box(
+                                    modifier = Modifier
+                                        .zIndex(if (isDragging) 1f else 0f)
+                                        .graphicsLayer {
+                                            this.translationX = translationX
+                                            this.translationY = translationY
+                                            scaleX = scale
+                                            scaleY = scale
+                                            shadowElevation = elevation.toPx()
+                                            shape = itemShape.shape
+                                            clip = true
+                                        }
+                                ) {
+                                    SegmentedListItem(
+                                        shapes = itemShape,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        onClick = {},
+                                        content = {
+                                            MedicineImage(
+                                                image = item,
+                                                editable = false,
+                                                modifier = Modifier.size(64.dp)
+                                            )
+                                        },
+                                        leadingContent = {
+                                            if (images.size > 1) {
+                                                IconButton(
+                                                    onClick = { event(MedicineEvent.RemoveImage(item)) },
+                                                    content = { VectorIcon(R.drawable.vector_delete) }
+                                                )
+                                            }
+                                        },
+                                        trailingContent = { VectorIcon(R.drawable.vector_menu) },
+                                        colors = ListItemDefaults.colors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainer
                                         )
-                                    }
-                                },
-                                trailingContent = {
-                                    VectorIcon(
-                                        icon = R.drawable.vector_menu,
-                                        modifier = Modifier.dragHandle(draggableState, index)
                                     )
-                                },
-                                colors = ListItemDefaults.colors(
-                                    containerColor = AlertDialogDefaults.containerColor
-                                )
-                            )
+                                }
+                            }
                         }
                     }
                 }
@@ -869,16 +904,16 @@ private fun DialogPictureChoose(
     else PickVisualMedia()
 
     val picker = rememberLauncherForActivityResult(contract) { result ->
-        when (val picked = result) {
+        when (result) {
             is List<*> -> {
-                if (picked.isEmpty() || picked.size > maxItems) {
+                if (result.isEmpty() || result.size > maxItems) {
                     return@rememberLauncherForActivityResult
                 }
 
-                onPicked(ImageProcessing(context), picked as List<Uri>)
+                onPicked(ImageProcessing(context), result as List<Uri>)
             }
 
-            is Uri? -> picked?.let { uri ->
+            is Uri? -> result?.let { uri ->
                 onPicked(ImageProcessing(context), listOf(uri))
             }
         }
@@ -886,18 +921,18 @@ private fun DialogPictureChoose(
 
     @Composable
     fun LocalButton(@StringRes text: Int, @DrawableRes icon: Int, onClick: () -> Unit) = ListItem(
-        modifier = Modifier.clickable(onClick = onClick),
+        onClick = onClick,
         leadingContent = { VectorIcon(icon, Modifier.size(24.dp)) },
-        headlineContent = {
+        content = {
             Text(
                 text = stringResource(text),
                 style = MaterialTheme.typography.labelLarge
             )
         },
-        colors = ListItemDefaults.colors().copy(
-            containerColor = ButtonDefaults.textButtonColors().containerColor,
-            headlineColor = ButtonDefaults.textButtonColors().contentColor,
-            leadingIconColor = ButtonDefaults.textButtonColors().contentColor
+        colors = ListItemDefaults.colors(
+            containerColor = Color.Transparent,
+            headlineColor = MaterialTheme.colorScheme.primary,
+            leadingIconColor = MaterialTheme.colorScheme.primary
         )
     )
 
@@ -925,7 +960,7 @@ private fun DialogPictureChoose(
 }
 
 @Composable
-private fun IconPicker(onDismiss: () -> Unit, onPick: (String) -> Unit) = Dialog(onDismiss) {
+private fun IconPicker(isEnabled: (DrugType) -> Boolean, onDismiss: () -> Unit, onPick: (String) -> Unit) = Dialog(onDismiss) {
     ElevatedCard(Modifier.padding(vertical = 64.dp)) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(128.dp),
@@ -935,6 +970,7 @@ private fun IconPicker(onDismiss: () -> Unit, onPick: (String) -> Unit) = Dialog
         ) {
             items(DrugType.entries, DrugType::value) { type ->
                 ElevatedCard(
+                    enabled = isEnabled(type),
                     onClick = { onPick(type.value) },
                     colors = CardDefaults.cardColors(MaterialTheme.colorScheme.secondaryContainer)
                 ) {
@@ -1021,13 +1057,20 @@ private fun DoseDropdownMenu(doseTitle: String, setDoseType: (DoseType) -> Unit)
             ExposedDropdownMenuDefaults.TrailingIcon(isExpanded)
         }
         ExposedDropdownMenu(
+            shape = MenuDefaults.standaloneGroupShape,
             expanded = isExpanded,
             onDismissRequest = { isExpanded = false }
         ) {
             DoseType.entries.forEach { item ->
                 DropdownMenuItem(
-                    text = { Text(stringResource(item.title)) },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                    modifier = Modifier.wrapContentSize(),
+                    shape = MenuDefaults.shape,
+                    text = {
+                        Text(
+                            text = stringResource(item.title),
+                            softWrap = false
+                        )
+                    },
                     onClick = {
                         setDoseType(item)
                         isExpanded = false

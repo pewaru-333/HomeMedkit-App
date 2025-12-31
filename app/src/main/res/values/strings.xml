@@ -257,6 +257,7 @@
     <string name="text_repeat">Repeat</string>
     <string name="text_same_amount">Same amount on every intake</string>
     <string name="text_save">Save</string>
+    <string name="text_scan">Scan</string>
     <string name="text_selected">Selected</string>
     <string name="text_selected_of">Selected %1$s of %2$s</string>
     <string name="text_start_date">Start date</string>

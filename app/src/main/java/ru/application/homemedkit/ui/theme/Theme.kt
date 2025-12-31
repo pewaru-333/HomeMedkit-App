@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package ru.application.homemedkit.ui.theme
 
 import android.graphics.Color
@@ -6,7 +8,8 @@ import android.os.Build
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -140,7 +143,7 @@ fun AppTheme(content: @Composable () -> Unit) {
         onDispose { }
     }
 
-    MaterialTheme(colorScheme = colors, content = content)
+    MaterialExpressiveTheme(colorScheme = colors, content = content)
 }
 
 fun isDynamicColorAvailable() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

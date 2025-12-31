@@ -1,15 +1,16 @@
 package ru.application.homemedkit.ui.navigation
 
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import ru.application.homemedkit.utils.BLANK
-import ru.application.homemedkit.utils.enums.IntakeTab
 
-sealed interface Screen {
+@Serializable
+sealed interface Screen : NavKey {
     @Serializable
     object Medicines : Screen
 
     @Serializable
-    data class Intakes(val tab: IntakeTab = IntakeTab.LIST) : Screen
+    data object Intakes : Screen
 
     @Serializable
     object Settings : Screen

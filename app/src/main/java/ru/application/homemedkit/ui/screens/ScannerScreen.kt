@@ -19,7 +19,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -57,6 +56,7 @@ import ru.application.homemedkit.R
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.viewModels.ScannerViewModel
 import ru.application.homemedkit.ui.elements.BoxLoading
+import ru.application.homemedkit.ui.elements.IconButton
 import ru.application.homemedkit.ui.elements.Image
 import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.utils.BLANK
@@ -67,7 +67,7 @@ import ru.application.homemedkit.utils.permissions.PermissionState
 import ru.application.homemedkit.utils.permissions.rememberPermissionState
 
 @Composable
-fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boolean) -> Unit) {
+fun ScannerScreen(onBack: () -> Unit, onGoToMedicine: (Long, String, Boolean) -> Unit) {
     val context = LocalContext.current
     val filesDir = context.filesDir
 
@@ -86,7 +86,7 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
 
     val snackbarHost = remember(::SnackbarHostState)
 
-    BackHandler(onBack = navigateUp)
+    BackHandler(onBack = onBack)
     if (cameraPermission.isGranted) Scaffold(
         snackbarHost = {
             SnackbarHost(snackbarHost) {
@@ -122,8 +122,8 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
             }
         }
     }
-    else if (cameraPermission.showRationale) PermissionDialog(cameraPermission, navigateUp)
-    else FirstTimeScreen(navigateUp, cameraPermission::launchRequest)
+    else if (cameraPermission.showRationale) PermissionDialog(cameraPermission, onBack)
+    else FirstTimeScreen(onBack, cameraPermission::launchRequest)
 
     when (val value = response) {
         Response.Loading -> BoxLoading()
@@ -142,7 +142,7 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
                         vibrate(300L)
 
                         AddMedicineDialog(model::setInitial) {
-                            value.code?.let { navigateToMedicine(0L, it, false) }
+                            value.code?.let { onGoToMedicine(0L, it, false) }
                         }
                     }
 
@@ -154,7 +154,7 @@ fun ScannerScreen(navigateUp: () -> Unit, navigateToMedicine: (Long, String, Boo
 
                 is Response.Navigate -> {
                     vibrate(150L)
-                    navigateToMedicine(value.id, BLANK, value.duplicate)
+                    onGoToMedicine(value.id, BLANK, value.duplicate)
                 }
 
                 else -> Unit

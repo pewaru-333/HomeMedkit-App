@@ -3,34 +3,53 @@ package ru.application.homemedkit.utils
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 
+@Immutable
 sealed interface ResourceText {
+    @Immutable
     data class StaticString(val value: String) : ResourceText
 
+    @Immutable
+    data class MultiString(val value: List<ResourceText>) : ResourceText
+
+    @Immutable
     class StringResource(
-        @StringRes val resourceId: Int,
+        @param:StringRes val resourceId: Int,
         vararg val args: Any
     ) : ResourceText
 
+    @Immutable
     class PluralStringResource(
-        @PluralsRes val resourceId: Int,
+        @param:PluralsRes val resourceId: Int,
         val count: Int,
         vararg val args: Any
     ) : ResourceText
 
     @Composable
-    fun asString() = when (this) {
+    fun asString(): String = when (this) {
         is StaticString -> value
 
-        is StringResource -> stringResource(
-            resourceId,
-            *args.map {
-                if (it is StringResource) stringResource(it.resourceId, it.args)
-                else it
-            }.toTypedArray()
-        )
+        is MultiString -> buildString {
+            value.forEachIndexed { index, text ->
+                append(text.asString())
+                if (index < value.lastIndex) append(" ")
+            }
+        }
+
+        is StringResource -> {
+            if (args.isEmpty()) {
+                stringResource(resourceId)
+            } else {
+                val mappedArgs = args.map { arg ->
+                    if (arg is ResourceText) arg.asString() else arg
+                }
+
+                stringResource(resourceId, *mappedArgs.toTypedArray())
+            }
+        }
 
         is PluralStringResource -> pluralStringResource(resourceId, count, *args)
     }

@@ -16,7 +16,7 @@ interface IntakeDAO : BaseDAO<Intake> {
     @Transaction
     @Query(
         """
-        SELECT  intakeId, medicineId, productName, nameAlias, finalDate
+        SELECT intakeId, medicineId, productName, nameAlias, finalDate
         FROM intakes
         JOIN medicines ON medicines.id = intakes.medicineId
         WHERE (

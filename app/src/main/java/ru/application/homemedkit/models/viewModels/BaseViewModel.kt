@@ -19,7 +19,7 @@ abstract class BaseViewModel<State, Event> : ViewModel() {
 
     protected fun updateState(update: (State) -> State) = _state.update(update)
 
-    abstract fun initState(): State
-    abstract fun loadData()
+    protected abstract fun initState(): State
+    protected abstract fun loadData()
     abstract fun onEvent(event: Event)
 }

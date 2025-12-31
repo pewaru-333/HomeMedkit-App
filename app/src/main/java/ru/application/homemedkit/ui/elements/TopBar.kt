@@ -1,24 +1,25 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package ru.application.homemedkit.ui.elements
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.AppBarWithSearch
+import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenuPopup
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,16 +27,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.application.homemedkit.R
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.extensions.collectLatestChanged
-import ru.application.homemedkit.utils.extensions.drawHorizontalDivider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +43,7 @@ fun SearchAppBar(
     onClear: () -> Unit = { onSearch(BLANK) },
     actions: @Composable (RowScope.() -> Unit) = {},
 ) {
+    val searchState = rememberSearchBarState()
     val textFieldState = rememberTextFieldState(search)
 
     LaunchedEffect(textFieldState) {
@@ -57,24 +56,15 @@ fun SearchAppBar(
         }
     }
 
-    CenterAlignedTopAppBar(
+    AppBarWithSearch(
+        state = searchState,
         actions = actions,
-        modifier = Modifier.drawHorizontalDivider(MaterialTheme.colorScheme.outlineVariant),
-        navigationIcon = {
-            Box(
-                content = { VectorIcon(R.drawable.vector_search) },
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .minimumInteractiveComponentSize()
-                    .size(40.dp)
-                    .clip(IconButtonDefaults.standardShape)
-            )
-        },
-        title = {
-            TextField(
-                state = textFieldState,
-                modifier = Modifier.fillMaxWidth(),
-                lineLimits = TextFieldLineLimits.SingleLine,
+        inputField = {
+            SearchBarDefaults.InputField(
+                textFieldState = textFieldState,
+                searchBarState = searchState,
+                onSearch = onSearch,
+                leadingIcon = { VectorIcon(R.drawable.vector_search) },
                 placeholder = { Text(stringResource(R.string.text_enter_product_name)) },
                 trailingIcon = {
                     if (search.isNotEmpty()) {
@@ -82,14 +72,7 @@ fun SearchAppBar(
                             VectorIcon(R.drawable.vector_clear)
                         }
                     }
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                )
+                }
             )
         }
     )
@@ -104,22 +87,27 @@ fun TopBarActions(
     onNavigate: (() -> Unit)? = null
 ) {
     @Composable
-    fun LocalDropDownItem(@StringRes text: Int, onClick: () -> Unit) =
-        DropdownMenuItem(
-            onClick = onClick,
-            text = {
-                Text(
-                    text = stringResource(text),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-        )
+    fun LocalDropDownItem(
+        @StringRes text: Int,
+        @DrawableRes icon: Int,
+        shape: Shape,
+        onClick: () -> Unit
+    ) = DropdownMenuItem(
+        onClick = onClick,
+        text = { Text(stringResource(text)) },
+        trailingIcon = { VectorIcon(icon, Modifier.size(20.dp)) },
+        shape = shape
+    )
 
     if (isDefault) {
         var expanded by remember { mutableStateOf(false) }
 
         if (onNavigate != null) {
-            IconButton(onNavigate) { VectorIcon(R.drawable.vector_notification) }
+            FilledIconButton(
+                onClick = onNavigate,
+                shapes = IconButtonDefaults.shapes(),
+                content = { VectorIcon(R.drawable.vector_notification) }
+            )
         }
 
         IconButton(
@@ -127,12 +115,24 @@ fun TopBarActions(
             content = { VectorIcon(R.drawable.vector_dropdown_more) }
         )
 
-        DropdownMenu(
+        DropdownMenuPopup(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            LocalDropDownItem(R.string.text_edit, setModifiable)
-            LocalDropDownItem(R.string.text_delete, onShowDialog)
+            DropdownMenuGroup(shapes = MenuDefaults.groupShape(0, 2)) {
+                LocalDropDownItem(
+                    text = R.string.text_edit,
+                    icon = R.drawable.vector_edit,
+                    shape = MenuDefaults.leadingItemShape,
+                    onClick = setModifiable
+                )
+                LocalDropDownItem(
+                    text = R.string.text_delete,
+                    icon = R.drawable.vector_delete,
+                    shape = MenuDefaults.trailingItemShape,
+                    onClick = onShowDialog
+                )
+            }
         }
     } else {
         IconButton(onSave) { VectorIcon(R.drawable.vector_confirm) }

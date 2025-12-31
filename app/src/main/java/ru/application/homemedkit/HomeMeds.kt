@@ -8,6 +8,7 @@ import coil3.disk.DiskCache
 import coil3.disk.directory
 import coil3.memory.MemoryCache
 import coil3.request.CachePolicy
+import coil3.request.allowRgb565
 import coil3.request.crossfade
 import ru.application.homemedkit.R.string.channel_exp_desc
 import ru.application.homemedkit.R.string.channel_intakes_desc
@@ -56,5 +57,7 @@ class HomeMeds : Application(), SingletonImageLoader.Factory {
                 .maxSizeBytes(32 * 1024 * 1024L)
                 .directory(context.cacheDir)
                 .build()
-        }.build()
+        }
+        .allowRgb565(true)
+        .build()
 }

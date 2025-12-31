@@ -1,6 +1,7 @@
 package ru.application.homemedkit.data
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -21,13 +22,15 @@ import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.data.dto.IntakeTime
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.Medicine
+import ru.application.homemedkit.data.dto.MedicineFTS
 import ru.application.homemedkit.data.dto.MedicineKit
 import ru.application.homemedkit.utils.DATABASE_NAME
 
 @Database(
-    version = 32,
+    version = 35,
     entities = [
         Medicine::class,
+        MedicineFTS::class,
         Intake::class,
         Alarm::class,
         Kit::class,
@@ -36,6 +39,12 @@ import ru.application.homemedkit.utils.DATABASE_NAME
         MedicineKit::class,
         IntakeTime::class,
         Image::class
+    ],
+    autoMigrations = [
+        AutoMigration(
+            from = 32,
+            to = 33
+        )
     ]
 )
 abstract class MedicineDatabase : RoomDatabase() {
@@ -57,7 +66,7 @@ abstract class MedicineDatabase : RoomDatabase() {
                 klass = MedicineDatabase::class.java,
                 name = DATABASE_NAME
             )
-                .addMigrations(MIGRATION_1_30, MIGRATION_30_31, MIGRATION_31_32)
+                .addMigrations(MIGRATION_1_30, MIGRATION_30_31, MIGRATION_31_32, MIGRATION_33_34, MIGRATION_34_35)
                 .setQueryCoroutineContext(Dispatchers.IO)
                 .build()
                 .also { INSTANCE = it }
@@ -98,6 +107,22 @@ abstract class MedicineDatabase : RoomDatabase() {
 
                     cursor.moveToNext()
                 }
+            }
+        }
+
+        private val MIGRATION_33_34 = object : Migration(33, 34) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS medicines_fts")
+                db.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `medicines_fts` USING FTS4(`productName` TEXT NOT NULL, `nameAlias` TEXT NOT NULL, `prodFormNormName` TEXT NOT NULL, `structure` TEXT NOT NULL, `phKinetics` TEXT NOT NULL, `comment` TEXT NOT NULL, content=`medicines`)")
+                db.execSQL("INSERT INTO medicines_fts(medicines_fts) VALUES('rebuild')")
+            }
+        }
+
+        private val MIGRATION_34_35 = object : Migration(34, 35) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS medicines_fts")
+                db.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `medicines_fts` USING FTS4(`productName` TEXT NOT NULL, `nameAlias` TEXT NOT NULL, `prodFormNormName` TEXT NOT NULL, `structure` TEXT NOT NULL, `phKinetics` TEXT NOT NULL, `comment` TEXT NOT NULL, content=`medicines`, prefix=`1,2,3`, tokenize=unicode61)")
+                db.execSQL("INSERT INTO medicines_fts(medicines_fts) VALUES('rebuild')")
             }
         }
     }

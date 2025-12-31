@@ -13,11 +13,9 @@ import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.data.dto.IntakeTaken
 import ru.application.homemedkit.utils.ALARM_ID
 import ru.application.homemedkit.utils.CHANNEL_ID_PRE
-import ru.application.homemedkit.utils.FORMAT_H_MM
-import ru.application.homemedkit.utils.decimalFormat
+import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.extensions.goAsync
 import ru.application.homemedkit.utils.extensions.safeNotify
-import ru.application.homemedkit.utils.getDateTime
 
 class PreAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) = goAsync {
@@ -62,9 +60,9 @@ class PreAlarmReceiver : BroadcastReceiver() {
                             context.getString(
                                 R.string.text_intake_prealarm_text,
                                 medicine.nameAlias.ifEmpty(medicine::productName),
-                                decimalFormat(alarm.amount),
+                                Formatter.decimalFormat(alarm.amount),
                                 context.getString(medicine.doseType.title),
-                                getDateTime(alarm.trigger).format(FORMAT_H_MM)
+                                Formatter.timeFormat(alarm.trigger)
                             )
                         )
                     )

@@ -4,9 +4,7 @@ package ru.application.homemedkit.models.viewModels
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -17,11 +15,8 @@ import ru.application.homemedkit.data.model.IntakeAmountTime
 import ru.application.homemedkit.models.events.IntakeEvent
 import ru.application.homemedkit.models.states.IntakeState
 import ru.application.homemedkit.models.validation.Validation
-import ru.application.homemedkit.ui.navigation.Screen.Intake
 import ru.application.homemedkit.utils.BLANK
-import ru.application.homemedkit.utils.FORMAT_DD_MM_YYYY
-import ru.application.homemedkit.utils.FORMAT_H_MM
-import ru.application.homemedkit.utils.ZONE
+import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.di.AlarmManager
 import ru.application.homemedkit.utils.di.Database
 import ru.application.homemedkit.utils.di.Preferences
@@ -40,28 +35,29 @@ import ru.application.homemedkit.utils.extensions.toIntake
 import ru.application.homemedkit.utils.extensions.toMedicineIntake
 import ru.application.homemedkit.utils.extensions.toState
 import ru.application.homemedkit.utils.extensions.toggle
-import ru.application.homemedkit.utils.getDateTime
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZonedDateTime
 
-class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, IntakeEvent>() {
-    private val dao = Database.intakeDAO()
-    private val args = saved.toRoute<Intake>()
+class IntakeViewModel(
+   private val intakeId: Long,
+   private val medicineId: Long
+) : BaseViewModel<IntakeState, IntakeEvent>() {
+    private val dao by lazy { Database.intakeDAO() }
 
     override fun initState() = IntakeState()
 
     override fun loadData() {
         viewModelScope.launch { 
-            with(dao.getById(args.intakeId)) {
+            with(dao.getById(intakeId)) {
                 if (this != null) {
                     val state = withContext(Dispatchers.Main) { toState() }
                     
                     updateState { state }
                 } else {
-                    Database.medicineDAO().getById(args.medicineId)?.let { medicine ->
+                    Database.medicineDAO().getById(medicineId)?.let { medicine ->
                         updateState { 
                             it.copy(
                                 adding = true,
@@ -93,19 +89,19 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
                 Database.intakeDayDAO().insert(days)
 
                 val current = ZonedDateTime.now()
-                val startDate = LocalDate.parse(currentState.startDate, FORMAT_DD_MM_YYYY)
-                val finalDate = LocalDate.parse(currentState.finalDate, FORMAT_DD_MM_YYYY)
+                val startDate = LocalDate.parse(currentState.startDate, Formatter.FORMAT_DD_MM_YYYY)
+                val finalDate = LocalDate.parse(currentState.finalDate, Formatter.FORMAT_DD_MM_YYYY)
 
                 val scheduled = mutableListOf<Alarm>()
 
                 currentState.pickedTime.forEach { pickedTime ->
                     val localTime = LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
 
-                    var initial = ZonedDateTime.of(startDate, localTime, ZONE)
-                    val finish = ZonedDateTime.of(finalDate, localTime, ZONE)
+                    var initial = ZonedDateTime.of(startDate, localTime, Formatter.ZONE)
+                    val finish = ZonedDateTime.of(finalDate, localTime, Formatter.ZONE)
 
                     initial = if (initial.isAfter(current)) initial else {
-                        val todayTime = ZonedDateTime.of(current.toLocalDate(), localTime, ZONE)
+                        val todayTime = ZonedDateTime.of(current.toLocalDate(), localTime, Formatter.ZONE)
 
                         if (todayTime.isAfter(current)) {
                             todayTime
@@ -161,8 +157,8 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
     fun update() {
         if (validate()) {
             val finalDate = LocalDateTime.of(
-                LocalDate.parse(currentState.finalDate, FORMAT_DD_MM_YYYY),
-                LocalTime.parse(currentState.pickedTime.last().time, FORMAT_H_MM)
+                /* date = */ LocalDate.parse(currentState.finalDate, Formatter.FORMAT_DD_MM_YYYY),
+                /* time = */ LocalTime.parse(currentState.pickedTime.last().time, Formatter.FORMAT_H_MM)
             )
 
             viewModelScope.launch {
@@ -178,19 +174,19 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
                     dao.deleteIntakeTime(currentState.intakeId)
 
                     val current = ZonedDateTime.now()
-                    val startDate = LocalDate.parse(currentState.startDate, FORMAT_DD_MM_YYYY)
-                    val finalDate = LocalDate.parse(currentState.finalDate, FORMAT_DD_MM_YYYY)
+                    val startDate = LocalDate.parse(currentState.startDate, Formatter.FORMAT_DD_MM_YYYY)
+                    val finalDate = LocalDate.parse(currentState.finalDate, Formatter.FORMAT_DD_MM_YYYY)
 
                     val scheduled = mutableListOf<Alarm>()
 
                     currentState.pickedTime.forEach { pickedTime ->
                         val localTime = LocalTime.of(pickedTime.picker.hour, pickedTime.picker.minute)
 
-                        var initial = ZonedDateTime.of(startDate, localTime, ZONE)
-                        val finish = ZonedDateTime.of(finalDate, localTime, ZONE)
+                        var initial = ZonedDateTime.of(startDate, localTime, Formatter.ZONE)
+                        val finish = ZonedDateTime.of(finalDate, localTime, Formatter.ZONE)
 
                         initial = if (initial.isAfter(current)) initial else {
-                            val todayTime = ZonedDateTime.of(current.toLocalDate(), localTime, ZONE)
+                            val todayTime = ZonedDateTime.of(current.toLocalDate(), localTime, Formatter.ZONE)
 
                             if (todayTime.isAfter(current)) {
                                 todayTime
@@ -320,8 +316,8 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
 
                         INDEFINITE -> updateState {
                             it.copy(
-                                startDate = LocalDate.now().format(FORMAT_DD_MM_YYYY),
-                                finalDate = LocalDate.now().plusDays(period.days.toLong()).format(FORMAT_DD_MM_YYYY),
+                                startDate = LocalDate.now().format(Formatter.FORMAT_DD_MM_YYYY),
+                                finalDate = LocalDate.now().plusDays(period.days.toLong()).format(Formatter.FORMAT_DD_MM_YYYY),
                                 period = period.days.toString(),
                                 periodType = period,
                                 showPeriodTypePicker = false
@@ -330,10 +326,10 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
                     }
 
                     is String -> if (period.isNotEmpty()) {
-                        val start = currentState.startDate.ifEmpty { LocalDate.now().format(FORMAT_DD_MM_YYYY) }
-                        val finish = LocalDate.parse(start, FORMAT_DD_MM_YYYY)
+                        val start = currentState.startDate.ifEmpty { LocalDate.now().format(Formatter.FORMAT_DD_MM_YYYY) }
+                        val finish = LocalDate.parse(start, Formatter.FORMAT_DD_MM_YYYY)
                             .plusDays(period.toLong() - 1)
-                            .format(FORMAT_DD_MM_YYYY)
+                            .format(Formatter.FORMAT_DD_MM_YYYY)
 
                         updateState {
                             it.copy(
@@ -350,8 +346,8 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
 
                     is Pair<*, *> -> if (period.first != null && period.second != null) updateState {
                         it.copy(
-                            startDate = getDateTime(period.first as Long).format(FORMAT_DD_MM_YYYY),
-                            finalDate = getDateTime(period.second as Long).format(FORMAT_DD_MM_YYYY),
+                            startDate = Formatter.dateFormat(period.first as Long, Formatter.FORMAT_DD_MM_YYYY),
+                            finalDate = Formatter.dateFormat(period.second as Long, Formatter.FORMAT_DD_MM_YYYY),
                             period = PICK.days.toString()
                         )
                     }
@@ -363,10 +359,9 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
                     if (it.isEmpty()) 1L
                     else it.toLong() - 1
                 }
-                val start = getDateTime(event.millis).format(FORMAT_DD_MM_YYYY)
-                val finish = getDateTime(event.millis)
-                    .plusDays(period)
-                    .format(FORMAT_DD_MM_YYYY)
+                val time = Formatter.getDateTime(event.millis)
+                val start = time.format(Formatter.FORMAT_DD_MM_YYYY)
+                val finish = time.plusDays(period).format(Formatter.FORMAT_DD_MM_YYYY)
 
                 updateState {
                     it.copy(
@@ -386,7 +381,7 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
             IntakeEvent.IncTime -> {
                 val pickedTime = with(currentState.pickedTime) {
                     concat(
-                        IntakeAmountTime(
+                        element = IntakeAmountTime(
                             amount = firstOrNull()?.amount.orEmpty(),
                             time = BLANK,
                             picker = TimePickerState(12, 0, true)
@@ -462,8 +457,8 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
                     SchemaType.INDEFINITELY -> {
                         updateState {
                             it.copy(
-                                startDate = LocalDate.now().format(FORMAT_DD_MM_YYYY),
-                                finalDate = LocalDate.now().plusDays(INDEFINITE.days.toLong()).format(FORMAT_DD_MM_YYYY),
+                                startDate = LocalDate.now().format(Formatter.FORMAT_DD_MM_YYYY),
+                                finalDate = LocalDate.now().plusDays(INDEFINITE.days.toLong()).format(Formatter.FORMAT_DD_MM_YYYY),
                                 interval = DAILY.days.toString(),
                                 period = INDEFINITE.days.toString(),
                                 pickedDays = DayOfWeek.entries,
@@ -511,7 +506,7 @@ class IntakeViewModel(saved: SavedStateHandle) : BaseViewModel<IntakeState, Inta
             is IntakeEvent.SetPickedTime -> {
                 val pickerIndex = currentState.timePickerIndex
                 val picker = currentState.pickedTime[pickerIndex].picker
-                val pickerTime = LocalTime.of(picker.hour, picker.minute).format(FORMAT_H_MM)
+                val pickerTime = Formatter.timeFormat(picker.hour, picker.minute)
 
                 val pickedTime = currentState.pickedTime.mapIndexed { index, time ->
                     if (index != pickerIndex) time

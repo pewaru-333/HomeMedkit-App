@@ -255,6 +255,7 @@
     <string name="text_repeat">Повтор</string>
     <string name="text_same_amount">Равное для каждого приёма</string>
     <string name="text_save">Сохранить</string>
+    <string name="text_scan">Отсканировать</string>
     <string name="text_selected">Выбрано</string>
     <string name="text_selected_of">Выбрано %1$s из %2$s</string>
     <string name="text_start_date">Начальная дата</string>

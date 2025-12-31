@@ -12,11 +12,9 @@ import ru.application.homemedkit.models.states.TechnicalState
 import ru.application.homemedkit.network.models.MainModel
 import ru.application.homemedkit.network.models.bio.BioData
 import ru.application.homemedkit.network.models.medicine.DrugsData
-import ru.application.homemedkit.utils.decimalFormat
+import ru.application.homemedkit.utils.Formatter
+import ru.application.homemedkit.utils.ResourceText
 import ru.application.homemedkit.utils.enums.DrugType
-import ru.application.homemedkit.utils.formName
-import ru.application.homemedkit.utils.inCard
-import ru.application.homemedkit.utils.toExpDate
 
 fun MedicineFull.toState() = MedicineState(
     adding = false,
@@ -30,9 +28,9 @@ fun MedicineFull.toState() = MedicineState(
     productName = productName,
     nameAlias = nameAlias.ifEmpty { productName },
     expDate = expDate,
-    expDateString = toExpDate(expDate),
+    expDateString = Formatter.toExpDate(expDate),
     dateOpened = packageOpenedDate,
-    dateOpenedString = toExpDate(packageOpenedDate),
+    dateOpenedString = Formatter.toExpDate(packageOpenedDate),
     prodFormNormName = prodFormNormName,
     structure = structure,
     prodDNormName = prodDNormName,
@@ -58,16 +56,20 @@ fun MedicineFull.toMedicineIntake() = MedicineIntake(
     doseType = doseType
 )
 
-fun MedicineMain.toMedicineList() = MedicineList(
+fun MedicineMain.toMedicineList(currentMillis: Long) = MedicineList(
     id = id,
     title = nameAlias.ifEmpty(::productName),
-    prodAmount = decimalFormat(prodAmount),
-    doseType = doseType.title,
-    expDateS = inCard(expDate),
-    formName = formName(prodFormNormName),
-    image =  image.firstOrNull().orEmpty(),
+    prodAmountDoseType = ResourceText.MultiString(
+        value = listOf(
+            ResourceText.StaticString(Formatter.decimalFormat(prodAmount)),
+            ResourceText.StringResource(doseType.title)
+        )
+    ),
+    expDateS = Formatter.cardFormat(expDate),
+    formName = Formatter.formFormat(prodFormNormName),
+    image = image.firstOrNull().orEmpty(),
     inStock = prodAmount >= 0.1,
-    isExpired = expDate < System.currentTimeMillis()
+    isExpired = expDate < currentMillis
 )
 
 fun MedicineState.toMedicine() = Medicine(

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package ru.application.homemedkit.ui.screens
 
 import android.Manifest
@@ -14,14 +16,18 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Arrangement.spacedBy
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,19 +35,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedListItem
+import androidx.compose.material3.SmallExtendedFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -57,6 +66,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -64,6 +74,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
@@ -76,11 +87,12 @@ import me.zhanghai.compose.preference.preferenceCategory
 import me.zhanghai.compose.preference.switchPreference
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Kit
-import ru.application.homemedkit.dialogs.dragHandle
-import ru.application.homemedkit.dialogs.draggableItems
-import ru.application.homemedkit.dialogs.rememberDraggableListState
+import ru.application.homemedkit.dialogs.DraggableItem
+import ru.application.homemedkit.dialogs.dragContainer
+import ru.application.homemedkit.dialogs.rememberDragDropState
 import ru.application.homemedkit.models.viewModels.SettingsViewModel
 import ru.application.homemedkit.receivers.AlarmSetter
+import ru.application.homemedkit.ui.elements.IconButton
 import ru.application.homemedkit.ui.elements.NavigationIcon
 import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.ui.navigation.LocalBarVisibility
@@ -355,7 +367,8 @@ private fun KitsManager(
         kit = Kit(position = list.size.toLong())
     }
 
-    val draggableState = rememberDraggableListState { fromIndex, toIndex ->
+    val listState = rememberLazyListState()
+    val dragState = rememberDragDropState(listState) { fromIndex, toIndex ->
         list = list.toMutableList().apply { add(toIndex, removeAt(fromIndex)) }
     }
 
@@ -390,7 +403,7 @@ private fun KitsManager(
             },
             floatingActionButton = {
                 if (!ordering) {
-                    ExtendedFloatingActionButton(
+                    SmallExtendedFloatingActionButton(
                         text = { Text(stringResource(R.string.text_add)) },
                         icon = { VectorIcon(R.drawable.vector_add) },
                         onClick = { show = true },
@@ -398,40 +411,68 @@ private fun KitsManager(
                 }
             }
         ) { values ->
-            LazyColumn(Modifier.fillMaxSize(), draggableState.listState, values) {
-                draggableItems(draggableState, list, Kit::kitId) { item, _ ->
-                    ListItem(
-                        headlineContent = { Text(item.title) },
-                        leadingContent = ordering.let {
-                            {
-                                if (!it) {
-                                    IconButton(
-                                        content = { VectorIcon(R.drawable.vector_edit) },
-                                        onClick = {
-                                            kit = Kit(item.kitId, item.title, item.position)
-                                            show = true
-                                        }
-                                    )
-                                }
-                            }
-                        },
-                        trailingContent = {
-                            if (ordering) {
-                                VectorIcon(
-                                    icon = R.drawable.vector_menu,
-                                    modifier = Modifier.dragHandle(draggableState, item.kitId)
-                                )
-                            } else {
-                                IconButton(
-                                    onClick = { onDelete(item) },
-                                    content = { VectorIcon(R.drawable.vector_delete) }
-                                )
-                            }
-                        }
-                    )
+            LazyColumn(
+                state = listState,
+                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(values)
+                    .then(if (ordering) Modifier.dragContainer(dragState) else Modifier)
+            ) {
+                itemsIndexed(
+                    items = list,
+                    key = { _, item -> item.kitId }
+                ) { index, item ->
+                    DraggableItem(dragState, index) { isDragging ->
+                        val itemShape = ListItemDefaults.segmentedShapes(index, list.size)
+                        val scale by animateFloatAsState(if (isDragging) 1.05f else 1.0f)
+                        val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
+                        val translationX by animateFloatAsState(if (isDragging) 20f else 0f)
+                        val translationY by animateFloatAsState(if (isDragging) -10f else 0f)
 
-                    if (item.position > 0L) {
-                        HorizontalDivider()
+                        Box(
+                            modifier = Modifier
+                                .zIndex(if (isDragging) 1f else 0f)
+                                .graphicsLayer {
+                                    this.translationX = translationX
+                                    this.translationY = translationY
+                                    scaleX = scale
+                                    scaleY = scale
+                                    shadowElevation = elevation.toPx()
+                                    shape = itemShape.shape
+                                    clip = true
+                                }
+                        ) {
+                            SegmentedListItem(
+                                shapes = itemShape,
+                                verticalAlignment = Alignment.CenterVertically,
+                                onClick = {},
+                                content = { Text(item.title) },
+                                leadingContent = ordering.let {
+                                    {
+                                        if (!it) {
+                                            IconButton(
+                                                content = { VectorIcon(R.drawable.vector_edit) },
+                                                onClick = {
+                                                    kit = Kit(item.kitId, item.title, item.position)
+                                                    show = true
+                                                }
+                                            )
+                                        }
+                                    }
+                                },
+                                trailingContent = {
+                                    if (ordering) {
+                                        VectorIcon(R.drawable.vector_menu)
+                                    } else {
+                                        IconButton(
+                                            onClick = { onDelete(item) },
+                                            content = { VectorIcon(R.drawable.vector_delete) }
+                                        )
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }

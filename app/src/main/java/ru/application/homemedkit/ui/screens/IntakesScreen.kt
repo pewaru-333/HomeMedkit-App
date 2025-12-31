@@ -1,10 +1,9 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+
 package ru.application.homemedkit.ui.screens
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -29,33 +29,32 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults.MinHeight
 import androidx.compose.material3.OutlinedTextFieldDefaults.MinWidth
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.SelectableDates
-import androidx.compose.material3.ShapeDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -93,19 +92,18 @@ import ru.application.homemedkit.models.states.ScheduledState
 import ru.application.homemedkit.models.states.TakenState
 import ru.application.homemedkit.models.viewModels.IntakesViewModel
 import ru.application.homemedkit.ui.elements.BoxWithEmptyListText
+import ru.application.homemedkit.ui.elements.IconButton
 import ru.application.homemedkit.ui.elements.MedicineImage
 import ru.application.homemedkit.ui.elements.SearchAppBar
 import ru.application.homemedkit.ui.elements.TextDate
 import ru.application.homemedkit.ui.elements.VectorIcon
-import ru.application.homemedkit.ui.navigation.Screen
 import ru.application.homemedkit.utils.DecimalAmountInputTransformation
 import ru.application.homemedkit.utils.DecimalAmountOutputTransformation
+import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.IntakeTab
-import ru.application.homemedkit.utils.getDateTime
 import java.time.ZoneOffset
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IntakesScreen(onNavigate: (Long) -> Unit) {
     val model = viewModel<IntakesViewModel>()
@@ -124,10 +122,7 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
         pageCount = IntakeTab.entries::count,
-        initialPage = when (val route = Preferences.startPage.route) {
-            is Screen.Intakes -> route.tab.ordinal
-            else -> 0
-        }
+        initialPage = Preferences.startPage.extras.getOrElse(0) { 0 } as Int
     )
     val listStates = IntakeTab.entries.map { rememberLazyListState() }
 
@@ -277,22 +272,23 @@ private fun <T : IntakeModel> IntakeList(
     showDialogScheduleToTaken: ((IntakeModel) -> Unit)? = null
 ) = LazyColumn(modifier, state) {
     items.fastForEach { group ->
-        item {
+        item(group.date) {
             TextDate(group.date)
         }
 
-        items(group.intakes, IntakeModel::id) { item ->
+        itemsIndexed(
+            items = group.intakes,
+            key = { _, item -> item.id }
+        ) { index, item ->
             ItemSchedule(
                 item = item,
+                index = index,
+                count = group.intakes.size,
                 modifier = Modifier.animateItem(),
                 showDialog = showDialog,
                 showDialogDelete = showDialogDelete,
                 showDialogScheduleToTaken = showDialogScheduleToTaken
             )
-
-            if (item != group.intakes.lastOrNull()) {
-                HorizontalDivider()
-            }
         }
     }
 }
@@ -300,6 +296,8 @@ private fun <T : IntakeModel> IntakeList(
 @Composable
 private fun ItemIntake(intake: Intake, modifier: Modifier, onNavigate: (Long) -> Unit) =
     ListItem(
+        modifier = modifier,
+        onClick = { onNavigate(intake.intakeId) },
         overlineContent = {
             Text(
                 text = intake.title,
@@ -307,10 +305,10 @@ private fun ItemIntake(intake: Intake, modifier: Modifier, onNavigate: (Long) ->
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
                 style = MaterialTheme.typography.bodyLarge,
-                color = ListItemDefaults.colors().headlineColor
+                color = ListItemDefaults.colors().contentColor
             )
         },
-        headlineContent = {
+        content = {
             Text(
                 text = intake.days.asString(),
                 softWrap = false,
@@ -339,13 +337,9 @@ private fun ItemIntake(intake: Intake, modifier: Modifier, onNavigate: (Long) ->
         colors = ListItemDefaults.colors(
             containerColor = if (intake.active) ListItemDefaults.containerColor
             else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f)
-        ),
-        modifier = modifier.clickable {
-            onNavigate(intake.intakeId)
-        }
+        )
     )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DialogGoToDate(onDismiss: () -> Unit, onScroll: (Long) -> Unit) {
     val pickerState = rememberDatePickerState()
@@ -392,7 +386,6 @@ private fun DialogScheduleToTaken(
     }
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DialogAddTaken(
     medicines: List<MedicineMain>,
@@ -400,14 +393,14 @@ private fun DialogAddTaken(
     onEvent: (NewTakenEvent) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val now = remember { getDateTime(System.currentTimeMillis()) }
+    val now = remember { Formatter.getDateTime(System.currentTimeMillis()) }
     val today = remember { now.toLocalDate() }
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = today.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
         selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long) =
-                !getDateTime(utcTimeMillis).toLocalDate().isAfter(today)
+                !Formatter.getDateTime(utcTimeMillis).toLocalDate().isAfter(today)
         }
     )
 
@@ -516,6 +509,7 @@ private fun DialogAddTaken(
                     ) {
                         medicines.fastForEach { item ->
                             DropdownMenuItem(
+                                shape = MenuDefaults.shape,
                                 onClick = {
                                     onEvent(NewTakenEvent.PickMedicine(item))
                                     expanded = false
@@ -608,7 +602,6 @@ private fun DialogAddTaken(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DialogTaken(intake: TakenState, onDismiss: () -> Unit, onEvent: (TakenEvent) -> Unit) {
     val context = LocalContext.current
@@ -722,13 +715,15 @@ private fun DialogTaken(intake: TakenState, onDismiss: () -> Unit, onEvent: (Tak
                         )
                     }
 
-                    else -> SingleChoiceSegmentedButtonRow(Modifier.size(MinWidth, MinHeight)) {
+                    else -> Row(horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween)) {
                         items.forEachIndexed { index, label ->
-                            SegmentedButton(
-                                selected = index == intake.selection,
-                                shape = SegmentedButtonDefaults.itemShape(index, items.size, ShapeDefaults.ExtraSmall),
-                                onClick = { onEvent(TakenEvent.SetSelection(index)) },
-                                label = { Text(stringResource(label)) }
+                            ToggleButton(
+                                checked = index == intake.selection,
+                                onCheckedChange = { onEvent(TakenEvent.SetSelection(index)) },
+                                modifier = Modifier.weight(1f),
+                                content = { Text(stringResource(label)) },
+                                shapes = if (index == 0) ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                else ButtonGroupDefaults.connectedTrailingButtonShapes()
                             )
                         }
                     }
@@ -752,16 +747,27 @@ private fun DialogDeleteTaken(onDismiss: () -> Unit, onDelete: () -> Unit) = Ale
     }
 )
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ItemSchedule(
     item: IntakeModel,
+    index: Int,
+    count: Int,
     modifier: Modifier,
     showDialog: ((Long) -> Unit)? = null,
     showDialogDelete: ((Long) -> Unit)? = null,
     showDialogScheduleToTaken: ((IntakeModel) -> Unit)? = null
-) = ListItem(
-    headlineContent = {
+) = SegmentedListItem(
+    modifier = modifier.padding(ListItemDefaults.SegmentedGap),
+    shapes = ListItemDefaults.segmentedShapes(index, count),
+    onClick = { showDialog?.invoke(item.id) },
+    onLongClick = {
+        showDialogScheduleToTaken?.invoke(item)
+
+        if (!item.taken) {
+            showDialogDelete?.invoke(item.id)
+        }
+    },
+    content = {
         Text(
             text = item.title,
             softWrap = false,
@@ -774,16 +780,6 @@ private fun ItemSchedule(
             modifier = Modifier.size(40.dp)
         )
     },
-    modifier = modifier.combinedClickable(
-        onClick = { showDialog?.invoke(item.id) },
-        onLongClick = {
-            showDialogScheduleToTaken?.invoke(item)
-
-            if (!item.taken) {
-                showDialogDelete?.invoke(item.id)
-            }
-        }
-    ),
     supportingContent = {
         Text(
             text = item.doseAmount.asString()
@@ -796,7 +792,7 @@ private fun ItemSchedule(
         )
     },
     colors = ListItemDefaults.colors(
-        containerColor = if (item.taken) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
-        else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.65f)
+        containerColor = if (item.taken) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+        else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
     )
 )

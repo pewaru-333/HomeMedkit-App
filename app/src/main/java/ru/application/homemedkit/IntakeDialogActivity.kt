@@ -17,9 +17,9 @@ import kotlinx.coroutines.runBlocking
 import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.ui.theme.AppTheme
 import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.ID
 import ru.application.homemedkit.utils.TAKEN_ID
-import ru.application.homemedkit.utils.decimalFormat
 
 
 class IntakeDialogActivity : ComponentActivity() {
@@ -68,9 +68,9 @@ class IntakeDialogActivity : ComponentActivity() {
                             text = stringResource(
                                 R.string.text_intake_time,
                                 medicine.nameAlias.ifEmpty(medicine::productName),
-                                decimalFormat(amount),
+                                Formatter.decimalFormat(amount),
                                 stringResource(medicine.doseType.title),
-                                decimalFormat(medicine.prodAmount.minus(amount))
+                                Formatter.decimalFormat(medicine.prodAmount.minus(amount))
                             )
                         )
                     }

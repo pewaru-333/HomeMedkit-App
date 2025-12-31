@@ -1,9 +1,7 @@
 package ru.application.homemedkit.models.viewModels
 
 import android.net.Uri
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -23,25 +21,26 @@ import ru.application.homemedkit.models.states.MedicineDialogState
 import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.validation.Validation
 import ru.application.homemedkit.network.Network
-import ru.application.homemedkit.ui.navigation.Screen.Medicine
 import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.camera.ImageProcessing
 import ru.application.homemedkit.utils.di.Database
+import ru.application.homemedkit.utils.enums.DrugType
 import ru.application.homemedkit.utils.enums.ImageEditing
 import ru.application.homemedkit.utils.extensions.concat
 import ru.application.homemedkit.utils.extensions.toMedicine
 import ru.application.homemedkit.utils.extensions.toState
 import ru.application.homemedkit.utils.extensions.toggle
 import ru.application.homemedkit.utils.getMedicineImages
-import ru.application.homemedkit.utils.toExpDate
-import ru.application.homemedkit.utils.toTimestamp
 import java.io.File
 
-class MedicineViewModel(saved: SavedStateHandle) : BaseViewModel<MedicineState, MedicineEvent>() {
-    private val dao = Database.medicineDAO()
-    private val daoK = Database.kitDAO()
-
-    private val args = saved.toRoute<Medicine>()
+class MedicineViewModel(
+    private val id: Long,
+    private val cis: String,
+    private val duplicate: Boolean
+) : BaseViewModel<MedicineState, MedicineEvent>() {
+    private val dao by lazy { Database.medicineDAO() }
+    private val daoK by lazy { Database.kitDAO() }
 
     private val _response = Channel<Response>()
     val response = _response.receiveAsFlow()
@@ -49,23 +48,34 @@ class MedicineViewModel(saved: SavedStateHandle) : BaseViewModel<MedicineState, 
     private val _deleted = Channel<Boolean>()
     val deleted = _deleted.receiveAsFlow()
 
-    val kits = Database.kitDAO().getFlow()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
+    val kits by lazy {
+        daoK.getFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
+    }
 
     override fun initState() = MedicineState()
 
     override fun loadData() {
         viewModelScope.launch {
-            val medicineState = with(dao.getById(args.id)) {
-                if (this == null) MedicineState(adding = true, isLoading = false, code = args.cis)
-                else withContext(Dispatchers.Main) { toState() }
+            val medicine = withContext(Dispatchers.IO) { dao.getById(id) }
+
+            if (medicine != null) {
+                val newState = withContext(Dispatchers.Default) { medicine.toState() }
+
+                updateState { newState }
+            } else {
+                updateState {
+                    it.copy(
+                        adding = true,
+                        isLoading = false,
+                        code = cis,
+                        images = listOf(DrugType.entries.random().value)
+                    )
+                }
             }
 
-            if (args.duplicate) {
+            if (duplicate) {
                 _response.send(Response.Duplicate)
             }
-
-            updateState { medicineState }
         }
     }
 
@@ -150,7 +160,7 @@ class MedicineViewModel(saved: SavedStateHandle) : BaseViewModel<MedicineState, 
 
                         joinAll(jobOne, jobTow)
 
-                        dao.getById(args.id)?.let { medicine ->
+                        dao.getById(id)?.let { medicine ->
                             updateState { medicine.toState() }
                         }
 
@@ -221,17 +231,21 @@ class MedicineViewModel(saved: SavedStateHandle) : BaseViewModel<MedicineState, 
         when (event) {
             is MedicineEvent.SetProductName -> updateState { it.copy(productName = event.productName) }
             is MedicineEvent.SetNameAlias -> updateState { it.copy(nameAlias = event.alias) }
-            is MedicineEvent.SetExpDate -> updateState {
-                it.copy(
-                    expDate = toTimestamp(event.month, event.year),
-                    expDateString = toExpDate(toTimestamp(event.month, event.year)),
-                    dialogState = null
-                )
+            is MedicineEvent.SetExpDate -> {
+                val expDate = Formatter.toTimestamp(event.month, event.year)
+
+                updateState {
+                    it.copy(
+                        expDate = expDate,
+                        expDateString = Formatter.toExpDate(expDate),
+                        dialogState = null
+                    )
+                }
             }
             is MedicineEvent.SetPackageDate -> updateState {
                 it.copy(
                     dateOpened = event.timestamp,
-                    dateOpenedString = toExpDate(event.timestamp),
+                    dateOpenedString = Formatter.toExpDate(event.timestamp),
                     dialogState = null,
                     isOpened = event.timestamp > 0L
                 )
@@ -267,24 +281,23 @@ class MedicineViewModel(saved: SavedStateHandle) : BaseViewModel<MedicineState, 
             }
 
             is MedicineEvent.OnImageReodering -> {
-                val imagesMutable = currentState.images.toMutableList()
-                val removed = imagesMutable.removeAt(event.fromIndex)
-                imagesMutable.add(event.toIndex, removed)
+                val imagesNameMutable = currentState.images.toMutableList()
+                val removedName = imagesNameMutable.removeAt(event.fromIndex)
+
+                imagesNameMutable.add(event.toIndex, removedName)
 
                 updateState {
-                    it.copy(
-                        images = imagesMutable
-                    )
+                    it.copy(images = imagesNameMutable)
                 }
             }
 
             is MedicineEvent.RemoveImage -> {
-                val images = currentState.images.toMutableList().apply {
+                val imageNames = currentState.images.toMutableList().apply {
                     remove(event.image)
                 }
 
                 updateState {
-                    it.copy(images = images)
+                    it.copy(images = imageNames)
                 }
             }
 
@@ -344,7 +357,7 @@ class MedicineViewModel(saved: SavedStateHandle) : BaseViewModel<MedicineState, 
 
             val compressedResult = compressed.mapNotNull { it.await() }
 
-            withContext(Dispatchers.Main) {
+            withContext(Dispatchers.Default) {
                 val images = currentState.images.toMutableList().apply {
                     addAll(compressedResult)
                 }

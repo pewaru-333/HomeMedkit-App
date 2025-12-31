@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package ru.application.homemedkit.models.viewModels
 
 import androidx.lifecycle.viewModelScope
@@ -9,12 +11,12 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.model.KitModel
 import ru.application.homemedkit.data.model.MedicineGrouped
 import ru.application.homemedkit.data.model.MedicineMain
+import ru.application.homemedkit.data.queries.MedicinesQueryBuilder
 import ru.application.homemedkit.models.states.MedicinesState
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.ResourceText
@@ -26,32 +28,27 @@ import ru.application.homemedkit.utils.extensions.toModel
 import ru.application.homemedkit.utils.extensions.toggle
 
 class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
-    @OptIn(ExperimentalCoroutinesApi::class)
+    private val currentMillis by lazy { System.currentTimeMillis() }
+    private val medicineDAO by lazy { Database.medicineDAO() }
+    private val kitDAO by lazy { Database.kitDAO() }
     private val _medicines = state.flatMapLatest { query ->
-        Database.medicineDAO().getListFlow(
-            search = query.search,
-            sorting = query.sorting,
-            kitIds = query.kits.map(Kit::kitId),
-            kitsEnabled = query.kits.isNotEmpty()
-        )
+        medicineDAO.getFlow(MedicinesQueryBuilder.selectBy(query.search, query.sorting, query.kits))
     }
 
     val medicines = _medicines
-        .map { list -> list.map(MedicineMain::toMedicineList) }
+        .map { list -> list.map { main -> main.toMedicineList(currentMillis) } }
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
-
-    @OptIn(ExperimentalCoroutinesApi::class)
     val grouped = state.flatMapLatest { state ->
         _medicines.map { medicineList ->
-            val selectedKits = state.kits.map(Kit::kitId).toSet()
+            val selectedKits: Set<Long> = state.kits.mapTo(mutableSetOf(), Kit::kitId)
             val filterIsEmpty = selectedKits.isEmpty()
 
             val kitsToGroup = if (filterIsEmpty) {
-                Database.kitDAO().getKitList(medicineList.flatMap(MedicineMain::kitIds).distinct()).associateBy(Kit::kitId)
+                kitDAO.getKitList(medicineList.flatMap(MedicineMain::kitIds).distinct()).associateBy(Kit::kitId)
             } else {
-                Database.kitDAO().getKitList(selectedKits.toList()).associateBy(Kit::kitId)
+                kitDAO.getKitList(selectedKits.toList()).associateBy(Kit::kitId)
             }
 
             val (toGroup, noGroup) = medicineList.partition { medicine ->
@@ -74,7 +71,9 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
                     .map { (kit, medicinesInKit) ->
                         MedicineGrouped(
                             kit = kit.toModel(),
-                            medicines = medicinesInKit.map(MedicineMain::toMedicineList)
+                            medicines = medicinesInKit.map { main ->
+                                main.toMedicineList(currentMillis)
+                            }
                         )
                     }
                 withKits.addAll(groupedByAllTheirKits)
@@ -89,7 +88,9 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
                             withKits.add(
                                 MedicineGrouped(
                                     kit = kitInfo.toModel(),
-                                    medicines = medicinesSelectedKits.map(MedicineMain::toMedicineList)
+                                    medicines = medicinesSelectedKits.map { main ->
+                                        main.toMedicineList(currentMillis)
+                                    }
                                 )
                             )
                         }
@@ -109,7 +110,9 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
                 if (noGroupMedicines.isNotEmpty()) {
                     add(
                         MedicineGrouped(
-                            medicines = noGroupMedicines.map(MedicineMain::toMedicineList),
+                            medicines = noGroupMedicines.map { main ->
+                                main.toMedicineList(currentMillis)
+                            },
                             kit = KitModel(
                                 id = -1L,
                                 position = Int.MAX_VALUE.toLong(),
@@ -125,7 +128,7 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
     }.flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
-    val kits = Database.kitDAO().getFlow()
+    val kits = kitDAO.getFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     override fun initState() = MedicinesState()
@@ -134,13 +137,9 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
         with(Preferences.kitsFilter) {
             if (isNotEmpty()) {
                 viewModelScope.launch {
-                    val kits = Database.kitDAO().getKitList(toList())
+                    val kits = kitDAO.getKitList(toList())
 
-                    withContext(Dispatchers.Main) {
-                        updateState {
-                            it.copy(kits = kits.toSet())
-                        }
-                    }
+                    updateState { it.copy(kits = kits.toSet()) }
                 }
             }
         }
@@ -162,7 +161,7 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
         updateState { it.copy(showFilter = !it.showFilter) }
 
         if (!currentState.showFilter) {
-            Preferences.saveKitsFilter(currentState.kits.map(Kit::kitId).toSet())
+            Preferences.saveKitsFilter(currentState.kits.mapTo(mutableSetOf(), Kit::kitId))
         }
     }
 

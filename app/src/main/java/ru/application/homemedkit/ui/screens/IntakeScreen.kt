@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 
 package ru.application.homemedkit.ui.screens
 
@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TextAutoSize
@@ -39,6 +38,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -46,9 +46,11 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -66,10 +68,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.Locale
@@ -78,7 +80,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.model.MedicineIntake
@@ -97,7 +98,8 @@ import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.utils.DaysInputTransformation
 import ru.application.homemedkit.utils.DecimalAmountInputTransformation
 import ru.application.homemedkit.utils.DecimalAmountOutputTransformation
-import ru.application.homemedkit.utils.decimalFormat
+import ru.application.homemedkit.utils.EmptyInteractionSource
+import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.enums.FoodType
 import ru.application.homemedkit.utils.enums.IntakeExtra
 import ru.application.homemedkit.utils.enums.Interval
@@ -106,28 +108,26 @@ import ru.application.homemedkit.utils.enums.SchemaType
 import ru.application.homemedkit.utils.extensions.canUseFullScreenIntent
 import ru.application.homemedkit.utils.extensions.defined
 import ru.application.homemedkit.utils.extensions.intake
-import ru.application.homemedkit.utils.formName
-import ru.application.homemedkit.utils.toExpDate
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 
 @Composable
-fun IntakeScreen(navigateBack: () -> Unit) {
-    val model = viewModel<IntakeViewModel>()
+fun IntakeScreen(model: IntakeViewModel, onBack: () -> Unit) {
     val state by model.state.collectAsStateWithLifecycle()
 
     BackHandler(!state.isFirstLaunch) {
-        if (state.default) navigateBack()
+        if (state.default) onBack()
         else model.onEvent(IntakeEvent.ShowDialogDataLoss(true))
     }
-    if (state.isFirstLaunch) PermissionsScreen(navigateBack, model::setExitFirstLaunch)
+    if (state.isFirstLaunch) PermissionsScreen(onBack, model::setExitFirstLaunch)
     else Scaffold(
         topBar = {
             TopAppBar(
                 title = {},
+                subtitle = {},
                 navigationIcon = {
                     NavigationIcon {
-                        if (state.default) navigateBack()
+                        if (state.default) onBack()
                         else model.onEvent(IntakeEvent.ShowDialogDataLoss(true))
                     }
                 },
@@ -182,11 +182,11 @@ fun IntakeScreen(navigateBack: () -> Unit) {
 
     when {
         state.showDialogDescription -> DialogDescription(state, model::onEvent)
-        state.showDialogDataLoss -> DialogDataLoss(model::onEvent, navigateBack)
+        state.showDialogDataLoss -> DialogDataLoss(model::onEvent, onBack)
         state.showDialogDelete -> DialogDelete(
             text = R.string.text_confirm_deletion_int,
             onCancel = { model.onEvent(IntakeEvent.ShowDialogDelete) },
-            onConfirm = { model.delete(navigateBack) }
+            onConfirm = { model.delete(onBack) }
         )
 
         state.showDatePicker -> DatePicker(
@@ -250,8 +250,8 @@ private fun MedicineInfo(medicine: MedicineIntake, image: String) {
                 .verticalScroll(rememberScrollState())
         ) {
             LocalInfo(R.string.text_medicine_product_name, medicine.nameAlias.ifEmpty(medicine::productName))
-            LocalInfo(R.string.text_medicine_form, formName(medicine.prodFormNormName))
-            LocalInfo(R.string.text_exp_date, toExpDate(medicine.expDate))
+            LocalInfo(R.string.text_medicine_form, Formatter.formFormat(medicine.prodFormNormName))
+            LocalInfo(R.string.text_exp_date, Formatter.toExpDate(medicine.expDate))
         }
     }
 }
@@ -277,9 +277,9 @@ private fun SchemaType(state: IntakeState, event: (IntakeEvent) -> Unit) = Outli
         ExposedDropdownMenu(state.showSchemaTypePicker, {}) {
             SchemaType.entries.forEach {
                 DropdownMenuItem(
+                    onClick = { event(IntakeEvent.SetSchemaType(it)) },
                     text = { Text(stringResource(it.title)) },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                    onClick = { event(IntakeEvent.SetSchemaType(it)) }
+                    shape = MenuDefaults.standaloneItemShape
                 )
             }
         }
@@ -288,13 +288,15 @@ private fun SchemaType(state: IntakeState, event: (IntakeEvent) -> Unit) = Outli
 
 @Composable
 private fun DaysPicker(state: IntakeState, event: (IntakeEvent) -> Unit) = OutlinedCard {
+    val locale = Locale.current.platformLocale
+
     ListItem(
         headlineContent = { Text(stringResource(R.string.text_repeat)) },
         supportingContent = {
             Text(
                 text = if (state.pickedDays.size == DayOfWeek.entries.size) stringResource(R.string.text_every_day)
                 else state.pickedDays.joinToString {
-                    it.getDisplayName(TextStyle.SHORT, Locale.current.platformLocale)
+                    it.getDisplayName(TextStyle.SHORT, locale)
                 }
             )
         }
@@ -306,14 +308,14 @@ private fun DaysPicker(state: IntakeState, event: (IntakeEvent) -> Unit) = Outli
             .fillMaxWidth()
             .background(ListItemDefaults.containerColor)
     ) {
-        DayOfWeek.entries.forEach { day ->
+        DayOfWeek.entries.sorted().forEach { day ->
             FilterChip(
                 shape = CircleShape,
                 selected = day in state.pickedDays,
                 onClick = { if (!state.default) event(IntakeEvent.SetPickedDay(day)) },
                 label = {
                     Text(
-                        text = day.getDisplayName(TextStyle.NARROW_STANDALONE, Locale.current.platformLocale),
+                        text = day.getDisplayName(TextStyle.NARROW_STANDALONE, locale),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -332,7 +334,7 @@ private fun Amount(state: IntakeState, event: (IntakeEvent) -> Unit) =
                     text = stringResource(
                         id = R.string.intake_text_in_stock_params,
                         formatArgs = arrayOf(
-                            decimalFormat(state.amountStock),
+                            Formatter.decimalFormat(state.amountStock),
                             stringResource(state.doseType)
                         )
                     )
@@ -409,9 +411,9 @@ private fun Interval(state: IntakeState, event: (IntakeEvent) -> Unit) =
             ExposedDropdownMenu(state.showIntervalTypePicker, {}) {
                 Interval.entries.forEach {
                     DropdownMenuItem(
+                        onClick = { event(IntakeEvent.SetInterval(it)) },
                         text = { Text(stringResource(it.title)) },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                        onClick = { event(IntakeEvent.SetInterval(it)) }
+                        shape = MenuDefaults.standaloneItemShape
                     )
                 }
             }
@@ -475,9 +477,9 @@ private fun Period(state: IntakeState, event: (IntakeEvent) -> Unit) =
                 ExposedDropdownMenu(state.showPeriodTypePicker, {}) {
                     Period.entries.forEach {
                         DropdownMenuItem(
+                            onClick = { event(IntakeEvent.SetPeriod(it)) },
                             text = { Text(stringResource(it.title)) },
-                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                            onClick = { event(IntakeEvent.SetPeriod(it)) }
+                            shape = MenuDefaults.standaloneItemShape
                         )
                     }
                 }
@@ -656,12 +658,14 @@ private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
                         FilledTonalIconButton(
                             enabled = state.pickedTime.size > 1,
                             onClick = { event(IntakeEvent.DecTime) },
-                            content = { VectorIcon(R.drawable.vector_remove) }
+                            content = { VectorIcon(R.drawable.vector_remove) },
+                            shapes = IconButtonDefaults.shapes()
                         )
 
                         FilledTonalIconButton(
                             onClick = { event(IntakeEvent.IncTime) },
-                            content = { VectorIcon(R.drawable.vector_add) }
+                            content = { VectorIcon(R.drawable.vector_add) },
+                            shapes = IconButtonDefaults.shapes()
                         )
                     }
                 }
@@ -673,8 +677,12 @@ private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
         state.pickedTime.forEachIndexed { index, amountTime ->
             Row {
                 ListItem(
+                    onClick = { if (!state.default) event(IntakeEvent.ShowTimePicker(index)) },
+                    modifier = Modifier.weight(1f),
+                    interactionSource = if (state.default) EmptyInteractionSource else null,
+                    verticalAlignment = Alignment.CenterVertically,
                     leadingContent = { VectorIcon(R.drawable.vector_time) },
-                    headlineContent = {
+                    content = {
                         Text(
                             text = stringResource(R.string.placeholder_time, index + 1),
                             overflow = TextOverflow.Ellipsis,
@@ -706,13 +714,7 @@ private fun Time(state: IntakeState, event: (IntakeEvent) -> Unit) =
                         } else {
                             ListItemDefaults.containerColor
                         }
-                    ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .clickable(
-                            enabled = !state.default,
-                            onClick = { event(IntakeEvent.ShowTimePicker(index)) }
-                        )
+                    )
                 )
 
                 if (!state.sameAmount) {
@@ -790,7 +792,11 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) {
 
         extrasFiltered.forEach { extra ->
             ListItem(
-                headlineContent = {
+                checked = extraAssociated.getOrDefault(extra, false),
+                onCheckedChange = { if (!state.default) event(IntakeEvent.SetIntakeExtra(extra)) },
+                shapes = ListItemDefaults.shapes(RectangleShape, RectangleShape),
+                interactionSource = if (state.default) EmptyInteractionSource else null,
+                content = {
                     Text(
                         text = stringResource(extra.title),
                         overflow = TextOverflow.Ellipsis,
@@ -808,13 +814,7 @@ private fun Extra(state: IntakeState, event: (IntakeEvent) -> Unit) {
                         onClick = { event(IntakeEvent.ShowDialogDescription(extra.description)) },
                         content = { VectorIcon(R.drawable.vector_info) }
                     )
-                },
-                modifier = Modifier.toggleable(
-                    enabled = !state.default,
-                    role = Role.Checkbox,
-                    value = extraAssociated.getOrDefault(extra, false),
-                    onValueChange = { event(IntakeEvent.SetIntakeExtra(extra)) }
-                )
+                }
             )
         }
     }

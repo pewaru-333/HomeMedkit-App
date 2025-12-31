@@ -2,7 +2,6 @@ package ru.application.homemedkit.ui.elements
 
 import androidx.annotation.DrawableRes
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
