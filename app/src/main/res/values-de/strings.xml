@@ -175,10 +175,10 @@
     <string name="text_permission_title_ignore_battery">Akkuoptimierung ignorieren</string>
     <string name="text_permission_title_notifications">Benachrichtigungen</string>
     <string name="text_permission_title_reminders">Einstellen von Benachrichtigungen</string>
-    <string name="text_explain_camera">Kamera-Erlaubnis erforderlich. Ein Muster für das Aussehen der Markierung wird unterhalb gezeigt (funktioniert nur für russische Präparate).</string>
+    <string name="text_explain_camera">Um ein Etikett zu scannen, müssen Sie die Berechtigung zur Verwendung der Kamera erteilen. Die Codes EAN-13 und DataMatrix werden akzeptiert. Nachstehend finden Sie ein Beispiel dafür, wie diese aussehen könnten (dies funktioniert nur für russische Medikamente).</string>
     <string name="text_explain_disabled">Die erforderliche Berechtigung wurde nicht gewährt</string>
     <string name="text_explain_full_screen_intent">Anzeige von Einnahme-Benachrichtigungen im Vollbildmodus zulassen</string>
-    <string name="text_explain_ignore_battery">Erlaubt der Anwendung, Akku-Optimierungen zu ignorieren. Wenn dies nicht erlaubt ist, können Benachrichtigungen verloren gehen!</string>
+    <string name="text_explain_ignore_battery">Erlaubt der Anwendung, Akku-Optimierungen zu ignorieren. Wenn diese Option deaktiviert ist, können Benachrichtigungen verloren gehen!</string>
     <string name="text_explain_notifications">Sämtliche App-Benachrichtigungen zulassen</string>
     <string name="text_explain_reminders">Erlaubt Benachrichtigungen zu präzisen Zeitpunkten</string>
     <string name="text_explain_request_permissions">Um Benachrichtigungen anzuzeigen, müssen folgende Erlaubnisse gewährt werden</string>
@@ -238,4 +238,8 @@
         <item quantity="other">%d-mal am Tag</item>
     </plurals>
     <string name="text_not_saved_medicine">Das Medikament wurde nicht gespeichert! Möchten Sie die den Dialog dennoch schließen?</string>
+    <string name="text_explain_datamatrix">Vollständige Informationen zum Arzneimittel</string>
+    <string name="text_explain_ean_13">Nur der Name des Medikaments</string>
+    <string name="preference_use_vibration_scan">Verwenden Sie die Vibrationsrückmeldung beim Scannen von Medikamentencodes</string>
+    <string name="text_scan">Scannen</string>
 </resources>

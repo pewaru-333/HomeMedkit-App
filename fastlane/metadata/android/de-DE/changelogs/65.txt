@@ -1,0 +1,3 @@
+— Schnellere Suche in der Medikamentenliste hinzugefügt.
+— Erscheinungsbild zahlreicher Schnittstellenkomponenten verändert.
+— Zahlreiche Verbesserungen und Optimierungen.
