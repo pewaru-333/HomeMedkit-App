@@ -1,3 +1,0 @@
-— Die Sortierung der Einträge in den Registerkarten „Anstehend“ und „Zurückliegend“ ist nun immer korrekt.
-— Beim Öffnen einiger Dialogfelder werden nun mehr Informationen angezeigt.
-— Das Erscheinungsbild mehrerer Komponenten wurde geändert.
