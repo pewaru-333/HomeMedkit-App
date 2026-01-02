@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- Menu -->
     <string name="bottom_bar_medicines">药物</string>
     <string name="bottom_bar_intakes">用药</string>
     <string name="bottom_bar_settings">设置</string>
-
     <!-- Preferences -->
     <string name="preference_basic_settings">基础设置</string>
     <string name="preference_app_view">视图</string>
@@ -22,7 +20,6 @@
     <string name="preference_import_export">导入导出</string>
     <string name="preference_fixing_notifications">通知功能用不了了？</string>
     <string name="preference_clear_app_cache">清除缓存</string>
-
     <!-- Pages -->
 
     <!-- Sorting -->
@@ -30,12 +27,10 @@
     <string name="sorting_z_a">按首字母顺序 (Z到A)</string>
     <string name="sorting_from_oldest">按过期时间排序（从新到旧）</string>
     <string name="sorting_from_newest">按过期时间排序（从旧到新）</string>
-
     <!-- Themes -->
     <string name="theme_system">跟随系统</string>
     <string name="theme_light">亮色</string>
     <string name="theme_dark">暗色</string>
-
     <!-- Notifications -->
     <string name="channel_name">声音通知</string>
     <string name="channel_exp_desc">过期时间</string>
@@ -49,10 +44,8 @@
     <string name="text_intake_prealarm_title">即将服药</string>
     <string name="text_intake_time">药品：%1$s\n服用量：%2$s %3$s\n剩余： %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">用药信息未保存，确认退出？</string>
-
     <!-- Placeholders -->
     <string name="placeholder_time">时间 #%1$d</string>
-
     <!-- Medications -->
     <string name="text_exp_date">有效期至</string>
     <string name="text_indications_for_use">使用方法</string>
@@ -69,7 +62,6 @@
     <string name="text_medicine_status_scanned">已扫描但未验证</string>
     <string name="text_medicine_status_self_added">手动添加</string>
     <string name="text_medicine_storage_conditions">存储情况</string>
-
     <!-- Medication types -->
     <string name="type_tablets">药片</string>
     <string name="type_capsules">胶囊</string>
@@ -97,7 +89,6 @@
     <string name="type_patch">敷贴类</string>
     <string name="type_bandage">绷带</string>
     <string name="type_napkins">医用巾</string>
-
     <!-- Medication dose types -->
     <string name="dose_ed">个</string>
     <string name="dose_pcs">副</string>
@@ -106,12 +97,10 @@
     <string name="dose_mg">毫克</string>
     <string name="dose_l">升</string>
     <string name="dose_ml">毫升</string>
-
     <!-- Tabs -->
     <string name="tab_list">列表</string>
     <string name="tab_current">当前</string>
     <string name="tab_past">之前</string>
-
     <!-- Intakes -->
     <string name="intake_text_amount">数量</string>
     <string name="intake_text_by_schedule">用药计划</string>
@@ -131,29 +120,23 @@
     <string name="intake_text_time">时间</string>
     <string name="intake_text_start">开始用药时间</string>
     <string name="intake_text_finish">结束用药时间</string>
-
     <string name="intake_extra_cancellable">通知超时</string>
     <string name="intake_extra_fullscreen">全屏提醒</string>
     <string name="intake_extra_no_sound">静默提醒</string>
     <string name="intake_extra_prealarm">提前提醒</string>
-
     <string name="intake_extra_desc_cancellable">通知无应答在十分钟后自动取消</string>
     <string name="intake_extra_desc_fullscreen">在不使用锁屏通知的情况下全屏提醒</string>
     <string name="intake_extra_desc_no_sound">提醒时不发出响动（无声无震）</string>
     <string name="intake_extra_desc_prealarm">提前半小时发送提醒</string>
-
     <string name="intake_interval_daily">每天</string>
     <string name="intake_interval_weekly">每周</string>
     <string name="intake_interval_other">自定义</string>
-
     <string name="intake_schema_type_indefinitely">无限期</string>
     <string name="intake_schema_type_day_picker">选择日期</string>
     <string name="intake_schema_type_personal">自行使用</string>
-
     <string name="intake_period_pick">按日期计算</string>
     <string name="intake_period_other">按照用药时长计算</string>
     <string name="intake_period_indef">不限</string>
-
     <!-- Dialogs -->
     <string name="manual_add">要手动添加药物吗</string>
     <string name="text_choose_from_gallery">从相册选择</string>
@@ -177,24 +160,20 @@
     <string name="text_set_image">设置图片</string>
     <string name="text_take_picture">拍摄图片</string>
     <string name="text_try_again">尝试再次扫描</string>
-
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">全屏提醒</string>
     <string name="text_permission_title_ignore_battery">放行电池优化</string>
     <string name="text_permission_title_notifications">通知</string>
     <string name="text_permission_title_reminders">设置提醒</string>
-
     <string name="text_explain_camera">要扫描药品的标签码，你必须授予相机权限. 标签示例如下（仅适用于俄罗斯药品）</string>
     <string name="text_explain_full_screen_intent">允许使用全屏用药提醒</string>
     <string name="text_explain_ignore_battery">在电池优化（MIUI/澎湃 “省电策略” ColorOS ‘后台行为“）设置为无限制. 否则可能会导致你错过通知</string>
     <string name="text_explain_notifications">显示所有此软件的通知</string>
     <string name="text_explain_reminders">允许提醒被设置至一个准确的时间</string>
     <string name="text_explain_request_permissions">要接收通知，你必须授予通知权限</string>
-
     <string name="text_permission_grant">授权</string>
     <string name="text_permission_granted">已授予</string>
     <string name="text_permission_grant_full">授予权限</string>
-
     <!-- Strings -->
     <string name="text_add">添加</string>
     <string name="text_amount">数量</string>
@@ -238,7 +217,6 @@
     <string name="text_unspecified">未指定</string>
     <string name="text_update">更新</string>
     <string name="text_yes">确认</string>
-
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="other">一天 %d 次</item>
