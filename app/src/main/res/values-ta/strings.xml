@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- Menu -->
     <string name="bottom_bar_medicines">மருந்துகள்</string>
     <string name="bottom_bar_intakes">உட்கொள்ளல்</string>
     <string name="bottom_bar_settings">அமைப்புகள்</string>
-
     <!-- Preferences -->
     <string name="preference_app_view">பயன்பாட்டு பார்வை</string>
     <string name="preference_kits_group">மருந்து குழுக்கள்</string>
@@ -17,7 +15,6 @@
     <string name="preference_app_theme">பயன்பாட்டு கருப்பொருள்</string>
     <string name="preference_dynamic_color">மாறும் நிறம்</string>
     <string name="preference_import_export">இறக்குமதி/ஏற்றுமதி</string>
-
     <!-- Pages -->
 
     <!-- Sorting -->
@@ -25,12 +22,10 @@
     <string name="sorting_z_a">அகரவரிசை (z முதல் A)</string>
     <string name="sorting_from_oldest">காலாவதி தேதி (பழமையானது)</string>
     <string name="sorting_from_newest">காலாவதி தேதி (புதியது)</string>
-
     <!-- Themes -->
     <string name="theme_system">மண்டலம்</string>
     <string name="theme_light">ஒளி</string>
     <string name="theme_dark">இருண்ட</string>
-
     <!-- Notifications -->
     <string name="channel_name">ஒலி அறிவிப்புகள்</string>
     <string name="channel_exp_desc">காலாவதி தேதி</string>
@@ -44,11 +39,9 @@
     <string name="text_intake_prealarm_title">வரவிருக்கும் உட்கொள்ளல்</string>
     <string name="text_intake_time">மருத்துவம்: %1$s\n தொகை: %2$s %3$s</string>
     <string name="text_medicine_amount_not_enough">போதுமான அளவு எஞ்சியிருக்கவில்லை</string>
-
     <!-- Placeholders -->
     <string name="placeholder_dose">0.5 மி.கி + 84 எம்.சி.சி.</string>
     <string name="placeholder_time">நேரம் #%1$d</string>
-
     <!-- Medications -->
     <string name="text_exp_date">எக்ச்ப். தேதி</string>
     <string name="text_indications_for_use">பயன்பாட்டிற்கான அறிகுறிகள்</string>
@@ -65,7 +58,6 @@
     <string name="text_medicine_status_scanned">ச்கேன் செய்யப்பட்ட, சரிபார்க்கப்படாத</string>
     <string name="text_medicine_status_self_added">கைமுறையாக சேர்க்கப்பட்டது</string>
     <string name="text_medicine_storage_conditions">சேமிப்பக நிலைமைகள்</string>
-
     <!-- Medication types -->
     <string name="type_tablets">மாத்திரைகள்</string>
     <string name="type_capsules">காப்ச்யூல்கள்</string>
@@ -93,7 +85,6 @@
     <string name="type_patch">இணைப்பு</string>
     <string name="type_bandage">கட்டு</string>
     <string name="type_napkins">நாப்கின்கள்</string>
-
     <!-- Medication dose types -->
     <string name="dose_ed">எட்</string>
     <string name="dose_pcs">பிசிக்கள்</string>
@@ -102,12 +93,10 @@
     <string name="dose_mg">எம்.சி.</string>
     <string name="dose_l">எல்</string>
     <string name="dose_ml">எம்.எல்</string>
-
     <!-- Tabs -->
     <string name="tab_list">பட்டியல்</string>
     <string name="tab_current">மின்னோட்ட்ம், ஓட்டம்</string>
     <string name="tab_past">கடந்த</string>
-
     <!-- Intakes -->
     <string name="intake_text_amount">அளவு</string>
     <string name="intake_text_by_schedule">அட்டவணை மூலம்</string>
@@ -123,24 +112,18 @@
     <string name="intake_text_period">காலசுழற்சி</string>
     <string name="intake_text_taken">எடுக்கப்பட்டது</string>
     <string name="intake_text_time">நேரம்</string>
-
     <string name="intake_extra_cancellable">அறிவிப்பு நேரம் முடிந்தது</string>
     <string name="intake_extra_fullscreen">முழுத்திரை அறிவிப்பு</string>
     <string name="intake_extra_no_sound">ஒலி இல்லை</string>
     <string name="intake_extra_prealarm">வரவிருக்கும் அறிவிப்பு</string>
-
     <string name="intake_extra_desc_cancellable">இந்த அறிவிப்பு 10 நிமிடங்களுக்குப் பிறகு தானாக ரத்து செய்யப்படும் என்று குறிப்பிடுகிறது</string>
     <string name="intake_extra_desc_prealarm">30 நிமிட உட்கொள்ளும் நேரத்திற்கு முன் நிலை பட்டியில் அறிவிப்பு</string>
-
     <string name="intake_interval_daily">நாள்தோறும்</string>
     <string name="intake_interval_weekly">வாராந்திர</string>
     <string name="intake_interval_other">தனிப்பயன்</string>
-
-
     <string name="intake_period_pick">தேதிகள் தேர்வு</string>
     <string name="intake_period_other">நாட்கள் உள்ளீடு</string>
     <string name="intake_period_indef">காலவரையற்றது</string>
-
     <!-- Dialogs -->
     <string name="manual_add">நீங்கள் கைமுறையாக மருந்து சேர்க்க விரும்புகிறீர்களா?</string>
     <string name="text_confirm_deletion_med">இந்த மருந்தை நீக்க விரும்புகிறீர்களா?</string>
@@ -157,13 +140,10 @@
     <string name="text_request_camera">லேபிளை ச்கேன் செய்ய, பயன்பாட்டிற்கு கேமராவைப் பயன்படுத்த இசைவு வழங்கப்பட வேண்டும்</string>
     <string name="text_select_time">நேரம் தேர்ந்தெடுக்கவும்</string>
     <string name="text_try_again">லேபிளை ச்கேன் செய்ய மீண்டும் முயற்சிக்கவும்!</string>
-
     <!-- Permissions -->
 
     <string name="text_explain_camera">ஒரு லேபிளை ச்கேன் செய்ய, நீங்கள் கேமராவுக்கு இசைவு வழங்க வேண்டும். குறிப்பது எப்படி இருக்கும் என்பதற்கான எடுத்துக்காட்டு கீழே காட்டப்பட்டுள்ளது (இது ரச்ய சிகிச்சைகளுக்கு மட்டுமே வேலை செய்கிறது)</string>
-
     <string name="text_permission_grant_full">இசைவு வழங்கவும்</string>
-
     <!-- Strings -->
     <string name="text_add">கூட்டு</string>
     <string name="text_amount">தொகை</string>
@@ -197,7 +177,6 @@
     <string name="text_unspecified">குறிப்பிடப்படாத</string>
     <string name="text_update">புதுப்பிப்பு</string>
     <string name="text_yes">ஆம்</string>
-
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="one">ஒரு நாளைக்கு %d நேரம்</item>
