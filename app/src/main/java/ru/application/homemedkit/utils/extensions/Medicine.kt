@@ -2,7 +2,6 @@ package ru.application.homemedkit.utils.extensions
 
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.Medicine
-import ru.application.homemedkit.data.dto.Technical
 import ru.application.homemedkit.data.model.MedicineFull
 import ru.application.homemedkit.data.model.MedicineIntake
 import ru.application.homemedkit.data.model.MedicineList
@@ -88,10 +87,8 @@ fun MedicineState.toMedicine() = Medicine(
     recommendations = recommendations,
     storageConditions = storageConditions,
     comment = comment,
-    technical = Technical(
-        scanned = code.isNotBlank(),
-        verified = technical.verified
-    )
+    scanned = code.isNotBlank(),
+    verified = technical.verified
 )
 
 fun DrugsData.toMedicine() = Medicine(
@@ -101,7 +98,8 @@ fun DrugsData.toMedicine() = Medicine(
     prodDNormName = foiv.prodDNormName.orEmpty(),
     doseType = DrugType.getDoseType(foiv.prodFormNormName),
     phKinetics = vidalData?.phKinetics.orEmpty().asHtml(),
-    technical = Technical(scanned = true, verified = true),
+    scanned = true,
+    verified = true,
     prodAmount = foiv.prodPack1Size?.let { it.toDouble() * (foiv.prodPack12?.toDoubleOrNull() ?: 1.0) } ?: 0.0
 )
 
@@ -116,17 +114,13 @@ fun BioData.toMedicine() = Medicine(
     structure = productProperty?.structure.orEmpty().asHtml(),
     prodFormNormName = productProperty?.releaseForm.orEmpty().substringBefore(" ").uppercase(),
     doseType = DrugType.getDoseType(productProperty?.releaseForm.orEmpty()),
-    technical = Technical(
-        scanned = true,
-        verified = true
-    )
+    scanned = true,
+    verified = true
 )
 
 fun MainModel.toMedicine() = Medicine(
     productName = productName,
     prodAmount = 0.0,
-    technical = Technical(
-        scanned = true,
-        verified = true
-    )
+    scanned = true,
+    verified = true
 )

@@ -1,12 +1,13 @@
 package ru.application.homemedkit.data.dto
 
 import androidx.room.ColumnInfo
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.enums.DoseType
 
+@Serializable
 @Entity(tableName = "medicines")
 data class Medicine(
     @PrimaryKey(autoGenerate = true)
@@ -26,6 +27,6 @@ data class Medicine(
     val recommendations: String = BLANK,
     val storageConditions: String = BLANK,
     val comment: String = BLANK,
-    @Embedded
-    val technical: Technical = Technical()
+    val scanned: Boolean = false,
+    val verified: Boolean = false
 )

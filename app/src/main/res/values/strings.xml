@@ -26,6 +26,9 @@
     <string name="preference_fixing_notifications">Problems with notifications?</string>
     <string name="preference_clear_app_cache">Clear app cache</string>
 
+    <string name="preference_auto_sync_summary_enabled">Enabled when opening application</string>
+    <string name="preference_auto_sync_summary_disabled">Disabled when opening application</string>
+
     <!-- Pages -->
     <string name="page_medications">Medications</string>
     <string name="page_intake_list">Intake (list)</string>
@@ -182,15 +185,24 @@
     <string name="text_confirm_deletion_med">Are you sure you want to delete this medication?</string>
     <string name="text_confirm_schedule_to_taken">Do you confirm that you have already taken "%1$s" on %2$s at %3$s?</string>
     <string name="text_connection_error">Connection error!</string>
+    <string name="text_data_in_cloud">Data detected in the cloud</string>
+    <string name="text_data_in_cloud_desc">There is data detected in the cloud. What would you like to do?</string>
+    <string name="text_download_from_cloud">Download from cloud</string>
     <string name="text_duplicate">This medication has been already added!</string>
     <string name="text_error_not_medicine">This label code is not from a medication!</string>
     <string name="text_exit_app">Are you sure you want to exit the app?</string>
-    <string name="text_export_import_description">This is an experimental feature.\nIf you import, the current app data will be deleted!</string>
+    <string name="text_exit_cloud">Exit from cloud</string>
+    <string name="text_exit_cloud_desc">Do you confirm that you would like to exit the cloud account?</string>
+    <string name="text_export_database">Export data</string>
+    <string name="text_export_images">Export images</string>
     <string name="text_fill_field">Fill in this field!</string>
     <string name="text_fix_notifications">The application will restart and all overdue notifications will appear in the status bar. Do not use this function if everything works correctly!</string>
     <string name="text_images">Images</string>
-    <string name="text_kit_title">Group title</string>
+    <string name="text_import_data_description">When importing, the selected data will be overwritten</string>
+    <string name="text_import_database">Import data</string>
+    <string name="text_import_images">Import images</string>
     <string name="text_kit_list_is_empty">There are no groups found. You can add groups in the application settings.</string>
+    <string name="text_kit_title">Group title</string>
     <string name="text_medicine_deleted">Medication has been deleted, it is impossible to change the intake status</string>
     <string name="text_not_saved_intake">The intake is not saved! Would you like to go back?</string>
     <string name="text_not_saved_medicine">The medicine is not saved! Would you like to go back?</string>
@@ -207,7 +219,7 @@
     <string name="text_permission_title_ignore_battery">Ignore battery optimization</string>
     <string name="text_permission_title_notifications">Notifications</string>
     <string name="text_permission_title_reminders">Setting reminders</string>
-    
+
     <string name="text_explain_camera">To scan a label, you must grant the permission to use camera. The EAN-13 and DataMatrix codes are accepted. Below is an example of what they might look like (this only works for Russian medications)</string>
     <string name="text_explain_datamatrix">Full medicine information</string>
     <string name="text_explain_disabled">The necessary permission is not granted</string>
@@ -233,18 +245,20 @@
     <string name="text_days_short">d.</string>
     <string name="text_delete">Delete</string>
     <string name="text_dismiss">Dismiss</string>
+    <string name="text_download_photos">Download photos</string>
     <string name="text_edit">Edit</string>
     <string name="text_empty">Empty</string>
     <string name="text_enter_product_name">Search</string>
     <string name="text_error">Error!</string>
     <string name="text_every">Every\u0020</string>
     <string name="text_every_day">Every day</string>
+    <string name="text_every_week">Every week</string>
     <string name="text_exit">Exit</string>
-    <string name="text_export">Export</string>
     <string name="text_finish_date">Finish date</string>
+    <string name="text_force_download">Force download</string>
+    <string name="text_force_upload">Force upload</string>
     <string name="text_go_to">Go</string>
     <string name="text_grant">Grant</string>
-    <string name="text_import">Import</string>
     <string name="text_medicine_not_in_stock">You cannot take %1$s as there is not enough left!</string>
     <string name="text_no">No</string>
     <string name="text_no_data_found">No medications found. Add them or change the filter.</string>
@@ -254,7 +268,10 @@
     <string name="text_not_selected">Not selected</string>
     <string name="text_off">Disabled</string>
     <string name="text_on">Enabled</string>
+    <string name="text_pick_cloud_service">Select a cloud provider to synchronize the application data (medications list and their images)</string>
+    <string name="text_provider_is_yandex">Connected with Yandex</string>
     <string name="text_repeat">Repeat</string>
+    <string name="text_retry">Retry</string>
     <string name="text_same_amount">Same amount on every intake</string>
     <string name="text_save">Save</string>
     <string name="text_scan">Scan</string>
@@ -264,14 +281,26 @@
     <string name="text_status">Status</string>
     <string name="text_stay">Stay</string>
     <string name="text_success">Success!</string>
+    <string name="text_sync">Synchronization</string>
+    <string name="text_sync_error">Error while synchronization</string>
+    <string name="text_sync_success">Successful synchronization</string>
+    <string name="text_synchronized_at">Synchronized: %s</string>
     <string name="text_tap_to_view">Tap to view</string>
     <string name="text_today">Today</string>
+    <string name="text_to_duplicate">Duplicate</string>
     <string name="text_tomorrow">Tomorrow</string>
+    <string name="text_unknown">Unknown</string>
     <string name="text_unspecified">Unspecified</string>
     <string name="text_update">Update</string>
+    <string name="text_upload_to_cloud">Upload to cloud</string>
     <string name="text_weekdays">Weekdays</string>
     <string name="text_weekend">Weekend</string>
     <string name="text_yes">Yes</string>
+
+    <string name="text_yandex">Yandex</string>
+    <string name="text_google" translatable="false">Google</string>
+
+    <string name="text_in_progress">(in progress)</string>
 
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
@@ -281,5 +310,14 @@
         <item quantity="few">%d times a day</item>
         <item quantity="many">%d times a day</item>
         <item quantity="other">%d times a day</item>
+    </plurals>
+
+    <plurals name="intake_interval_in_day">
+        <item quantity="zero">Every %d day</item>
+        <item quantity="one">Every %d day</item>
+        <item quantity="two">Every %d days</item>
+        <item quantity="few">Every %d days</item>
+        <item quantity="many">Every %d days</item>
+        <item quantity="other">Every %d days</item>
     </plurals>
 </resources>

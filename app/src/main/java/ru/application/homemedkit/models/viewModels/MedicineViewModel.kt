@@ -1,11 +1,12 @@
 package ru.application.homemedkit.models.viewModels
 
 import android.net.Uri
+import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -48,6 +49,9 @@ class MedicineViewModel(
     private val _deleted = Channel<Boolean>()
     val deleted = _deleted.receiveAsFlow()
 
+    private val _duplicated = Channel<Unit>()
+    val duplicated = _duplicated.receiveAsFlow()
+
     val kits by lazy {
         daoK.getFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
     }
@@ -56,7 +60,7 @@ class MedicineViewModel(
 
     override fun loadData() {
         viewModelScope.launch {
-            val medicine = withContext(Dispatchers.IO) { dao.getById(id) }
+            val medicine = dao.getById(id)
 
             if (medicine != null) {
                 val newState = withContext(Dispatchers.Default) { medicine.toState() }
@@ -86,28 +90,26 @@ class MedicineViewModel(
             if (checkProductName.successful) {
                 val id = dao.insert(currentState.toMedicine())
 
-                val jobOne = launch {
-                    val kits = currentState.kits.map { MedicineKit(id, it.kitId) }
+                coroutineScope {
+                    val jobOne = launch {
+                        val kits = currentState.kits.map { MedicineKit(id, it.kitId) }
 
-                    daoK.pinKit(kits)
-                }
-
-                val jobTwo = launch {
-                    val images = currentState.images.mapIndexed { index, image ->
-                        Image(
-                            medicineId = id,
-                            position = index,
-                            image = image
-                        )
+                        daoK.pinKit(kits)
                     }
 
-                    dao.updateImages(images)
-                }
+                    val jobTwo = launch {
+                        val images = currentState.images.mapIndexed { index, image ->
+                            Image(
+                                medicineId = id,
+                                position = index,
+                                image = image
+                            )
+                        }
 
-                try {
+                        dao.updateImages(images)
+                    }
+
                     joinAll(jobOne, jobTwo)
-                } catch (_: CancellationException) {
-
                 }
 
                 updateState {
@@ -155,10 +157,12 @@ class MedicineViewModel(
                             )
                         }
 
-                        val jobOne = launch { dao.update(medicine) }
-                        val jobTow = launch { dao.updateImages(images.await()) }
+                        coroutineScope {
+                            val jobOne = launch { dao.update(medicine) }
+                            val jobTow = launch { dao.updateImages(images.await()) }
 
-                        joinAll(jobOne, jobTow)
+                            joinAll(jobOne, jobTow)
+                        }
 
                         dao.getById(id)?.let { medicine ->
                             updateState { medicine.toState() }
@@ -169,7 +173,45 @@ class MedicineViewModel(
 
                     else -> Unit
                 }
-            } catch (_: Throwable) {
+            } catch (_: Exception) {
+                _response.send(Response.Error.UnknownError)
+            }
+        }
+    }
+
+    fun fetchImages(dir: File) {
+        viewModelScope.launch {
+            _response.send(Response.Loading)
+
+            try {
+                val response = Network.getMedicine(currentState.code)
+
+                when (val data = response) {
+                    is Response.Error -> {
+                        _response.send(data)
+                        delay(2500L)
+                    }
+
+                    is Response.Success -> {
+                        val images = getMedicineImages(
+                            medicineId = currentState.id,
+                            form = currentState.prodFormNormName,
+                            directory = dir,
+                            urls = data.model.imageUrls
+                        )
+
+                        dao.updateImages(images)
+
+                        dao.getById(id)?.let { medicine ->
+                            updateState { medicine.toState() }
+                        }
+
+                        _response.send(Response.Success(data.model))
+                    }
+
+                    else -> Unit
+                }
+            } catch (_: Exception) {
                 _response.send(Response.Error.UnknownError)
             }
         }
@@ -206,17 +248,16 @@ class MedicineViewModel(
 
     fun delete(dir: File) {
         viewModelScope.launch {
-            val jobOne = launch { dao.delete(currentState.toMedicine())  }
-            val jobTwo = launch(Dispatchers.IO) {
-                currentState.images.forEach {
-                    File(dir, it).delete()
+            coroutineScope {
+                val jobOne = launch { dao.delete(currentState.toMedicine()) }
+                val jobTwo = launch(Dispatchers.IO) {
+                    currentState.images.fastForEach {
+                        File(dir, it).delete()
+                    }
                 }
-            }
 
-            try {
+
                 joinAll(jobOne, jobTwo)
-            } catch (_: CancellationException) {
-
             }
 
             updateState {
@@ -331,6 +372,35 @@ class MedicineViewModel(
             MedicineEvent.ShowLoading -> viewModelScope.launch {
                 _response.send(Response.Loading)
             }
+
+            MedicineEvent.MakeDuplicate -> viewModelScope.launch {
+                val duplicate = currentState.toMedicine().copy(id = 0L)
+                val id = Database.medicineDAO().insert(duplicate)
+
+                coroutineScope {
+                    val jobOne = launch {
+                        val kits = currentState.kits.map { MedicineKit(id, it.kitId) }
+
+                        daoK.pinKit(kits)
+                    }
+
+                    val jobTwo = launch {
+                        val images = currentState.images.mapIndexed { index, image ->
+                            Image(
+                                medicineId = id,
+                                position = index,
+                                image = image
+                            )
+                        }
+
+                        dao.updateImages(images)
+                    }
+
+                    joinAll(jobOne, jobTwo)
+                }
+
+                _duplicated.send(Unit)
+            }
         }
     }
 
@@ -350,24 +420,22 @@ class MedicineViewModel(
             _response.send(Response.Loading)
 
             val compressed = images.map { uri ->
-                async(Dispatchers.IO) {
+                async {
                     imageProcessing.compressImage(uri)
                 }
             }
 
             val compressedResult = compressed.mapNotNull { it.await() }
 
-            withContext(Dispatchers.Default) {
-                val images = currentState.images.toMutableList().apply {
-                    addAll(compressedResult)
-                }
+            val images = currentState.images.toMutableList().apply {
+                addAll(compressedResult)
+            }
 
-                updateState {
-                    it.copy(
-                        images = images,
-                        dialogState = MedicineDialogState.PictureGrid
-                    )
-                }
+            updateState {
+                it.copy(
+                    images = images,
+                    dialogState = MedicineDialogState.PictureGrid
+                )
             }
 
             _response.send(Response.Initial)

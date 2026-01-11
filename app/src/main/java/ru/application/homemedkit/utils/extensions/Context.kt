@@ -11,6 +11,8 @@ import android.media.RingtoneManager
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
@@ -71,5 +73,8 @@ fun Context.createNotificationChannel(channelId: String, @StringRes channelName:
             )
             .build()
     )
+
+fun Context.vibrate(time: Long) = getSystemService(Vibrator::class.java)
+    .vibrate(VibrationEffect.createOneShot(time, VibrationEffect.DEFAULT_AMPLITUDE))
 
 fun Context.showToast(@StringRes message: Int) = Toast.makeText(this, message, Toast.LENGTH_LONG).show()

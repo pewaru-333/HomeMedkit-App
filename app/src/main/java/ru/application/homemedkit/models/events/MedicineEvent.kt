@@ -7,6 +7,7 @@ import ru.application.homemedkit.utils.camera.ImageProcessing
 import ru.application.homemedkit.utils.enums.DoseType
 
 sealed interface MedicineEvent {
+    data object MakeDuplicate : MedicineEvent
     data class SetProductName(val productName: String) : MedicineEvent
     data class SetNameAlias(val alias: String) : MedicineEvent
     data class SetExpDate(val month: Int, val year: Int) : MedicineEvent

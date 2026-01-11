@@ -15,8 +15,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 36
-        versionCode = 65
-        versionName = "1.9.0"
+        versionCode = 66
+        versionName = "1.9.1"
     }
 
     dependenciesInfo {
@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.workmanager)
 
     // ==================== Room ====================
     ksp(libs.androidx.room.compiler)

@@ -116,7 +116,7 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
                 actions = {
                     IconButton(model::toggleSorting) { VectorIcon(R.drawable.vector_sort) }
                     DropdownMenuPopup(state.showSort, model::toggleSorting) {
-                        DropdownMenuGroup(MenuDefaults.groupShapes()) {
+                        DropdownMenuGroup(MenuDefaults.groupShape(0, 1)) {
                             Sorting.entries.forEachIndexed { index, entry ->
                                 DropdownMenuItem(
                                     selected = entry == state.sorting,
@@ -346,13 +346,13 @@ private fun DialogExit(onDismiss: () -> Unit, onExit: () -> Unit) =
 
 private object MedicineListItemDefaults {
     private val noStockColor: Color
-        @Composable get() = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+        @Composable get() = MaterialTheme.colorScheme.surfaceContainer
 
     private val expiredColor: Color
-        @Composable get() = MaterialTheme.colorScheme.errorContainer
+        @Composable get() = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.9f)
 
     private val defaultColor: Color
-        @Composable get() = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f)
+        @Composable get() = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
 
     @Composable
     fun containerColor(inStock: Boolean, isExpired: Boolean) =

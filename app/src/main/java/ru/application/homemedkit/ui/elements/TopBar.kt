@@ -5,7 +5,7 @@ package ru.application.homemedkit.ui.elements
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.AppBarWithSearch
@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSearchBarState
@@ -84,6 +85,8 @@ fun TopBarActions(
     setModifiable: () -> Unit,
     onSave: () -> Unit,
     onShowDialog: () -> Unit,
+    onReloadImages: (() -> Unit)? = null,
+    onDuplicate: (() -> Unit)? = null,
     onNavigate: (() -> Unit)? = null
 ) {
     @Composable
@@ -94,9 +97,14 @@ fun TopBarActions(
         onClick: () -> Unit
     ) = DropdownMenuItem(
         onClick = onClick,
-        text = { Text(stringResource(text)) },
-        trailingIcon = { VectorIcon(icon, Modifier.size(20.dp)) },
-        shape = shape
+        shape = shape,
+        trailingIcon = { VectorIcon(icon) },
+        text = {
+            Text(
+                text = stringResource(text),
+                modifier = Modifier.widthIn(112.dp, 280.dp)
+            )
+        }
     )
 
     if (isDefault) {
@@ -119,22 +127,47 @@ fun TopBarActions(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            DropdownMenuGroup(shapes = MenuDefaults.groupShape(0, 2)) {
+            DropdownMenuGroup(MenuDefaults.groupShape(0, 1)) {
+                if (onDuplicate != null) {
+                    LocalDropDownItem(
+                        text = R.string.text_to_duplicate,
+                        icon = R.drawable.vector_duplicate,
+                        shape = MenuDefaults.leadingItemShape,
+                        onClick = onDuplicate
+                    )
+                }
+
                 LocalDropDownItem(
                     text = R.string.text_edit,
                     icon = R.drawable.vector_edit,
-                    shape = MenuDefaults.leadingItemShape,
+                    shape = if (onDuplicate == null) MenuDefaults.leadingItemShape else MenuDefaults.middleItemShape,
                     onClick = setModifiable
                 )
+
+                if (onReloadImages != null) {
+                    LocalDropDownItem(
+                        text = R.string.text_download_photos,
+                        icon = R.drawable.vector_download,
+                        shape = MenuDefaults.middleItemShape,
+                        onClick = {
+                            onReloadImages()
+                            expanded = false
+                        }
+                    )
+                }
+
                 LocalDropDownItem(
                     text = R.string.text_delete,
                     icon = R.drawable.vector_delete,
                     shape = MenuDefaults.trailingItemShape,
-                    onClick = onShowDialog
+                    onClick = {
+                        onShowDialog()
+                        expanded = false
+                    }
                 )
             }
         }
     } else {
-        IconButton(onSave) { VectorIcon(R.drawable.vector_confirm) }
+        OutlinedIconButton(onSave) { VectorIcon(R.drawable.vector_confirm) }
     }
 }

@@ -6,17 +6,26 @@ import ru.application.homemedkit.utils.BLANK
 
 @Serializable
 sealed interface Screen : NavKey {
+    sealed interface NavDeepLink {
+        val parent: NavKey
+    }
+
     @Serializable
-    object Medicines : Screen
+    data object Medicines : Screen
 
     @Serializable
     data object Intakes : Screen
 
     @Serializable
-    object Settings : Screen
+    data object Settings : Screen
 
     @Serializable
-    object Scanner : Screen
+    data class Auth(val code: String? = null) : NavDeepLink, Screen {
+        override val parent = Settings
+    }
+
+    @Serializable
+    data object Scanner : Screen
 
     @Serializable
     data class Medicine(

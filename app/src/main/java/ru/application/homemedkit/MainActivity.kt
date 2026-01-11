@@ -6,14 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import ru.application.homemedkit.ui.navigation.LocalBarVisibility
 import ru.application.homemedkit.ui.navigation.Navigation
 import ru.application.homemedkit.ui.navigation.rememberNavigationBarVisibility
 import ru.application.homemedkit.ui.theme.AppTheme
-import ru.application.homemedkit.utils.KEY_EXP_IMP
 import ru.application.homemedkit.utils.di.AlarmManager
 import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.extensions.showToast
@@ -31,13 +27,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            val imported by remember {
-                mutableStateOf(intent.getBooleanExtra(KEY_EXP_IMP, false))
-            }
-
-            LaunchedEffect(imported) {
-                if (imported) {
+            LaunchedEffect(Unit) {
+                if (Preferences.wasDataImported) {
                     showToast(R.string.text_success)
+                    Preferences.removeImportedKey()
                     AlarmManager.resetAll()
                 }
             }

@@ -146,7 +146,6 @@
     <string name="text_connection_error">Errore di connessione!</string>
     <string name="text_duplicate">Questo farmaco è già stato aggiunto!</string>
     <string name="text_error_not_medicine">Questo codice etichetta non è del medicinale!</string>
-    <string name="text_export_import_description">Questa è una caratteristica sperimentale. \nQuando si esporta, è possibile modificare il nome del file. \nQuando l\'importazione, i dati attuali verranno cancellati! Si prega di rilanciare app dopo di esso!</string>
     <string name="text_kit_title">Nuovo gruppo</string>
     <string name="text_medicine_deleted">La medicina è stata cancellata, impossibile cambiare lo stato di assunzione</string>
     <string name="text_request_camera">Per la scansione dell\'etichetta, l\'applicazione deve essere dato il permesso di utilizzare la fotocamera</string>
@@ -172,9 +171,7 @@
     <string name="text_enter_product_name">Ricerca</string>
     <string name="text_error">Errore!</string>
     <string name="text_every">"Tutti "</string>
-    <string name="text_export">Esportazione</string>
     <string name="text_finish_date">Data di arrivo</string>
-    <string name="text_import">Importazioni</string>
     <string name="text_no">No</string>
     <string name="text_no_data_found">Nessun farmaco trovato. Aggiungere o modificare il filtro.</string>
     <string name="text_no_intakes_found">Non sono state trovate prese. Aggiungili tramite carta di informazione medica o modifica il valore di ricerca.</string>

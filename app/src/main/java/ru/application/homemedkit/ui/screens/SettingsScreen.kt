@@ -1,20 +1,15 @@
-@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 
 package ru.application.homemedkit.ui.screens
 
 import android.Manifest
 import android.content.Intent
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteDatabase.OPEN_READONLY
-import android.database.sqlite.SQLiteDatabase.openDatabase
 import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
-import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -25,8 +20,6 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Arrangement.SpaceBetween
-import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,6 +37,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -63,9 +57,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -85,34 +79,37 @@ import me.zhanghai.compose.preference.SwitchPreference
 import me.zhanghai.compose.preference.preference
 import me.zhanghai.compose.preference.preferenceCategory
 import me.zhanghai.compose.preference.switchPreference
+import me.zhanghai.compose.preference.twoTargetSwitchPreference
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.dialogs.DraggableItem
 import ru.application.homemedkit.dialogs.dragContainer
 import ru.application.homemedkit.dialogs.rememberDragDropState
+import ru.application.homemedkit.models.events.SettingsEvent
 import ru.application.homemedkit.models.viewModels.SettingsViewModel
-import ru.application.homemedkit.receivers.AlarmSetter
 import ru.application.homemedkit.ui.elements.IconButton
 import ru.application.homemedkit.ui.elements.NavigationIcon
 import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.ui.navigation.LocalBarVisibility
 import ru.application.homemedkit.ui.theme.isDynamicColorAvailable
-import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.ActionHandler
+import ru.application.homemedkit.utils.ActionResult
+import ru.application.homemedkit.utils.DataManager
 import ru.application.homemedkit.utils.KEY_APP_SYSTEM
 import ru.application.homemedkit.utils.KEY_APP_VIEW
+import ru.application.homemedkit.utils.KEY_AUTO_SYNC_ENABLED
 import ru.application.homemedkit.utils.KEY_BASIC_SETTINGS
 import ru.application.homemedkit.utils.KEY_CLEAR_CACHE
 import ru.application.homemedkit.utils.KEY_CONFIRM_EXIT
 import ru.application.homemedkit.utils.KEY_DOWNLOAD
 import ru.application.homemedkit.utils.KEY_DYNAMIC_COLOR
-import ru.application.homemedkit.utils.KEY_EXP_IMP
 import ru.application.homemedkit.utils.KEY_FIXING
+import ru.application.homemedkit.utils.KEY_IMPORT_EXPORT
 import ru.application.homemedkit.utils.KEY_KITS
 import ru.application.homemedkit.utils.KEY_PERMISSIONS
 import ru.application.homemedkit.utils.KEY_USE_ALARM_CLOCK
 import ru.application.homemedkit.utils.KEY_USE_VIBRATION_SCAN
 import ru.application.homemedkit.utils.di.AlarmManager
-import ru.application.homemedkit.utils.di.Database
 import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.Page
 import ru.application.homemedkit.utils.enums.Sorting
@@ -123,13 +120,16 @@ import ru.application.homemedkit.utils.extensions.getDisplayRegionName
 import ru.application.homemedkit.utils.extensions.getLanguageList
 import ru.application.homemedkit.utils.extensions.restartApplication
 import ru.application.homemedkit.utils.extensions.showToast
+import ru.application.homemedkit.utils.launcherExportDatabase
+import ru.application.homemedkit.utils.launcherExportImages
+import ru.application.homemedkit.utils.launcherImportDatabase
+import ru.application.homemedkit.utils.launcherImportImages
 import ru.application.homemedkit.utils.permissions.PermissionState
 import ru.application.homemedkit.utils.permissions.rememberPermissionState
-import java.io.File
 import java.util.Locale
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(onAuthClick: () -> Unit) {
     val context = LocalContext.current
     val barVisibility = LocalBarVisibility.current
 
@@ -160,13 +160,13 @@ fun SettingsScreen() {
                 key = KEY_KITS,
                 title = { Text(stringResource(R.string.preference_kits_group)) },
                 summary = { Text(stringResource(R.string.text_tap_to_view)) },
-                onClick = model::toggleKits
+                onClick = { model.onEvent(SettingsEvent.ShowKits) }
             )
 
             item {
                 ListPreference(
                     value = startPage,
-                    onValueChange = model::changeStartPage,
+                    onValueChange = Preferences::setStartPage,
                     values = Page.entries,
                     title = { Text(stringResource(R.string.preference_start_page)) },
                     summary = { Text(stringResource(startPage.title)) },
@@ -177,7 +177,7 @@ fun SettingsScreen() {
             item {
                 ListPreference(
                     value = sorting,
-                    onValueChange = model::changeSortingType,
+                    onValueChange = Preferences::setSortingType,
                     values = Sorting.entries,
                     title = { Text(stringResource(R.string.preference_sorting_type)) },
                     summary = { Text(stringResource(sorting.title)) },
@@ -209,7 +209,7 @@ fun SettingsScreen() {
             item {
                 SwitchPreference(
                     value = checkExpiration,
-                    onValueChange = model::changeExpirationCheck,
+                    onValueChange = Preferences::setCheckExpDate,
                     title = { Text(stringResource(R.string.preference_check_expiration_date)) },
                     summary = { Text(stringResource(if (checkExpiration) R.string.text_daily_at else R.string.text_off)) }
                 )
@@ -294,29 +294,45 @@ fun SettingsScreen() {
                 )
             )
 
+            twoTargetSwitchPreference(
+                key = KEY_AUTO_SYNC_ENABLED,
+                defaultValue = false,
+                onClick = { onAuthClick() },
+                switchEnabled = { Preferences.token != null },
+                title = { Text(stringResource(R.string.text_sync)) },
+                summary = { enabled ->
+                    Text(
+                        text = stringResource(
+                            id = if (enabled) R.string.preference_auto_sync_summary_enabled
+                            else R.string.preference_auto_sync_summary_disabled
+                        )
+                    )
+                }
+            )
+
             preference(
                 key = KEY_PERMISSIONS,
                 title = { Text(stringResource(R.string.preference_permissions)) },
                 summary = { Text(stringResource(R.string.text_tap_to_view)) },
-                onClick = model::togglePermissions,
+                onClick = { model.onEvent(SettingsEvent.ShowPermissions) }
             )
 
             preference(
-                key = KEY_EXP_IMP,
+                key = KEY_IMPORT_EXPORT,
                 title = { Text(stringResource(R.string.preference_import_export)) },
-                onClick = model::toggleExport
+                onClick = { model.onEvent(SettingsEvent.ShowExport) }
             )
 
             preference(
                 key = KEY_FIXING,
                 title = { Text(stringResource(R.string.preference_fixing_notifications)) },
-                onClick = model::toggleFixing
+                onClick = { model.onEvent(SettingsEvent.ShowFixing) }
             )
 
             preference(
                 key = KEY_CLEAR_CACHE,
                 title = { Text(stringResource(R.string.preference_clear_app_cache)) },
-                onClick = model::toggleClearing
+                onClick = { model.onEvent(SettingsEvent.ShowClearing) }
             )
         }
     }
@@ -327,7 +343,7 @@ fun SettingsScreen() {
         onSave = model::saveKitsPosition,
         onUpsert = model::upsertKit,
         onDelete = model::deleteKit,
-        onBack = model::toggleKits
+        onBack = { model.onEvent(SettingsEvent.ShowKits) }
     )
 
     AnimatedVisibility(
@@ -335,14 +351,14 @@ fun SettingsScreen() {
         enter = scaleIn(),
         exit = scaleOut()
     ) {
-        BackHandler(state.showPermissions, model::togglePermissions)
-        PermissionsScreen(model::togglePermissions)
+        BackHandler(state.showPermissions) { model.onEvent(SettingsEvent.ShowPermissions) }
+        PermissionsScreen(onBack = { model.onEvent(SettingsEvent.ShowPermissions) })
     }
 
     when {
-        state.showExport -> ExportImport(model::toggleExport)
-        state.showFixing -> DialogFixing(model::toggleFixing)
-        state.showClearing -> DialogClearing(model::clearCache, model::toggleClearing)
+        state.showExport -> DialogData(model::onDataAction) { model.onEvent(SettingsEvent.ShowExport) }
+        state.showFixing -> DialogFixingNotifications { model.onEvent(SettingsEvent.ShowFixing) }
+        state.showClearing -> DialogClearing(model::onDataAction) { model.onEvent(SettingsEvent.ShowClearing) }
     }
 }
 
@@ -514,14 +530,44 @@ private fun KitsManager(
 }
 
 @Composable
-fun PermissionsScreen(navigateUp: () -> Unit, exitFirstLaunch: () -> Unit = navigateUp) {
+fun PermissionsScreen(onBack: () -> Unit, onFirstExit: () -> Unit = onBack) {
+    @Composable
+    fun ButtonGrant(permission: PermissionState) = TextButton(
+        onClick = permission::launchRequest,
+        enabled = !permission.isGranted,
+        content = {
+            Text(
+                text = stringResource(
+                    id = if (permission.isGranted) R.string.text_permission_granted
+                    else R.string.text_permission_grant
+                )
+            )
+        }
+    )
+
+    @Composable
+    fun PermissionItem(
+        permissionState: PermissionState,
+        @StringRes title: Int,
+        @StringRes description: Int
+    ) = ListItem(
+        headlineContent = { Text(stringResource(title)) },
+        trailingContent = { ButtonGrant(permissionState) },
+        supportingContent = {
+            Text(
+                text = stringResource(description),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    )
+
     val scheduleExactAlarms = rememberPermissionState(Manifest.permission.SCHEDULE_EXACT_ALARM)
     val postNotifications = rememberPermissionState(Manifest.permission.POST_NOTIFICATIONS)
     val fullScreenIntent = rememberPermissionState(Manifest.permission.USE_FULL_SCREEN_INTENT)
     val ignoreBattery = rememberPermissionState(Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
 
     Column(
-        verticalArrangement = SpaceBetween,
+        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
@@ -529,7 +575,10 @@ fun PermissionsScreen(navigateUp: () -> Unit, exitFirstLaunch: () -> Unit = navi
             .padding(12.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Column(Modifier, spacedBy(8.dp), Alignment.CenterHorizontally) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Image(painterResource(R.drawable.vector_bell), null, Modifier.size(64.dp))
             Text(
                 text = stringResource(R.string.text_pay_attention),
@@ -542,52 +591,38 @@ fun PermissionsScreen(navigateUp: () -> Unit, exitFirstLaunch: () -> Unit = navi
             )
         }
         Column {
-            if (VERSION.SDK_INT >= Build.VERSION_CODES.S) ListItem(
-                headlineContent = { Text(stringResource(R.string.text_permission_title_reminders)) },
-                trailingContent = { ButtonGrant(scheduleExactAlarms) },
-                supportingContent = {
-                    Text(
-                        text = stringResource(R.string.text_explain_reminders),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            )
-            if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) ListItem(
-                headlineContent = { Text(stringResource(R.string.text_permission_title_notifications)) },
-                trailingContent = { ButtonGrant(postNotifications) },
-                supportingContent = {
-                    Text(
-                        text = stringResource(R.string.text_explain_notifications),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            )
-            if (VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) ListItem(
-                headlineContent = { Text(stringResource(R.string.text_permission_title_full_screen)) },
-                trailingContent = { ButtonGrant(fullScreenIntent) },
-                supportingContent = {
-                    Text(
-                        text = stringResource(R.string.text_explain_full_screen_intent),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
-            )
-            ListItem(
-                headlineContent = { Text(stringResource(R.string.text_permission_title_ignore_battery)) },
-                trailingContent = { ButtonGrant(ignoreBattery) },
-                supportingContent = {
-                    Text(
-                        text = stringResource(R.string.text_explain_ignore_battery),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+            if (VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                PermissionItem(
+                    permissionState = scheduleExactAlarms,
+                    title = R.string.text_permission_title_reminders,
+                    description = R.string.text_explain_reminders
+                )
+            }
+            if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                PermissionItem(
+                    permissionState = postNotifications,
+                    title = R.string.text_permission_title_notifications,
+                    description = R.string.text_explain_notifications
+                )
+            }
+            if (VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                PermissionItem(
+                    permissionState = fullScreenIntent,
+                    title = R.string.text_permission_title_full_screen,
+                    description = R.string.text_explain_full_screen_intent
+                )
+            }
+            PermissionItem(
+                permissionState = ignoreBattery,
+                title = R.string.text_permission_title_ignore_battery,
+                description = R.string.text_explain_ignore_battery
             )
         }
-        Row(Modifier.fillMaxWidth(), SpaceBetween, CenterVertically) {
-            TextButton(navigateUp) { Text(stringResource(R.string.text_exit)) }
+        Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+            TextButton(onBack) { Text(stringResource(R.string.text_exit)) }
             Button(
-                onClick = exitFirstLaunch,
-                enabled = listOf(scheduleExactAlarms, postNotifications).all(PermissionState::isGranted),
+                onClick = onFirstExit,
+                enabled = scheduleExactAlarms.isGranted && postNotifications.isGranted,
                 content = { Text(stringResource(R.string.text_save)) }
             )
         }
@@ -595,96 +630,55 @@ fun PermissionsScreen(navigateUp: () -> Unit, exitFirstLaunch: () -> Unit = navi
 }
 
 @Composable
-private fun ButtonGrant(permission: PermissionState, modifier: Modifier = Modifier) =
-    TextButton(permission::launchRequest, modifier, !permission.isGranted) {
-        Text(stringResource(if (permission.isGranted) R.string.text_permission_granted else R.string.text_permission_grant))
-    }
+private fun DialogData(onAction: ActionHandler, onDismiss: () -> Unit) {
+    @Composable
+    fun LocalButton(@StringRes text: Int, onClick: () -> Unit) = ListItem(
+        onClick = onClick,
+        content = { Text(stringResource(text)) },
+        colors = ListItemDefaults.colors(
+            containerColor = Color.Transparent,
+            headlineColor = MaterialTheme.colorScheme.primary,
+            leadingIconColor = MaterialTheme.colorScheme.primary
+        )
+    )
 
-@Composable
-private fun ExportImport(onDismiss: () -> Unit) {
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
+    val exportImages = launcherExportImages(onAction)
+    val importImages = launcherImportImages(onAction)
 
-    val queryC = "SELECT 1 FROM sqlite_master WHERE type = 'table' and name = 'room_master_table'"
-    val queryG = "SELECT * FROM room_master_table"
-    val name = "exported.sqlite3"
-    val mimes = arrayOf("application/vnd.sqlite3", "application/x-sqlite3", "application/octet-stream")
-
-    fun hasTable(db: SQLiteDatabase): Boolean = db.rawQuery(queryC, null)
-        .use { return if (!it.moveToFirst()) false else it.getInt(0) > 0 }
-
-    fun getHash(db: SQLiteDatabase): String = db.rawQuery(queryG, null)
-        .use { return if (it.moveToNext()) it.getString(1) else BLANK }
-
-    val exporter = rememberLauncherForActivityResult(CreateDocument(mimes[0])) { uri ->
-        val path = context.getDatabasePath(Database.openHelper.databaseName)
-        Database.close()
-
-        uri?.let { uriN ->
-            context.contentResolver.openOutputStream(uriN).use { output ->
-                output?.let { path.inputStream().copyTo(it) }
-            }
-            context.restartApplication {
-               putBoolean(KEY_EXP_IMP, true)
-            }
-        }
-    }
-
-    val importer = rememberLauncherForActivityResult(OpenDocument()) { uri ->
-        val path = context.getDatabasePath(Database.openHelper.databaseName)
-
-        uri?.let { uriN ->
-            val cursor = Database.openHelper.readableDatabase.query(queryG)
-            val currentHash = if (cursor.moveToNext()) cursor.getString(1) else BLANK
-            val tempFile = File.createTempFile("temp", ".sqlite", context.cacheDir)
-
-            Database.close()
-            context.contentResolver.openInputStream(uriN).use { input ->
-                tempFile.outputStream().use { output -> input?.copyTo(output) }
-            }
-
-            try {
-                val newDB = openDatabase(tempFile.path, null, OPEN_READONLY)
-                val newHash = if (hasTable(newDB)) getHash(newDB) else BLANK
-                newDB.close()
-
-                if (currentHash == newHash) {
-                    scope.launch {
-                        AlarmSetter.getInstance(context).cancelAll()
-                    }
-
-                    context.contentResolver.openInputStream(uriN).use { input ->
-                        path.outputStream().use { output -> input?.copyTo(output) }
-                    }
-
-                    context.restartApplication {
-                        putBoolean(KEY_EXP_IMP, true)
-                    }
-                } else context.showToast(R.string.text_error)
-            } catch (_: Throwable) {
-                context.showToast(R.string.text_error)
-            } finally {
-                tempFile.delete()
-            }
-        }
-    }
+    val exportDatabase = launcherExportDatabase(onAction)
+    val importDatabase = launcherImportDatabase(onAction)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = { TextButton({ importer.launch(mimes) }) { Text(stringResource(R.string.text_import)) } },
-        dismissButton = { TextButton({ exporter.launch(name) }) { Text(stringResource(R.string.text_export)) } },
-        title = { Text(stringResource(R.string.text_attention)) },
+        confirmButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_exit)) } },
+        title = {
+            Row(Modifier.fillMaxWidth(), Arrangement.Center) {
+                Text(stringResource(R.string.preference_import_export))
+            }
+        },
         text = {
-            Text(
-                text = stringResource(R.string.text_export_import_description),
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Column {
+                Text(
+                    text = stringResource(R.string.text_import_data_description),
+                    modifier = Modifier.padding(16.dp, 8.dp)
+                )
+
+                HorizontalDivider()
+
+                LocalButton(R.string.text_import_database, importDatabase::launch)
+                LocalButton(R.string.text_import_images, importImages::launch)
+
+                HorizontalDivider()
+
+                LocalButton(R.string.text_export_database, exportDatabase::launch)
+                LocalButton(R.string.text_export_images, exportImages::launch)
+            }
         }
     )
 }
 
 @Composable
-private fun DialogFixing(back: () -> Unit) {
+private fun DialogFixingNotifications(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -696,8 +690,8 @@ private fun DialogFixing(back: () -> Unit) {
     }
 
     AlertDialog(
-        onDismissRequest = back,
-        dismissButton = { TextButton(back) { Text(stringResource(R.string.text_cancel)) } },
+        onDismissRequest = onBack,
+        dismissButton = { TextButton(onBack) { Text(stringResource(R.string.text_cancel)) } },
         confirmButton = { TextButton(::onFix) { Text(stringResource(R.string.text_confirm)) } },
         title = { Text(stringResource(R.string.text_attention)) },
         text = {
@@ -710,26 +704,31 @@ private fun DialogFixing(back: () -> Unit) {
 }
 
 @Composable
-private fun DialogClearing(onClear: (File, File) -> Unit, onDismiss: () -> Unit) {
+private fun DialogClearing(actionHandler: ActionHandler, onDismiss: () -> Unit) {
     val context = LocalContext.current
+    val onClear = {
+        actionHandler.handle(
+            actionResult = ActionResult(
+                onAction = { DataManager.clearCache(context) },
+                onResult = { isSuccess ->
+                    if (isSuccess == true) {
+                        context.showToast(R.string.text_success)
+                    }
+                    onDismiss()
+                }
+            )
+        )
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_cancel)) } },
+        confirmButton = { TextButton(onClear) { Text(stringResource(R.string.text_confirm)) } },
         title = { Text(stringResource(R.string.text_attention)) },
         text = {
             Text(
                 text = stringResource(R.string.text_clear_app_cache_description),
                 style = MaterialTheme.typography.bodyLarge
-            )
-        },
-        confirmButton = {
-            TextButton(
-                content = { Text(stringResource(R.string.text_confirm)) },
-                onClick = {
-                    onClear(context.cacheDir, context.filesDir)
-                    context.showToast(R.string.text_success)
-                }
             )
         }
     )

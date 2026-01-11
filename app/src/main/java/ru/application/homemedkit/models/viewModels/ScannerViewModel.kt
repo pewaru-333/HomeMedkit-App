@@ -1,16 +1,9 @@
 package ru.application.homemedkit.models.viewModels
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.network.Network
 import ru.application.homemedkit.utils.di.Database
@@ -18,71 +11,58 @@ import ru.application.homemedkit.utils.extensions.toMedicine
 import ru.application.homemedkit.utils.getMedicineImages
 import java.io.File
 
-class ScannerViewModel : ViewModel() {
-    private val dao = Database.medicineDAO()
+class ScannerViewModel : BaseViewModel<Response, Unit>() {
+    private val dao by lazy { Database.medicineDAO() }
     private val mutex = Mutex()
 
-    private val _response = Channel<Response>()
-    val response = _response.receiveAsFlow()
+    override fun initState() = Response.Initial
+
+    override fun loadData() = Unit
+
+    override fun onEvent(event: Unit) = Unit
 
     fun fetch(dir: File, code: String) {
         viewModelScope.launch {
-            try {
-                mutex.withLock(this@ScannerViewModel) {
-                    dao.getIdByCis(code)?.let { duplicateId ->
-                        _response.send(Response.Navigate(duplicateId, true))
-
-                        awaitCancellation()
-                    }
-
-                    try {
-                        _response.send(Response.Loading)
-
-                        val response = withContext(Dispatchers.IO) {
-                            Network.getMedicine(code)
-                        }
-
-                        when (val data = response) {
-                            is Response.Error -> {
-                                _response.send(data)
-                                delay(2500L)
-                            }
-
-                            is Response.Success -> {
-                                val medicine = data.model.run {
-                                    drugsData?.toMedicine() ?: bioData?.toMedicine() ?: toMedicine()
-                                }.copy(
-                                    cis = code
-                                )
-
-                                val id = dao.insert(medicine)
-                                val images = getMedicineImages(
-                                    medicineId = id,
-                                    form = medicine.prodFormNormName,
-                                    directory = dir,
-                                    urls = data.model.imageUrls
-                                )
-
-                                dao.updateImages(images)
-                                _response.send(Response.Navigate(id))
-                            }
-
-                            else -> Unit
-                        }
-                    } catch (_: Exception) {
-                        _response.send(Response.Error.UnknownError)
-                        delay(2500L)
-                    }
+            mutex.withLock {
+                val duplicateId = dao.getIdByCis(code)
+                if (duplicateId != null) {
+                    updateState { Response.Navigate(duplicateId, true) }
+                    return@launch
                 }
-            } catch (_: IllegalStateException) {
 
+                try {
+                    updateState { Response.Loading }
+
+                    when (val response = Network.getMedicine(code)) {
+                        is Response.Error -> updateState { response }
+
+                        is Response.Success -> {
+                            val medicine = response.model.run {
+                                drugsData?.toMedicine() ?: bioData?.toMedicine() ?: toMedicine()
+                            }.copy(
+                                cis = code
+                            )
+
+                            val id = dao.insert(medicine)
+                            val images = getMedicineImages(
+                                medicineId = id,
+                                form = medicine.prodFormNormName,
+                                directory = dir,
+                                urls = response.model.imageUrls
+                            )
+
+                            dao.updateImages(images)
+                            updateState { Response.Navigate(id) }
+                        }
+
+                        else -> Unit
+                    }
+                } catch (_: Exception) {
+                    updateState { Response.Error.UnknownError }
+                }
             }
         }
     }
 
-    fun setInitial() {
-        viewModelScope.launch {
-            _response.send(Response.Initial)
-        }
-    }
+    fun setInitial() = updateState { Response.Initial }
 }

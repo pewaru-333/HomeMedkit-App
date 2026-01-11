@@ -147,7 +147,6 @@
     <string name="text_duplicate">已添加过同名药物</string>
     <string name="text_error_not_medicine">该标签码不来自于药物</string>
     <string name="text_exit_app">确认退出？</string>
-    <string name="text_export_import_description">这是一项实验性功能.\n如果导入数据，当前的已有数据将会丢失</string>
     <string name="text_fill_field">请在此栏输入内容</string>
     <string name="text_fix_notifications">软件会重启并且所有的往期提醒均会出现在通知栏. 没事别开这个功能</string>
     <string name="text_kit_title">新组别</string>
@@ -191,11 +190,9 @@
     <string name="text_every">每\u0020</string>
     <string name="text_every_day">每天</string>
     <string name="text_exit">退出</string>
-    <string name="text_export">导出</string>
     <string name="text_finish_date">结束时间</string>
     <string name="text_go_to">好！</string>
     <string name="text_grant">授权</string>
-    <string name="text_import">导入</string>
     <string name="text_no">不用了</string>
     <string name="text_no_data_found">没有匹配项. 添加相应内容或者调整过滤器</string>
     <string name="text_no_intakes_found">没有匹配项. 在药物详情页添加信息或者更改搜索内容</string>

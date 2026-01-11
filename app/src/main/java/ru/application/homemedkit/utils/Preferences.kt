@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.LocaleList
 import androidx.core.content.edit
 import kotlinx.coroutines.flow.Flow
+import ru.application.homemedkit.network.models.auth.Token
 import ru.application.homemedkit.utils.di.AlarmManager
 import ru.application.homemedkit.utils.enums.Page
 import ru.application.homemedkit.utils.enums.Sorting
@@ -18,7 +19,7 @@ import ru.application.homemedkit.utils.extensions.getSelectedLanguage
 import ru.application.homemedkit.utils.extensions.putEnum
 import java.util.Locale
 
-class Preferences(context: Context) {
+class Preferences internal constructor(context: Context) {
     private val preferences = context.getSharedPreferences("${context.packageName}_preferences", MODE_PRIVATE)
 
     val kitsFilter: Set<Long>
@@ -63,6 +64,38 @@ class Preferences(context: Context) {
     val isFirstLaunch: Boolean
         get() = preferences.getBoolean(KEY_FIRST_LAUNCH_INTAKE, true)
 
+    val wasDataImported: Boolean
+        get() = preferences.getBoolean(KEY_IMPORTED_DATA, false)
+
+    val codeVerifier: String?
+        get() = preferences.getString(KEY_CODE_VERIFIER, null)
+
+    val authIsYandex: Boolean
+        get() = preferences.getBoolean(KEY_AUTH_IS_YANDEX, false)
+
+    val lastSyncMillis: Long
+        get() = preferences.getLong(KEY_LAST_SYNC_MILLIS, -1L)
+
+    val lastSyncMillisFlow: Flow<Long>
+        get() = preferences.getFlow(KEY_LAST_SYNC_MILLIS, -1L)
+
+    val isAutoSyncEnabled: Boolean
+        get() = preferences.getBoolean(KEY_AUTO_SYNC_ENABLED, false)
+
+    val token: Token?
+        get() {
+            val accessToken = preferences.getString(KEY_ACCESS_TOKEN, BLANK)
+            val refreshToken = preferences.getString(KEY_REFRESH_TOKEN, BLANK)
+
+            if (accessToken == null || refreshToken == null)
+                return null
+
+            if (accessToken.isBlank() || refreshToken.isBlank())
+                return null
+
+            return Token(accessToken, refreshToken)
+        }
+
     fun setStartPage(page: Page) = preferences.edit { putEnum(KEY_START_PAGE, page) }
 
     fun setSortingType(type: Sorting) = preferences.edit { putEnum(KEY_ORDER, type) }
@@ -86,9 +119,42 @@ class Preferences(context: Context) {
         context.getActivity()?.recreate()
     }
 
+    fun addImportedKey() = preferences.edit(commit = true) {
+        putBoolean(KEY_IMPORTED_DATA, true)
+    }
+
+    fun removeImportedKey() = preferences.edit {
+        remove(KEY_IMPORTED_DATA)
+    }
+
+    fun updateSyncMillis(millis: Long = System.currentTimeMillis()) = preferences.edit {
+        putLong(KEY_LAST_SYNC_MILLIS, millis)
+    }
+
+    fun setAutoSync(enabled: Boolean = false) = preferences.edit {
+        putBoolean(KEY_AUTO_SYNC_ENABLED, enabled)
+    }
+
     fun setTheme(theme: Theme) = preferences.edit {
         putEnum(KEY_APP_THEME, theme)
     }
+
+    fun saveCodeVerifier(verifier: String) = preferences.edit {
+        putString(KEY_CODE_VERIFIER, verifier)
+    }
+
+    fun removeCodeVerifier() = preferences.edit {
+        remove(KEY_CODE_VERIFIER)
+    }
+
+    fun saveToken(token: Token) {
+        preferences.edit(commit = true) {
+            putString(KEY_ACCESS_TOKEN, token.accessToken)
+            putString(KEY_REFRESH_TOKEN, token.refreshToken)
+        }
+    }
+
+    fun setAuthYandex(flag: Boolean) = preferences.edit { putBoolean(KEY_AUTH_IS_YANDEX, flag) }
 
     fun changeLanguage(context: Context) =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) context

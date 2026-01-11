@@ -28,17 +28,13 @@ interface AlarmDAO : BaseDAO<Alarm> {
     @Query("SELECT * FROM alarms")
     suspend fun getAll(): List<Alarm>
 
+    @Query("SELECT * FROM alarms WHERE `trigger` < :millis ORDER BY `trigger` ASC")
+    suspend fun getExpired(millis: Long): List<Alarm>
+
     @Query("SELECT * FROM alarms WHERE alarmId = :alarmId")
     suspend fun getById(alarmId: Long): Alarm?
 
-    @Query(
-        """
-        SELECT * FROM alarms 
-        WHERE intakeId = :intakeId 
-        ORDER BY `trigger` 
-        LIMIT 1
-        """
-    )
+    @Query("SELECT * FROM alarms WHERE intakeId = :intakeId ORDER BY `trigger` LIMIT 1")
     suspend fun getNextByIntakeId(intakeId: Long): Alarm?
 
     @Query("DELETE FROM alarms WHERE intakeId = :intakeId")

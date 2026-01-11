@@ -123,7 +123,11 @@ fun AppTheme(content: @Composable () -> Unit) {
 
     val colors = if (darkState != Theme.DARK_AMOLED) baseColors else baseColors.copy(
         background = androidx.compose.ui.graphics.Color.Black,
-        surface = androidx.compose.ui.graphics.Color.Black
+        surface = androidx.compose.ui.graphics.Color.Black,
+        surfaceContainer = androidx.compose.ui.graphics.Color.Black,
+        surfaceContainerLow = androidx.compose.ui.graphics.Color.Black,
+        surfaceContainerLowest = androidx.compose.ui.graphics.Color.Black,
+        surfaceContainerHigh = androidx.compose.ui.graphics.Color(0xFF121212)
     )
 
     DisposableEffect(darkTheme) {

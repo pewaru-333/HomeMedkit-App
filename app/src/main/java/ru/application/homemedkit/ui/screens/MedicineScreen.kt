@@ -163,9 +163,31 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
 
     val snackbarHost = remember(::SnackbarHostState)
 
-    LaunchedEffect(Unit) {
+    val imageReload = remember(state) {
+        if (state.technical.scanned) {
+            { model.fetchImages(context.filesDir) }
+        } else null
+    }
+
+    val duplicate = remember(state) {
+        if (state.technical.verified || state.technical.verified) {
+            null
+        } else {
+            { model.onEvent(MedicineEvent.MakeDuplicate) }
+        }
+    }
+
+    LaunchedEffect(model.deleted) {
         model.deleted.collectLatest {
             if (it) onBack()
+        }
+    }
+
+    LaunchedEffect(model.duplicated) {
+        model.duplicated.collectLatest {
+            snackbarHost.showSnackbar(
+                message = context.getString(R.string.text_success)
+            )
         }
     }
 
@@ -196,6 +218,8 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
                         setModifiable = model::setEditing,
                         onSave = if (state.adding) model::add else model::update,
                         onShowDialog = { model.onEvent(ToggleDialog(MedicineDialogState.Delete)) },
+                        onReloadImages = imageReload,
+                        onDuplicate = duplicate,
                         onNavigate = { onGoToIntake(state.id) }
                     )
                 },

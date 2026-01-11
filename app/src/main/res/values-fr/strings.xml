@@ -166,7 +166,6 @@
     <string name="text_connection_error">Erreur de connexion !</string>
     <string name="text_duplicate">Ce médicament a déjà été ajouté !</string>
     <string name="text_exit_app">Vous êtes sûr⋅e de vouloir quitter l\'application ?</string>
-    <string name="text_export_import_description">C\'est une fonctionnalité expérimentale.\nSi vous importez, les données actuelles de l\'application seront supprimées !</string>
     <string name="text_fill_field">Remplissez ce champ !</string>
     <string name="text_kit_title">Titre du kit</string>
     <string name="text_medicine_deleted">Le médicament a été supprimé, il est impossible d\'en changer la prise</string>
@@ -200,7 +199,6 @@
     <string name="text_error">Erreur !</string>
     <string name="text_every_day">Tous les jours</string>
     <string name="text_exit">Sortir</string>
-    <string name="text_export">Exporter</string>
     <string name="text_finish_date">Date de fin</string>
 
     <!-- Plurals -->

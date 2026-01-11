@@ -1,11 +1,10 @@
 package ru.application.homemedkit.ui.screens
 
 import android.Manifest
-import android.os.VibrationEffect
-import android.os.Vibrator
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.Dispatchers
 import ru.application.homemedkit.R
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.viewModels.ScannerViewModel
@@ -63,6 +62,7 @@ import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.camera.CameraConfig
 import ru.application.homemedkit.utils.camera.rememberCameraConfig
 import ru.application.homemedkit.utils.di.Preferences
+import ru.application.homemedkit.utils.extensions.vibrate
 import ru.application.homemedkit.utils.permissions.PermissionState
 import ru.application.homemedkit.utils.permissions.rememberPermissionState
 
@@ -74,94 +74,95 @@ fun ScannerScreen(onBack: () -> Unit, onGoToMedicine: (Long, String, Boolean) ->
     val overlayColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.6f)
 
     val model = viewModel<ScannerViewModel>()
-    val response by model.response.collectAsStateWithLifecycle(
-        initialValue = Response.Initial,
-        context = Dispatchers.Main.immediate
-    )
+    val state by model.state.collectAsStateWithLifecycle()
 
     val cameraPermission = rememberPermissionState(Manifest.permission.CAMERA)
     val controller = rememberCameraConfig(CameraConfig.UseCases.IMAGE_ANALYSIS) {
-        model.fetch(filesDir, it)
+        if (state == Response.Initial) {
+            model.fetch(filesDir, it)
+        }
     }
 
     val snackbarHost = remember(::SnackbarHostState)
 
     BackHandler(onBack = onBack)
-    if (cameraPermission.isGranted) Scaffold(
-        snackbarHost = {
-            SnackbarHost(snackbarHost) {
-                Snackbar(
-                    snackbarData = it,
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                )
-            }
-        }
-    ) {
-        CameraPreview(controller, Modifier.fillMaxSize())
-        Canvas(Modifier.fillMaxSize()) {
-            val frameSize = size.minDimension * 0.7f
-            val framePath = Path().apply {
-                addRoundRect(
-                    RoundRect(
-                        cornerRadius = CornerRadius(16.dp.toPx()),
-                        rect = Rect(
-                            offset = Offset(center.x - frameSize / 2, center.y - frameSize / 2),
-                            size = Size(frameSize, frameSize)
+    if (cameraPermission.isGranted) {
+        Box(Modifier.fillMaxSize()) {
+            Scaffold(
+                snackbarHost = {
+                    SnackbarHost(snackbarHost) {
+                        Snackbar(
+                            snackbarData = it,
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
                         )
-                    )
-                )
-            }
+                    }
+                }
+            ) {
+                CameraPreview(controller, Modifier.fillMaxSize())
+                Canvas(Modifier.fillMaxSize()) {
+                    val frameSize = size.minDimension * 0.7f
+                    val framePath = Path().apply {
+                        addRoundRect(
+                            RoundRect(
+                                cornerRadius = CornerRadius(16.dp.toPx()),
+                                rect = Rect(
+                                    offset = Offset(center.x - frameSize / 2, center.y - frameSize / 2),
+                                    size = Size(frameSize, frameSize)
+                                )
+                            )
+                        )
+                    }
 
-            clipPath(framePath, ClipOp.Difference) { drawRect(overlayColor) }
-            drawPath(framePath, Color.White, style = Stroke(2.dp.toPx()))
-        }
-        Row(Modifier.fillMaxWidth(), Arrangement.End, Alignment.CenterVertically) {
-            IconButton(controller::toggleTorch, Modifier.padding(it)) {
-                VectorIcon(R.drawable.vector_flash, Modifier, Color.White)
-            }
-        }
-    }
-    else if (cameraPermission.showRationale) PermissionDialog(cameraPermission, onBack)
-    else FirstTimeScreen(onBack, cameraPermission::launchRequest)
-
-    when (val value = response) {
-        Response.Loading -> BoxLoading()
-
-        is Response.Navigate, is Response.Error -> {
-            fun vibrate(time: Long) {
-                if (Preferences.useVibrationScan) {
-                    context.getSystemService(Vibrator::class.java)
-                        .vibrate(VibrationEffect.createOneShot(time, VibrationEffect.DEFAULT_AMPLITUDE))
+                    clipPath(framePath, ClipOp.Difference) { drawRect(overlayColor) }
+                    drawPath(framePath, Color.White, style = Stroke(2.dp.toPx()))
+                }
+                Row(Modifier.fillMaxWidth(), Arrangement.End, Alignment.CenterVertically) {
+                    IconButton(controller::toggleTorch, Modifier.padding(it)) {
+                        VectorIcon(R.drawable.vector_flash, Modifier, Color.White)
+                    }
                 }
             }
 
-            when (value) {
-                is Response.Error -> when (value) {
-                    is Response.Error.NetworkError -> {
-                        vibrate(300L)
+            when (val result = state) {
+                is Response.Loading -> BoxLoading()
 
-                        AddMedicineDialog(model::setInitial) {
-                            value.code?.let { onGoToMedicine(0L, it, false) }
+                is Response.Error.NetworkError -> {
+                    DialogMedicineAddition(model::setInitial) {
+                        result.code?.let { onGoToMedicine(0L, it, false) }
+                    }
+                }
+
+                is Response.Error -> {
+                    if (Preferences.useVibrationScan) {
+                        context.vibrate(200L)
+                    }
+
+                    LaunchedEffect(Unit) {
+                        val result = snackbarHost.showSnackbar(context.getString(result.message))
+
+                        if (result == SnackbarResult.Dismissed) {
+                            model.setInitial()
                         }
                     }
-
-                    else -> LaunchedEffect(snackbarHost) {
-                        vibrate(200L)
-                        snackbarHost.showSnackbar(context.getString(value.message))
-                    }
                 }
 
+
                 is Response.Navigate -> {
-                    vibrate(150L)
-                    onGoToMedicine(value.id, BLANK, value.duplicate)
+                    if (Preferences.useVibrationScan) {
+                        context.vibrate(150L)
+                    }
+
+                    onGoToMedicine(result.id, BLANK, result.duplicate)
                 }
 
                 else -> Unit
             }
         }
-
-        else -> Unit
+    } else if (cameraPermission.showRationale) {
+        DialogPermission(cameraPermission, onBack)
+    } else {
+        FirstTimeScreen(onBack, cameraPermission::launchRequest)
     }
 }
 
@@ -225,10 +226,10 @@ private fun FirstTimeScreen(navigateUp: () -> Unit, onPermissionGrant: () -> Uni
     }
 
 @Composable
-private fun AddMedicineDialog(setDefault: () -> Unit, navigateWithCis: () -> Unit) = AlertDialog(
-    onDismissRequest = setDefault,
-    confirmButton = { TextButton(navigateWithCis) { Text(stringResource(R.string.text_yes)) } },
-    dismissButton = { TextButton(setDefault) { Text(stringResource(R.string.text_no)) } },
+private fun DialogMedicineAddition(onDismiss: () -> Unit, onNavigate: () -> Unit) = AlertDialog(
+    onDismissRequest = onDismiss,
+    confirmButton = { TextButton(onNavigate) { Text(stringResource(R.string.text_yes)) } },
+    dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_no)) } },
     title = { Text(stringResource(R.string.text_connection_error)) },
     icon = { VectorIcon(R.drawable.vector_info) },
     text = {
@@ -240,7 +241,7 @@ private fun AddMedicineDialog(setDefault: () -> Unit, navigateWithCis: () -> Uni
 )
 
 @Composable
-private fun PermissionDialog(permission: PermissionState, onDismiss: () -> Unit) = Dialog(onDismiss) {
+private fun DialogPermission(permission: PermissionState, onDismiss: () -> Unit) = Dialog(onDismiss) {
     ElevatedCard {
         Text(
             text = stringResource(R.string.text_request_camera),

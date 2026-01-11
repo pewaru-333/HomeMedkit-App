@@ -78,7 +78,6 @@
     <string name="manual_add">Bạn có muốn thêm thuốc thủ công?</string>
     <string name="text_connection_error">Lỗi kết nối!</string>
     <string name="text_duplicate">Thuốc này đã được thêm vào!</string>
-    <string name="text_export_import_description">Đây là một tính năng thử nghiệm.\nKhi xuất, bạn có thể thay đổi tên tệp.\nKhi nhập, dữ liệu hiện tại sẽ bị xóa! Xin vui lòng khởi chạy lại ứng dụng sau đó!</string>
     <string name="text_kit_title">Nhóm mới</string>
     <string name="text_request_camera">Để quét nhãn, ứng dụng phải được cấp quyền sử dụng máy ảnh</string>
     <string name="text_select_time">Chọn thời gian</string>
@@ -101,9 +100,7 @@
     <string name="text_enter_product_name">Tìm</string>
     <string name="text_error">Lỗi!</string>
     <string name="text_every">"Mỗi "</string>
-    <string name="text_export">Xuất</string>
     <string name="text_finish_date">Ngày kết thúc</string>
-    <string name="text_import">Nhập</string>
     <string name="text_no">Không</string>
     <string name="text_no_data_found">Không tìm thấy thuốc. Thêm chúng hoặc thay đổi bộ lọc.</string>
     <string name="text_no_intakes_found">Không tìm thấy lượng tiêu thụ nào. Thêm chúng qua thẻ thông tin thuốc hoặc thay đổi giá trị tìm kiếm.</string>

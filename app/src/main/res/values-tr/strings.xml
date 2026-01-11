@@ -145,7 +145,6 @@
     <string name="text_duplicate">Bu ilaç zaten eklenmiş!</string>
     <string name="text_error_not_medicine">Bu etiket kodu bir ilaca ait değil!</string>
     <string name="text_exit_app">Uygulamadan çıkmak istediğinizden emin misiniz?</string>
-    <string name="text_export_import_description">Bu deneysel bir özelliktir.\nEğer içe aktarırsanız, mevcut uygulama verileri silinecektir!</string>
     <string name="text_fill_field">Bu alanı doldurun!</string>
     <string name="text_fix_notifications">Uygulama yeniden başlatılacak ve tüm gecikmiş bildirimler durum çubuğunda görünecek. Her şey düzgün çalışıyorsa bu işlevi kullanmayın!</string>
     <string name="text_kit_title">Yeni grup</string>
@@ -186,11 +185,9 @@
     <string name="text_every">Her\u0020</string>
     <string name="text_every_day">Her gün</string>
     <string name="text_exit">Çıkış</string>
-    <string name="text_export">Dışa Aktar</string>
     <string name="text_finish_date">Bitiş tarihi</string>
     <string name="text_go_to">Git</string>
     <string name="text_grant">Yetki Ver</string>
-    <string name="text_import">İçe Aktar</string>
     <string name="text_no">Hayır</string>
     <string name="text_no_data_found">İlaç bulunamadı. Ekle veya filtreyi değiştir.</string>
     <string name="text_no_intakes_found">Doz alımı bulunamadı. Bir ilacın bilgi kartı üzerinden ekleyin veya arama değerini değiştirin.</string>

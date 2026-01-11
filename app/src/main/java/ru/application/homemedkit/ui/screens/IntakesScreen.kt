@@ -121,27 +121,13 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
 
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
-        pageCount = IntakeTab.entries::count,
+        pageCount = IntakeTab.entries::size,
         initialPage = Preferences.startPage.extras.getOrElse(0) { 0 } as Int
     )
     val listStates = IntakeTab.entries.map { rememberLazyListState() }
 
     fun toggleDialog(state: IntakesDialogState) {
         model.onEvent(IntakesEvent.ToggleDialog(state))
-    }
-
-    fun onScroll(page: Int) {
-        scope.launch {
-            pagerState.animateScrollToPage(page)
-        }
-    }
-
-    LaunchedEffect(pagerState) {
-        snapshotFlow(pagerState::currentPage).collectLatest {
-            if (it != pagerState.settledPage) {
-                onScroll(it)
-            }
-        }
     }
 
     Scaffold(
@@ -169,11 +155,11 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
         }
     ) { values ->
         Column(Modifier.padding(values)) {
-            PrimaryTabRow(pagerState.currentPage) {
+            PrimaryTabRow(pagerState.targetPage) {
                 IntakeTab.entries.forEach { tab ->
                     Tab(
-                        selected = pagerState.currentPage == tab.ordinal,
-                        onClick = { onScroll(tab.ordinal) },
+                        selected = pagerState.targetPage == tab.ordinal,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(tab.ordinal) } },
                         text = {
                             Text(
                                 text = stringResource(tab.title),
@@ -603,7 +589,11 @@ private fun DialogAddTaken(
 }
 
 @Composable
-private fun DialogTaken(intake: TakenState, onDismiss: () -> Unit, onEvent: (TakenEvent) -> Unit) {
+private fun DialogTaken(
+    intake: TakenState,
+    onDismiss: () -> Unit,
+    onEvent: (TakenEvent) -> Unit
+) {
     val context = LocalContext.current
     val items = listOf(R.string.intake_text_not_taken, R.string.intake_text_taken)
 
@@ -792,7 +782,7 @@ private fun ItemSchedule(
         )
     },
     colors = ListItemDefaults.colors(
-        containerColor = if (item.taken) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-        else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
+        containerColor = if (item.taken) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+        else MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.9f)
     )
 )

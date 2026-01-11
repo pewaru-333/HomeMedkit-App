@@ -20,6 +20,7 @@ inline fun <reified T> SharedPreferences.safeGetValue(key: String, defaultValue:
     when (defaultValue) {
         is Boolean -> runCatching { getBoolean(key, defaultValue as Boolean) as T }.getOrDefault(defaultValue)
         is Int -> runCatching { getInt(key, defaultValue as Int) as T }.getOrDefault(defaultValue)
+        is Long -> runCatching { getLong(key, defaultValue as Long) as T }.getOrDefault(defaultValue)
         is Float -> runCatching { getFloat(key, defaultValue as Float) as T }.getOrDefault(defaultValue)
         is String -> runCatching { getString(key, defaultValue as String) as T }.getOrDefault(defaultValue)
         is Set<*> -> runCatching { getStringSet(key, defaultValue as Set<String>) as T }.getOrDefault(defaultValue)

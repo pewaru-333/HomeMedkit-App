@@ -39,7 +39,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
-class CameraConfig(val context: Context) {
+class CameraConfig(private val context: Context) {
     private lateinit var camera: Camera
 
     private var surfaceMeteringPointFactory = SurfaceOrientedMeteringPointFactory(0f, 0f)

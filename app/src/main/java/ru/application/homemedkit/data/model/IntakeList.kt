@@ -4,6 +4,7 @@ import androidx.room.Relation
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.IntakeDay
 import ru.application.homemedkit.data.dto.IntakeTime
+import ru.application.homemedkit.utils.enums.SchemaType
 import java.time.DayOfWeek
 
 data class IntakeList(
@@ -11,6 +12,8 @@ data class IntakeList(
     val medicineId: Long, // needed for relation
     val productName: String,
     val nameAlias: String,
+    val interval: Int,
+    val schemaType: SchemaType,
     val finalDate: String,
 
     @Relation(

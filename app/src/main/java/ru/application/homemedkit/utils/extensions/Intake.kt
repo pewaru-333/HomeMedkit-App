@@ -25,6 +25,7 @@ import ru.application.homemedkit.utils.ResourceText
 import ru.application.homemedkit.utils.enums.IntakeExtra
 import ru.application.homemedkit.utils.enums.Interval
 import ru.application.homemedkit.utils.enums.Period
+import ru.application.homemedkit.utils.enums.SchemaType
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
@@ -96,16 +97,24 @@ fun IntakeList.toIntake(): Intake {
         .sorted()
         .joinToString()
 
-    val daysText = with(days.sorted()) {
-        when {
-            size == DayOfWeek.entries.size -> ResourceText.StringResource(R.string.text_every_day)
-            this == DayOfWeek.entries.weekdays -> ResourceText.StringResource(R.string.text_weekdays)
-            this == DayOfWeek.entries.weekends -> ResourceText.StringResource(R.string.text_weekend)
-            else -> ResourceText.StaticString(
-                value = joinToString { day ->
-                    day.getDisplayName(TextStyle.SHORT, Locale.current.platformLocale)
-                }
-            )
+    val daysText = when (schemaType) {
+        SchemaType.INDEFINITELY, SchemaType.PERSONAL -> when (interval) {
+            1 -> ResourceText.StringResource(R.string.text_every_day)
+            7 -> ResourceText.StringResource(R.string.text_every_week)
+            else -> ResourceText.PluralStringResource(R.plurals.intake_interval_in_day, interval, interval)
+        }
+
+        SchemaType.BY_DAYS -> with(days.sorted()) {
+            when {
+                size == DayOfWeek.entries.size -> ResourceText.StringResource(R.string.text_every_day)
+                this == DayOfWeek.entries.weekdays -> ResourceText.StringResource(R.string.text_weekdays)
+                this == DayOfWeek.entries.weekends -> ResourceText.StringResource(R.string.text_weekend)
+                else -> ResourceText.StaticString(
+                    value = joinToString { day ->
+                        day.getDisplayName(TextStyle.SHORT, Locale.current.platformLocale)
+                    }
+                )
+            }
         }
     }
 

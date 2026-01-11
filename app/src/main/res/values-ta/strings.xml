@@ -131,7 +131,6 @@
     <string name="text_duplicate">இந்த மருந்து ஏற்கனவே சேர்க்கப்பட்டுள்ளது!</string>
     <string name="text_error_not_medicine">இந்த சிட்டை குறியீடு மருந்து அல்ல!</string>
     <string name="text_exit_app">பயன்பாட்டிலிருந்து வெளியேற விரும்புகிறீர்களா?</string>
-    <string name="text_export_import_description">இது ஒரு சோதனை அம்சம்.\n இறக்குமதி செய்யும் போது, தற்போதைய தரவு நீக்கப்படும்!</string>
     <string name="text_fill_field">இந்த புலத்தில் நிரப்பவும்!</string>
     <string name="text_kit_title">புதிய குழு</string>
     <string name="text_medicine_deleted">மருத்துவம் நீக்கப்பட்டது, உட்கொள்ளும் நிலையை மாற்ற இயலாது</string>
@@ -159,10 +158,8 @@
     <string name="text_error">பிழை!</string>
     <string name="text_every">"ஒவ்வொன்றும் "</string>
     <string name="text_exit">வெளியேறு</string>
-    <string name="text_export">ஏற்றுமதி</string>
     <string name="text_finish_date">தேதியை முடிக்க</string>
     <string name="text_grant">மானியம்</string>
-    <string name="text_import">இறக்குமதி</string>
     <string name="text_no">இல்லை</string>
     <string name="text_no_data_found">மருந்துகள் எதுவும் கிடைக்கவில்லை. அவற்றைச் சேர்க்கவும் அல்லது வடிப்பானை மாற்றவும்.</string>
     <string name="text_no_intakes_found">உட்கொள்ளல் எதுவும் கிடைக்கவில்லை. மருத்துவ செய்தி அட்டை வழியாக அவற்றைச் சேர்க்கவும் அல்லது தேடல் மதிப்பை மாற்றவும்.</string>

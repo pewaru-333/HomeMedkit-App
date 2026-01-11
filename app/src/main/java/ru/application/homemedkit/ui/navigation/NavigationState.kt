@@ -36,19 +36,47 @@ class NavigationState(
         }
 }
 
+private fun buildBackStack(startKey: NavKey) = buildList {
+    var node: NavKey? = startKey
+
+    while (node != null) {
+        add(0, node)
+        val parent = (node as? Screen.NavDeepLink)?.parent
+        node = parent
+    }
+}
+
 @Composable
-fun rememberNavigationState(startRoute: NavKey, topLevelRoutes: Set<NavKey>): NavigationState {
+fun rememberNavigationState(
+    startRoute: NavKey,
+    topLevelRoutes: Set<NavKey>,
+    deepLink: NavKey? = null
+): NavigationState {
+    val initialTab = remember(deepLink) {
+        if (deepLink is Screen.NavDeepLink) deepLink.parent else startRoute
+    }
+
     val topLevelRoute = rememberSerializable(
-        inputs = arrayOf(startRoute, topLevelRoutes),
+        inputs = arrayOf(initialTab, topLevelRoutes),
         serializer = MutableStateSerializer(NavKeySerializer()),
-        init = { mutableStateOf(startRoute) }
+        init = { mutableStateOf(initialTab) }
     )
 
-    val backStacks = topLevelRoutes.associateWith { key -> rememberNavBackStack(key) }
+    val backStacks = topLevelRoutes.associateWith { key ->
+        val isNested = (deepLink as? Screen.NavDeepLink)?.parent == key || deepLink == key
 
-    return remember(startRoute, topLevelRoutes) {
+        val initialList = if (isNested) {
+            buildBackStack(deepLink).ifEmpty { listOf(key) }
+        } else {
+            listOf(key)
+        }
+
+        rememberNavBackStack(*initialList.toTypedArray())
+    }
+
+    return remember(initialTab, topLevelRoutes) {
         NavigationState(
-            startRoute = startRoute,
+            startRoute = initialTab,
             topLevelRoute = topLevelRoute,
             backStacks = backStacks
         )

@@ -147,7 +147,6 @@
     <string name="text_duplicate">¡Este medicamento ya ha sido agregado!</string>
     <string name="text_error_not_medicine">¡Este código de etiqueta no es de la medicina!</string>
     <string name="text_exit_app">¿Estás seguro de que deseas salir de la aplicación?</string>
-    <string name="text_export_import_description">Esta es una característica experimental.\n¡Al importar, los datos actuales se eliminarán!</string>
     <string name="text_fill_field">¡Rellene este campo!</string>
     <string name="text_fix_notifications">The application will restart and all overdue notifications will appear in the status bar. Do not use this function if everything works correctly!</string>
     <string name="text_kit_title">Nuevo grupo</string>
@@ -191,11 +190,9 @@
     <string name="text_every">Cada\u0020</string>
     <string name="text_every_day">Every day</string>
     <string name="text_exit">Salir</string>
-    <string name="text_export">Exportar</string>
     <string name="text_finish_date">Fecha de finalización</string>
     <string name="text_go_to">Go to</string>
     <string name="text_grant">Conceder</string>
-    <string name="text_import">Importar</string>
     <string name="text_no">No</string>
     <string name="text_no_data_found">No se han encontrado medicamentos. Añádalos o cambie el filtro.</string>
     <string name="text_no_intakes_found">No se han encontrado tomas. Añádalas a través de la tarjeta de información sobre medicamentos o cambie el valor de búsqueda.</string>

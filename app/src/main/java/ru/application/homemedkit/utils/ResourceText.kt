@@ -1,5 +1,6 @@
 package ru.application.homemedkit.utils
 
+import android.content.Context
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
@@ -52,5 +53,30 @@ sealed interface ResourceText {
         }
 
         is PluralStringResource -> pluralStringResource(resourceId, count, *args)
+    }
+
+    fun asString(context: Context): String = when (this) {
+        is StaticString -> value
+
+        is MultiString -> buildString {
+            value.forEachIndexed { index, text ->
+                append(text.asString(context))
+                if (index < value.lastIndex) append(" ")
+            }
+        }
+
+        is StringResource -> {
+            if (args.isEmpty()) {
+                context.getString(resourceId)
+            } else {
+                val mappedArgs = args.map { arg ->
+                    if (arg is ResourceText) arg.asString(context) else arg
+                }
+
+                context.getString(resourceId, *mappedArgs.toTypedArray())
+            }
+        }
+
+        is PluralStringResource -> context.resources.getQuantityString(resourceId, count, *args)
     }
 }

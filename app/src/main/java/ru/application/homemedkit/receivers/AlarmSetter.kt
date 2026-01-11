@@ -97,9 +97,7 @@ class AlarmSetter private constructor(private val context: Context) {
         }
     }
 
-    suspend fun resetAll() = database.alarmDAO().getAll()
-        .filter { it.trigger < System.currentTimeMillis() }
-        .sortedBy(Alarm::trigger)
+    suspend fun resetAll() = database.alarmDAO().getExpired(System.currentTimeMillis())
         .mapNotNull(Alarm::intakeId)
         .forEach { setPreAlarm(it) }
 

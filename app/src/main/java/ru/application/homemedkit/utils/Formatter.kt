@@ -38,6 +38,9 @@ object Formatter {
     val FORMAT_H_MM: DateTimeFormatter
         get() = DateTimeFormatter.ofPattern("H:mm")
 
+    val FORMAT_DD_MM_YYYY_HH_MM: DateTimeFormatter
+        get() = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm")
+
     private val FORMAT_MM_YYYY: DateTimeFormatter
         get() = DateTimeFormatter.ofPattern("MM/yyyy")
 

@@ -156,7 +156,6 @@
     <string name="text_duplicate">Dieses Medikament wurde bereits hinzugefügt!</string>
     <string name="text_error_not_medicine">Dies ist kein Medikamentencode!</string>
     <string name="text_exit_app">Möchten Sie die App wirklich verlassen?</string>
-    <string name="text_export_import_description">Dieses Feature ist experimentell. \nBeim Import werden bestehende Daten gelöscht!</string>
     <string name="text_fill_field">Dieses Feld ausfüllen!</string>
     <string name="text_fix_notifications">Die App wird neu gestartet und alle überfälligen Benachrichtigungen werden in der Statusleiste angezeigt. Verwenden Sie diese Funktion nicht, wenn alles korrekt funktioniert!</string>
     <string name="text_kit_title">Name der Gruppe</string>
@@ -202,11 +201,9 @@
     <string name="text_every">"Alle "</string>
     <string name="text_every_day">Jeden Tag</string>
     <string name="text_exit">Verlassen</string>
-    <string name="text_export">Exportieren</string>
     <string name="text_finish_date">Enddatum</string>
     <string name="text_go_to">OK</string>
     <string name="text_grant">Erlauben</string>
-    <string name="text_import">Importieren</string>
     <string name="text_no">Nein</string>
     <string name="text_no_data_found">Keine Medikamente gefunden. Bitte Filter ändern oder Medikament hinzufügen.</string>
     <string name="text_no_data_group_found">Keine Medikamente mit Gruppe gefunden. Bitte hinzufügen oder Filter ändern.</string>

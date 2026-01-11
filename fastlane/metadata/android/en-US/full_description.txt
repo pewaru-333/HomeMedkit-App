@@ -4,7 +4,8 @@ The application allows you to easily and quickly register and store information 
 
 <b>Features</b>
 
-* Automatically add the medicine by scanning the label (works only for Russian treatments).
+* Automatically add the medicine by scanning the label (only for Russian medicines).
+* Cloud synchronization of the list of medicines.
 * The ability to add medications manually.
 * Update information about the medicine if it was scanned without an internet connection.
 * Edit information about medicines added manually.
@@ -12,8 +13,8 @@ The application allows you to easily and quickly register and store information 
 * Sorting of medicines by expiration dates.
 * Grouping of medicines by categories.
 * Sound notification of the need for medication.
-* Display of the nearest medication schedule.
+* Displaying the schedule of medication intake.
 * Reminder of the expiration date of medicines.
-* Export and import the database to other devices.
+* Export and import data to other devices.
 
 Using the app, you can track the expiration dates of medicines, create a schedule for their intake and receive notifications about it. It is a reliable and convenient assistant that will help you monitor your health.

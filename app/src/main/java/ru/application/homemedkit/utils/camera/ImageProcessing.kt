@@ -36,7 +36,7 @@ class ImageProcessing(private val context: Context) {
                     it.write(compressedImage)
                 }
             }
-        } catch (_: Throwable) {
+        } catch (_: Exception) {
             return null
         }
 
@@ -50,13 +50,13 @@ class ImageProcessing(private val context: Context) {
 
         val bitmap = withContext(Dispatchers.Default) {
             Bitmap.createBitmap(
-                image.toBitmap(),
-                0,
-                0,
-                image.width,
-                image.height,
-                matrix,
-                true
+                /* source = */ image.toBitmap(),
+                /* x = */ 0,
+                /* y = */ 0,
+                /* width = */ image.width,
+                /* height = */ image.height,
+                /* m = */ matrix,
+                /* filter = */ true
             )
         }
 

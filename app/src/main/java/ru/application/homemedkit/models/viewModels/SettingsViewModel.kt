@@ -1,26 +1,31 @@
 package ru.application.homemedkit.models.viewModels
 
-import android.webkit.MimeTypeMap
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.data.dto.Kit
+import ru.application.homemedkit.models.events.SettingsEvent
 import ru.application.homemedkit.models.states.SettingsState
+import ru.application.homemedkit.utils.ActionResult
 import ru.application.homemedkit.utils.di.Database
 import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.Page
 import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.enums.Theme
-import java.io.File
 
-class SettingsViewModel : BaseViewModel<SettingsState, Unit>() {
+class SettingsViewModel : BaseViewModel<SettingsState, SettingsEvent>() {
     override fun initState() = SettingsState()
 
     override fun loadData() = Unit
 
-    override fun onEvent(event: Unit) = Unit
+    override fun onEvent(event: SettingsEvent) = when (event) {
+        SettingsEvent.ShowClearing -> updateState { it.copy(showClearing = !it.showClearing) }
+        SettingsEvent.ShowExport -> updateState { it.copy(showExport = !it.showExport) }
+        SettingsEvent.ShowFixing -> updateState { it.copy(showFixing = !it.showFixing) }
+        SettingsEvent.ShowKits -> updateState { it.copy(showKits = !it.showKits) }
+        SettingsEvent.ShowPermissions -> updateState { it.copy(showPermissions = !it.showPermissions) }
+    }
 
     val startPage = Preferences.startPageFlow.stateIn(viewModelScope, SharingStarted.Eagerly, Page.MEDICINES)
 
@@ -32,28 +37,6 @@ class SettingsViewModel : BaseViewModel<SettingsState, Unit>() {
 
     val kits = Database.kitDAO().getFlow()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
-
-    fun changeStartPage(page: Page) {
-        Preferences.setStartPage(page)
-    }
-
-    fun changeSortingType(type: Sorting) {
-        Preferences.setSortingType(type)
-    }
-
-    fun changeExpirationCheck(flag: Boolean) {
-        Preferences.setCheckExpDate(flag)
-    }
-
-    fun toggleKits() = updateState { it.copy(showKits = !it.showKits) }
-
-    fun toggleExport() = updateState { it.copy(showExport = !it.showExport) }
-
-    fun toggleFixing() = updateState { it.copy(showFixing = !it.showFixing) }
-
-    fun toggleClearing() = updateState { it.copy(showClearing = !it.showClearing) }
-
-    fun togglePermissions() = updateState { it.copy(showPermissions = !it.showPermissions) }
 
     fun upsertKit(kit: Kit) {
         viewModelScope.launch {
@@ -81,23 +64,10 @@ class SettingsViewModel : BaseViewModel<SettingsState, Unit>() {
         }
     }
 
-    fun clearCache(cacheDir: File, filesDir: File) {
+    fun onDataAction(actionResult: ActionResult) {
         viewModelScope.launch {
-            val images = Database.medicineDAO().getAllImages()
-
-            coroutineScope {
-                launch { cacheDir.deleteRecursively() }
-                launch {
-                    filesDir.listFiles()?.forEach { file ->
-                        MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.extension)?.let {
-                            if (file.name !in images && it.startsWith("image/"))
-                                file.deleteRecursively()
-                        }
-                    }
-                }
-            }
+            val isSuccess = actionResult.onAction()
+            actionResult.onResult(isSuccess)
         }
-
-        updateState { it.copy(showClearing = false) }
     }
 }
