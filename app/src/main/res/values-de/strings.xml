@@ -239,4 +239,34 @@
     <string name="text_explain_ean_13">Nur der Name des Medikaments</string>
     <string name="preference_use_vibration_scan">Verwenden Sie die Vibrationsrückmeldung beim Scannen von Medikamentencodes</string>
     <string name="text_scan">Scannen</string>
+    <plurals name="intake_interval_in_day">
+        <item quantity="one"></item>
+        <item quantity="other">Alle %d Tage</item>
+    </plurals>
+    <string name="text_in_progress">(in Bearbeitung)</string>
+    <string name="text_upload_to_cloud">In die Cloud hochladen</string>
+    <string name="text_unknown">Unbekannt</string>
+    <string name="text_to_duplicate">Duplizieren</string>
+    <string name="text_synchronized_at">Synchronisiert: %s</string>
+    <string name="text_sync_success">Synchronisierung erfolgreich</string>
+    <string name="text_sync_error">Fehler bei der Synchronisierung</string>
+    <string name="text_sync">Synchronisierung</string>
+    <string name="text_retry">Erneut versuchen</string>
+    <string name="text_provider_is_yandex">Mit Yandex verbunden</string>
+    <string name="text_pick_cloud_service">Wählen Sie einen Cloud-Anbieter aus, um die Anwendungsdaten (Medikamentenliste und deren Bilder) zu synchronisieren</string>
+    <string name="text_force_upload">Hochladen erzwingen</string>
+    <string name="text_every_week">Jede Woche</string>
+    <string name="text_download_photos">Fotos herunterladen</string>
+    <string name="text_import_images">Bilder importieren</string>
+    <string name="text_import_database">Daten importieren</string>
+    <string name="text_import_data_description">Beim Importieren werden die ausgewählten Daten überschrieben</string>
+    <string name="text_export_images">Bilder exportieren</string>
+    <string name="text_export_database">Daten exportieren</string>
+    <string name="text_exit_cloud_desc">Bestätigen Sie die Abmeldung von Ihrem Cloud-Konto?</string>
+    <string name="text_exit_cloud">Aus der Cloud ausloggen</string>
+    <string name="text_download_from_cloud">Aus der Cloud herunterladen</string>
+    <string name="text_data_in_cloud_desc">In der Cloud wurden Daten gefunden. Was möchten Sie tun?</string>
+    <string name="text_data_in_cloud">Daten in der Cloud gefunden</string>
+    <string name="preference_auto_sync_summary_enabled">Beim Öffnen der App aktiviert</string>
+    <string name="preference_auto_sync_summary_disabled">Beim Öffnen der App deaktiviert</string>
 </resources>
