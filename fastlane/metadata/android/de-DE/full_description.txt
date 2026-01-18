@@ -4,16 +4,17 @@ Die Anwendung lässt Sie einfach und schnell Informationen über eingenommene Me
 
 <b>Eigenschaften</b>
 
-* Automatisches Hinzufügen von Medikamenten durch Scannen des Etiketts (nur für russische Produkte).
-* Darüber hinaus besteht die Möglichkeit, Medikamente manuell hinzuzufügen.
+* Automatisches Hinzufügen von Medikamenten durch Scannen des Etiketts (nur für russische Medikamente).
+* Darüber hinaus besteht auch die Möglichkeit, Medikamente manuell hinzuzufügen.
+* Cloud-Synchronisierung der Medikamentenliste.
 * Aktualisieren der Informationen über das Medikament, falls es ohne Internetverbindung gescannt wurde.
 * Bearbeiten von Informationen zu manuell hinzugefügten Medikamenten.
 * Hinzufügen von Medikamentenbildern.
 * Sortieren von Medikamenten nach Verfallsdatum.
 * Gruppierung von Medikamenten nach Kategorien.
 * Benachrichtigungen für die Einnahme von Medikamenten.
-* Anzeige der Medikamente, die als Nächste eingenommen werden müssen.
+* Anzeige des Einnahmeplans für Medikamente.
 * Benachrichtigung zum Verfallsdatum von Medikamenten.
-* Exportieren und Importieren der Datenbank auf andere Geräte.
+* Exportieren und Importieren der Daten auf andere Geräte.
 
 Mit Medkit können Sie das Verfallsdatum von Medikamenten verfolgen, einen Zeitplan für deren Einnahme erstellen und Benachrichtigungen darüber erhalten. Medkit ist ein zuverlässiger und bequemer Assistent, der Ihnen helfen wird, Ihre Gesundheit zu überwachen.
