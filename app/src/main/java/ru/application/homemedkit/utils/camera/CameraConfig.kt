@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
@@ -35,7 +36,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
@@ -74,11 +74,9 @@ class CameraConfig(private val context: Context) {
             )
         }
 
-        with(camera.cameraInfo.zoomState) {
-            value?.let {
-                minZoom = it.minZoomRatio
-                maxZoom = it.maxZoomRatio
-            }
+        camera.cameraInfo.zoomState.value?.let {
+            minZoom = it.minZoomRatio
+            maxZoom = it.maxZoomRatio
         }
 
         try {
@@ -91,7 +89,7 @@ class CameraConfig(private val context: Context) {
     }
 
     internal fun setImageAnalyzer(onResult: (String) -> Unit) = with(ImageAnalysis.config) {
-        setAnalyzer(Executors.newSingleThreadExecutor(), CodeAnalyzer(onResult))
+        setAnalyzer(Dispatchers.Default.asExecutor(), CodeAnalyzer(onResult))
     }
 
     fun takePicture(onStart: () -> Unit, onResult: (ImageProxy) -> Unit) = with(ImageCapture.config) {
@@ -177,13 +175,16 @@ fun rememberCameraConfig(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    val updatedOnResult by rememberUpdatedState(onResult)
     val cameraConfig = remember(useCase) {
-        CameraConfig(context).apply {
-            onResult?.let(::setImageAnalyzer)
-        }
+        CameraConfig(context)
     }
 
-    LaunchedEffect(cameraConfig, lifecycleOwner) {
+    LaunchedEffect(cameraConfig, onResult) {
+        updatedOnResult?.let(cameraConfig::setImageAnalyzer)
+    }
+
+    LaunchedEffect(cameraConfig, lifecycleOwner, useCase) {
         cameraConfig.bindCamera(lifecycleOwner, useCase)
     }
 

@@ -191,34 +191,32 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
     ) { values ->
         Crossfade(state.tab) { tab ->
             when (tab) {
-                MedicineTab.LIST -> medicines.let { list ->
-                    if (list.isNotEmpty()) {
-                        LazyColumn(Modifier.fillMaxSize(), listStates[0], values) {
-                            items(list, MedicineList::id) { medicine ->
-                                MedicineItem(
-                                    medicine = medicine,
-                                    onClick = onItemClick,
-                                    modifier = Modifier
-                                        .animateItem()
-                                        .drawHorizontalDivider(color)
-                                )
-                            }
+                MedicineTab.LIST -> if (medicines.isNotEmpty()) {
+                    LazyColumn(Modifier.fillMaxSize(), listStates[0], values) {
+                        items(medicines, MedicineList::id) { medicine ->
+                            MedicineItem(
+                                medicine = medicine,
+                                onClick = onItemClick,
+                                modifier = Modifier
+                                    .animateItem()
+                                    .drawHorizontalDivider(color)
+                            )
                         }
-                    } else {
-                        BoxWithEmptyListText(
-                            text = R.string.text_no_data_found,
-                            modifier = Modifier
-                                .padding(values)
-                                .fillMaxSize()
-                        )
                     }
+                } else {
+                    BoxWithEmptyListText(
+                        text = R.string.text_no_data_found,
+                        modifier = Modifier
+                            .padding(values)
+                            .fillMaxSize()
+                    )
                 }
 
                 MedicineTab.GROUPS -> grouped.let { list ->
                     if (list.isNotEmpty()) {
                         LazyColumn(Modifier.fillMaxSize(), listStates[1], values) {
                             list.fastForEach { group ->
-                                item {
+                                item(group.kit.id) {
                                     TextDate(group.kit.title.asString())
                                 }
 

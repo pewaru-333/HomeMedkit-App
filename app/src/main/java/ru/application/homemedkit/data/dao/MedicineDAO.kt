@@ -9,6 +9,7 @@ import androidx.room.Upsert
 import androidx.sqlite.db.SupportSQLiteQuery
 import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.Image
+import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.MedicineFTS
 import ru.application.homemedkit.data.model.MedicineFull
@@ -20,7 +21,8 @@ interface MedicineDAO : BaseDAO<Medicine> {
     @Query("SELECT * FROM medicines")
     suspend fun getAll(): List<Medicine>
 
-    @RawQuery(observedEntities = [Medicine::class, MedicineFTS::class])
+    @Transaction
+    @RawQuery(observedEntities = [Medicine::class, MedicineFTS::class, Image::class, Kit::class])
     fun getFlow(query: SupportSQLiteQuery): Flow<List<MedicineMain>>
 
     @Query("SELECT id FROM medicines WHERE :cis LIKE '%' || cis || '%' AND cis IS NOT NULL AND cis != '' LIMIT 1")
@@ -32,9 +34,6 @@ interface MedicineDAO : BaseDAO<Medicine> {
 
     @Query("SELECT DISTINCT image FROM images")
     suspend fun getAllImageNames(): List<String>
-
-    @Query("SELECT * FROM images")
-    suspend fun getAllImages(): List<Image>
 
     @Query("SELECT image FROM images WHERE medicineId = :medicineId")
     suspend fun getMedicineImages(medicineId: Long): List<String>

@@ -112,7 +112,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Kit
@@ -121,14 +120,14 @@ import ru.application.homemedkit.dialogs.DraggableItem
 import ru.application.homemedkit.dialogs.MonthYear
 import ru.application.homemedkit.dialogs.dragContainer
 import ru.application.homemedkit.dialogs.rememberDragDropState
+import ru.application.homemedkit.models.events.MedicineAction
 import ru.application.homemedkit.models.events.MedicineEvent
 import ru.application.homemedkit.models.events.MedicineEvent.SetProductName
-import ru.application.homemedkit.models.events.MedicineEvent.ToggleDialog
-import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.states.MedicineDialogState
 import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.viewModels.MedicineViewModel
 import ru.application.homemedkit.ui.elements.BoxLoading
+import ru.application.homemedkit.ui.elements.CustomSnackbar
 import ru.application.homemedkit.ui.elements.DialogDelete
 import ru.application.homemedkit.ui.elements.DialogKits
 import ru.application.homemedkit.ui.elements.IconButton
@@ -156,10 +155,6 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
 
     val state by model.state.collectAsStateWithLifecycle()
     val kits by model.kits.collectAsStateWithLifecycle()
-    val response by model.response.collectAsStateWithLifecycle(
-        initialValue = Response.Initial,
-        context = Dispatchers.Main.immediate
-    )
 
     val snackbarHost = remember(::SnackbarHostState)
 
@@ -177,25 +172,28 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
         }
     }
 
-    LaunchedEffect(model.deleted) {
-        model.deleted.collectLatest {
-            if (it) onBack()
-        }
-    }
+    LaunchedEffect(model.action) {
+        model.action.collectLatest { result ->
+            when (result) {
+                MedicineAction.OnDelete -> onBack()
 
-    LaunchedEffect(model.duplicated) {
-        model.duplicated.collectLatest {
-            snackbarHost.showSnackbar(
-                message = context.getString(R.string.text_success)
-            )
+                is MedicineAction.ShowSnackbar -> {
+                    snackbarHost.showSnackbar(
+                        visuals = CustomSnackbar(
+                            message = context.getString(result.message),
+                            isError = result != MedicineAction.ShowSnackbar.OnMakeDuplicate
+                        )
+                    )
+                }
+            }
         }
     }
 
     BackHandler {
         if (state.dialogState == MedicineDialogState.TakePhoto) {
-            model.onEvent(ToggleDialog(MedicineDialogState.TakePhoto))
+            model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.TakePhoto))
         } else if (!state.default) {
-            model.onEvent(ToggleDialog(MedicineDialogState.DataLoss))
+            model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.DataLoss))
         } else {
             onBack()
         }
@@ -209,7 +207,7 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
                 navigationIcon = {
                     NavigationIcon {
                         if (state.default) onBack()
-                        else model.onEvent(ToggleDialog(MedicineDialogState.DataLoss))
+                        else model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.DataLoss))
                     }
                 },
                 actions = {
@@ -217,7 +215,7 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
                         isDefault = state.default,
                         setModifiable = model::setEditing,
                         onSave = if (state.adding) model::add else model::update,
-                        onShowDialog = { model.onEvent(ToggleDialog(MedicineDialogState.Delete)) },
+                        onShowDialog = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.Delete)) },
                         onReloadImages = imageReload,
                         onDuplicate = duplicate,
                         onNavigate = { onGoToIntake(state.id) }
@@ -231,11 +229,13 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
             )
         },
         snackbarHost = {
-            SnackbarHost(snackbarHost) {
+            SnackbarHost(snackbarHost) { data ->
+                val visuals = data.visuals as CustomSnackbar
+
                 Snackbar(
-                    snackbarData = it,
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    snackbarData = data,
+                    containerColor = visuals.containerColor,
+                    contentColor = visuals.contentColor,
                 )
             }
         },
@@ -263,8 +263,8 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
                             ProductImage(
                                 isDefault = state.default,
                                 images = state.images,
-                                onShow = { model.onEvent(ToggleDialog(MedicineDialogState.FullImage(it))) },
-                                onDismiss = { model.onEvent(ToggleDialog(MedicineDialogState.PictureGrid)) }
+                                onShow = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.FullImage(it))) },
+                                onDismiss = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.PictureGrid)) }
                             )
 
                             Summary(state, model::onEvent)
@@ -307,6 +307,7 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
                                 modifier = Modifier.weight(0.5f),
                                 title = stringResource(R.string.text_medicine_dose),
                                 placeholder = stringResource(R.string.placeholder_dose),
+                                lineLimits = TextFieldLineLimits.SingleLine,
                                 keyboardOptions = KeyboardOptions(KeyboardCapitalization.Sentences)
                             )
 
@@ -319,6 +320,7 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
                                 modifier = Modifier.weight(0.5f),
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                                 emptyText = stringResource(R.string.text_empty),
+                                lineLimits = TextFieldLineLimits.SingleLine,
                                 inputTransformation = DecimalAmountInputTransformation,
                                 outputTransformation = DecimalAmountOutputTransformation,
                                 suffix = {
@@ -394,23 +396,11 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
         }
     }
 
-    when (val value = response) {
-        Response.Loading -> BoxLoading(Modifier.zIndex(10f))
-
-        Response.Duplicate -> LaunchedEffect(snackbarHost) {
-            snackbarHost.showSnackbar(context.getString(R.string.text_duplicate))
-        }
-
-        is Response.Error -> LaunchedEffect(snackbarHost) {
-            snackbarHost.showSnackbar(context.getString(value.message))
-        }
-
-        else -> Unit
-    }
-
     when (state.dialogState) {
+        MedicineDialogState.Loading -> BoxLoading(Modifier.zIndex(10f))
+
         MedicineDialogState.DataLoss -> DialogDataLoss(
-            onDismiss = { model.onEvent(ToggleDialog(MedicineDialogState.DataLoss)) },
+            onDismiss = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.DataLoss)) },
             onBack = onBack
         )
 
@@ -418,13 +408,13 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
             kits = kits,
             isChecked = { it in state.kits },
             onPick = { model.onEvent(MedicineEvent.PickKit(it)) },
-            onDismiss = { model.onEvent(ToggleDialog(MedicineDialogState.Kits)) },
+            onDismiss = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.Kits)) },
             onClear = { model.onEvent(MedicineEvent.ClearKit) }
         )
 
         MedicineDialogState.Icons -> IconPicker(
             isEnabled = { it.value !in state.images },
-            onDismiss = { model.onEvent(ToggleDialog(MedicineDialogState.Icons)) },
+            onDismiss = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.Icons)) },
             onPick = { model.onEvent(MedicineEvent.SetIcon(it)) }
         )
 
@@ -434,25 +424,25 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
         is MedicineDialogState.FullImage -> DialogFullImage(
             images = state.images,
             initialPage = MedicineDialogState.getPage(state.dialogState),
-            onDismiss = { model.onEvent(ToggleDialog(MedicineDialogState.FullImage(-1))) },
-            onShow = { model.onEvent(ToggleDialog(MedicineDialogState.FullImage(it)))}
+            onDismiss = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.FullImage(-1))) },
+            onShow = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.FullImage(it)))}
         )
 
         MedicineDialogState.TakePhoto -> CameraPhotoPreview(model::onEvent)
 
         MedicineDialogState.Date -> MonthYear(
-            cancel = { model.onEvent(ToggleDialog(MedicineDialogState.Date)) },
+            cancel = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.Date)) },
             confirm = { month, year -> model.onEvent(MedicineEvent.SetExpDate(month, year)) }
         )
 
         MedicineDialogState.PackageDate -> DatePicker(
-            onDismiss = { model.onEvent(ToggleDialog(MedicineDialogState.PackageDate)) },
+            onDismiss = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.PackageDate)) },
             onSelect = { model.onEvent(MedicineEvent.SetPackageDate(it)) }
         )
 
         MedicineDialogState.Delete -> DialogDelete(
             text = R.string.text_confirm_deletion_med,
-            onCancel = { model.onEvent(ToggleDialog(MedicineDialogState.Delete)) },
+            onCancel = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.Delete)) },
             onConfirm = { model.delete(filesDir) }
         )
 
@@ -595,7 +585,7 @@ private fun Summary(state: MedicineState, onEvent: (MedicineEvent) -> Unit) {
                     value = state.kits.joinToString(transform = Kit::title),
                     label = R.string.text_medicine_group,
                     placeholder = R.string.text_empty,
-                    onEvent = { onEvent(ToggleDialog(MedicineDialogState.Kits)) }
+                    onEvent = { onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.Kits)) }
                 )
             }
         )
@@ -609,7 +599,7 @@ private fun Summary(state: MedicineState, onEvent: (MedicineEvent) -> Unit) {
                     value = state.expDateString,
                     label = R.string.text_exp_date,
                     placeholder = R.string.text_unspecified,
-                    onEvent = { onEvent(ToggleDialog(MedicineDialogState.Date)) }
+                    onEvent = { onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.Date)) }
                 )
             }
         )
@@ -623,7 +613,7 @@ private fun Summary(state: MedicineState, onEvent: (MedicineEvent) -> Unit) {
                     value = state.dateOpenedString,
                     label = R.string.text_package_opened_date,
                     placeholder = R.string.text_unspecified,
-                    onEvent = { onEvent(ToggleDialog(MedicineDialogState.PackageDate)) }
+                    onEvent = { onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.PackageDate)) }
                 )
             }
         )
@@ -703,6 +693,7 @@ private fun InfoTextField(
     modifier: Modifier = Modifier,
     placeholder: String = stringResource(R.string.text_empty),
     emptyText: String = stringResource(R.string.text_empty),
+    lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     inputTransformation: InputTransformation? = null,
     outputTransformation: OutputTransformation? = null,
@@ -727,6 +718,7 @@ private fun InfoTextField(
                 placeholder = { Text(placeholder) },
                 inputTransformation = inputTransformation,
                 outputTransformation = outputTransformation,
+                lineLimits = lineLimits,
                 keyboardOptions = keyboardOptions,
                 suffix = suffix
             )
@@ -776,10 +768,10 @@ private fun DialogPictureGrid(images: List<String>, imageEditing: ImageEditing, 
 
     AlertDialog(
         title = { Text(stringResource(R.string.text_images)) },
-        onDismissRequest = { event(ToggleDialog(MedicineDialogState.PictureGrid)) },
+        onDismissRequest = { event(MedicineEvent.ToggleDialog(MedicineDialogState.PictureGrid)) },
         confirmButton = {
             TextButton(
-                onClick = { event(ToggleDialog(MedicineDialogState.PictureGrid)) },
+                onClick = { event(MedicineEvent.ToggleDialog(MedicineDialogState.PictureGrid)) },
                 content = { Text(stringResource(R.string.text_save)) }
             )
         },
@@ -837,7 +829,7 @@ private fun DialogPictureGrid(images: List<String>, imageEditing: ImageEditing, 
                                         )
                                     }
                                     .clickable {
-                                        event(ToggleDialog(MedicineDialogState.PictureChoose))
+                                        event(MedicineEvent.ToggleDialog(MedicineDialogState.PictureChoose))
                                     }
                             )
                         }
@@ -961,14 +953,14 @@ private fun DialogPictureChoose(
     )
 
     AlertDialog(
-        onDismissRequest = { event(ToggleDialog(MedicineDialogState.PictureChoose)) },
+        onDismissRequest = { event(MedicineEvent.ToggleDialog(MedicineDialogState.PictureChoose)) },
         dismissButton = {},
         confirmButton = {},
         title = { Text(stringResource(R.string.text_set_image)) },
         text = {
             Column {
                 LocalButton(R.string.text_take_picture, R.drawable.vector_add_photo) {
-                    if (permissionState.isGranted) event(ToggleDialog(MedicineDialogState.TakePhoto))
+                    if (permissionState.isGranted) event(MedicineEvent.ToggleDialog(MedicineDialogState.TakePhoto))
                     else if (permissionState.showRationale) permissionState.openSettings()
                     else permissionState.launchRequest()
                 }
@@ -976,7 +968,7 @@ private fun DialogPictureChoose(
                     picker.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
                 }
                 LocalButton(R.string.text_pick_icon, R.drawable.vector_medicine) {
-                    event(ToggleDialog(MedicineDialogState.Icons))
+                    event(MedicineEvent.ToggleDialog(MedicineDialogState.Icons))
                 }
             }
         }
@@ -1028,7 +1020,7 @@ private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
 
         Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
             IconButton(
-                onClick = { event(ToggleDialog(MedicineDialogState.TakePhoto)) },
+                onClick = { event(MedicineEvent.ToggleDialog(MedicineDialogState.TakePhoto)) },
                 content = { VectorIcon(R.drawable.vector_arrow_back, Modifier, Color.White) } )
 
             IconButton(controller::toggleTorch) {
@@ -1047,7 +1039,7 @@ private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
                 .border(4.dp, Color.LightGray, CircleShape)
                 .clickable {
                     controller.takePicture(
-                        onStart = { event(MedicineEvent.ShowLoading) },
+                        onStart = { event(MedicineEvent.ToggleDialog(MedicineDialogState.Loading)) },
                         onResult = { event(MedicineEvent.SetImage(ImageProcessing(context), it)) }
                     )
                 }

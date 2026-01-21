@@ -51,13 +51,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.flow.collectLatest
 import ru.application.homemedkit.R
-import ru.application.homemedkit.models.events.Response
+import ru.application.homemedkit.models.events.ScannerEvent
+import ru.application.homemedkit.models.states.ScannerState
 import ru.application.homemedkit.models.viewModels.ScannerViewModel
 import ru.application.homemedkit.ui.elements.BoxLoading
 import ru.application.homemedkit.ui.elements.IconButton
 import ru.application.homemedkit.ui.elements.Image
 import ru.application.homemedkit.ui.elements.VectorIcon
+import ru.application.homemedkit.ui.navigation.Screen
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.camera.CameraConfig
 import ru.application.homemedkit.utils.camera.rememberCameraConfig
@@ -67,23 +70,47 @@ import ru.application.homemedkit.utils.permissions.PermissionState
 import ru.application.homemedkit.utils.permissions.rememberPermissionState
 
 @Composable
-fun ScannerScreen(onBack: () -> Unit, onGoToMedicine: (Long, String, Boolean) -> Unit) {
+fun ScannerScreen(model: ScannerViewModel = viewModel(), onBack: () -> Unit, onNavigate: (Screen) -> Unit) {
     val context = LocalContext.current
     val filesDir = context.filesDir
 
-    val overlayColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.6f)
-
-    val model = viewModel<ScannerViewModel>()
     val state by model.state.collectAsStateWithLifecycle()
 
     val cameraPermission = rememberPermissionState(Manifest.permission.CAMERA)
     val controller = rememberCameraConfig(CameraConfig.UseCases.IMAGE_ANALYSIS) {
-        if (state == Response.Initial) {
+        if (state == ScannerState.Default) {
             model.fetch(filesDir, it)
         }
     }
 
     val snackbarHost = remember(::SnackbarHostState)
+
+    val overlayColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.6f)
+
+    LaunchedEffect(model.event) {
+        model.event.collectLatest { result ->
+            when (result) {
+                is ScannerEvent.ShowSnackbar -> {
+                    if (Preferences.useVibrationScan) {
+                        context.vibrate(200L)
+                    }
+
+                    val result = snackbarHost.showSnackbar(context.getString(result.message))
+                    if (result == SnackbarResult.Dismissed) {
+                        model.setDefault()
+                    }
+                }
+
+                is ScannerEvent.Navigate -> {
+                    if (Preferences.useVibrationScan) {
+                        context.vibrate(150L)
+                    }
+
+                    onNavigate(Screen.Medicine(result.id, BLANK, result.duplicate))
+                }
+            }
+        }
+    }
 
     BackHandler(onBack = onBack)
     if (cameraPermission.isGranted) {
@@ -125,38 +152,11 @@ fun ScannerScreen(onBack: () -> Unit, onGoToMedicine: (Long, String, Boolean) ->
             }
 
             when (val result = state) {
-                is Response.Loading -> BoxLoading()
-
-                is Response.Error.NetworkError -> {
-                    DialogMedicineAddition(model::setInitial) {
-                        result.code?.let { onGoToMedicine(0L, it, false) }
-                    }
+                ScannerState.Default, ScannerState.Idle -> Unit
+                ScannerState.Loading -> BoxLoading()
+                is ScannerState.ShowDialog -> DialogMedicineAddition(model::setDefault) {
+                    result.code?.let { onNavigate(Screen.Medicine(0L, it, false)) }
                 }
-
-                is Response.Error -> {
-                    if (Preferences.useVibrationScan) {
-                        context.vibrate(200L)
-                    }
-
-                    LaunchedEffect(Unit) {
-                        val result = snackbarHost.showSnackbar(context.getString(result.message))
-
-                        if (result == SnackbarResult.Dismissed) {
-                            model.setInitial()
-                        }
-                    }
-                }
-
-
-                is Response.Navigate -> {
-                    if (Preferences.useVibrationScan) {
-                        context.vibrate(150L)
-                    }
-
-                    onGoToMedicine(result.id, BLANK, result.duplicate)
-                }
-
-                else -> Unit
             }
         }
     } else if (cameraPermission.showRationale) {

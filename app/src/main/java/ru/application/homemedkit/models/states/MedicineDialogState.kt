@@ -1,6 +1,8 @@
 package ru.application.homemedkit.models.states
 
 sealed interface MedicineDialogState {
+    object Loading : MedicineDialogState
+
     object DataLoss : MedicineDialogState
 
     object Kits : MedicineDialogState

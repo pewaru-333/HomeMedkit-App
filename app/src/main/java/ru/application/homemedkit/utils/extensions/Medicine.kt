@@ -66,7 +66,7 @@ fun MedicineMain.toMedicineList(currentMillis: Long) = MedicineList(
     ),
     expDateS = Formatter.cardFormat(expDate),
     formName = Formatter.formFormat(prodFormNormName),
-    image = image.firstOrNull().orEmpty(),
+    image = image.orEmpty(),
     inStock = prodAmount >= 0.1,
     isExpired = expDate < currentMillis
 )
@@ -91,7 +91,9 @@ fun MedicineState.toMedicine() = Medicine(
     verified = technical.verified
 )
 
-fun DrugsData.toMedicine() = Medicine(
+fun MainModel.asMedicine() = drugsData?.toMedicine() ?: bioData?.toMedicine() ?: toMedicine()
+
+private fun DrugsData.toMedicine() = Medicine(
     productName = prodDescLabel,
     expDate = expireDate,
     prodFormNormName = foiv.prodFormNormName,
@@ -103,7 +105,7 @@ fun DrugsData.toMedicine() = Medicine(
     prodAmount = foiv.prodPack1Size?.let { it.toDouble() * (foiv.prodPack12?.toDoubleOrNull() ?: 1.0) } ?: 0.0
 )
 
-fun BioData.toMedicine() = Medicine(
+private fun BioData.toMedicine() = Medicine(
     productName = productName,
     expDate = expireDate ?: 0L,
     prodDNormName = productProperty?.unitVolumeWeight.orEmpty(),
@@ -118,7 +120,7 @@ fun BioData.toMedicine() = Medicine(
     verified = true
 )
 
-fun MainModel.toMedicine() = Medicine(
+private fun MainModel.toMedicine() = Medicine(
     productName = productName,
     prodAmount = 0.0,
     scanned = true,

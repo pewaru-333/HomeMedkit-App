@@ -315,11 +315,10 @@ private fun rememberDataAction(
                     actionResult = ActionResult(
                         onAction = { action(result.uri) },
                         onResult = { isSuccess ->
-                            if (isSuccess == true) {
-                                context.showToast(R.string.text_success)
-                            } else {
-                                context.showToast(R.string.text_error)
-                            }
+                            context.showToast(
+                                message = if (isSuccess == true) R.string.text_success
+                                else R.string.text_error
+                            )
                         }
                     )
                 )

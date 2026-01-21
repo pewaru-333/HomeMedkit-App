@@ -1,5 +1,0 @@
-— Added cloud synchronization using external providers.
-— Added the ability to create a duplicate medicine (if it was created manually).
-— Added import/export of medicine images.
-— Fixed an error in displaying the intake interval.
-— Many optimizations for stable and fast experience of the application.

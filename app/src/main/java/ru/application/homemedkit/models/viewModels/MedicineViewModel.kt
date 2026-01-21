@@ -7,7 +7,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -16,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.application.homemedkit.data.dto.Image
 import ru.application.homemedkit.data.dto.MedicineKit
+import ru.application.homemedkit.models.events.MedicineAction
 import ru.application.homemedkit.models.events.MedicineEvent
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.models.states.MedicineDialogState
@@ -28,6 +28,7 @@ import ru.application.homemedkit.utils.camera.ImageProcessing
 import ru.application.homemedkit.utils.di.Database
 import ru.application.homemedkit.utils.enums.DrugType
 import ru.application.homemedkit.utils.enums.ImageEditing
+import ru.application.homemedkit.utils.extensions.asMedicine
 import ru.application.homemedkit.utils.extensions.concat
 import ru.application.homemedkit.utils.extensions.toMedicine
 import ru.application.homemedkit.utils.extensions.toState
@@ -43,14 +44,8 @@ class MedicineViewModel(
     private val dao by lazy { Database.medicineDAO() }
     private val daoK by lazy { Database.kitDAO() }
 
-    private val _response = Channel<Response>()
-    val response = _response.receiveAsFlow()
-
-    private val _deleted = Channel<Boolean>()
-    val deleted = _deleted.receiveAsFlow()
-
-    private val _duplicated = Channel<Unit>()
-    val duplicated = _duplicated.receiveAsFlow()
+    private val _action = Channel<MedicineAction>()
+    val action = _action.receiveAsFlow()
 
     val kits by lazy {
         daoK.getFlow().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
@@ -78,7 +73,7 @@ class MedicineViewModel(
             }
 
             if (duplicate) {
-                _response.send(Response.Duplicate)
+                _action.send(MedicineAction.ShowSnackbar.OnReceiveDuplicate)
             }
         }
     }
@@ -128,21 +123,12 @@ class MedicineViewModel(
 
     fun fetch(dir: File) {
         viewModelScope.launch {
-            _response.send(Response.Loading)
+            updateState { it.copy(dialogState = MedicineDialogState.Loading) }
 
             try {
-                val response = Network.getMedicine(currentState.code)
-
-                when (val data = response) {
-                    is Response.Error -> {
-                        _response.send(data)
-                        delay(2500L)
-                    }
-
+                when (val response = Network.getMedicine(currentState.code)) {
                     is Response.Success -> {
-                        val medicine = data.model.run {
-                            drugsData?.toMedicine() ?: bioData?.toMedicine() ?: toMedicine()
-                        }.copy(
+                        val medicine = response.model.asMedicine().copy(
                             id = currentState.id,
                             cis = currentState.code,
                             comment = currentState.comment.ifEmpty { BLANK }
@@ -153,7 +139,7 @@ class MedicineViewModel(
                                 medicineId = currentState.id,
                                 form = medicine.prodFormNormName,
                                 directory = dir,
-                                urls = data.model.imageUrls
+                                urls = response.model.imageUrls
                             )
                         }
 
@@ -167,37 +153,32 @@ class MedicineViewModel(
                         dao.getById(id)?.let { medicine ->
                             updateState { medicine.toState() }
                         }
-
-                        _response.send(Response.Success(data.model))
                     }
 
-                    else -> Unit
+                    is Response.Error -> {
+                        _action.send(MedicineAction.ShowSnackbar.OnShowError(response.message))
+                    }
                 }
             } catch (_: Exception) {
-                _response.send(Response.Error.UnknownError)
+                _action.send(MedicineAction.ShowSnackbar.OnShowError())
+            } finally {
+                updateState { it.copy(dialogState = null) }
             }
         }
     }
 
     fun fetchImages(dir: File) {
         viewModelScope.launch {
-            _response.send(Response.Loading)
+            updateState { it.copy(dialogState = MedicineDialogState.Loading) }
 
             try {
-                val response = Network.getMedicine(currentState.code)
-
-                when (val data = response) {
-                    is Response.Error -> {
-                        _response.send(data)
-                        delay(2500L)
-                    }
-
+                when (val response = Network.getMedicine(currentState.code)) {
                     is Response.Success -> {
                         val images = getMedicineImages(
                             medicineId = currentState.id,
                             form = currentState.prodFormNormName,
                             directory = dir,
-                            urls = data.model.imageUrls
+                            urls = response.model.imageUrls
                         )
 
                         dao.updateImages(images)
@@ -205,14 +186,16 @@ class MedicineViewModel(
                         dao.getById(id)?.let { medicine ->
                             updateState { medicine.toState() }
                         }
-
-                        _response.send(Response.Success(data.model))
                     }
 
-                    else -> Unit
+                    is Response.Error -> {
+                        _action.send(MedicineAction.ShowSnackbar.OnShowError(response.message))
+                    }
                 }
             } catch (_: Exception) {
-                _response.send(Response.Error.UnknownError)
+                _action.send(MedicineAction.ShowSnackbar.OnShowError())
+            } finally {
+                updateState { it.copy(dialogState = null) }
             }
         }
     }
@@ -260,11 +243,9 @@ class MedicineViewModel(
                 joinAll(jobOne, jobTwo)
             }
 
-            updateState {
-                it.copy(dialogState = null)
-            }
+            updateState { it.copy(dialogState = null) }
 
-            _deleted.send(true)
+            _action.send(MedicineAction.OnDelete)
         }
     }
 
@@ -309,7 +290,7 @@ class MedicineViewModel(
             }
 
             is MedicineEvent.SetImage -> viewModelScope.launch {
-                val compressedImage = event.imageProcessing.compressImage(event.image)
+                val compressedImage = event.imageProcessing.compressImage(event.image) ?: return@launch
 
                 updateState {
                     it.copy(
@@ -317,8 +298,6 @@ class MedicineViewModel(
                         images = it.images.concat(compressedImage)
                     )
                 }
-
-                _response.send(Response.Initial)
             }
 
             is MedicineEvent.OnImageReodering -> {
@@ -369,10 +348,6 @@ class MedicineViewModel(
                 }
             }
 
-            MedicineEvent.ShowLoading -> viewModelScope.launch {
-                _response.send(Response.Loading)
-            }
-
             MedicineEvent.MakeDuplicate -> viewModelScope.launch {
                 val duplicate = currentState.toMedicine().copy(id = 0L)
                 val id = Database.medicineDAO().insert(duplicate)
@@ -399,7 +374,7 @@ class MedicineViewModel(
                     joinAll(jobOne, jobTwo)
                 }
 
-                _duplicated.send(Unit)
+                _action.send(MedicineAction.ShowSnackbar.OnMakeDuplicate)
             }
         }
     }
@@ -412,12 +387,8 @@ class MedicineViewModel(
     }
 
     fun compressImage(imageProcessing: ImageProcessing, images: List<Uri>) {
-        updateState {
-            it.copy(dialogState = null)
-        }
-
         viewModelScope.launch {
-            _response.send(Response.Loading)
+            updateState { it.copy(dialogState = MedicineDialogState.Loading) }
 
             val compressed = images.map { uri ->
                 async {
@@ -437,8 +408,6 @@ class MedicineViewModel(
                     dialogState = MedicineDialogState.PictureGrid
                 )
             }
-
-            _response.send(Response.Initial)
         }
     }
 }

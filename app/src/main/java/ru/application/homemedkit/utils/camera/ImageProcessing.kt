@@ -7,15 +7,15 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
 import androidx.camera.core.ImageProxy
-import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.io.IOException
 import java.io.File
 
 class ImageProcessing(private val context: Context) {
     private val imageCompressor = ImageCompressor(context)
 
-    suspend fun compressImage(uri: Uri): String? {
+    suspend fun compressImage(uri: Uri) = withContext(Dispatchers.IO) {
         val mimeType = context.contentResolver.getType(uri)
         val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
 
@@ -28,28 +28,26 @@ class ImageProcessing(private val context: Context) {
 
         val imageName = fileName ?: ("${System.currentTimeMillis()}.$extension")
 
-        val compressedImage = imageCompressor.compressImage(uri, 300 * 1024L) ?: return null
+        val compressedImage = imageCompressor.compressImage(uri, 300 * 1024L) ?: return@withContext null
 
         try {
-            withContext(Dispatchers.IO) {
-                context.openFileOutput(imageName, Context.MODE_PRIVATE).use {
-                    it.write(compressedImage)
-                }
+            context.openFileOutput(imageName, Context.MODE_PRIVATE).use {
+                it.write(compressedImage)
             }
-        } catch (_: Exception) {
-            return null
+        } catch (_: IOException) {
+            return@withContext null
         }
 
-        return imageName
+        imageName
     }
 
-    suspend fun compressImage(image: ImageProxy): String {
-        val matrix = Matrix().apply {
-            postRotate(image.imageInfo.rotationDegrees.toFloat())
-        }
+    suspend fun compressImage(image: ImageProxy) = withContext(Dispatchers.Default) {
+        try {
+            val matrix = Matrix().apply {
+                postRotate(image.imageInfo.rotationDegrees.toFloat())
+            }
 
-        val bitmap = withContext(Dispatchers.Default) {
-            Bitmap.createBitmap(
+            val bitmap = Bitmap.createBitmap(
                 /* source = */ image.toBitmap(),
                 /* x = */ 0,
                 /* y = */ 0,
@@ -58,17 +56,19 @@ class ImageProcessing(private val context: Context) {
                 /* m = */ matrix,
                 /* filter = */ true
             )
-        }
 
-        val name = "${image.imageInfo.timestamp}_product.jpg"
-        val file = File(context.filesDir, name)
+            val name = "${image.imageInfo.timestamp}_product.jpg"
+            val file = File(context.filesDir, name)
 
-        context.contentResolver.openOutputStream(file.toUri())?.use {
-            withContext(Dispatchers.Default) {
+            file.outputStream().use {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 70, it)
             }
-        }
 
-        return name
+            name
+        } catch (_: RuntimeException) {
+            null
+        } finally {
+            image.close()
+        }
     }
 }

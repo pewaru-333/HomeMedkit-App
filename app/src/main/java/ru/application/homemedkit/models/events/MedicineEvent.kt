@@ -31,6 +31,4 @@ sealed interface MedicineEvent {
     data object EditImagesOrder : MedicineEvent
 
     data class ToggleDialog(val dialog: MedicineDialogState) : MedicineEvent
-
-    data object ShowLoading : MedicineEvent
 }

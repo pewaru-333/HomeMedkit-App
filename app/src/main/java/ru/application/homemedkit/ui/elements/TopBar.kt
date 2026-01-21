@@ -133,7 +133,10 @@ fun TopBarActions(
                         text = R.string.text_to_duplicate,
                         icon = R.drawable.vector_duplicate,
                         shape = MenuDefaults.leadingItemShape,
-                        onClick = onDuplicate
+                        onClick = {
+                            onDuplicate()
+                            expanded = false
+                        }
                     )
                 }
 

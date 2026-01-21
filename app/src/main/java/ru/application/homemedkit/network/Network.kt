@@ -3,7 +3,6 @@ package ru.application.homemedkit.network
 import android.net.Uri
 import androidx.core.net.toUri
 import io.ktor.client.HttpClient
-import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.auth.Auth
@@ -28,10 +27,12 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
 import io.ktor.http.isSuccess
 import io.ktor.http.parameters
+import io.ktor.serialization.JsonConvertException
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.cio.use
 import io.ktor.util.cio.writeChannel
 import io.ktor.util.encodeBase64
+import io.ktor.util.network.UnresolvedAddressException
 import io.ktor.utils.io.copyAndClose
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -41,6 +42,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.network.auth.PKCEUtils
@@ -116,21 +118,22 @@ object Network {
             parameter("codeType", codeType)
         }
 
-        if (response.status == HttpStatusCode.OK) {
-            val model = response.body<MainModel>()
+        when (response.status) {
+            HttpStatusCode.OK -> {
+                val model = response.body<MainModel>()
 
-            if (model.codeFounded) {
-                Response.Success(model)
-            } else {
-                Response.Error.CodeNotFound
+                if (model.codeFounded) Response.Success(model)
+                else Response.Error.CodeNotFound
             }
-        } else {
-            Response.Error.UnknownError
+
+            HttpStatusCode.NotFound, HttpStatusCode.BadRequest -> Response.Error.CodeNotFound
+            else -> Response.Error.UnknownError
         }
-    } catch (e: Throwable) {
+    } catch (e: Exception) {
         when (e) {
-            is NoTransformationFoundException -> Response.Error.IncorrectCode
-            else -> Response.Error.NetworkError(code)
+            is SerializationException, is JsonConvertException -> Response.Error.IncorrectCode
+            is IOException, is UnresolvedAddressException -> Response.Error.NetworkError(code)
+            else -> Response.Error.UnknownError
         }
     }
 

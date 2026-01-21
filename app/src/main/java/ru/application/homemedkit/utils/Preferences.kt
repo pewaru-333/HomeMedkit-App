@@ -87,10 +87,7 @@ class Preferences internal constructor(context: Context) {
             val accessToken = preferences.getString(KEY_ACCESS_TOKEN, BLANK)
             val refreshToken = preferences.getString(KEY_REFRESH_TOKEN, BLANK)
 
-            if (accessToken == null || refreshToken == null)
-                return null
-
-            if (accessToken.isBlank() || refreshToken.isBlank())
+            if (accessToken.isNullOrBlank() || refreshToken.isNullOrBlank())
                 return null
 
             return Token(accessToken, refreshToken)

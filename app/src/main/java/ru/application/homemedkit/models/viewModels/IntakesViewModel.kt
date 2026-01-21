@@ -5,7 +5,6 @@ package ru.application.homemedkit.models.viewModels
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePickerState
-import androidx.compose.ui.util.fastForEachIndexed
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -128,18 +127,12 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
         }
 
         val day = Formatter.getDateTime(time).toLocalDate().toEpochDay()
-        val value = list.map { it.epochDay }.minByOrNull { abs(day - it) } ?: list.first().epochDay
-        val itemsIndex = list.indexOfFirst { it.epochDay == value }
+        val value = list.minByOrNull { abs(day - it.epochDay) } ?: list.first()
+        val itemsIndex = list.indexOf(value)
 
-        var group = 0
-        kotlin.run lit@{
-            list.fastForEachIndexed { index, listScheme ->
-                if (index < itemsIndex) group += listScheme.intakes.size
-                else return@lit
-            }
-        }
+        val itemsBefore = list.take(itemsIndex).sumOf { it.intakes.size }
 
-        listState.requestScrollToItem(group + itemsIndex)
+        listState.requestScrollToItem(itemsBefore + itemsIndex)
 
         closeDialog()
     }
@@ -330,7 +323,7 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
                         formName = medicine.prodFormNormName,
                         amount = amount,
                         doseType = medicine.doseType,
-                        image = medicine.image.firstOrNull().orEmpty(),
+                        image = medicine.image.orEmpty(),
                         trigger = trigger,
                         inFact = trigger,
                         taken = true,

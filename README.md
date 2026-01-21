@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="app/src/main/ic_launcher-playstore.png" width=256px height=256px/>
+<img src="app/src/main/ic_launcher-playstore.png" alt="icon" width=256px height=256px/>
 
 # Домашняя аптечка
 
@@ -20,42 +20,41 @@
 
 # Описание
 
-С помощью приложения вы сможете отслеживать сроки годности лекарств, создавать график их приёма и получать уведомления о нём.
-Это надёжный и удобный помощник, который поможет вам следить за вашим здоровьем.
+Приложение предоставляет возможность контролировать сроки годности лекарств, составлять график их приёма и получать напоминания. 
+Это незаменимый помощник, который поможет вам быть в курсе вашего здоровья.
 
 # Основные функции
 
-:white_check_mark: Автоматическое добавление лекарства при помощи сканирования маркировки.\
-:white_check_mark: Возможность добавления лекарства вручную.\
-:white_check_mark: Обновление информации о лекарстве, если оно было отсканировано без подключения к интернету.\
-:white_check_mark: Редактирование информации о лекарствах, добавленных вручную.\
+:white_check_mark: Автоматическое добавление лекарств с помощью сканирования кодов.\
+:white_check_mark: Облачная синхронизация списка лекарств.\
+:white_check_mark: Возможность ручного добавления лекарств.\
+:white_check_mark: Обновление информации о лекарстве, если сканирование проводилось без подключения к интернету.\
 :white_check_mark: Добавление изображений лекарств.\
 :white_check_mark: Сортировка лекарств по срокам годности.\
 :white_check_mark: Группировка лекарств по категориям.\
-:white_check_mark: Звуковое уведомление о необходимости приема лекарства.\
+:white_check_mark: Звуковое уведомление о необходимости принять лекарство.\
 :white_check_mark: Отображение ближайшего расписания приёма лекарств.\
 :white_check_mark: Напоминание об истечении срока годности лекарств.\
-:white_check_mark: Экспорт и импорт базы данных на другие устройства.
+:white_check_mark: Возможность экспорта и импорта базы данных на другие устройства.
 
 # Medkit (English)
 
-An application that allows you to easily and quickly register and store information about medicine.
-With it, you can track the expiration dates of medications, create a schedule for their intake and receive notifications about it.
-It is a reliable and convenient assistant that will help you monitor your health.
+The application provides the ability to monitor the expiration dates of medicines, schedule their intake and receive reminders.
+It is an indispensable assistant that will help you keep abreast of your health.
 
 # Main features
 
-:white_check_mark: Automatic addition of medications by scanning the label.\
-:white_check_mark: The ability to add medications manually.\
-:white_check_mark: Update information about the medication if it was scanned without an internet connection.\
-:white_check_mark: Edit information about medications added manually.\
-:white_check_mark: Adding medications images.\
-:white_check_mark: Sorting of medications by expiration date.\
-:white_check_mark: Grouping of medications by categories.\
-:white_check_mark: Notifications for when to take medications.\
-:white_check_mark: Display of the nearest medications to be taken.\
-:white_check_mark: Reminder of the expiration date of medications.\
-:white_check_mark: Export and import the database to other devices.
+:white_check_mark: Automatically add medications by scanning codes.\
+:white_check_mark: Cloud synchronization of the list of medicines.\
+:white_check_mark: The ability to manually add medications.\
+:white_check_mark: Updating the information about the medicine if the scan was performed without an internet connection.\
+:white_check_mark: Adding images of medicines.\
+:white_check_mark: Sorting medicines by expiration date.\
+:white_check_mark: Grouping medicines by category.\
+:white_check_mark: An audible notification about the need for medication.\
+:white_check_mark: Displays the nearest medication schedule.\
+:white_check_mark: Reminder of the expiration date of medicines.\
+:white_check_mark: The ability to export and import databases to other devices.
 
 </div>
 

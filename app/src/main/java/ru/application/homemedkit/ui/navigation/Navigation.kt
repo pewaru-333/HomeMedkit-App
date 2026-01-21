@@ -171,9 +171,7 @@ private fun AppNavDisplay(navigator: Navigator, state: NavigationState, modifier
                 entry<Screen.Scanner> {
                     ScannerScreen(
                         onBack = navigator::goBack,
-                        onGoToMedicine = { id, cis, duplicate ->
-                            navigator.navigate(Screen.Medicine(id, cis, duplicate))
-                        }
+                        onNavigate = navigator::navigate
                     )
                 }
                 entry<Screen.Medicine> { (id, cis, duplicate) ->

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -15,7 +16,7 @@ import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.model.KitModel
 import ru.application.homemedkit.data.model.MedicineGrouped
-import ru.application.homemedkit.data.model.MedicineMain
+import ru.application.homemedkit.data.model.MedicineList
 import ru.application.homemedkit.data.queries.MedicinesQueryBuilder
 import ru.application.homemedkit.models.states.MedicinesState
 import ru.application.homemedkit.utils.BLANK
@@ -31,6 +32,10 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
     private val currentMillis by lazy { System.currentTimeMillis() }
     private val medicineDAO by lazy { Database.medicineDAO() }
     private val kitDAO by lazy { Database.kitDAO() }
+
+    val kits = kitDAO.getFlow()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
+
     private val _medicines = state.flatMapLatest { query ->
         medicineDAO.getFlow(MedicinesQueryBuilder.selectBy(query.search, query.sorting, query.kits))
     }
@@ -40,95 +45,58 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
         .flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
-    val grouped = state.flatMapLatest { state ->
-        _medicines.map { medicineList ->
-            val selectedKits: Set<Long> = state.kits.mapTo(mutableSetOf(), Kit::kitId)
-            val filterIsEmpty = selectedKits.isEmpty()
+    val grouped = combine(_medicines, kits, state) { medicines, kits, state ->
+        val selectedKits = state.kits.mapTo(mutableSetOf(), Kit::kitId)
+        val kitsMap = kits.associateBy(Kit::kitId)
 
-            val kitsToGroup = if (filterIsEmpty) {
-                kitDAO.getKitList(medicineList.flatMap(MedicineMain::kitIds).distinct()).associateBy(Kit::kitId)
-            } else {
-                kitDAO.getKitList(selectedKits.toList()).associateBy(Kit::kitId)
-            }
+        val filterIsEmpty = selectedKits.isEmpty()
+        val groups = mutableMapOf<Long, MutableList<MedicineList>>()
+        val noGroup = mutableListOf<MedicineList>()
 
-            val (toGroup, noGroup) = medicineList.partition { medicine ->
-                if (filterIsEmpty) {
-                    medicine.kitIds.isNotEmpty() && medicine.kitIds.any(kitsToGroup::containsKey)
-                } else {
-                    medicine.kitIds.any { kitId -> selectedKits.contains(kitId) } && medicine.kitIds.any(kitsToGroup::containsKey)
-                }
-            }
+        for (medicine in medicines) {
+            val model = medicine.toMedicineList(currentMillis)
+            var anyGroup = false
 
-            val withKits = mutableListOf<MedicineGrouped>()
-
-            if (filterIsEmpty) {
-                val groupedByAllTheirKits = toGroup.flatMap { medicine ->
-                    medicine.kitIds.mapNotNull { kitId ->
-                        kitsToGroup[kitId]?.let { kit -> Pair(kit, medicine) }
-                    }
-                }
-                    .groupBy(Pair<Kit, MedicineMain>::first, Pair<Kit, MedicineMain>::second)
-                    .map { (kit, medicinesInKit) ->
-                        MedicineGrouped(
-                            kit = kit.toModel(),
-                            medicines = medicinesInKit.map { main ->
-                                main.toMedicineList(currentMillis)
-                            }
-                        )
-                    }
-                withKits.addAll(groupedByAllTheirKits)
-            } else {
-                selectedKits.forEach { selectedKitId ->
-                    val kitInfo = kitsToGroup[selectedKitId]
-                    if (kitInfo != null) {
-                        val medicinesSelectedKits = toGroup.filter { medicine ->
-                            medicine.kitIds.contains(selectedKitId)
-                        }
-                        if (medicinesSelectedKits.isNotEmpty()) {
-                            withKits.add(
-                                MedicineGrouped(
-                                    kit = kitInfo.toModel(),
-                                    medicines = medicinesSelectedKits.map { main ->
-                                        main.toMedicineList(currentMillis)
-                                    }
-                                )
-                            )
-                        }
+            for (kitId in medicine.kitIds) {
+                if (filterIsEmpty || kitId in selectedKits) {
+                    if (kitsMap.containsKey(kitId)) {
+                        groups.getOrPut(kitId) { mutableListOf() }.add(model)
+                        anyGroup = true
                     }
                 }
             }
 
-            withKits.sortBy { it.kit.position }
-
-            val noGroupMedicines = mutableListOf<MedicineMain>().apply {
-                addAll(noGroup)
-            }
-
-            mutableListOf<MedicineGrouped>().apply {
-                addAll(withKits)
-
-                if (noGroupMedicines.isNotEmpty()) {
-                    add(
-                        MedicineGrouped(
-                            medicines = noGroupMedicines.map { main ->
-                                main.toMedicineList(currentMillis)
-                            },
-                            kit = KitModel(
-                                id = -1L,
-                                position = Int.MAX_VALUE.toLong(),
-                                title = ResourceText.StringResource(R.string.text_no_group)
-                            )
-                        )
-                    )
-                }
-
-                sortBy { it.kit.position }
+            if (!anyGroup) {
+                noGroup.add(model)
             }
         }
-    }.flowOn(Dispatchers.Default)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
-    val kits = kitDAO.getFlow()
+        val result = ArrayList<MedicineGrouped>(groups.size + 1)
+
+        groups.forEach { (kitId, items) ->
+            val kit = kitsMap[kitId]
+            if (kit != null) {
+                result.add(MedicineGrouped(kit.toModel(), items))
+            }
+        }
+
+        result.sortBy { it.kit.position }
+
+        if (noGroup.isNotEmpty()) {
+            result.add(
+                MedicineGrouped(
+                    medicines = noGroup,
+                    kit = KitModel(
+                        id = -1L,
+                        position = Long.MAX_VALUE,
+                        title = ResourceText.StringResource(R.string.text_no_group)
+                    )
+                )
+            )
+        }
+
+        result
+    }.flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     override fun initState() = MedicinesState()

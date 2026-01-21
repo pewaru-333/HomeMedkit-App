@@ -1,68 +1,91 @@
 package ru.application.homemedkit.models.viewModels
 
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import ru.application.homemedkit.models.events.Response
+import ru.application.homemedkit.models.events.ScannerEvent
+import ru.application.homemedkit.models.states.ScannerState
 import ru.application.homemedkit.network.Network
 import ru.application.homemedkit.utils.di.Database
-import ru.application.homemedkit.utils.extensions.toMedicine
+import ru.application.homemedkit.utils.extensions.asMedicine
 import ru.application.homemedkit.utils.getMedicineImages
 import java.io.File
 
-class ScannerViewModel : BaseViewModel<Response, Unit>() {
-    private val dao by lazy { Database.medicineDAO() }
-    private val mutex = Mutex()
-
-    override fun initState() = Response.Initial
+class ScannerViewModel : BaseViewModel<ScannerState, Unit>() {
+    override fun initState() = ScannerState.Default
 
     override fun loadData() = Unit
 
     override fun onEvent(event: Unit) = Unit
 
+    private val dao by lazy { Database.medicineDAO() }
+    private val mutex = Mutex()
+
+    private val _event = Channel<ScannerEvent>()
+    val event = _event.receiveAsFlow()
+
     fun fetch(dir: File, code: String) {
+        if (currentState != ScannerState.Default) return
+
         viewModelScope.launch {
             mutex.withLock {
+                if (currentState != ScannerState.Default) return@launch
+
                 val duplicateId = dao.getIdByCis(code)
                 if (duplicateId != null) {
-                    updateState { Response.Navigate(duplicateId, true) }
-                    return@launch
+                    _event.send(ScannerEvent.Navigate(duplicateId, null, true))
+                    awaitCancellation()
                 }
 
+                updateState { ScannerState.Loading }
                 try {
-                    updateState { Response.Loading }
-
                     when (val response = Network.getMedicine(code)) {
-                        is Response.Error -> updateState { response }
-
                         is Response.Success -> {
-                            val medicine = response.model.run {
-                                drugsData?.toMedicine() ?: bioData?.toMedicine() ?: toMedicine()
-                            }.copy(
-                                cis = code
-                            )
+                            val model = response.model
 
-                            val id = dao.insert(medicine)
-                            val images = getMedicineImages(
-                                medicineId = id,
-                                form = medicine.prodFormNormName,
-                                directory = dir,
-                                urls = response.model.imageUrls
-                            )
+                            if (model.category == "drugs" || model.category == "bio") {
+                                val medicine = model.asMedicine().copy(cis = code)
 
-                            dao.updateImages(images)
-                            updateState { Response.Navigate(id) }
+                                val id = dao.insert(medicine)
+                                val images = getMedicineImages(
+                                    medicineId = id,
+                                    form = medicine.prodFormNormName,
+                                    directory = dir,
+                                    urls = response.model.imageUrls
+                                )
+
+                                dao.updateImages(images)
+
+                                _event.send(ScannerEvent.Navigate(id))
+                                awaitCancellation()
+                            } else {
+                                _event.send(ScannerEvent.ShowSnackbar.IncorrectCode)
+                            }
                         }
 
-                        else -> Unit
+                        is Response.Error.NetworkError -> {
+                            updateState { ScannerState.ShowDialog(response.code) }
+                        }
+
+                        is Response.Error -> {
+                            _event.send(ScannerEvent.ShowSnackbar.UnknownError(response.message))
+                        }
                     }
                 } catch (_: Exception) {
-                    updateState { Response.Error.UnknownError }
+                    _event.send(ScannerEvent.ShowSnackbar.UnknownError())
+                } finally {
+                    if (currentState !is ScannerState.ShowDialog) {
+                        updateState { ScannerState.Idle }
+                    }
                 }
             }
         }
     }
 
-    fun setInitial() = updateState { Response.Initial }
+    fun setDefault() = updateState { ScannerState.Default }
 }
