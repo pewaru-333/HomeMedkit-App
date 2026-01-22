@@ -1,5 +1,0 @@
-— Cloud-Synchronisierung über externe Anbieter hinzugefügt.
-— Möglichkeit zum Erstellen eines Duplikats eines Medikaments hinzugefügt (sofern dieses manuell erstellt wurde).
-— Import/Export von Medikamentenbildern hinzugefügt.
-— Fehler bei der Anzeige des Einnahmeintervalls behoben.
-— Zahlreiche Optimierungen für eine stabile und schnelle Anwendung.
