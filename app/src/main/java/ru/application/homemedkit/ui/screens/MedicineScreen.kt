@@ -437,7 +437,8 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
 
         MedicineDialogState.PackageDate -> DatePicker(
             onDismiss = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.PackageDate)) },
-            onSelect = { model.onEvent(MedicineEvent.SetPackageDate(it)) }
+            onSelect = { model.onEvent(MedicineEvent.SetPackageDate(it)) },
+            onClear = { model.onEvent(MedicineEvent.ClearPackageDate) }
         )
 
         MedicineDialogState.Delete -> DialogDelete(

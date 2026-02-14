@@ -5,7 +5,7 @@ package ru.application.homemedkit.utils
 const val AUTH_URL_YANDEX = "https://oauth.yandex.ru/authorize"
 const val CLIENT_ID_YANDEX = "c9efbf4b410d45ce9ee862f9e8c63f3b"
 const val CLIENT_SECRET_YANDEX = "9780d6b550a346adbca55df4f3b5874d"
-const val REDIRECT_URI_YANDEX = "app://auth_yandex?code={code}"
+const val REDIRECT_URI_YANDEX = "app://auth/auth_yandex?code={code}"
 const val TOKEN_URL_YANDEX = "https://oauth.yandex.ru/token"
 
 // ======================== Constants ========================
@@ -15,6 +15,8 @@ const val CHANNEL_ID_EXP = "channel_expiration"
 const val CHANNEL_ID_INTAKES = "channel_intakes"
 const val CHANNEL_ID_PRE = "channel_prealarm"
 const val DATABASE_NAME = "medicines"
+const val DEEP_LINK_BASE_URL = "app://notification/full_screen_intake"
+const val DEEP_LINK_FULL_SCREEN = "$DEEP_LINK_BASE_URL?takenId={takenId}&medicineId={medicineId}&amount={amount}"
 const val ID = "id"
 const val IS_ENOUGH_IN_STOCK = "is_enough_in_stock"
 const val KEY_ACCESS_TOKEN = "access_token"

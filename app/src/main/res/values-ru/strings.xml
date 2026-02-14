@@ -60,6 +60,7 @@
     <string name="text_do_intake">Примите лекарство</string>
     <string name="text_do_intake_all">Приём всех лекарств</string>
     <string name="text_expire_soon">Истекает срок годности лекарства %1$s</string>
+    <string name="text_intake_amount">Доза приёма</string>
     <string name="text_intake_amount_not_enough">Время приёма лекарства %1$s, но его оставшегося количества меньше предписанного!</string>
     <string name="text_intake_prealarm_text">Лекарство: %1$s\nДоза приёма: %2$s %3$s\nВремя: %4$s</string>
     <string name="text_intake_prealarm_title">Предстоящий приём</string>
@@ -268,6 +269,7 @@
     <string name="text_on">Включено</string>
     <string name="text_pick_cloud_service">Выберите облачного провайдера для синхронизации данных приложения (списка лекарств и их изображений)</string>
     <string name="text_provider_is_yandex">Подключено через Яндекс</string>
+    <string name="text_remainder_after">Остаток после</string>
     <string name="text_repeat">Повтор</string>
     <string name="text_retry">Повторить</string>
     <string name="text_same_amount">Равное для каждого приёма</string>
@@ -283,7 +285,9 @@
     <string name="text_sync_error">Ошибка синхронизации</string>
     <string name="text_sync_success">Успешная синхронизация</string>
     <string name="text_synchronized_at">Синхронизировано: %s</string>
+    <string name="text_taking_medicine">Приём лекарства</string>
     <string name="text_tap_to_view">Нажмите для просмотра</string>
+    <string name="text_title">Название</string>
     <string name="text_today">Сегодня</string>
     <string name="text_to_duplicate">Дублировать</string>
     <string name="text_tomorrow">Завтра</string>

@@ -35,8 +35,11 @@ interface MedicineDAO : BaseDAO<Medicine> {
     @Query("SELECT DISTINCT image FROM images")
     suspend fun getAllImageNames(): List<String>
 
-    @Query("SELECT image FROM images WHERE medicineId = :medicineId")
-    suspend fun getMedicineImages(medicineId: Long): List<String>
+    @Query("SELECT image FROM images WHERE medicineId = :medicineId AND position = 0")
+    suspend fun getMedicineImage(medicineId: Long): String?
+
+    @Query("SELECT COUNT(*) FROM images WHERE image = :fileName")
+    suspend fun getImageCount(fileName: String): Int
 
     @Query("UPDATE medicines SET prodAmount = prodAmount - :amount WHERE id = :id")
     suspend fun intakeMedicine(id: Long, amount: Double)

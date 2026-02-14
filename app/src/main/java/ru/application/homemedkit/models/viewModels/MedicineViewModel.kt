@@ -1,7 +1,6 @@
 package ru.application.homemedkit.models.viewModels
 
 import android.net.Uri
-import androidx.compose.ui.util.fastForEach
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -232,15 +231,14 @@ class MedicineViewModel(
     fun delete(dir: File) {
         viewModelScope.launch {
             coroutineScope {
-                val jobOne = launch { dao.delete(currentState.toMedicine()) }
-                val jobTwo = launch(Dispatchers.IO) {
-                    currentState.images.fastForEach {
-                        File(dir, it).delete()
+                launch { dao.delete(currentState.toMedicine()) }
+                launch(Dispatchers.IO) {
+                    currentState.images.forEach {
+                        if (dao.getImageCount(it) == 0) {
+                            File(dir, it).delete()
+                        }
                     }
                 }
-
-
-                joinAll(jobOne, jobTwo)
             }
 
             updateState { it.copy(dialogState = null) }
@@ -322,7 +320,18 @@ class MedicineViewModel(
             }
 
             MedicineEvent.EditImagesOrder -> updateState {
-                it.copy(imageEditing = ImageEditing.entries.getOrElse(it.imageEditing.ordinal + 1) { ImageEditing.ADDING })
+                it.copy(
+                    images = it.images.distinct(),
+                    imageEditing = ImageEditing.entries.getOrElse(it.imageEditing.ordinal + 1) { ImageEditing.ADDING }
+                )
+            }
+
+            MedicineEvent.ClearPackageDate -> updateState {
+                it.copy(
+                    dateOpened = -1L,
+                    dateOpenedString = BLANK,
+                    dialogState = null
+                )
             }
 
             is MedicineEvent.ToggleDialog -> updateState {
@@ -349,32 +358,34 @@ class MedicineViewModel(
             }
 
             MedicineEvent.MakeDuplicate -> viewModelScope.launch {
-                val duplicate = currentState.toMedicine().copy(id = 0L)
-                val id = Database.medicineDAO().insert(duplicate)
+                try {
+                    val duplicate = currentState.toMedicine().copy(id = 0L)
+                    val id = dao.insert(duplicate)
 
-                coroutineScope {
-                    val jobOne = launch {
-                        val kits = currentState.kits.map { MedicineKit(id, it.kitId) }
+                    coroutineScope {
+                        launch {
+                            val kits = currentState.kits.map { MedicineKit(id, it.kitId) }
 
-                        daoK.pinKit(kits)
-                    }
-
-                    val jobTwo = launch {
-                        val images = currentState.images.mapIndexed { index, image ->
-                            Image(
-                                medicineId = id,
-                                position = index,
-                                image = image
-                            )
+                            daoK.pinKit(kits)
                         }
 
-                        dao.updateImages(images)
+                        launch {
+                            val images = currentState.images.mapIndexed { index, image ->
+                                Image(
+                                    medicineId = id,
+                                    position = index,
+                                    image = image
+                                )
+                            }
+
+                            dao.updateImages(images)
+                        }
                     }
 
-                    joinAll(jobOne, jobTwo)
+                    _action.send(MedicineAction.ShowSnackbar.OnMakeDuplicate)
+                } catch (_: Exception) {
+                    _action.send(MedicineAction.ShowSnackbar.OnShowError())
                 }
-
-                _action.send(MedicineAction.ShowSnackbar.OnMakeDuplicate)
             }
         }
     }

@@ -240,7 +240,7 @@
     <string name="preference_use_vibration_scan">Verwenden Sie die Vibrationsrückmeldung beim Scannen von Medikamentencodes</string>
     <string name="text_scan">Scannen</string>
     <plurals name="intake_interval_in_day">
-        <item quantity="one"></item>
+        <item quantity="one">%d tag</item>
         <item quantity="other">Alle %d Tage</item>
     </plurals>
     <string name="text_in_progress">(in Bearbeitung)</string>

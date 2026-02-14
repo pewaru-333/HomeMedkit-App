@@ -19,6 +19,8 @@ sealed interface MedicineEvent {
     data class SetPhKinetics(val phKinetics: String) : MedicineEvent
     data class SetComment(val comment: String) : MedicineEvent
 
+    data object ClearPackageDate : MedicineEvent
+
     data class PickKit(val kit: Kit) : MedicineEvent
     data object ClearKit : MedicineEvent
 

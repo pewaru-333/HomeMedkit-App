@@ -59,6 +59,7 @@
     <string name="text_do_intake">Intake</string>
     <string name="text_do_intake_all">Intake all</string>
     <string name="text_expire_soon">The expiration date of %1$s is near</string>
+    <string name="text_intake_amount">Intake amount</string>
     <string name="text_intake_amount_not_enough">It\'s time to take %1$s, but there\'s not enough!</string>
     <string name="text_intake_prealarm_text">Medication: %1$s\nIntake amount: %2$s %3$s\nTime: %4$s</string>
     <string name="text_intake_prealarm_title">Upcoming intake</string>
@@ -270,6 +271,7 @@
     <string name="text_on">Enabled</string>
     <string name="text_pick_cloud_service">Select a cloud provider to synchronize the application data (medications list and their images)</string>
     <string name="text_provider_is_yandex">Connected with Yandex</string>
+    <string name="text_remainder_after">Remainder after</string>
     <string name="text_repeat">Repeat</string>
     <string name="text_retry">Retry</string>
     <string name="text_same_amount">Same amount on every intake</string>
@@ -285,7 +287,9 @@
     <string name="text_sync_error">Error while synchronization</string>
     <string name="text_sync_success">Successful synchronization</string>
     <string name="text_synchronized_at">Synchronized: %s</string>
+    <string name="text_taking_medicine">Taking medication</string>
     <string name="text_tap_to_view">Tap to view</string>
+    <string name="text_title">Title</string>
     <string name="text_today">Today</string>
     <string name="text_to_duplicate">Duplicate</string>
     <string name="text_tomorrow">Tomorrow</string>

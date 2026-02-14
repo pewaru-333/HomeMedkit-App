@@ -17,6 +17,7 @@ import ru.application.homemedkit.ui.navigation.utils.DeepLinkMatcher
 import ru.application.homemedkit.ui.navigation.utils.DeepLinkPattern
 import ru.application.homemedkit.ui.navigation.utils.DeepLinkRequest
 import ru.application.homemedkit.ui.navigation.utils.KeyDecoder
+import ru.application.homemedkit.utils.DEEP_LINK_FULL_SCREEN
 import ru.application.homemedkit.utils.REDIRECT_URI_YANDEX
 import ru.application.homemedkit.utils.WORK_AUTO_SYNC
 import ru.application.homemedkit.utils.di.Preferences
@@ -39,12 +40,18 @@ class MainViewModel : ViewModel() {
             return Preferences.startPage.route
         }
 
-        val pattern = DeepLinkPattern(Screen.Auth.serializer(), REDIRECT_URI_YANDEX.toUri())
-        val request = DeepLinkRequest(data)
-        val matched = DeepLinkMatcher(request, pattern).match()
+        val deepLinkPatterns = listOf(
+            DeepLinkPattern(Screen.Auth.serializer(), REDIRECT_URI_YANDEX.toUri()),
+            DeepLinkPattern(Screen.IntakeFullScreen.serializer(), DEEP_LINK_FULL_SCREEN.toUri())
+        )
 
-        return if (matched != null) {
-            KeyDecoder(matched.args).decodeSerializableValue(matched.serializer)
+        val request = DeepLinkRequest(data)
+        val match = deepLinkPatterns.firstNotNullOfOrNull { pattern ->
+            DeepLinkMatcher(request, pattern).match()
+        }
+
+        return if (match != null) {
+            KeyDecoder(match.args).decodeSerializableValue(match.serializer)
         } else {
             Preferences.startPage.route
         }

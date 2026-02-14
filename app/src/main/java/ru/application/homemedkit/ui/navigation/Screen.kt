@@ -39,4 +39,13 @@ sealed interface Screen : NavKey {
         val intakeId: Long = 0L,
         val medicineId: Long = 0L
     ) : Screen
+
+    @Serializable
+    data class IntakeFullScreen(
+        val takenId: Long,
+        val medicineId: Long,
+        val amount: Double
+    ) : NavDeepLink, Screen {
+        override val parent = Intakes
+    }
 }

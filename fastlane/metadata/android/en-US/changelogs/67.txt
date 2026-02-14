@@ -1,4 +1,0 @@
-— Error descriptions when scanning medications codes have been changed to more understandable ones.
-— Improved functionality for adding your own medicine images.
-— Fixed a bug that caused a message to appear in very rare cases about adding a duplicate medicine, even if it was added for the first time.
-— A few minor changes to the user interface components.

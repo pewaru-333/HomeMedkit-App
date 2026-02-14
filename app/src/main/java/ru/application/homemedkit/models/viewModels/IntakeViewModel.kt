@@ -246,6 +246,8 @@ class IntakeViewModel(
             AlarmManager.removeAlarm(currentState.intakeId)
             dao.delete(currentState.toIntake())
 
+            updateState { it.copy(showDialogDelete = false) }
+
             onBack()
         }
     }

@@ -23,7 +23,7 @@ internal class DeepLinkMatcher<T : NavKey>(
                 if (candidateSegment.isParamArg) {
                     val parsedValue = try {
                         candidateSegment.typeParser.invoke(requestedSegment)
-                    } catch (e: IllegalArgumentException) {
+                    } catch (_: IllegalArgumentException) {
                         return null
                     }
                     args[candidateSegment.stringValue] = parsedValue
@@ -34,16 +34,14 @@ internal class DeepLinkMatcher<T : NavKey>(
 
         request.queries.forEach { query ->
             val name = query.key
-            val queryStringParser = deepLinkPattern.queryValueParsers[name]
+            val queryStringParser = deepLinkPattern.queryValueParsers[name]?: return@forEach
             val queryParsedValue = try {
-                queryStringParser?.invoke(query.value)
-            } catch (e: IllegalArgumentException) {
+                queryStringParser.invoke(query.value)
+            } catch (_: IllegalArgumentException) {
                 return null
             }
 
-            queryParsedValue?.let {
-                args[name] = it
-            }
+            args[name] = queryParsedValue
         }
 
         return DeepLinkMatchResult(deepLinkPattern.serializer, args)

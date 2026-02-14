@@ -136,7 +136,7 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
                 search = state.search,
                 onSearch = { model.onEvent(IntakesEvent.SetSearch(it)) },
                 actions = {
-                    if (IntakeTab.entries[pagerState.currentPage] != IntakeTab.LIST) {
+                    AnimatedVisibility(IntakeTab.entries[pagerState.currentPage] != IntakeTab.LIST) {
                         IconButton(
                             onClick = { toggleDialog(IntakesDialogState.DatePicker) },
                             content = { VectorIcon(R.drawable.vector_date_range) }

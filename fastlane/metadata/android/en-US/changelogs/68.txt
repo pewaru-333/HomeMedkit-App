@@ -1,0 +1,3 @@
+— The view of the full-screen notification when taking medication has been changed. More information with necessary actions is now available on a beautiful screen.
+— You can now delete the date of medicine opening.
+— Fixed a bug where a duplicate medicine would not have an image, or it would be deleted later.

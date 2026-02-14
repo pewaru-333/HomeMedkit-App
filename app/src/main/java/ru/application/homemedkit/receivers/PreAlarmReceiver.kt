@@ -3,10 +3,7 @@ package ru.application.homemedkit.receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import androidx.core.app.NotificationCompat.BigTextStyle
-import androidx.core.app.NotificationCompat.Builder
-import androidx.core.app.NotificationCompat.CATEGORY_REMINDER
-import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.MedicineDatabase
@@ -26,12 +23,12 @@ class PreAlarmReceiver : BroadcastReceiver() {
         val alarm = database.alarmDAO().getById(alarmId) ?: return@goAsync
         val intake = database.intakeDAO().getById(alarm.intakeId) ?: return@goAsync
         val medicine = database.medicineDAO().getById(intake.medicineId) ?: return@goAsync
-        val image = database.medicineDAO().getMedicineImages(medicine.id).firstOrNull().orEmpty()
+        val image = database.medicineDAO().getMedicineImage(medicine.id).orEmpty()
 
         database.alarmDAO().delete(alarm)
 
         val takenId = database.takenDAO().insert(
-            IntakeTaken(
+            item = IntakeTaken(
                 medicineId = medicine.id,
                 intakeId = alarm.intakeId,
                 alarmId = alarmId,
@@ -50,13 +47,13 @@ class PreAlarmReceiver : BroadcastReceiver() {
             NotificationManagerCompat.from(context).safeNotify(
                 context = context,
                 code = alarmId.toInt(),
-                notification = Builder(context, CHANNEL_ID_PRE)
-                    .setCategory(CATEGORY_REMINDER)
+                notification = NotificationCompat.Builder(context, CHANNEL_ID_PRE)
+                    .setCategory(NotificationCompat.CATEGORY_REMINDER)
                     .setContentTitle(context.getString(R.string.text_intake_prealarm_title))
                     .setSilent(true)
                     .setSmallIcon(R.drawable.ic_launcher_notification)
                     .setStyle(
-                        BigTextStyle().bigText(
+                        NotificationCompat.BigTextStyle().bigText(
                             context.getString(
                                 R.string.text_intake_prealarm_text,
                                 medicine.nameAlias.ifEmpty(medicine::productName),
@@ -67,7 +64,7 @@ class PreAlarmReceiver : BroadcastReceiver() {
                         )
                     )
                     .setTimeoutAfter(1800000L)
-                    .setVisibility(VISIBILITY_PUBLIC)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .build()
             )
         }

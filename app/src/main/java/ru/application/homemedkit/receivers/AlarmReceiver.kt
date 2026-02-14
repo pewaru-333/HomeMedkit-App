@@ -1,25 +1,20 @@
 package ru.application.homemedkit.receivers
 
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_IMMUTABLE
-import android.app.PendingIntent.FLAG_UPDATE_CURRENT
-import android.app.PendingIntent.getActivity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationCompat.BigTextStyle
-import androidx.core.app.NotificationCompat.Builder
-import androidx.core.app.NotificationCompat.CATEGORY_REMINDER
-import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.NotificationManagerCompat
-import ru.application.homemedkit.IntakeDialogActivity
+import androidx.core.net.toUri
+import ru.application.homemedkit.MainActivity
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.utils.ALARM_ID
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.CHANNEL_ID_INTAKES
+import ru.application.homemedkit.utils.DEEP_LINK_BASE_URL
 import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.ID
 import ru.application.homemedkit.utils.IS_ENOUGH_IN_STOCK
@@ -77,19 +72,28 @@ class AlarmReceiver : BroadcastReceiver() {
                             addAction(decline)
 
                             if (intake.cancellable) setTimeoutAfter(600000L)
-                            if (intake.fullScreen) setFullScreenIntent(
-                                getActivity(
+                            if (intake.fullScreen) {
+                                val uri = DEEP_LINK_BASE_URL.toUri()
+                                    .buildUpon()
+                                    .appendQueryParameter("takenId", takenId.toString())
+                                    .appendQueryParameter("medicineId", intake.medicineId.toString())
+                                    .appendQueryParameter("amount", taken.amount.toString())
+                                    .build()
+
+                                val intent = Intent(context, MainActivity::class.java).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    data = uri
+                                }
+
+                                val pendingIntent = PendingIntent.getActivity(
                                     context,
                                     takenId.toInt(),
-                                    Intent(context, IntakeDialogActivity::class.java).apply {
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                        putExtra(ID, intake.medicineId)
-                                        putExtra(TAKEN_ID, takenId)
-                                        putExtra(BLANK, taken.amount)
-                                    },
-                                    FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
-                                ), true
-                            )
+                                    intent,
+                                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                                )
+
+                                setFullScreenIntent(pendingIntent, true)
+                            }
                         }
                     }
                         .setDeleteIntent(pendingA)
@@ -144,7 +148,7 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     private fun createPending(context: Context, action: Intent, code: Number) = PendingIntent
-        .getBroadcast(context, code.toInt(), action, FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
+        .getBroadcast(context, code.toInt(), action, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
     private fun createPending(context: Context, action: Intent) =
         createPending(context, action, Int.MAX_VALUE)
@@ -161,13 +165,13 @@ class AlarmReceiver : BroadcastReceiver() {
         text: String,
         flag: Boolean,
         actions: List<NotificationCompat.Action>
-    ) = Builder(context, CHANNEL_ID_INTAKES)
+    ) = NotificationCompat.Builder(context, CHANNEL_ID_INTAKES)
         .setAutoCancel(false)
-        .setCategory(CATEGORY_REMINDER)
+        .setCategory(NotificationCompat.CATEGORY_REMINDER)
         .setContentTitle(context.getString(title))
         .setSmallIcon(R.drawable.ic_launcher_notification)
-        .setStyle(BigTextStyle().bigText(text))
-        .setVisibility(VISIBILITY_PUBLIC)
+        .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         .extend(
             NotificationCompat.WearableExtender().apply {
                 setContentIntentAvailableOffline(false)

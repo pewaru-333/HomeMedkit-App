@@ -179,7 +179,7 @@ class IntakesViewModel : BaseViewModel<IntakesState, IntakesEvent>() {
                 val alarm = alarmDAO.getById(currentState.alarmId) ?: return@launch
                 val intake = intakeDAO.getById(alarm.intakeId) ?: return@launch
                 val medicine = medicineDAO.getById(intake.medicineId) ?: return@launch
-                val image = medicineDAO.getMedicineImages(medicine.id).firstOrNull().orEmpty()
+                val image = medicineDAO.getMedicineImage(medicine.id).orEmpty()
 
                 alarmDAO.delete(alarm)
                 takenDAO.insert(

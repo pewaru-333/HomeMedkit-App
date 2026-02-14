@@ -2,7 +2,9 @@
 
 package ru.application.homemedkit.ui.screens
 
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -47,7 +49,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -72,11 +73,10 @@ import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.MedicineTab
 import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.extensions.drawHorizontalDivider
-import ru.application.homemedkit.utils.extensions.getActivity
 
 @Composable
 fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen) -> Unit) {
-    val activity = LocalContext.current.getActivity()
+    val activity = LocalActivity.current as? ComponentActivity
 
     val state by model.state.collectAsStateWithLifecycle()
     val medicines by model.medicines.collectAsStateWithLifecycle()

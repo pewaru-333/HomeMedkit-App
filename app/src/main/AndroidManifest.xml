@@ -41,17 +41,11 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="auth_yandex"
+                    android:host="auth"
+                    android:path="/auth_yandex"
                     android:scheme="app" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".IntakeDialogActivity"
-            android:showForAllUsers="true"
-            android:showWhenLocked="true"
-            android:theme="@android:style/Theme.Wallpaper.NoTitleBar.Fullscreen"
-            android:turnScreenOn="true" />
 
         <receiver
             android:name=".receivers.AlarmReceiver"

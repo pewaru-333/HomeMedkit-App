@@ -1,5 +1,7 @@
 package ru.application.homemedkit.ui.navigation
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -45,18 +47,18 @@ import ru.application.homemedkit.models.viewModels.MainViewModel
 import ru.application.homemedkit.models.viewModels.MedicineViewModel
 import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.ui.screens.AuthScreen
+import ru.application.homemedkit.ui.screens.IntakeFullScreen
 import ru.application.homemedkit.ui.screens.IntakeScreen
 import ru.application.homemedkit.ui.screens.IntakesScreen
 import ru.application.homemedkit.ui.screens.MedicineScreen
 import ru.application.homemedkit.ui.screens.MedicinesScreen
 import ru.application.homemedkit.ui.screens.ScannerScreen
 import ru.application.homemedkit.ui.screens.SettingsScreen
-import ru.application.homemedkit.utils.extensions.getActivity
 
 @Composable
 fun Navigation(model: MainViewModel = viewModel()) {
     val context = LocalContext.current
-    val activity = context.getActivity()
+    val activity = LocalActivity.current as? ComponentActivity
     val barVisibility = LocalBarVisibility.current
 
     val startRoute = model.getDeepLink(activity?.intent?.data)
@@ -186,6 +188,15 @@ private fun AppNavDisplay(navigator: Navigator, state: NavigationState, modifier
                         model = viewModel { IntakeViewModel(intakeId, medicineId) },
                         onBack = navigator::goBack
                     )
+                }
+                entry<Screen.IntakeFullScreen> { (takenId, medicineId, amount) ->
+                    val onBack = when {
+                        state.previousRoute is Screen.IntakeFullScreen -> navigator::goBack
+                        state.currentStack.size <= 2 && state.currentStack.firstOrNull() is Screen.Intakes -> null
+                        else -> navigator::goBack
+                    }
+
+                    IntakeFullScreen(medicineId, takenId, amount, onBack)
                 }
             }
         )
