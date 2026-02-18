@@ -269,4 +269,8 @@
     <string name="text_data_in_cloud">Daten in der Cloud gefunden</string>
     <string name="preference_auto_sync_summary_enabled">Beim Öffnen der App aktiviert</string>
     <string name="preference_auto_sync_summary_disabled">Beim Öffnen der App deaktiviert</string>
+    <string name="text_title">Titel</string>
+    <string name="text_taking_medicine">Einnahme des Medikaments</string>
+    <string name="text_intake_amount">Einnahmemenge</string>
+    <string name="text_remainder_after">Danach übrig</string>
 </resources>
