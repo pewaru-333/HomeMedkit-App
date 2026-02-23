@@ -1,0 +1,3 @@
+— Die Ansicht der Vollbild-Benachrichtigung bei der Einnahme von Medikamenten wurde geändert. Weitere Informationen mit den erforderlichen Maßnahmen sind nun auf einem ansprechenden Bildschirm verfügbar.
+— Sie können nun das Datum der Medikamentenöffnung löschen.
+— Es wurde ein Fehler behoben, durch den ein doppeltes Medikament kein Bild hatte oder später gelöscht wurde.

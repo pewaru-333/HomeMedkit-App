@@ -269,4 +269,12 @@
     <string name="text_data_in_cloud">Daten in der Cloud gefunden</string>
     <string name="preference_auto_sync_summary_enabled">Beim Öffnen der App aktiviert</string>
     <string name="preference_auto_sync_summary_disabled">Beim Öffnen der App deaktiviert</string>
+    <string name="text_title">Titel</string>
+    <string name="text_taking_medicine">Einnahme des Medikaments</string>
+    <string name="text_intake_amount">Einnahmemenge</string>
+    <string name="text_remainder_after">Danach übrig</string>
+    <string name="text_action_intake_all_decline">Alles löschen</string>
+    <string name="text_confirm_schedule_to_taken">Bestätigst du, dass du bereits %1$s am %2$s um %3$s genommen hast?</string>
+    <string name="text_images">Bilder</string>
+    <string name="text_force_download">Download erzwingen</string>
 </resources>

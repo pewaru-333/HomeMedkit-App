@@ -1,4 +1,0 @@
-— Deskripsi kesalahan saat memindai kode obat telah diubah menjadi lebih mudah dipahami.
-— Fungsionalitas untuk menambahkan gambar obat Anda sendiri telah ditingkatkan.
-— Memperbaiki bug yang dalam kasus sangat jarang menyebabkan pesan tentang penambahan obat duplikat muncul, meskipun obat tersebut ditambahkan untuk pertama kalinya.
-— Beberapa perubahan kecil pada komponen antarmuka pengguna.
