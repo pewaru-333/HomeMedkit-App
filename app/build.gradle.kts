@@ -14,8 +14,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 36
-        versionCode = 68
-        versionName = "1.9.3"
+        versionCode = 69
+        versionName = "1.9.4"
     }
 
     dependenciesInfo {
@@ -76,7 +76,7 @@ dependencies {
 
     // ==================== Scanner ====================
     implementation(libs.bundles.camera)
-    implementation(libs.zxing)
+    implementation(libs.zxing.android.cpp)
 
     // ==================== Settings ====================
     implementation(libs.material.preferences)

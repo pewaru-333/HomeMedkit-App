@@ -37,7 +37,14 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
 
     private val _medicines = state.flatMapLatest { query ->
-        medicineDAO.getFlow(MedicinesQueryBuilder.selectBy(query.search, query.sorting, query.kits))
+        medicineDAO.getFlow(
+            query = MedicinesQueryBuilder.selectBy(
+                search = query.search,
+                order = query.sorting,
+                hideEmpty = query.hideEmpty,
+                kits = query.kits
+            )
+        )
     }
 
     val medicines = _medicines
@@ -122,7 +129,7 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
 
     fun onSearch(text: String = BLANK) = updateState { it.copy(search = text) }
 
-    fun toggleSorting() = updateState { it.copy(showSort = !it.showSort) }
+    fun toggleSorting() = updateState { it.copy(showSorting = !it.showSorting) }
     fun setSorting(sorting: Sorting) = updateState { it.copy(sorting = sorting) }
 
     fun toggleFilter() {
@@ -145,4 +152,9 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
     }
 
     fun pickFilter(kit: Kit) = updateState { it.copy(kits = it.kits.toggle(kit)) }
+
+    fun hideEmpty(hide: Boolean) {
+        updateState { it.copy(hideEmpty = hide) }
+        Preferences.setHideEmptyMedicines(hide)
+    }
 }

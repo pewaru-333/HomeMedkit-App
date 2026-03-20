@@ -10,7 +10,7 @@ import coil3.memory.MemoryCache
 import coil3.request.CachePolicy
 import coil3.request.allowRgb565
 import coil3.request.crossfade
-import me.zhanghai.compose.preference.isDefaultPreferenceFlowLongSupportEnabled
+import me.zhanghai.compose.preference.isDefaultPreferenceFlowAndroidLongSupportEnabled
 import ru.application.homemedkit.R.string.channel_exp_desc
 import ru.application.homemedkit.R.string.channel_intakes_desc
 import ru.application.homemedkit.R.string.channel_pre_desc
@@ -33,7 +33,7 @@ class HomeMeds : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
         app = AppModuleInitializer(applicationContext)
-        isDefaultPreferenceFlowLongSupportEnabled = true
+        isDefaultPreferenceFlowAndroidLongSupportEnabled = true
 
         mapOf(
             CHANNEL_ID_INTAKES to channel_intakes_desc,

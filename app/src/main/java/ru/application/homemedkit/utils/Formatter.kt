@@ -2,7 +2,6 @@ package ru.application.homemedkit.utils
 
 import android.icu.text.DecimalFormat
 import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.intl.PlatformLocale
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -13,7 +12,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 object Formatter {
-    private val locale: PlatformLocale
+    private val locale: java.util.Locale
         get() = Locale.current.platformLocale
 
     private val formatter = DecimalFormat.getInstance(locale).apply {

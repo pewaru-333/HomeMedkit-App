@@ -12,15 +12,18 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
@@ -29,6 +32,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -48,8 +52,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
@@ -115,7 +119,7 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
                 onSearch = model::onSearch,
                 actions = {
                     IconButton(model::toggleSorting) { VectorIcon(R.drawable.vector_sort) }
-                    DropdownMenuPopup(state.showSort, model::toggleSorting) {
+                    DropdownMenuPopup(state.showSorting, model::toggleSorting) {
                         DropdownMenuGroup(MenuDefaults.groupShape(0, 1)) {
                             Sorting.entries.forEachIndexed { index, entry ->
                                 DropdownMenuItem(
@@ -189,10 +193,10 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
             }
         }
     ) { values ->
-        Crossfade(state.tab) { tab ->
+        Crossfade(state.tab, Modifier.padding(values)) { tab ->
             when (tab) {
                 MedicineTab.LIST -> if (medicines.isNotEmpty()) {
-                    LazyColumn(Modifier.fillMaxSize(), listStates[0], values) {
+                    LazyColumn(Modifier.fillMaxSize(), listStates[0]) {
                         items(medicines, MedicineList::id) { medicine ->
                             MedicineItem(
                                 medicine = medicine,
@@ -214,7 +218,7 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
 
                 MedicineTab.GROUPS -> grouped.let { list ->
                     if (list.isNotEmpty()) {
-                        LazyColumn(Modifier.fillMaxSize(), listStates[1], values) {
+                        LazyColumn(Modifier.fillMaxSize(), listStates[1]) {
                             list.fastForEach { group ->
                                 item(group.kit.id) {
                                     TextDate(group.kit.title.asString())
@@ -222,7 +226,7 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
 
                                 itemsIndexed(
                                     items = group.medicines,
-                                    key = { _, item -> "${group.kit.id}_${item.id}" }
+                                    key = { _, item -> Pair(group.kit.id, item.id) }
                                 ) { index, medicine ->
                                     SegmentedMedicineItem(
                                         medicine = medicine,
@@ -253,7 +257,8 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
             isChecked = { it in state.kits },
             onPick = model::pickFilter,
             onDismiss = model::toggleFilter,
-            onClear = model::clearFilter
+            onClear = model::clearFilter,
+            itemFilterEmpty = { ItemFilterEmptyMedicines(state.hideEmpty, model::hideEmpty) }
         )
 
         state.showExit -> if (!Preferences.confirmExit) activity?.finishAndRemoveTask()
@@ -282,7 +287,7 @@ private fun MedicineItem(medicine: MedicineList, modifier: Modifier, onClick: (L
             }
         },
         colors = ListItemDefaults.segmentedColors(
-            containerColor = MedicineListItemDefaults.containerColor(
+            containerColor = containerColor(
                 inStock = medicine.inStock,
                 isExpired = medicine.isExpired
             )
@@ -321,12 +326,36 @@ private fun SegmentedMedicineItem(
         }
     },
     colors = ListItemDefaults.segmentedColors(
-        containerColor = MedicineListItemDefaults.containerColor(
+        containerColor = containerColor(
             inStock = medicine.inStock,
             isExpired = medicine.isExpired
         )
     )
 )
+
+@Composable
+private fun ItemFilterEmptyMedicines(isChecked: Boolean, onClick: (Boolean) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .toggleable(
+                role = Role.Checkbox,
+                value = isChecked,
+                onValueChange = onClick
+            )
+    ) {
+        Checkbox(isChecked, null)
+        Text(
+            text = stringResource(R.string.text_hide_empty),
+            modifier = Modifier.padding(start = 16.dp),
+            style = MaterialTheme.typography.bodyLarge
+        )
+    }
+
+    HorizontalDivider()
+}
 
 @Composable
 private fun DialogExit(onDismiss: () -> Unit, onExit: () -> Unit) =
@@ -342,19 +371,9 @@ private fun DialogExit(onDismiss: () -> Unit, onExit: () -> Unit) =
         }
     )
 
-private object MedicineListItemDefaults {
-    private val noStockColor: Color
-        @Composable get() = MaterialTheme.colorScheme.surfaceContainer
-
-    private val expiredColor: Color
-        @Composable get() = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.9f)
-
-    private val defaultColor: Color
-        @Composable get() = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-
-    @Composable
-    fun containerColor(inStock: Boolean, isExpired: Boolean) =
-        if (!inStock) noStockColor
-        else if (isExpired) expiredColor
-        else defaultColor
+@Composable
+private fun containerColor(inStock: Boolean, isExpired: Boolean) = when {
+    !inStock -> MaterialTheme.colorScheme.surfaceContainer
+    isExpired -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.9f)
+    else -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
 }

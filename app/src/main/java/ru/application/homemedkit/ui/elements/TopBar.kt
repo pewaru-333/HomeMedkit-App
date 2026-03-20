@@ -5,10 +5,10 @@ package ru.application.homemedkit.ui.elements
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.AppBarWithSearch
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
@@ -19,8 +19,10 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberSearchBarState
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,7 +46,6 @@ fun SearchAppBar(
     onClear: () -> Unit = { onSearch(BLANK) },
     actions: @Composable (RowScope.() -> Unit) = {},
 ) {
-    val searchState = rememberSearchBarState()
     val textFieldState = rememberTextFieldState(search)
 
     LaunchedEffect(textFieldState) {
@@ -57,24 +58,33 @@ fun SearchAppBar(
         }
     }
 
-    AppBarWithSearch(
-        state = searchState,
+    TopAppBar(
         actions = actions,
-        inputField = {
-            SearchBarDefaults.InputField(
-                textFieldState = textFieldState,
-                searchBarState = searchState,
-                onSearch = onSearch,
-                leadingIcon = { VectorIcon(R.drawable.vector_search) },
-                placeholder = { Text(stringResource(R.string.text_enter_product_name)) },
-                trailingIcon = {
-                    if (search.isNotEmpty()) {
-                        IconButton(onClear) {
-                            VectorIcon(R.drawable.vector_clear)
+        title = {
+            Surface(
+                modifier = Modifier.offset(x = (-8).dp),
+                shape = SearchBarDefaults.inputFieldShape,
+                color = SearchBarDefaults.colors().containerColor,
+                contentColor = contentColorFor(SearchBarDefaults.colors().containerColor),
+                tonalElevation = SearchBarDefaults.TonalElevation,
+                shadowElevation = SearchBarDefaults.ShadowElevation,
+            ) {
+                SearchBarDefaults.InputField(
+                    state = textFieldState,
+                    onSearch = onSearch,
+                    expanded = false,
+                    onExpandedChange = {},
+                    leadingIcon = { VectorIcon(R.drawable.vector_search) },
+                    placeholder = { Text(stringResource(R.string.text_enter_product_name)) },
+                    trailingIcon = {
+                        if (search.isNotEmpty()) {
+                            IconButton(onClear) {
+                                VectorIcon(R.drawable.vector_clear)
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
     )
 }

@@ -22,7 +22,7 @@ fun CameraPreview(cameraConfig: CameraConfig, modifier: Modifier = Modifier) {
 
     val currentFocus by rememberUpdatedState(cameraConfig::tapToFocus)
 
-    val zoomState = rememberTransformableState { zoomChange, _, _ ->
+    val zoomState = rememberTransformableState { _, zoomChange, _, _ ->
         cameraConfig.setZoom(zoomChange)
     }
 

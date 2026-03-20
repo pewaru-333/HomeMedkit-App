@@ -6,7 +6,7 @@ import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.enums.Sorting
 
 object MedicinesQueryBuilder {
-    fun selectBy(search: String, order: Sorting, kits: Set<Kit>): SimpleSQLiteQuery {
+    fun selectBy(search: String, order: Sorting, hideEmpty: Boolean, kits: Set<Kit>): SimpleSQLiteQuery {
         val args = mutableListOf<Any>()
         val basicQuery = StringBuilder(
             """
@@ -17,6 +17,10 @@ object MedicinesQueryBuilder {
                 WHERE 1=1
                 """.trimIndent()
         )
+
+        if (hideEmpty) {
+            basicQuery.append(" AND m.prodAmount > 0")
+        }
 
         if (search.isNotBlank()) {
             basicQuery.append(" AND m.id IN (SELECT rowid FROM medicines_fts WHERE medicines_fts MATCH ?)")
@@ -43,5 +47,5 @@ object MedicinesQueryBuilder {
         return SimpleSQLiteQuery(basicQuery.toString(), args.toTypedArray())
     }
 
-    val selectAll = selectBy(BLANK, Sorting.IN_NAME, emptySet())
+    val selectAll = selectBy(BLANK, Sorting.IN_NAME, false, emptySet())
 }

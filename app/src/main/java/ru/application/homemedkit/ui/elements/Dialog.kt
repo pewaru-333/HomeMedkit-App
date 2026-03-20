@@ -1,6 +1,8 @@
 package ru.application.homemedkit.ui.elements
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,6 +27,7 @@ import ru.application.homemedkit.data.dto.Kit
 @Composable
 fun DialogKits(
     kits: List<Kit>,
+    itemFilterEmpty: (@Composable () -> Unit)? = null,
     isChecked: (Kit) -> Boolean,
     onPick: (Kit) -> Unit,
     onDismiss: () -> Unit,
@@ -37,30 +40,40 @@ fun DialogKits(
         title = { Text(stringResource(R.string.preference_kits_group)) },
         text = {
             if (kits.isEmpty()) {
-                Text(
-                    text = stringResource(R.string.text_kit_list_is_empty),
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            } else LazyColumn {
-                items(kits, Kit::kitId) { kit ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .toggleable(
-                                role = Role.Checkbox,
-                                value = isChecked(kit),
-                                onValueChange = { onPick(kit) }
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    itemFilterEmpty?.invoke()
+
+                    Text(
+                        text = stringResource(R.string.text_kit_list_is_empty),
+                        modifier = Modifier.padding(horizontal = 12.dp),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+            } else {
+                LazyColumn {
+                    itemFilterEmpty?.let {
+                        item { it.invoke() }
+                    }
+
+                    items(kits, Kit::kitId) { kit ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .toggleable(
+                                    role = Role.Checkbox,
+                                    value = isChecked(kit),
+                                    onValueChange = { onPick(kit) }
+                                )
+                        ) {
+                            Checkbox(isChecked(kit), null)
+                            Text(
+                                text = kit.title,
+                                modifier = Modifier.padding(start = 16.dp),
+                                style = MaterialTheme.typography.bodyLarge
                             )
-                    ) {
-                        Checkbox(isChecked(kit), null)
-                        Text(
-                            text = kit.title,
-                            modifier = Modifier.padding(start = 16.dp),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        }
                     }
                 }
             }

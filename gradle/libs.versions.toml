@@ -1,19 +1,19 @@
 [versions]
 camera2 = "1.5.3"
-coil = "3.3.0"
-compose-bom = "2026.02.00"
+coil = "3.4.0"
+compose-bom = "2026.03.00"
 compose-lifecycle = "2.10.0"
 google-ksp = "2.3.4"
-gradle = "9.0.1"
-kotlin = "2.3.10"
+gradle = "9.1.0"
+kotlin = "2.3.20"
 kotlinx-serialization-json = "1.10.0"
-ktor = "3.4.0"
-material-preferences = "2.1.1"
-material3 = "1.5.0-alpha14"
+ktor = "3.4.1"
+material-preferences = "2.2.0"
+material3 = "1.5.0-alpha15"
 navigation3 = "1.0.1"
 room = "2.8.4"
 work-manager = "2.11.1"
-zxing = "3.5.4"
+zxing-android = "3.0.2"
 
 [libraries]
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camera2" }
@@ -48,7 +48,7 @@ ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serializatio
 
 material-preferences = { group = "me.zhanghai.compose.preference", name = "preference", version.ref = "material-preferences" }
 
-zxing = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
+zxing-android-cpp = { group = "io.github.zxing-cpp", name = "android", version.ref = "zxing-android" }
 
 [bundles]
 camera = [

@@ -19,6 +19,16 @@ interface IntakeDAO : BaseDAO<Intake> {
         SELECT intakeId, medicineId, productName, nameAlias, interval, schemaType, finalDate
         FROM intakes
         JOIN medicines ON medicines.id = intakes.medicineId
+        """
+    )
+    fun getAll(): List<IntakeList>
+
+    @Transaction
+    @Query(
+        """
+        SELECT intakeId, medicineId, productName, nameAlias, interval, schemaType, finalDate
+        FROM intakes
+        JOIN medicines ON medicines.id = intakes.medicineId
         WHERE (
             :searchQuery = ''
             OR LOWER(productName) LIKE '%' || LOWER(:searchQuery) || '%'

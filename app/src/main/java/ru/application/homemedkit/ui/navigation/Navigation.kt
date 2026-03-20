@@ -25,6 +25,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -59,7 +60,7 @@ import ru.application.homemedkit.ui.screens.SettingsScreen
 fun Navigation(model: MainViewModel = viewModel()) {
     val context = LocalContext.current
     val activity = LocalActivity.current as? ComponentActivity
-    val barVisibility = LocalBarVisibility.current
+    val barVisibility = rememberNavigationBarVisibility()
 
     val startRoute = model.getDeepLink(activity?.intent?.data)
 
@@ -99,7 +100,11 @@ fun Navigation(model: MainViewModel = viewModel()) {
     }
 
     Scaffold(
-        content = { AppNavDisplay(navigator, navigationState, Modifier.padding(it)) },
+        content = {
+            CompositionLocalProvider(LocalBarVisibility provides barVisibility) {
+                AppNavDisplay(navigator, navigationState, Modifier.padding(it))
+            }
+        },
         snackbarHost = {
             SnackbarHost(
                 hostState = snackbarHost,

@@ -18,6 +18,7 @@
     <string name="preference_download_images">Загружать изображения лекарств</string>
     <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
     <string name="preference_use_alarm_clock">Использовать будильник вместо уведомлений</string>
+    <string name="preference_auto_intake_change_on_time_change">Перенастраивать приёмы при изменении времени (часового пояса)</string>
     <string name="preference_system">Системные</string>
     <string name="preference_permissions">Разрешения</string>
     <string name="preference_language">Язык приложения</string>
@@ -258,6 +259,7 @@
     <string name="text_force_upload">Принудительная выгрузка</string>
     <string name="text_go_to">Перейти</string>
     <string name="text_grant">Выдать</string>
+    <string name="text_hide_empty">Скрывать закончившиеся</string>
     <string name="text_medicine_not_in_stock">Вы не можете принять %1$s, так как его осталось недостаточно!</string>
     <string name="text_no">Нет</string>
     <string name="text_no_data_found">Лекарства отсутствуют. Добавьте их или измените фильтр.</string>

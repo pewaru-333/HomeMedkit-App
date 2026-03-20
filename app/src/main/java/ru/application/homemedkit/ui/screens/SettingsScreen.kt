@@ -8,7 +8,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION
 import android.provider.Settings
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -61,6 +63,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -94,9 +97,11 @@ import ru.application.homemedkit.ui.navigation.LocalBarVisibility
 import ru.application.homemedkit.ui.theme.isDynamicColorAvailable
 import ru.application.homemedkit.utils.ActionHandler
 import ru.application.homemedkit.utils.ActionResult
+import ru.application.homemedkit.utils.AppLocale
 import ru.application.homemedkit.utils.DataManager
 import ru.application.homemedkit.utils.KEY_APP_SYSTEM
 import ru.application.homemedkit.utils.KEY_APP_VIEW
+import ru.application.homemedkit.utils.KEY_AUTO_CHANGE_INTAKE_WHEN_TIME_CHANGE
 import ru.application.homemedkit.utils.KEY_AUTO_SYNC_ENABLED
 import ru.application.homemedkit.utils.KEY_BASIC_SETTINGS
 import ru.application.homemedkit.utils.KEY_CLEAR_CACHE
@@ -116,8 +121,8 @@ import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.enums.Theme
 import ru.application.homemedkit.utils.extensions.canScheduleExactAlarms
 import ru.application.homemedkit.utils.extensions.drawHorizontalDivider
-import ru.application.homemedkit.utils.extensions.getDisplayRegionName
 import ru.application.homemedkit.utils.extensions.getLanguageList
+import ru.application.homemedkit.utils.extensions.getLocalizedName
 import ru.application.homemedkit.utils.extensions.restartApplication
 import ru.application.homemedkit.utils.extensions.showToast
 import ru.application.homemedkit.utils.launcherExportDatabase
@@ -170,7 +175,7 @@ fun SettingsScreen(onAuthClick: () -> Unit) {
                     values = Page.entries,
                     title = { Text(stringResource(R.string.preference_start_page)) },
                     summary = { Text(stringResource(startPage.title)) },
-                    valueToText = { AnnotatedString(context.getString(it.title)) }
+                    valueToText = { AnnotatedString(stringResource(it.title)) }
                 )
             }
 
@@ -181,7 +186,7 @@ fun SettingsScreen(onAuthClick: () -> Unit) {
                     values = Sorting.entries,
                     title = { Text(stringResource(R.string.preference_sorting_type)) },
                     summary = { Text(stringResource(sorting.title)) },
-                    valueToText = { AnnotatedString(context.getString(it.title)) }
+                    valueToText = { AnnotatedString(stringResource(it.title)) }
                 )
             }
 
@@ -232,6 +237,13 @@ fun SettingsScreen(onAuthClick: () -> Unit) {
                 }
             )
 
+            switchPreference(
+                key = KEY_AUTO_CHANGE_INTAKE_WHEN_TIME_CHANGE,
+                defaultValue = false,
+                title = { Text(stringResource(R.string.preference_auto_intake_change_on_time_change)) },
+                summary = { Text(stringResource(if (it) R.string.text_on else R.string.text_off)) }
+            )
+
             preferenceCategory(
                 key = KEY_APP_VIEW,
                 title = { Text(stringResource(R.string.preference_app_view)) },
@@ -244,15 +256,19 @@ fun SettingsScreen(onAuthClick: () -> Unit) {
 
             item {
                 if (VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                    var value by remember { mutableStateOf(Preferences.getLanguage(context)) }
+                    val activity = LocalActivity.current as? ComponentActivity ?: return@item
+                    val localeList = remember { context.getLanguageList() }
+                    val locale = LocalConfiguration.current.locales[0].toLanguageTag()
+
+                    var value by remember { mutableStateOf(Preferences.language ?: locale) }
 
                     ListPreference(
                         value = value,
-                        onValueChange = { value = it; Preferences.setLocale(context, it) },
-                        values = context.getLanguageList(),
+                        onValueChange = { value = it; AppLocale.setLocale(activity, it) },
+                        values = localeList,
                         title = { Text(stringResource(R.string.preference_language)) },
-                        summary = { Text(Locale.forLanguageTag(value).getDisplayRegionName()) },
-                        valueToText = { AnnotatedString(Locale.forLanguageTag(it).getDisplayRegionName()) }
+                        summary = { Text(Locale.forLanguageTag(value).getLocalizedName()) },
+                        valueToText = { AnnotatedString(Locale.forLanguageTag(it).getLocalizedName()) }
                     )
                 } else Preference(
                     title = { Text(stringResource(R.string.preference_language)) },
@@ -273,7 +289,7 @@ fun SettingsScreen(onAuthClick: () -> Unit) {
                     values = Theme.entries,
                     title = { Text(stringResource(R.string.preference_app_theme)) },
                     summary = { Text(stringResource(theme.title)) },
-                    valueToText = { AnnotatedString(context.getString(it.title)) }
+                    valueToText = { AnnotatedString(stringResource(it.title)) }
                 )
             }
 

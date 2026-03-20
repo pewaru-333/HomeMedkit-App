@@ -21,12 +21,23 @@ interface MedicineDAO : BaseDAO<Medicine> {
     @Query("SELECT * FROM medicines")
     suspend fun getAll(): List<Medicine>
 
+    @Query("SELECT * FROM medicines WHERE expDate < :expDate AND prodAmount > 0")
+    suspend fun getExpiredSoon(expDate: Long): List<Medicine>
+
     @Transaction
     @RawQuery(observedEntities = [Medicine::class, MedicineFTS::class, Image::class, Kit::class])
     fun getFlow(query: SupportSQLiteQuery): Flow<List<MedicineMain>>
 
-    @Query("SELECT id FROM medicines WHERE :cis LIKE '%' || cis || '%' AND cis IS NOT NULL AND cis != '' LIMIT 1")
-    suspend fun getIdByCis(cis: String): Long?
+    @Query(
+        """
+    SELECT id FROM medicines 
+    WHERE cis LIKE '%' || :cis || '%' 
+    AND cis IS NOT NULL 
+    AND cis != '' 
+    LIMIT 1
+    """
+    )
+    suspend fun findDuplicate(cis: String): Long?
 
     @Transaction
     @Query("SELECT * FROM medicines WHERE id = :id")

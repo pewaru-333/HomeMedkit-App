@@ -19,5 +19,5 @@ fun TextDate(date: String) = Text(
     modifier = Modifier
         .fillMaxWidth()
         .background(MaterialTheme.colorScheme.background)
-        .padding(horizontal = 16.dp, vertical = 12.dp)
+        .padding(16.dp, 12.dp)
 )

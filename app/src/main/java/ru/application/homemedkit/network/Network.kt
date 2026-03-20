@@ -31,7 +31,6 @@ import io.ktor.serialization.JsonConvertException
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.cio.use
 import io.ktor.util.cio.writeChannel
-import io.ktor.util.encodeBase64
 import io.ktor.util.network.UnresolvedAddressException
 import io.ktor.utils.io.copyAndClose
 import kotlinx.coroutines.Dispatchers
@@ -58,6 +57,7 @@ import ru.application.homemedkit.utils.CLIENT_SECRET_YANDEX
 import ru.application.homemedkit.utils.TOKEN_URL_YANDEX
 import ru.application.homemedkit.utils.di.Preferences
 import java.io.File
+import kotlin.io.encoding.Base64
 
 object Network {
     private val defaultClient = HttpClient(Android) {
@@ -137,10 +137,10 @@ object Network {
         }
     }
 
-    suspend fun getImage(dir: File, urls: List<String>) = withContext(Dispatchers.IO) {
+    suspend fun getImage(dir: File, urls: List<String>) = withContext(Dispatchers.IO.limitedParallelism(3)) {
         supervisorScope {
             val requests = urls.map { url ->
-                async(Dispatchers.IO.limitedParallelism(3)) {
+                async {
                     try {
                         val response = defaultClient.get(url)
 
@@ -186,7 +186,7 @@ object Network {
 
         suspend fun getToken(code: String): Token? {
             val verifier = Preferences.codeVerifier ?: return null
-            val encoded = "$CLIENT_ID_YANDEX:$CLIENT_SECRET_YANDEX".encodeBase64()
+            val encoded = Base64.encode("$CLIENT_ID_YANDEX:$CLIENT_SECRET_YANDEX".encodeToByteArray())
 
             return try {
                 defaultClient.submitForm(
@@ -212,7 +212,7 @@ object Network {
                 }
             }
 
-            val encoded = "$CLIENT_ID_YANDEX:$CLIENT_SECRET_YANDEX".encodeBase64()
+            val encoded = Base64.encode("$CLIENT_ID_YANDEX:$CLIENT_SECRET_YANDEX".encodeToByteArray())
 
             repeat(3) { attempt ->
                 try {

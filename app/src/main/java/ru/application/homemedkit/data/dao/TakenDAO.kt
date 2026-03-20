@@ -33,6 +33,9 @@ interface TakenDAO : BaseDAO<IntakeTaken> {
     )
     suspend fun getSimilarAmount(medicineId: Long): Double?
 
+    @Query("SELECT `trigger` FROM intakes_taken WHERE intakeId = :intakeId")
+    suspend fun getTakenTriggers(intakeId: Long): List<Long>
+
     @Query("UPDATE intakes_taken SET taken = :taken, inFact = :inFact WHERE takenId = :id")
     suspend fun setTaken(id: Long, taken: Boolean, inFact: Long)
 

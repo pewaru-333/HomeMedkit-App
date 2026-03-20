@@ -31,7 +31,7 @@ class SettingsViewModel : BaseViewModel<SettingsState, SettingsEvent>() {
 
     val sortingType = Preferences.sortingOrderFlow.stateIn(viewModelScope, SharingStarted.Eagerly, Sorting.IN_NAME)
 
-    val checkExpiration = Preferences.checkExpiration.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+    val checkExpiration = Preferences.checkExpirationFlow.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     val theme = Preferences.theme.stateIn(viewModelScope, SharingStarted.Eagerly, Theme.SYSTEM)
 

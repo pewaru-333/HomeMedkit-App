@@ -2,8 +2,6 @@
 
 package ru.application.homemedkit.ui.theme
 
-import android.graphics.Color
-import android.graphics.Color.argb
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -101,7 +99,7 @@ private val darkScheme = darkColorScheme(
 
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
-    val activity = (LocalActivity.current as? ComponentActivity) ?: return
+    val activity = LocalActivity.current as? ComponentActivity ?: return
 
     val darkState by Preferences.theme.collectAsStateWithLifecycle(Theme.SYSTEM)
     val dynamicColor by Preferences.dynamicColors.collectAsStateWithLifecycle(false)
@@ -130,19 +128,27 @@ fun AppTheme(content: @Composable () -> Unit) {
         surfaceContainerHigh = androidx.compose.ui.graphics.Color(0xFF121212)
     )
 
-    DisposableEffect(darkTheme) {
+    DisposableEffect(darkTheme, darkState) {
         activity.enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.auto(
-                lightScrim = Color.TRANSPARENT,
-                darkScrim = Color.TRANSPARENT,
+                lightScrim = android.graphics.Color.TRANSPARENT,
+                darkScrim = android.graphics.Color.TRANSPARENT,
                 detectDarkMode = { darkTheme }
             ),
             navigationBarStyle = SystemBarStyle.auto(
-                lightScrim = argb(0xe6, 0xFF, 0xFF, 0xFF),
-                darkScrim = argb(0x80, 0x1b, 0x1b, 0x1b),
+                lightScrim = android.graphics.Color.argb(0xe6, 0xFF, 0xFF, 0xFF),
+                darkScrim = if (darkState == Theme.DARK_AMOLED) {
+                    android.graphics.Color.TRANSPARENT
+                } else {
+                    android.graphics.Color.argb(0x80, 0x1b, 0x1b, 0x1b)
+                },
                 detectDarkMode = { darkTheme }
             )
         )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            activity.window.isNavigationBarContrastEnforced = false
+        }
 
         onDispose { }
     }

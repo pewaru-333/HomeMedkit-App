@@ -17,6 +17,7 @@
     <string name="preference_download_images">Download medication images</string>
     <string name="preference_check_expiration_date">Check the expiration date of medications</string>
     <string name="preference_use_alarm_clock">Use alarm clock instead of notifications</string>
+    <string name="preference_auto_intake_change_on_time_change">Reschedule intakes on time change (time zone)</string>
     <string name="preference_system">System</string>
     <string name="preference_permissions">Permissions</string>
     <string name="preference_language">App language</string>
@@ -260,6 +261,7 @@
     <string name="text_force_upload">Force upload</string>
     <string name="text_go_to">Go</string>
     <string name="text_grant">Grant</string>
+    <string name="text_hide_empty">Hide out of stock</string>
     <string name="text_medicine_not_in_stock">You cannot take %1$s as there is not enough left!</string>
     <string name="text_no">No</string>
     <string name="text_no_data_found">No medications found. Add them or change the filter.</string>

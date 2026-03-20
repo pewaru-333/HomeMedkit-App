@@ -22,15 +22,17 @@ suspend fun getMedicineImages(
         emptyList()
     }
 
-    return if (imageList.isEmpty()) listOf(
+    return imageList.map { imageName ->
         Image(
             medicineId = medicineId,
-            image = DrugType.setIcon(form)
+            image = imageName
         )
-    ) else imageList.map { image ->
-        Image(
-            medicineId = medicineId,
-            image = image
+    }.ifEmpty {
+        listOf(
+            Image(
+                medicineId = medicineId,
+                image = DrugType.setIcon(form)
+            )
         )
     }
 }

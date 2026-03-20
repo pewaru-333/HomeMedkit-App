@@ -36,7 +36,26 @@ class ScannerViewModel : BaseViewModel<ScannerState, Unit>() {
             mutex.withLock {
                 if (currentState != ScannerState.Default) return@launch
 
-                val duplicateId = dao.getIdByCis(code)
+                val normalizedCode = with(code) {
+                    val startIndex = indexOf("01")
+                    if (startIndex == -1 || length < startIndex + 31) {
+                        return@with null
+                    }
+
+                    val sgtin = substring(startIndex, startIndex + 31)
+                    if (sgtin.substring(16, 18) != "21") {
+                        return@with null
+                    }
+
+                    sgtin
+                }
+
+                if (normalizedCode == null) {
+                    _event.send(ScannerEvent.ShowSnackbar.IncorrectCode)
+                    awaitCancellation()
+                }
+
+                val duplicateId = dao.findDuplicate(normalizedCode)
                 if (duplicateId != null) {
                     _event.send(ScannerEvent.Navigate(duplicateId, null, true))
                     awaitCancellation()

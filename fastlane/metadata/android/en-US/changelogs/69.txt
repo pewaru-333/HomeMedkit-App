@@ -1,0 +1,3 @@
+— Optimized the scanning speed of medicines codes.
+— Added hiding of expired medicines from the list.
+— Added an option in the settings that allows you to automatically adjust the time of intakes when changing the time zone (disabled by default).
