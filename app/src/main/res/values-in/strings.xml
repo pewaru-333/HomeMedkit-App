@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
+
     <!-- Menu -->
     <string name="bottom_bar_medicines">Obat</string>
     <string name="bottom_bar_intakes">Konsumsi</string>
     <string name="bottom_bar_settings">Pengaturan</string>
+
     <!-- Preferences -->
     <string name="preference_basic_settings">Pengaturan dasar</string>
     <string name="preference_app_view">Tampilan aplikasi</string>
     <string name="preference_kits_group">Grup obat</string>
+    <string name="preference_start_page">Halaman awal</string>
     <string name="preference_sorting_type">Pengurutan obat</string>
     <string name="preference_confirm_exit">Konfirmasi keluar dari aplikasi</string>
+    <string name="preference_use_vibration_scan">Gunakan respons getaran saat memindai kode obat</string>
     <string name="preference_download_images">Unduh gambar obat</string>
     <string name="preference_check_expiration_date">Periksa tanggal kedaluwarsa obat</string>
+    <string name="preference_use_alarm_clock">Gunakan jam alarm alih-alih notifikasi</string>
     <string name="preference_system">Sistem</string>
     <string name="preference_permissions">Izin</string>
     <string name="preference_language">Bahasa aplikasi</string>
@@ -21,58 +26,33 @@
     <string name="preference_import_export">Impor/Ekspor</string>
     <string name="preference_fixing_notifications">Ada masalah dengan notifikasi?</string>
     <string name="preference_clear_app_cache">Hapus cache aplikasi</string>
+
+    <string name="preference_auto_sync_summary_enabled">Diaktifkan saat membuka aplikasi</string>
+    <string name="preference_auto_sync_summary_disabled">Dinonaktifkan saat membuka aplikasi</string>
+
     <!-- Pages -->
+    <string name="page_medications">Obat-obatan</string>
+    <string name="page_intake_list">Konsumsi (daftar)</string>
+    <string name="page_intake_current">Konsumsi (saat ini)</string>
+    <string name="page_intake_past">Konsumsi (sebelumnya)</string>
+    <string name="page_intake_settings">Pengaturan</string>
 
     <!-- Sorting -->
     <string name="sorting_a_z">Secara alfabet (A sampai z)</string>
     <string name="sorting_z_a">Secara alfabet (z sampai A)</string>
     <string name="sorting_from_oldest">Tanggal kedaluwarsa (dari yang terlama)</string>
     <string name="sorting_from_newest">Tanggal kedaluwarsa (dari yang terbaru)</string>
+
     <!-- Themes -->
     <string name="theme_system">Sistem</string>
     <string name="theme_light">Terang</string>
     <string name="theme_dark">Gelap</string>
+    <string name="theme_dark_amoled">Gelap AMOLED</string>
+
     <!-- Notifications -->
     <string name="channel_name">Notifikasi suara</string>
     <string name="channel_exp_desc">Tanggal kedaluwarsa</string>
     <string name="channel_intakes_desc">Konsumsi obat</string>
-    <!-- Placeholders -->
-
-    <!-- Medications -->
-
-    <!-- Medication types -->
-
-    <!-- Medication dose types -->
-
-    <!-- Tabs -->
-
-    <!-- Intakes -->
-
-
-
-
-
-
-    <!-- Dialogs -->
-
-    <!-- Permissions -->
-
-
-
-    <!-- Strings -->
-
-    <!-- Plurals -->
-<string name="preference_start_page">Halaman awal</string>
-    <string name="preference_use_vibration_scan">Gunakan respons getaran saat memindai kode obat</string>
-    <string name="preference_use_alarm_clock">Gunakan jam alarm alih-alih notifikasi</string>
-    <string name="preference_auto_sync_summary_enabled">Diaktifkan saat membuka aplikasi</string>
-    <string name="preference_auto_sync_summary_disabled">Dinonaktifkan saat membuka aplikasi</string>
-    <string name="page_medications">Obat-obatan</string>
-    <string name="page_intake_list">Konsumsi (daftar)</string>
-    <string name="page_intake_current">Konsumsi (saat ini)</string>
-    <string name="page_intake_past">Konsumsi (sebelumnya)</string>
-    <string name="page_intake_settings">Pengaturan</string>
-    <string name="theme_dark_amoled">Gelap AMOLED</string>
     <string name="channel_pre_desc">Konsumsi mendatang</string>
     <string name="text_action_intake_all_accept">Konsumsi semua</string>
     <string name="text_action_intake_all_decline">Hapus semua</string>
@@ -86,8 +66,12 @@
     <string name="text_intake_sure_to_intake_all">Apakah Anda yakin bahwa Anda sedang mengonsumsi semua obat saat ini?</string>
     <string name="text_intake_time">Obat: %1$s\nJumlah konsumsi: %2$s %3$s\nSisa obat: %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Sisa tidak cukup</string>
+
+    <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_time">Waktu #%1$d</string>
+
+    <!-- Medications -->
     <string name="text_exp_date">Tgl. kedaluwarsa</string>
     <string name="text_package_opened_date">Kemasan dibuka</string>
     <string name="text_indications_for_use">Indikasi penggunaan</string>
@@ -104,6 +88,8 @@
     <string name="text_medicine_status_scanned">Dipindai, belum terverifikasi</string>
     <string name="text_medicine_status_self_added">Ditambahkan secara manual</string>
     <string name="text_medicine_storage_conditions">Kondisi penyimpanan</string>
+
+    <!-- Medication types -->
     <string name="type_tablets">TABLET</string>
     <string name="type_capsules">KAPSUL</string>
     <string name="type_pills">PIL</string>
@@ -130,6 +116,8 @@
     <string name="type_patch">PLES TERAPI</string>
     <string name="type_bandage">PERBAN</string>
     <string name="type_napkins">TISU</string>
+
+    <!-- Medication dose types -->
     <string name="dose_ed">ED</string>
     <string name="dose_pcs">pcs</string>
     <string name="dose_sach">sach</string>
@@ -137,10 +125,14 @@
     <string name="dose_mg">mg</string>
     <string name="dose_l">l</string>
     <string name="dose_ml">ml</string>
+
+    <!-- Tabs -->
     <string name="tab_groups">Grup</string>
     <string name="tab_list">Daftar</string>
     <string name="tab_current">Saat ini</string>
     <string name="tab_past">Sebelumnya</string>
+
+    <!-- Intakes -->
     <string name="intake_text_amount">Jumlah</string>
     <string name="intake_text_by_schedule">Terjadwal</string>
     <string name="intake_text_date">Tanggal</string>
@@ -160,23 +152,30 @@
     <string name="intake_text_time">Waktu</string>
     <string name="intake_text_start">Mulai</string>
     <string name="intake_text_finish">Selesai</string>
+
     <string name="intake_extra_cancellable">Batas waktu notifikasi</string>
     <string name="intake_extra_fullscreen">Notifikasi layar penuh</string>
     <string name="intake_extra_no_sound">Senyap</string>
     <string name="intake_extra_prealarm">Notifikasi mendatang</string>
+
     <string name="intake_extra_desc_cancellable">Notifikasi akan dibatalkan secara otomatis setelah 10 menit</string>
     <string name="intake_extra_desc_fullscreen">Intent untuk meluncurkan alih-alih memposting notifikasi ke bilah status pada layar terkunci</string>
     <string name="intake_extra_desc_no_sound">Menyenyapkan notifikasi, terlepas dari suara atau getaran</string>
     <string name="intake_extra_desc_prealarm">Pengingat akan dikirim 30 menit sebelum jadwal reguler</string>
+
     <string name="intake_interval_daily">harian</string>
     <string name="intake_interval_weekly">mingguan</string>
     <string name="intake_interval_other">kustom</string>
+
     <string name="intake_schema_type_indefinitely">Tanpa batas waktu</string>
     <string name="intake_schema_type_day_picker">Pemilih hari</string>
     <string name="intake_schema_type_personal">Pribadi</string>
+
     <string name="intake_period_pick">berdasarkan tanggal</string>
     <string name="intake_period_other">berdasarkan jumlah hari</string>
     <string name="intake_period_indef">tanpa batas</string>
+
+    <!-- Dialogs -->
     <string name="manual_add">Apakah Anda ingin menambahkan obat secara manual?</string>
     <string name="text_choose_from_gallery">Pilih dari galeri</string>
     <string name="text_clear_app_cache_description">Tindakan ini akan menghapus cache aplikasi, serta foto obat yang tidak lagi digunakan</string>
@@ -213,10 +212,13 @@
     <string name="text_set_image">Atur gambar</string>
     <string name="text_take_picture">Ambil gambar dengan kamera</string>
     <string name="text_try_again">Coba pindai label lagi!</string>
+
+    <!-- Permissions -->
     <string name="text_permission_title_full_screen">Notifikasi layar penuh</string>
     <string name="text_permission_title_ignore_battery">Abaikan optimasi baterai</string>
     <string name="text_permission_title_notifications">Notifikasi</string>
     <string name="text_permission_title_reminders">Mengatur pengingat</string>
+
     <string name="text_explain_camera">Untuk memindai label, Anda harus memberikan izin untuk menggunakan kamera. Kode EAN-13 dan DataMatrix diterima. Di bawah ini contoh seperti apa bentuknya (ini hanya berfungsi untuk obat-obatan Rusia)</string>
     <string name="text_explain_datamatrix">Informasi obat lengkap</string>
     <string name="text_explain_disabled">Izin yang diperlukan tidak diberikan</string>
@@ -226,9 +228,12 @@
     <string name="text_explain_notifications">Izinkan menampilkan semua notifikasi aplikasi</string>
     <string name="text_explain_reminders">Izinkan pengingat diatur pada waktu yang tepat</string>
     <string name="text_explain_request_permissions">Untuk menerima notifikasi, Anda harus memberikan izin berikut</string>
+
     <string name="text_permission_grant">Berikan</string>
     <string name="text_permission_granted">Diberikan</string>
     <string name="text_permission_grant_full">Berikan izin</string>
+
+    <!-- Strings -->
     <string name="text_add">Tambah</string>
     <string name="text_amount">Jumlah</string>
     <string name="text_cancel">Batal</string>
@@ -289,11 +294,16 @@
     <string name="text_weekdays">Hari kerja</string>
     <string name="text_weekend">Akhir pekan</string>
     <string name="text_yes">Ya</string>
+
     <string name="text_yandex">Yandex</string>
+
     <string name="text_in_progress">(sedang berlangsung)</string>
+
+    <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="other">%d kali sehari</item>
     </plurals>
+
     <plurals name="intake_interval_in_day">
         <item quantity="other">Setiap %d hari</item>
     </plurals>

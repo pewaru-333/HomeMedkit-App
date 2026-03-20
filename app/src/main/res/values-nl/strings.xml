@@ -19,6 +19,7 @@
     <string name="preference_app_theme">App-thema</string>
     <string name="preference_dynamic_color">Dynamische kleur</string>
 
+
     <!-- Pages -->
 
     <!-- Sorting -->
@@ -90,5 +91,8 @@
 
     <!-- Strings -->
 
+
+
     <!-- Plurals -->
+
 </resources>

@@ -24,6 +24,7 @@
     <string name="preference_fixing_notifications">Des problèmes avec les notifications ?</string>
     <string name="preference_clear_app_cache">Vider le cache de l\'application</string>
 
+
     <!-- Pages -->
     <string name="page_medications">Medicines</string>
 
@@ -201,5 +202,8 @@
     <string name="text_exit">Sortir</string>
     <string name="text_finish_date">Date de fin</string>
 
+
+
     <!-- Plurals -->
+
 </resources>
