@@ -24,6 +24,7 @@
     <string name="preference_fixing_notifications">Problemi con le notifiche?</string>
     <string name="preference_clear_app_cache">Pulisci la cache dell\'app</string>
 
+
     <!-- Pages -->
     <string name="page_medications">Medicines</string>
 
@@ -186,10 +187,13 @@
     <string name="text_update">Aggiornamento</string>
     <string name="text_yes">Sì</string>
 
+
+
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="one">%d tempo al giorno</item>
         <item quantity="many">%d volte al giorno</item>
         <item quantity="other">%d volte al giorno</item>
     </plurals>
+
 </resources>

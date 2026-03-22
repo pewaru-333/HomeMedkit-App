@@ -18,6 +18,7 @@
     <string name="preference_dynamic_color">動態色彩</string>
     <string name="preference_import_export">匯入／匯出</string>
 
+
     <!-- Pages -->
 
     <!-- Sorting -->
@@ -104,8 +105,11 @@
     <string name="text_tap_to_view">點擊以檢視</string>
     <string name="text_yes">是</string>
 
+
+
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="other">每天 %d 次</item>
     </plurals>
+
 </resources>
