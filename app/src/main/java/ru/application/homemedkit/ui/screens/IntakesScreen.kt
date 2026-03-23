@@ -47,7 +47,6 @@ import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults.MinWidth
 import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedListItem
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Tab
@@ -65,6 +64,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -94,7 +94,7 @@ import ru.application.homemedkit.models.viewModels.IntakesViewModel
 import ru.application.homemedkit.ui.elements.BoxWithEmptyListText
 import ru.application.homemedkit.ui.elements.IconButton
 import ru.application.homemedkit.ui.elements.MedicineImage
-import ru.application.homemedkit.ui.elements.SearchAppBar
+import ru.application.homemedkit.ui.elements.ScaffoldSearchBar
 import ru.application.homemedkit.ui.elements.TextDate
 import ru.application.homemedkit.ui.elements.VectorIcon
 import ru.application.homemedkit.utils.DecimalAmountInputTransformation
@@ -130,31 +130,32 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
         model.onEvent(IntakesEvent.ToggleDialog(state))
     }
 
-    Scaffold(
-        topBar = {
-            SearchAppBar(
-                search = state.search,
-                onSearch = { model.onEvent(IntakesEvent.SetSearch(it)) },
-                actions = {
-                    AnimatedVisibility(IntakeTab.entries[pagerState.currentPage] != IntakeTab.LIST) {
-                        IconButton(
-                            onClick = { toggleDialog(IntakesDialogState.DatePicker) },
-                            content = { VectorIcon(R.drawable.vector_date_range) }
-                        )
-                    }
-                }
-            )
+    ScaffoldSearchBar(
+        search = state.search,
+        onSearch = { model.onEvent(IntakesEvent.SetSearch(it)) },
+        actions = {
+            AnimatedVisibility(IntakeTab.entries[pagerState.currentPage] != IntakeTab.LIST) {
+                IconButton(
+                    onClick = { toggleDialog(IntakesDialogState.DatePicker) },
+                    content = { VectorIcon(R.drawable.vector_date_range) }
+                )
+            }
         },
         floatingActionButton = {
-            AnimatedVisibility(IntakeTab.entries[pagerState.currentPage] == IntakeTab.PAST) {
+            AnimatedVisibility(
+                visible = IntakeTab.entries[pagerState.currentPage] == IntakeTab.PAST,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
                 FloatingActionButton(
                     onClick = { toggleDialog(IntakesDialogState.TakenAdd) },
                     content = { VectorIcon(R.drawable.vector_add) }
                 )
             }
         }
-    ) { values ->
-        Column(Modifier.padding(values)) {
+    ) {
+        Column {
             PrimaryTabRow(pagerState.targetPage) {
                 IntakeTab.entries.forEach { tab ->
                     Tab(
@@ -171,8 +172,8 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
                 }
             }
 
-            HorizontalPager(pagerState) { index ->
-                when (IntakeTab.entries[index]) {
+            HorizontalPager(pagerState) { page ->
+                when (IntakeTab.entries[page]) {
                     IntakeTab.LIST -> if (intakes.isNotEmpty())
                         LazyColumn(Modifier.fillMaxSize(), listStates[0]) {
                             items(intakes, Intake::intakeId) {
@@ -180,12 +181,7 @@ fun IntakesScreen(onNavigate: (Long) -> Unit) {
                                 HorizontalDivider()
                             }
                         }
-                    else BoxWithEmptyListText(
-                        text = R.string.text_no_intakes_found,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(values)
-                    )
+                    else BoxWithEmptyListText(R.string.text_no_intakes_found)
 
                     IntakeTab.CURRENT -> IntakeList(
                         items = schedule,

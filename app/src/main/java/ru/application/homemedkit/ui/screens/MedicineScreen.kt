@@ -87,6 +87,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -112,7 +113,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.dialogs.DatePicker
@@ -139,7 +142,7 @@ import ru.application.homemedkit.utils.DecimalAmountInputTransformation
 import ru.application.homemedkit.utils.DecimalAmountOutputTransformation
 import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.camera.CameraConfig
-import ru.application.homemedkit.utils.camera.ImageProcessing
+import ru.application.homemedkit.utils.camera.ImageCompressor
 import ru.application.homemedkit.utils.camera.rememberCameraConfig
 import ru.application.homemedkit.utils.enums.DoseType
 import ru.application.homemedkit.utils.enums.DrugType
@@ -153,6 +156,8 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
     val context = LocalContext.current
     val filesDir = context.filesDir
 
+    val scope = rememberCoroutineScope()
+
     val state by model.state.collectAsStateWithLifecycle()
     val kits by model.kits.collectAsStateWithLifecycle()
 
@@ -160,7 +165,7 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
 
     val imageReload = remember(state) {
         if (state.technical.scanned) {
-            { model.fetchImages(context.filesDir) }
+            { model.fetchImages(filesDir) }
         } else null
     }
 
@@ -419,7 +424,10 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
         )
 
         MedicineDialogState.PictureGrid -> DialogPictureGrid(state.images, state.imageEditing, model::onEvent)
-        MedicineDialogState.PictureChoose -> DialogPictureChoose(state.images.size, model::onEvent, model::compressImage)
+        MedicineDialogState.PictureChoose -> DialogPictureChoose(state.images.size, model::onEvent) {
+            val imageCompressor = ImageCompressor(context)
+            model.compressImages(it, imageCompressor::compressImage)
+        }
 
         is MedicineDialogState.FullImage -> DialogFullImage(
             images = state.images,
@@ -428,7 +436,7 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
             onShow = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.FullImage(it)))}
         )
 
-        MedicineDialogState.TakePhoto -> CameraPhotoPreview(model::onEvent)
+        MedicineDialogState.TakePhoto -> CameraPhotoPreview(scope, model::onEvent)
 
         MedicineDialogState.Date -> MonthYear(
             cancel = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.Date)) },
@@ -910,9 +918,8 @@ private fun DialogPictureGrid(images: List<String>, imageEditing: ImageEditing, 
 private fun DialogPictureChoose(
     imageCount: Int,
     event: (MedicineEvent) -> Unit,
-    onPicked: (ImageProcessing, List<Uri>) -> Unit
+    onPicked: (List<Uri>) -> Unit
 ) {
-    val context = LocalContext.current
     val permissionState = rememberPermissionState(Manifest.permission.CAMERA)
 
     val maxItems = 5 - imageCount
@@ -927,11 +934,12 @@ private fun DialogPictureChoose(
                     return@rememberLauncherForActivityResult
                 }
 
-                onPicked(ImageProcessing(context), result as List<Uri>)
+                @Suppress("UNCHECKED_CAST")
+                onPicked(result as List<Uri>)
             }
 
             is Uri? -> result?.let { uri ->
-                onPicked(ImageProcessing(context), listOf(uri))
+                onPicked(listOf(uri))
             }
         }
     }
@@ -1012,8 +1020,7 @@ private fun IconPicker(isEnabled: (DrugType) -> Boolean, onDismiss: () -> Unit, 
 }
 
 @Composable
-private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
-    val context = LocalContext.current
+private fun CameraPhotoPreview(scope: CoroutineScope, event: (MedicineEvent) -> Unit) {
     val controller = rememberCameraConfig(CameraConfig.UseCases.IMAGE_CAPTURE)
 
     Box {
@@ -1039,10 +1046,13 @@ private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
                 .background(Color.White, CircleShape)
                 .border(4.dp, Color.LightGray, CircleShape)
                 .clickable {
-                    controller.takePicture(
-                        onStart = { event(MedicineEvent.ToggleDialog(MedicineDialogState.Loading)) },
-                        onResult = { event(MedicineEvent.SetImage(ImageProcessing(context), it)) }
-                    )
+                    scope.launch {
+                        val image = controller.takePicture {
+                            event(MedicineEvent.ToggleDialog(MedicineDialogState.Loading))
+                        }
+
+                        event(MedicineEvent.SetImage(image))
+                    }
                 }
         ) {
             VectorIcon(

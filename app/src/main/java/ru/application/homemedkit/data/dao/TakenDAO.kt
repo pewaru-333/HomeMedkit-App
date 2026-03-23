@@ -2,6 +2,7 @@ package ru.application.homemedkit.data.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.IntakeTaken
@@ -20,6 +21,7 @@ interface TakenDAO : BaseDAO<IntakeTaken> {
     fun getFlow(search: String): Flow<List<IntakeTaken>>
 
     @Transaction
+    @RewriteQueriesToDropUnusedColumns
     @Query("SELECT * FROM intakes_taken WHERE takenId = :takenId")
     suspend fun getById(takenId: Long): IntakeTakenFull?
 

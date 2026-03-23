@@ -15,7 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun BoxWithEmptyListText(@StringRes text: Int, modifier: Modifier = Modifier) =
-    Box(modifier, Alignment.Center) {
+    Box(modifier.fillMaxSize(), Alignment.Center) {
         Text(
             text = stringResource(text),
             textAlign = TextAlign.Center

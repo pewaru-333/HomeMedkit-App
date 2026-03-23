@@ -407,8 +407,8 @@ private fun KitsManager(
     BackHandler(isVisible, onBack)
     AnimatedVisibility(
         visible = isVisible,
-        enter = slideInHorizontally(initialOffsetX = { it }),
-        exit = slideOutHorizontally(targetOffsetX = { it })
+        enter = slideInHorizontally { it },
+        exit = slideOutHorizontally { it }
     ) {
         Scaffold(
             topBar = {

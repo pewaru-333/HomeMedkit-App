@@ -1,9 +1,7 @@
 package ru.application.homemedkit.models.events
 
-import androidx.camera.core.ImageProxy
 import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.models.states.MedicineDialogState
-import ru.application.homemedkit.utils.camera.ImageProcessing
 import ru.application.homemedkit.utils.enums.DoseType
 
 sealed interface MedicineEvent {
@@ -25,7 +23,7 @@ sealed interface MedicineEvent {
     data object ClearKit : MedicineEvent
 
     data class SetIcon(val icon: String) : MedicineEvent
-    data class SetImage(val imageProcessing: ImageProcessing, val image: ImageProxy) : MedicineEvent
+    data class SetImage(val fileName: String?) : MedicineEvent
     data class RemoveImage(val image: String) : MedicineEvent
 
     data class OnImageReodering(val fromIndex: Int, val toIndex: Int) : MedicineEvent

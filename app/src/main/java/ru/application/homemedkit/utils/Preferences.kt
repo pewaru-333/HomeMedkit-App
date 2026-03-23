@@ -1,11 +1,11 @@
 package ru.application.homemedkit.utils
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
 import androidx.core.content.edit
 import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.network.models.auth.Token
 import ru.application.homemedkit.utils.di.AlarmManager
+import ru.application.homemedkit.utils.enums.MedicineListView
 import ru.application.homemedkit.utils.enums.Page
 import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.enums.Theme
@@ -15,13 +15,10 @@ import ru.application.homemedkit.utils.extensions.getFlow
 import ru.application.homemedkit.utils.extensions.putEnum
 
 class Preferences internal constructor(context: Context) {
-    private val preferences = context.getSharedPreferences("${context.packageName}_preferences", MODE_PRIVATE)
+    private val preferences = context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)
 
-    val kitsFilter: Set<Long>
+    val kitsFilter: Set<String>?
         get() = preferences.getStringSet(KEY_KITS_FILTER, emptySet())
-            .orEmpty()
-            .mapNotNull(String::toLongOrNull)
-            .toSet()
 
     val startPage: Page
         get() = preferences.getEnum(KEY_START_PAGE, Page.MEDICINES)
@@ -37,6 +34,9 @@ class Preferences internal constructor(context: Context) {
 
     val hideEmptyMedicines: Boolean
         get() = preferences.getBoolean(KEY_HIDE_EMPTY_MEDICINES, false)
+
+    val medicinesListView: MedicineListView
+        get() = preferences.getEnum(KEY_MEDICINES_LIST_VIEW, MedicineListView.LIST)
 
     val confirmExit: Boolean
         get() = preferences.getBoolean(KEY_CONFIRM_EXIT, true)
@@ -110,8 +110,12 @@ class Preferences internal constructor(context: Context) {
 
     fun setHasLaunched() = preferences.edit { putBoolean(KEY_FIRST_LAUNCH_INTAKE, false) }
 
-    fun saveKitsFilter(kitsId: Set<Long>) = preferences.edit {
-        putStringSet(KEY_KITS_FILTER, kitsId.map(Long::toString).toSet())
+    fun saveListView(view: MedicineListView) = preferences.edit {
+        putEnum(KEY_MEDICINES_LIST_VIEW, view)
+    }
+
+    fun saveKitsFilter(kitsId: Set<String>) = preferences.edit {
+        putStringSet(KEY_KITS_FILTER, kitsId)
     }
 
     fun setCheckExpDate(check: Boolean) {
@@ -149,11 +153,9 @@ class Preferences internal constructor(context: Context) {
         remove(KEY_CODE_VERIFIER)
     }
 
-    fun saveToken(token: Token) {
-        preferences.edit(commit = true) {
-            putString(KEY_ACCESS_TOKEN, token.accessToken)
-            putString(KEY_REFRESH_TOKEN, token.refreshToken)
-        }
+    fun saveToken(token: Token) = preferences.edit(commit = true) {
+        putString(KEY_ACCESS_TOKEN, token.accessToken)
+        putString(KEY_REFRESH_TOKEN, token.refreshToken)
     }
 
     fun setAuthYandex(flag: Boolean) = preferences.edit { putBoolean(KEY_AUTH_IS_YANDEX, flag) }

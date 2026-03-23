@@ -15,7 +15,7 @@ interface KitDAO : BaseDAO<Kit> {
     fun getFlow(): Flow<List<Kit>>
 
     @Query("SELECT * FROM kits WHERE kitId IN (:kitIds)")
-    suspend fun getKitList(kitIds: List<Long>): List<Kit>
+    suspend fun getKitList(kitIds: Set<Long>): List<Kit>
 
     @Query("DELETE FROM medicines_kits WHERE medicineId = :medicineId")
     suspend fun deleteAll(medicineId: Long)

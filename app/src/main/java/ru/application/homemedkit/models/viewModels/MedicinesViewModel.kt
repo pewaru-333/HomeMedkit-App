@@ -23,6 +23,7 @@ import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.ResourceText
 import ru.application.homemedkit.utils.di.Database
 import ru.application.homemedkit.utils.di.Preferences
+import ru.application.homemedkit.utils.enums.MedicineListView
 import ru.application.homemedkit.utils.enums.Sorting
 import ru.application.homemedkit.utils.extensions.toMedicineList
 import ru.application.homemedkit.utils.extensions.toModel
@@ -87,56 +88,61 @@ class MedicinesViewModel : BaseViewModel<MedicinesState, Unit>() {
             }
         }
 
-        result.sortBy { it.kit.position }
-
         if (noGroup.isNotEmpty()) {
             result.add(
                 MedicineGrouped(
                     medicines = noGroup,
                     kit = KitModel(
-                        id = -1L,
-                        position = Long.MAX_VALUE,
+                        id = if (kits.isEmpty()) -2L else -1L,
+                        position = kits.size.toLong(),
                         title = ResourceText.StringResource(R.string.text_no_group)
                     )
                 )
             )
         }
 
-        result
+        result.sortedBy { it.kit.position }
     }.flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), emptyList())
+
+    override fun onEvent(event: Unit) = Unit
 
     override fun initState() = MedicinesState()
 
     override fun loadData() {
-        with(Preferences.kitsFilter) {
-            if (isNotEmpty()) {
-                viewModelScope.launch {
-                    val kits = kitDAO.getKitList(toList())
+        val kitIds = Preferences.kitsFilter
+            .orEmpty()
+            .mapNotNullTo(mutableSetOf(), String::toLongOrNull)
 
-                    updateState { it.copy(kits = kits.toSet()) }
-                }
+        if (kitIds.isNotEmpty()) {
+            viewModelScope.launch {
+                val kits = kitDAO.getKitList(kitIds).toSet()
+
+                updateState { it.copy(kits = kits) }
             }
         }
     }
-    
-    override fun onEvent(event: Unit) = Unit
 
-    fun toggleView() = updateState { it.copy(tab = it.tab.nextTab) }
+    fun pickView(view: MedicineListView) {
+        if (currentState.listView != view) {
+            updateState { it.copy(listView = view) }
+            Preferences.saveListView(view)
+        }
+    }
 
     fun toggleAdding() = updateState { it.copy(showAdding = !it.showAdding) }
     fun showExit(flag: Boolean = false) = updateState { it.copy(showExit = flag) }
 
     fun onSearch(text: String = BLANK) = updateState { it.copy(search = text) }
 
-    fun toggleSorting() = updateState { it.copy(showSorting = !it.showSorting) }
+    fun showSorting() = updateState { it.copy(showSorting = !it.showSorting) }
     fun setSorting(sorting: Sorting) = updateState { it.copy(sorting = sorting) }
 
     fun toggleFilter() {
         updateState { it.copy(showFilter = !it.showFilter) }
 
         if (!currentState.showFilter) {
-            Preferences.saveKitsFilter(currentState.kits.mapTo(mutableSetOf(), Kit::kitId))
+            Preferences.saveKitsFilter(currentState.kits.mapTo(mutableSetOf()) { it.kitId.toString() })
         }
     }
 

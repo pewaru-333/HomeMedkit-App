@@ -4,90 +4,26 @@ package ru.application.homemedkit.ui.elements
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.text.input.clearText
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedIconButton
-import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.application.homemedkit.R
-import ru.application.homemedkit.utils.BLANK
-import ru.application.homemedkit.utils.extensions.collectLatestChanged
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SearchAppBar(
-    search: String,
-    onSearch: (String) -> Unit,
-    onClear: () -> Unit = { onSearch(BLANK) },
-    actions: @Composable (RowScope.() -> Unit) = {},
-) {
-    val textFieldState = rememberTextFieldState(search)
-
-    LaunchedEffect(textFieldState) {
-        snapshotFlow { textFieldState.text.toString() }.collectLatestChanged(onSearch)
-    }
-
-    LaunchedEffect(search) {
-        if (search.isEmpty()) {
-            textFieldState.clearText()
-        }
-    }
-
-    TopAppBar(
-        actions = actions,
-        title = {
-            Surface(
-                modifier = Modifier.offset(x = (-8).dp),
-                shape = SearchBarDefaults.inputFieldShape,
-                color = SearchBarDefaults.colors().containerColor,
-                contentColor = contentColorFor(SearchBarDefaults.colors().containerColor),
-                tonalElevation = SearchBarDefaults.TonalElevation,
-                shadowElevation = SearchBarDefaults.ShadowElevation,
-            ) {
-                SearchBarDefaults.InputField(
-                    state = textFieldState,
-                    onSearch = onSearch,
-                    expanded = false,
-                    onExpandedChange = {},
-                    leadingIcon = { VectorIcon(R.drawable.vector_search) },
-                    placeholder = { Text(stringResource(R.string.text_enter_product_name)) },
-                    trailingIcon = {
-                        if (search.isNotEmpty()) {
-                            IconButton(onClear) {
-                                VectorIcon(R.drawable.vector_clear)
-                            }
-                        }
-                    }
-                )
-            }
-        }
-    )
-}
 
 @Composable
 fun TopBarActions(

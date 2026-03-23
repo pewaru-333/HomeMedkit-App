@@ -262,6 +262,7 @@
     <string name="text_go_to">Go</string>
     <string name="text_grant">Grant</string>
     <string name="text_hide_empty">Hide out of stock</string>
+    <string name="text_list_view">List view</string>
     <string name="text_medicine_not_in_stock">You cannot take %1$s as there is not enough left!</string>
     <string name="text_no">No</string>
     <string name="text_no_data_found">No medications found. Add them or change the filter.</string>

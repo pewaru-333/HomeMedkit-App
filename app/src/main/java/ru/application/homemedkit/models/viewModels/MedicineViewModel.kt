@@ -23,7 +23,6 @@ import ru.application.homemedkit.models.validation.Validation
 import ru.application.homemedkit.network.Network
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.Formatter
-import ru.application.homemedkit.utils.camera.ImageProcessing
 import ru.application.homemedkit.utils.di.Database
 import ru.application.homemedkit.utils.enums.DrugType
 import ru.application.homemedkit.utils.enums.ImageEditing
@@ -287,14 +286,16 @@ class MedicineViewModel(
                 )
             }
 
-            is MedicineEvent.SetImage -> viewModelScope.launch {
-                val compressedImage = event.imageProcessing.compressImage(event.image) ?: return@launch
-
+            is MedicineEvent.SetImage -> if (event.fileName != null) {
                 updateState {
                     it.copy(
                         dialogState = MedicineDialogState.PictureGrid,
-                        images = it.images.concat(compressedImage)
+                        images = it.images.concat(event.fileName)
                     )
+                }
+            } else {
+                updateState {
+                    it.copy(dialogState = MedicineDialogState.PictureGrid)
                 }
             }
 
@@ -397,20 +398,18 @@ class MedicineViewModel(
         )
     }
 
-    fun compressImage(imageProcessing: ImageProcessing, images: List<Uri>) {
+    fun compressImages(images: List<Uri>, onCompress: suspend (Uri) -> String?) {
         viewModelScope.launch {
             updateState { it.copy(dialogState = MedicineDialogState.Loading) }
 
-            val compressed = images.map { uri ->
-                async {
-                    imageProcessing.compressImage(uri)
-                }
+            val result = coroutineScope {
+                images.map { async { onCompress(it) } }
             }
 
-            val compressedResult = compressed.mapNotNull { it.await() }
+            val imageResult = result.mapNotNull { it.await() }
 
             val images = currentState.images.toMutableList().apply {
-                addAll(compressedResult)
+                addAll(imageResult)
             }
 
             updateState {

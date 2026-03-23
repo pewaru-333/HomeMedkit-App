@@ -5,7 +5,7 @@ import android.util.Size
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.FocusMeteringAction
-import androidx.camera.core.ImageProxy
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.SurfaceRequest
@@ -16,6 +16,7 @@ import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.core.resolutionselector.ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER
+import androidx.camera.core.takePicture
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
@@ -92,8 +94,18 @@ class CameraConfig(private val context: Context) {
         setAnalyzer(Dispatchers.Default.asExecutor(), CodeAnalyzer(onResult))
     }
 
-    fun takePicture(onStart: () -> Unit, onResult: (ImageProxy) -> Unit) = with(ImageCapture.config) {
-        takePicture(Dispatchers.Default.asExecutor(), PhotoCapture(onStart, onResult))
+    suspend fun takePicture(onStart: () -> Unit) = withContext(Dispatchers.IO) {
+        val name = "${System.currentTimeMillis()}_product.jpg"
+        val file = File(context.filesDir, name)
+        val options = androidx.camera.core.ImageCapture.OutputFileOptions.Builder(file).build()
+
+        try {
+            ImageCapture.config.takePicture(options, onStart)
+
+            name
+        } catch (_: ImageCaptureException) {
+            null
+        }
     }
 
     fun tapToFocus(coordinates: Offset) {
@@ -163,6 +175,7 @@ class CameraConfig(private val context: Context) {
         override val config = androidx.camera.core.ImageCapture.Builder()
             .setIoExecutor(Dispatchers.IO.asExecutor())
             .setResolutionSelector(resolutionSelector)
+            .setJpegQuality(70)
             .build()
     }
 }
