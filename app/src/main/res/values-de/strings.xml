@@ -251,6 +251,7 @@
     <string name="text_force_upload">Hochladen erzwingen</string>
     <string name="text_go_to">OK</string>
     <string name="text_grant">Erlauben</string>
+    <string name="text_list_view">Listenansicht</string>
     <string name="text_no">Nein</string>
     <string name="text_no_data_found">Keine Medikamente gefunden. Bitte Filter ändern oder Medikament hinzufügen.</string>
     <string name="text_no_data_group_found">Keine Medikamente mit Gruppe gefunden. Bitte hinzufügen oder Filter ändern.</string>
