@@ -1,0 +1,2 @@
+— Die Funktion zum Wechseln der Ansicht wurde in das Menü für die Sortierung und Verwaltung der Ansicht verschoben. Die Einstellungen für die Ansicht bleiben nun auch nach einem Neustart der App erhalten.
+— Die endgültige Bildgröße des Medikaments wurde optimiert, wenn ein neues Foto hinzugefügt oder Bilder aus der Galerie ausgewählt werden.
