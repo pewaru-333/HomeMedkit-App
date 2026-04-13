@@ -1,6 +1,7 @@
 package ru.application.homemedkit.utils.extensions
 
 import android.app.AlarmManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Context.*
 import android.content.Intent
@@ -45,6 +46,89 @@ fun Context.restartApplication(extras: Bundle.() -> Unit = {}) {
     }
 
     Runtime.getRuntime().exit(0)
+}
+
+fun Context.openAutoStartSettings() : Boolean {
+    val manufacturer = Build.MANUFACTURER.lowercase()
+
+    val components = when {
+        "xiaomi" in manufacturer || "poco" in manufacturer || "redmi" in manufacturer -> listOf(
+            ComponentName(
+                "com.miui.securitycenter",
+                "com.miui.permcenter.autostart.AutoStartManagementActivity"
+            ),
+            ComponentName("com.xiaomi.mipicks", "com.xiaomi.mipicks.ui.AppPicksTabActivity")
+        )
+        "huawei" in manufacturer || "honor" in manufacturer -> listOf(
+            ComponentName(
+                "com.huawei.systemmanager",
+                "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"
+            ),
+            ComponentName(
+                "com.huawei.systemmanager",
+                "com.huawei.systemmanager.optimize.process.ProtectActivity"
+            )
+        )
+        "oppo" in manufacturer -> listOf(
+            ComponentName(
+                "com.coloros.safecenter",
+                "com.coloros.safecenter.permission.startup.FakeActivity"
+            ),
+            ComponentName(
+                "com.oppo.safe",
+                "com.oppo.safe.permission.startup.StartupAppListActivity"
+            )
+        )
+        "vivo" in manufacturer || "iqoo" in manufacturer -> listOf(
+            ComponentName(
+                "com.iqoo.secure",
+                "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity"
+            ),
+            ComponentName(
+                "com.vivo.permissionmanager",
+                "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"
+            )
+        )
+        "samsung" in manufacturer -> listOf(
+            ComponentName(
+                "com.samsung.android.lool",
+                "com.samsung.android.sm.ui.battery.BatteryActivity"
+            )
+        )
+        "oneplus" in manufacturer -> listOf(
+            ComponentName(
+                "com.oneplus.security",
+                "com.oneplus.security.chainlaunch.view.ChainLaunchAppListActivity"
+            )
+        )
+        "meizu" in manufacturer -> listOf(
+            ComponentName("com.meizu.safe", "com.meizu.safe.security.SHOW_APPSEC")
+        )
+
+        else -> emptyList()
+    }
+
+    for (component in components) {
+        try {
+            val intent = Intent().apply {
+                this.component = component
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+
+                if (component.packageName == "com.meizu.safe") {
+                    addCategory(Intent.CATEGORY_DEFAULT)
+                    putExtra("packageName", packageName)
+                }
+            }
+
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+                return true
+            }
+        } catch (_: Exception) {
+        }
+    }
+
+    return false
 }
 
 fun Context.createNotificationChannel(channelId: String, @StringRes channelName: Int) =

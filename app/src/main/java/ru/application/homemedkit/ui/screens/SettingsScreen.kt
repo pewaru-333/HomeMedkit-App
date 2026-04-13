@@ -101,6 +101,7 @@ import ru.application.homemedkit.utils.AppLocale
 import ru.application.homemedkit.utils.DataManager
 import ru.application.homemedkit.utils.KEY_APP_SYSTEM
 import ru.application.homemedkit.utils.KEY_APP_VIEW
+import ru.application.homemedkit.utils.KEY_AUTOLAUNCH
 import ru.application.homemedkit.utils.KEY_AUTO_CHANGE_INTAKE_WHEN_TIME_CHANGE
 import ru.application.homemedkit.utils.KEY_AUTO_SYNC_ENABLED
 import ru.application.homemedkit.utils.KEY_BASIC_SETTINGS
@@ -123,6 +124,7 @@ import ru.application.homemedkit.utils.extensions.canScheduleExactAlarms
 import ru.application.homemedkit.utils.extensions.drawHorizontalDivider
 import ru.application.homemedkit.utils.extensions.getLanguageList
 import ru.application.homemedkit.utils.extensions.getLocalizedName
+import ru.application.homemedkit.utils.extensions.openAutoStartSettings
 import ru.application.homemedkit.utils.extensions.restartApplication
 import ru.application.homemedkit.utils.extensions.showToast
 import ru.application.homemedkit.utils.launcherExportDatabase
@@ -228,7 +230,7 @@ fun SettingsScreen(onAuthClick: () -> Unit) {
                 summary = {
                     Text(
                         text = stringResource(
-                            when {
+                            id = when {
                                 context.canScheduleExactAlarms() -> if (it) R.string.text_on else R.string.text_off
                                 else -> R.string.text_explain_disabled
                             }
@@ -343,6 +345,17 @@ fun SettingsScreen(onAuthClick: () -> Unit) {
                 key = KEY_FIXING,
                 title = { Text(stringResource(R.string.preference_fixing_notifications)) },
                 onClick = { model.onEvent(SettingsEvent.ShowFixing) }
+            )
+
+            preference(
+                key = KEY_AUTOLAUNCH,
+                title = { Text(stringResource(R.string.preference_system_app_autolaunch)) },
+                onClick = {
+                    val launched = context.openAutoStartSettings()
+                    if (!launched) {
+                        context.showToast(R.string.text_toast_autostart_not_found)
+                    }
+                }
             )
 
             preference(

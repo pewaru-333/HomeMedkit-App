@@ -1,0 +1,3 @@
+— Added a setting for changing the application's autorun status (it does not work on all devices).
+— Fixed an issue where all full-screen intake notifications would not close when the "Accept All" button was clicked.
+— Fixed an issue where it was impossible to delete a medication with the status "Accepted" if it was removed from the list.

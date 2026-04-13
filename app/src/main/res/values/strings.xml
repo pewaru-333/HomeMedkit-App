@@ -25,6 +25,7 @@
     <string name="preference_dynamic_color">Dynamic color</string>
     <string name="preference_import_export">Import/Export</string>
     <string name="preference_fixing_notifications">Problems with notifications?</string>
+    <string name="preference_system_app_autolaunch">App system autolaunch</string>
     <string name="preference_clear_app_cache">Clear app cache</string>
 
     <string name="preference_auto_sync_summary_enabled">Enabled when opening application</string>
@@ -215,6 +216,8 @@
     <string name="text_set_image">Set image</string>
     <string name="text_take_picture">Take picture with camera</string>
     <string name="text_try_again">Try to scan the label again!</string>
+
+    <string name="text_toast_autostart_not_found">Autostart settings not found for this device</string>
 
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Full-screen notifications</string>

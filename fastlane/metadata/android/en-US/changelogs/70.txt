@@ -1,2 +1,0 @@
-— The view switching function has moved to the sort menu. Now the view setting is saved even when the application is restarted.
-— Optimized the final size of the medicine image when attaching a new photo or selecting pictures from the gallery.

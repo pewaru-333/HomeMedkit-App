@@ -29,6 +29,7 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -585,11 +586,7 @@ private fun DialogAddTaken(
 }
 
 @Composable
-private fun DialogTaken(
-    intake: TakenState,
-    onDismiss: () -> Unit,
-    onEvent: (TakenEvent) -> Unit
-) {
+private fun DialogTaken(intake: TakenState, onDismiss: () -> Unit, onEvent: (TakenEvent) -> Unit) {
     val context = LocalContext.current
     val items = listOf(R.string.intake_text_not_taken, R.string.intake_text_taken)
 
@@ -645,15 +642,19 @@ private fun DialogTaken(
             )
         },
         confirmButton = {
-            TextButton(
-                content = { Text(stringResource(R.string.text_save)) },
-                onClick = { onEvent(TakenEvent.Save(NotificationManagerCompat.from(context))) },
-                enabled = when {
-                    intake.medicine == null -> false
-                    intake.medicine.prodAmount < intake.amount && !intake.taken -> false
-                    else -> true
-                }
-            )
+            if (intake.medicine == null) {
+                TextButton(
+                    content = { Text(stringResource(R.string.text_delete)) },
+                    onClick = { onEvent(TakenEvent.Delete) },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                )
+            } else {
+                TextButton(
+                    content = { Text(stringResource(R.string.text_save)) },
+                    onClick = { onEvent(TakenEvent.Save(NotificationManagerCompat.from(context))) },
+                    enabled = !(intake.medicine.prodAmount < intake.amount && !intake.taken)
+                )
+            }
         },
         dismissButton = {
             TextButton(onDismiss) { Text(stringResource(R.string.text_cancel)) }

@@ -14,8 +14,8 @@ android {
         applicationId = "ru.application.homemedkit"
         minSdk = 26
         targetSdk = 36
-        versionCode = 70
-        versionName = "1.9.5"
+        versionCode = 71
+        versionName = "1.9.6"
     }
 
     dependenciesInfo {

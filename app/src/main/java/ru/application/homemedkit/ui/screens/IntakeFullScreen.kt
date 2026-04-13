@@ -2,6 +2,10 @@
 
 package ru.application.homemedkit.ui.screens
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.view.WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
 import android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
@@ -48,12 +52,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import ru.application.homemedkit.R
 import ru.application.homemedkit.data.MedicineDatabase
 import ru.application.homemedkit.ui.elements.MedicineImage
 import ru.application.homemedkit.ui.elements.VectorIcon
+import ru.application.homemedkit.utils.ACTION_CLOSE_ALL_FULL_SCREEN_INTENTS
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.ID
@@ -120,7 +126,7 @@ fun IntakeFullScreen(medicineId: Long, takenId: Long, amount: Double, onBack: ((
             if (onBack != null) {
                 onBack()
             } else {
-                activity?.finishAndRemoveTask()
+                context.sendBroadcast(Intent(ACTION_CLOSE_ALL_FULL_SCREEN_INTENTS).setPackage(context.packageName))
             }
         }
     }
@@ -138,6 +144,26 @@ fun IntakeFullScreen(medicineId: Long, takenId: Long, amount: Double, onBack: ((
                 activity?.setTurnScreenOn(false)
                 activity?.setShowWhenLocked(false)
             }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        val closeReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (onBack != null) onBack()
+                else activity?.finishAndRemoveTask()
+            }
+        }
+
+        ContextCompat.registerReceiver(
+            /* context = */ context,
+            /* receiver = */ closeReceiver,
+            /* filter = */ IntentFilter(ACTION_CLOSE_ALL_FULL_SCREEN_INTENTS),
+            /* flags = */ ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+
+        onDispose {
+            context.unregisterReceiver(closeReceiver)
         }
     }
 

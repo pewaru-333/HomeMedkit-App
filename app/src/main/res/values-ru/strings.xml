@@ -26,6 +26,7 @@
     <string name="preference_dynamic_color">Системные цвета</string>
     <string name="preference_import_export">Импорт/Экспорт</string>
     <string name="preference_fixing_notifications">Не приходят уведомления?</string>
+    <string name="preference_system_app_autolaunch">Системный автозапуск приложения</string>
     <string name="preference_clear_app_cache">Очистить кеш приложения</string>
 
     <string name="preference_auto_sync_summary_enabled">Включена при открытии приложения</string>
@@ -214,6 +215,8 @@
     <string name="text_set_image">Установить изображение</string>
     <string name="text_take_picture">Сделать фото</string>
     <string name="text_try_again">Попробуйте отсканировать код ещё раз!</string>
+
+    <string name="text_toast_autostart_not_found">Настройки автозапуска не найдены для данного устройства</string>
 
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Полноэкранные уведомления</string>

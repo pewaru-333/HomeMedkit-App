@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationManagerCompat
 import ru.application.homemedkit.data.MedicineDatabase
+import ru.application.homemedkit.utils.ACTION_CLOSE_ALL_FULL_SCREEN_INTENTS
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.ID
 import ru.application.homemedkit.utils.IS_ENOUGH_IN_STOCK
@@ -33,5 +34,7 @@ class ActionGroupReceiver : BroadcastReceiver() {
                     database.medicineDAO().intakeMedicine(medicineId, amount)
                 }
             }
+
+        context.sendBroadcast(Intent(ACTION_CLOSE_ALL_FULL_SCREEN_INTENTS))
     }
 }
