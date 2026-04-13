@@ -178,6 +178,7 @@
     <string name="text_take_picture">拍摄图片</string>
     <string name="text_try_again">尝试再次扫描</string>
 
+
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">全屏提醒</string>
     <string name="text_permission_title_ignore_battery">放行电池优化</string>

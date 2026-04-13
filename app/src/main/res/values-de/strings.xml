@@ -207,6 +207,7 @@
     <string name="text_take_picture">Foto mit der Kamera aufnehmen</string>
     <string name="text_try_again">Bitte das Etikett erneut scannen!</string>
 
+
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Vollbild-Benachrichtigungen</string>
     <string name="text_permission_title_ignore_battery">Akkuoptimierung ignorieren</string>

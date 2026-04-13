@@ -173,6 +173,7 @@
     <string name="text_select_time">Zaman seçin</string>
     <string name="text_try_again">Etiketi tekrar taramayı deneyin!</string>
 
+
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Tam ekran bildirimleri</string>
     <string name="text_permission_title_ignore_battery">Pil optimizasyonunu yok say</string>
