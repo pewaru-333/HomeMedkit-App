@@ -213,6 +213,7 @@
     <string name="text_take_picture">Ambil gambar dengan kamera</string>
     <string name="text_try_again">Coba pindai label lagi!</string>
 
+
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Notifikasi layar penuh</string>
     <string name="text_permission_title_ignore_battery">Abaikan optimasi baterai</string>

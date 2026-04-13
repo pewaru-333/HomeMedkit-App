@@ -175,6 +175,7 @@
     <string name="text_pick_icon">"Sélectionnez  une icône par défaut"</string>
     <string name="text_take_picture">Prenez une photo avec la caméra</string>
 
+
     <!-- Permissions -->
     <string name="text_permission_title_ignore_battery">Ignore l\'optimisation de la batterie</string>
     <string name="text_permission_title_notifications">Notifications</string>

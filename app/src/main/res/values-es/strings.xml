@@ -178,6 +178,7 @@
     <string name="text_take_picture">Take picture with camera</string>
     <string name="text_try_again">¡Vuelve a escanear la etiqueta!</string>
 
+
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Full-screen notifications</string>
     <string name="text_permission_title_ignore_battery">Ignore battery optimization</string>

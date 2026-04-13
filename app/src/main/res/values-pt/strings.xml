@@ -181,6 +181,7 @@
     <string name="text_take_picture">Tirar foto com a câmara</string>
     <string name="text_try_again">Tente fazer scan da etiqueta novamente!</string>
 
+
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Notificações em ecrã cheio</string>
     <string name="text_permission_title_ignore_battery">Ignorar otimizações de pilha</string>
