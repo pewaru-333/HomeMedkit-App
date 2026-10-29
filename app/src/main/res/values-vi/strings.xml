@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <!-- Menu -->
     <string name="bottom_bar_medicines">Các loại thuốc</string>
     <string name="bottom_bar_intakes">Uống thuốc</string>
@@ -17,11 +18,16 @@
     <string name="preference_dynamic_color">Màu động</string>
     <string name="preference_import_export">Nhập/Xuất</string>
 
+
+    <!-- Pages -->
+
     <!-- Sorting -->
     <string name="sorting_a_z">Theo thứ tự bảng chữ cái (A đến Z)</string>
     <string name="sorting_z_a">Theo thứ tự bảng chữ cái (Z đến A)</string>
     <string name="sorting_from_oldest">Ngày hết hạn (từ cũ nhất)</string>
     <string name="sorting_from_newest">Ngày hết hạn (từ mới nhất)</string>
+
+    <!-- Themes -->
 
     <!-- Notifications -->
     <string name="channel_name">Thông báo có âm thanh</string>
@@ -45,6 +51,10 @@
     <string name="text_medicine_dose">Liều lượng</string>
     <string name="text_medicine_product_name">Tên thuốc</string>
 
+    <!-- Medication types -->
+
+    <!-- Medication dose types -->
+
     <!-- Tabs -->
     <string name="tab_list">Danh sách</string>
     <string name="tab_current">Hiện tại</string>
@@ -60,6 +70,11 @@
     <string name="intake_text_period">Giai đoạn</string>
     <string name="intake_text_time">Thời gian</string>
 
+
+
+
+
+
     <!-- Dialogs -->
     <string name="manual_add">Bạn có muốn thêm thuốc thủ công?</string>
     <string name="text_connection_error">Lỗi kết nối!</string>
@@ -68,7 +83,15 @@
     <string name="text_request_camera">Để quét nhãn, ứng dụng phải được cấp quyền sử dụng máy ảnh</string>
     <string name="text_select_time">Chọn thời gian</string>
 
+
+
+
     <string name="text_catalog_product_ean13">Mã vạch này xác định sản phẩm, không phải từng hộp riêng lẻ. Chỉ thêm nếu đây là thuốc, sau đó kiểm tra thông tin, số lượng và hạn dùng.</string>
+
+
+    <!-- Permissions -->
+
+
 
     <!-- Strings -->
     <string name="text_add">Thêm</string>
@@ -95,8 +118,11 @@
     <string name="text_tap_to_view">Nhấn để xem</string>
     <string name="text_yes">Có</string>
 
+
+
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="other">%d lần một ngày</item>
     </plurals>
+
 </resources>

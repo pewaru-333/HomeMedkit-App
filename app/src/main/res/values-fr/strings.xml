@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Medkit</string>
+
     <!-- Menu -->
     <string name="bottom_bar_medicines">Médicaments</string>
     <string name="bottom_bar_intakes">Prises</string>
     <string name="bottom_bar_settings">Réglages</string>
+
     <!-- Preferences -->
     <string name="preference_basic_settings">Paramètres de base</string>
     <string name="preference_app_view">Vue de l\'application</string>
@@ -21,17 +23,22 @@
     <string name="preference_import_export">Importer/exporter</string>
     <string name="preference_fixing_notifications">Des problèmes avec les notifications ?</string>
     <string name="preference_clear_app_cache">Vider le cache de l\'application</string>
+
+
     <!-- Pages -->
     <string name="page_medications">Médicaments</string>
+
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabétiquement (A à Z)</string>
     <string name="sorting_z_a">Alphabétiquement (Z à A)</string>
     <string name="sorting_from_oldest">Date d\'expiration (du plus ancien)</string>
     <string name="sorting_from_newest">Date d\'expiration (du plus récent)</string>
+
     <!-- Themes -->
     <string name="theme_system">Système</string>
     <string name="theme_light">Clair</string>
     <string name="theme_dark">Sombre</string>
+
     <!-- Notifications -->
     <string name="channel_name">Notifications sonores</string>
     <string name="channel_exp_desc">Date de péremption</string>
@@ -45,9 +52,11 @@
     <string name="text_intake_prealarm_title">Prise à venir</string>
     <string name="text_intake_time">Médicament: %1$s\nQuantité à prendre : %2$s %3$s\nQuantité restante : %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Quantité restante insuffisante</string>
+
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
     <string name="placeholder_time">Heure #%1$d</string>
+
     <!-- Medications -->
     <string name="text_exp_date">Date d\'exp.</string>
     <string name="text_package_opened_date">Emballage ouvert</string>
@@ -65,6 +74,7 @@
     <string name="text_medicine_status_scanned">Scanné, non vérifié</string>
     <string name="text_medicine_status_self_added">Ajouté manuellement</string>
     <string name="text_medicine_storage_conditions">Conditions de stockage</string>
+
     <!-- Medication types -->
     <string name="type_tablets">COMPRIMÉS</string>
     <string name="type_capsules">CAPSULES</string>
@@ -92,6 +102,7 @@
     <string name="type_patch">PATCH</string>
     <string name="type_bandage">PANSEMENT</string>
     <string name="type_napkins">SERVIETTES</string>
+
     <!-- Medication dose types -->
     <string name="dose_ed">unités</string>
     <string name="dose_pcs">unité(s)</string>
@@ -100,10 +111,12 @@
     <string name="dose_mg">mg</string>
     <string name="dose_l">l</string>
     <string name="dose_ml">ml</string>
+
     <!-- Tabs -->
     <string name="tab_list">Liste</string>
     <string name="tab_current">Actuel</string>
     <string name="tab_past">Passé</string>
+
     <!-- Intakes -->
     <string name="intake_text_amount">Quantité</string>
     <string name="intake_text_by_schedule">Selon le planning</string>
@@ -123,22 +136,28 @@
     <string name="intake_text_time">Heure</string>
     <string name="intake_text_start">Commencer</string>
     <string name="intake_text_finish">Terminer</string>
+
     <string name="intake_extra_cancellable">Délai de notification</string>
     <string name="intake_extra_fullscreen">Notification écran complet</string>
     <string name="intake_extra_no_sound">Silencieux</string>
     <string name="intake_extra_prealarm">Notification à venir</string>
+
     <string name="intake_extra_desc_cancellable">La notification sera annulée automatiquement après 10 minutes</string>
     <string name="intake_extra_desc_no_sound">Notifications silencieuses, peu importent les sons ou les vibrations</string>
     <string name="intake_extra_desc_prealarm">Un rappel sera envoyé 30 minutes avant l\'heure</string>
+
     <string name="intake_interval_daily">quotidien</string>
     <string name="intake_interval_weekly">hebdomadaire</string>
     <string name="intake_interval_other">personnalisé</string>
+
     <string name="intake_schema_type_indefinitely">Indéfiniment</string>
     <string name="intake_schema_type_day_picker">Choix du jour</string>
     <string name="intake_schema_type_personal">Personnel</string>
+
     <string name="intake_period_pick">par date</string>
     <string name="intake_period_other">par nombre de jours</string>
     <string name="intake_period_indef">indéfiniment</string>
+
     <!-- Dialogs -->
     <string name="manual_add">Voulez-vous ajouter le médicament manuellement ?</string>
     <string name="text_choose_from_gallery">Choisir depuis la galerie</string>
@@ -155,14 +174,23 @@
     <string name="text_pay_attention">Attention !</string>
     <string name="text_pick_icon">"Sélectionnez  une icône par défaut"</string>
     <string name="text_take_picture">Prenez une photo avec la caméra</string>
+
+
+
+
     <string name="text_catalog_product_ean13">Ce code-barres identifie un produit, pas un emballage individuel. Ajoutez-le uniquement si c’est un médicament, puis vérifiez ses informations, sa quantité et sa date de péremption.</string>
+
+
     <!-- Permissions -->
     <string name="text_permission_title_ignore_battery">Ignore l\'optimisation de la batterie</string>
     <string name="text_permission_title_notifications">Notifications</string>
     <string name="text_permission_title_reminders">Réglage des rappels</string>
+
     <string name="text_explain_request_permissions">Pour recevoir des notifications, vous devez accorder les autorisations suivantes</string>
+
     <string name="text_permission_grant">Autoriser</string>
     <string name="text_permission_granted">Autorisé</string>
+
     <!-- Strings -->
     <string name="text_add">Ajouter</string>
     <string name="text_amount">Quantité</string>
@@ -179,4 +207,9 @@
     <string name="text_every_day">Tous les jours</string>
     <string name="text_exit">Sortir</string>
     <string name="text_finish_date">Date de fin</string>
+
+
+
+    <!-- Plurals -->
+
 </resources>

@@ -25,6 +25,7 @@
     <string name="preference_fixing_notifications">Problemas com notificações?</string>
     <string name="preference_clear_app_cache">Limpar cache da app</string>
 
+
     <!-- Pages -->
     <string name="page_intake_settings">Configurações</string>
 
@@ -180,7 +181,11 @@
     <string name="text_take_picture">Tirar foto com a câmara</string>
     <string name="text_try_again">Tente fazer scan da etiqueta novamente!</string>
 
+
+
+
     <string name="text_catalog_product_ean13">Este código identifica um produto, não uma embalagem individual. Adicione-o apenas se for um medicamento e verifique os dados, a quantidade e o prazo de validade.</string>
+
 
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Notificações em ecrã cheio</string>
@@ -240,10 +245,13 @@
     <string name="text_update">Atualizar</string>
     <string name="text_yes">Sim</string>
 
+
+
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="one">%d vez por dia</item>
         <item quantity="many">%d vezes por dia</item>
         <item quantity="other">%d vezes por dia</item>
     </plurals>
+
 </resources>

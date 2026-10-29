@@ -23,6 +23,9 @@
     <string name="preference_import_export">İçe/Dışa Aktar</string>
     <string name="preference_fixing_notifications">Bildirimlerle ilgili sorun mu var?</string>
 
+
+    <!-- Pages -->
+
     <!-- Sorting -->
     <string name="sorting_a_z">Alfabetik (A’dan Z’ye)</string>
     <string name="sorting_z_a">Alfabetik (Z’den A’ya)</string>
@@ -171,7 +174,11 @@
     <string name="text_select_time">Zaman seçin</string>
     <string name="text_try_again">Etiketi tekrar taramayı deneyin!</string>
 
+
+
+
     <string name="text_catalog_product_ean13">Bu barkod tek bir ambalajı değil, bir ürünü tanımlar. Yalnızca ilaçsa ekleyin; ardından bilgilerini, miktarını ve son kullanma tarihini kontrol edin.</string>
+
 
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Tam ekran bildirimleri</string>
@@ -231,9 +238,12 @@
     <string name="text_update">Güncelle</string>
     <string name="text_yes">Evet</string>
 
+
+
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="one">Günde %d kez</item>
         <item quantity="other">Günde %d kez</item>
     </plurals>
+
 </resources>

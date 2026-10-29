@@ -218,7 +218,10 @@
 
     <string name="text_toast_autostart_not_found">Auto‐inicio de ajustes no encontrado en este dispositivo</string>
 
+
+
     <string name="text_catalog_product_ean13">Este código identifica un producto, no un envase individual. Añádelo solo si es un medicamento y revisa sus datos, cantidad y fecha de caducidad.</string>
+
 
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Notificaciones a toda pantalla</string>

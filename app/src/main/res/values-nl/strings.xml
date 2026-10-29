@@ -24,6 +24,9 @@
     <string name="preference_app_theme">App-thema</string>
     <string name="preference_dynamic_color">Dynamische kleur</string>
 
+
+    <!-- Pages -->
+
     <!-- Sorting -->
     <string name="sorting_a_z">Alfabetisch (A tot Z)</string>
     <string name="sorting_z_a">Alfabetisch (Z tot A)</string>
@@ -76,7 +79,31 @@
     <!-- Medication dose types -->
     <string name="dose_sach">sach</string>
 
+    <!-- Tabs -->
+
+    <!-- Intakes -->
+
+
+
+
+
+
     <!-- Dialogs -->
+
+
+
+
     <string name="text_catalog_product_ean13">Deze barcode identificeert een product, geen afzonderlijke verpakking. Voeg het alleen toe als het een medicijn is en controleer daarna de gegevens, hoeveelheid en vervaldatum.</string>
+
+
+    <!-- Permissions -->
+
+
+
+    <!-- Strings -->
+
+
+
+    <!-- Plurals -->
 
 </resources>
