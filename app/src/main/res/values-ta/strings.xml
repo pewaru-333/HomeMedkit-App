@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <!-- Menu -->
     <string name="bottom_bar_medicines">மருந்துகள்</string>
     <string name="bottom_bar_intakes">உட்கொள்ளல்</string>
@@ -16,6 +17,9 @@
     <string name="preference_app_theme">பயன்பாட்டு கருப்பொருள்</string>
     <string name="preference_dynamic_color">மாறும் நிறம்</string>
     <string name="preference_import_export">இறக்குமதி/ஏற்றுமதி</string>
+
+
+    <!-- Pages -->
 
     <!-- Sorting -->
     <string name="sorting_a_z">அகரவரிசைப்படி (A முதல் Z வரை)</string>
@@ -133,6 +137,7 @@
     <string name="intake_interval_weekly">வாராந்திர</string>
     <string name="intake_interval_other">தனிப்பயன்</string>
 
+
     <string name="intake_period_pick">தேதிகள் தேர்வு</string>
     <string name="intake_period_other">நாட்கள் உள்ளீடு</string>
     <string name="intake_period_indef">காலவரையற்றது</string>
@@ -153,10 +158,16 @@
     <string name="text_select_time">நேரம் தேர்ந்தெடுக்கவும்</string>
     <string name="text_try_again">லேபிளை ச்கேன் செய்ய மீண்டும் முயற்சிக்கவும்!</string>
 
+
+
+
     <string name="text_catalog_product_ean13">இந்தப் பட்டைக்குறியீடு ஒரு பொருளை அடையாளம் காண்கிறது; தனிப்பட்ட பொதியை அல்ல. இது மருந்தாக இருந்தால் மட்டும் சேர்த்து, அதன் விவரங்கள், அளவு மற்றும் காலாவதி தேதியைச் சரிபார்க்கவும்.</string>
 
+
     <!-- Permissions -->
+
     <string name="text_explain_camera">ஒரு லேபிளை ச்கேன் செய்ய, நீங்கள் கேமராவுக்கு இசைவு வழங்க வேண்டும். குறிப்பது எப்படி இருக்கும் என்பதற்கான எடுத்துக்காட்டு கீழே காட்டப்பட்டுள்ளது (இது ரச்ய சிகிச்சைகளுக்கு மட்டுமே வேலை செய்கிறது)</string>
+
 
     <!-- Strings -->
     <string name="text_add">கூட்டு</string>
@@ -190,9 +201,12 @@
     <string name="text_update">புதுப்பிப்பு</string>
     <string name="text_yes">ஆம்</string>
 
+
+
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="one">ஒரு நாளைக்கு %d முறை</item>
         <item quantity="other">ஒரு நாளைக்கு %d முறை</item>
     </plurals>
+
 </resources>

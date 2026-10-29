@@ -24,6 +24,7 @@
     <string name="preference_fixing_notifications">Des problèmes avec les notifications ?</string>
     <string name="preference_clear_app_cache">Vider le cache de l\'application</string>
 
+
     <!-- Pages -->
     <string name="page_medications">Médicaments</string>
 
@@ -169,12 +170,16 @@
     <string name="text_fill_field">Remplissez ce champ !</string>
     <string name="text_kit_title">Nom du groupe</string>
     <string name="text_medicine_deleted">Le médicament a été supprimé, il est impossible de modifier le statut de la prise</string>
-    <string name="text_not_saved_intake">Cette prise n\'a pas été sauvegardée ! Voulez-vous retourner en arrière ?</string>
+    <string name="text_not_saved_intake">Cette prise n\'a pas été sauvegardée ! Voulez-vous retourner en arrière ?</string>
     <string name="text_pay_attention">Attention !</string>
     <string name="text_pick_icon">"Sélectionnez  une icône par défaut"</string>
     <string name="text_take_picture">Prenez une photo avec la caméra</string>
 
+
+
+
     <string name="text_catalog_product_ean13">Ce code-barres identifie un produit, pas un emballage individuel. Ajoutez-le uniquement si c’est un médicament, puis vérifiez ses informations, sa quantité et sa date de péremption.</string>
+
 
     <!-- Permissions -->
     <string name="text_permission_title_ignore_battery">Ignore l\'optimisation de la batterie</string>
@@ -202,4 +207,9 @@
     <string name="text_every_day">Tous les jours</string>
     <string name="text_exit">Sortir</string>
     <string name="text_finish_date">Date de fin</string>
+
+
+
+    <!-- Plurals -->
+
 </resources>

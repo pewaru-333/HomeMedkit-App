@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <!-- Menu -->
     <string name="bottom_bar_medicines">药物</string>
     <string name="bottom_bar_intakes">用药</string>
@@ -21,6 +22,9 @@
     <string name="preference_import_export">导入导出</string>
     <string name="preference_fixing_notifications">通知功能用不了了？</string>
     <string name="preference_clear_app_cache">清除缓存</string>
+
+
+    <!-- Pages -->
 
     <!-- Sorting -->
     <string name="sorting_a_z">按首字母顺序 (A到Z)</string>
@@ -174,7 +178,11 @@
     <string name="text_take_picture">拍摄图片</string>
     <string name="text_try_again">尝试再次扫描</string>
 
+
+
+
     <string name="text_catalog_product_ean13">此条形码标识商品，而非单独的包装。请仅在确认为药品时添加，然后检查详细信息、数量和有效期。</string>
+
 
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">全屏提醒</string>
@@ -234,8 +242,11 @@
     <string name="text_update">更新</string>
     <string name="text_yes">确认</string>
 
+
+
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="other">一天 %d 次</item>
     </plurals>
+
 </resources>

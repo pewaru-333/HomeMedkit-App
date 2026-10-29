@@ -24,6 +24,7 @@
     <string name="preference_fixing_notifications">Problemi con le notifiche?</string>
     <string name="preference_clear_app_cache">Pulisci la cache dell\'app</string>
 
+
     <!-- Pages -->
     <string name="page_medications">Medicinali</string>
 
@@ -136,6 +137,7 @@
     <string name="intake_interval_weekly">settimanale</string>
     <string name="intake_interval_other">personalizzato</string>
 
+
     <string name="intake_period_pick">per data</string>
     <string name="intake_period_other">per numero di giorni</string>
     <string name="intake_period_indef">indefinito</string>
@@ -151,7 +153,15 @@
     <string name="text_select_time">Seleziona l’ora</string>
     <string name="text_try_again">Prova di nuovo a scansionare l\'etichetta!</string>
 
+
+
+
     <string name="text_catalog_product_ean13">Questo codice identifica un prodotto, non una singola confezione. Aggiungilo solo se è un medicinale, poi controlla i dettagli, la quantità e la scadenza.</string>
+
+
+    <!-- Permissions -->
+
+
 
     <!-- Strings -->
     <string name="text_add">Aggiungi</string>
@@ -182,10 +192,13 @@
     <string name="text_update">Aggiornamento</string>
     <string name="text_yes">Sì</string>
 
+
+
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="one">%d volta al giorno</item>
         <item quantity="many">%d volte al giorno</item>
         <item quantity="other">%d volte al giorno</item>
     </plurals>
+
 </resources>

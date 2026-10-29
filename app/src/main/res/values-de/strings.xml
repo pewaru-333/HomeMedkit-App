@@ -219,7 +219,10 @@
 
     <string name="text_toast_autostart_not_found">Autostart-Einstellungen für dieses Gerät nicht gefunden</string>
 
+
+
     <string name="text_catalog_product_ean13">Dieser Barcode identifiziert ein Produkt, keine einzelne Packung. Füge es nur hinzu, wenn es ein Medikament ist, und prüfe anschließend Angaben, Menge und Verfallsdatum.</string>
+
 
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Vollbild-Benachrichtigungen</string>
