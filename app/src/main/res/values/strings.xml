@@ -40,8 +40,8 @@
     <string name="page_intake_settings">Settings</string>
 
     <!-- Sorting -->
-    <string name="sorting_a_z">Alphabetically (A to z)</string>
-    <string name="sorting_z_a">Alphabetically (z to A)</string>
+    <string name="sorting_a_z">Alphabetically (A to Z)</string>
+    <string name="sorting_z_a">Alphabetically (Z to A)</string>
     <string name="sorting_from_oldest">Expiration date (from oldest)</string>
     <string name="sorting_from_newest">Expiration date (from newest)</string>
 
@@ -56,11 +56,11 @@
     <string name="channel_exp_desc">Expiration date</string>
     <string name="channel_intakes_desc">Medication intake</string>
     <string name="channel_pre_desc">Upcoming intake</string>
-    <string name="text_action_intake_all_accept">Intake all</string>
+    <string name="text_action_intake_all_accept">Take all</string>
     <string name="text_action_intake_all_decline">Clear all</string>
     <string name="text_attention">Attention!</string>
-    <string name="text_do_intake">Intake</string>
-    <string name="text_do_intake_all">Intake all</string>
+    <string name="text_do_intake">Take your medicine</string>
+    <string name="text_do_intake_all">Take all medicines</string>
     <string name="text_expire_soon">The expiration date of %1$s is near</string>
     <string name="text_intake_amount">Intake amount</string>
     <string name="text_intake_amount_not_enough">It\'s time to take %1$s, but there\'s not enough!</string>
@@ -83,7 +83,7 @@
     <string name="text_medicine_description">Description</string>
     <string name="text_medicine_display_name">Display name</string>
     <string name="text_medicine_dose">Dose</string>
-    <string name="text_medicine_form">Release form</string>
+    <string name="text_medicine_form">Dosage form</string>
     <string name="text_medicine_group">Group</string>
     <string name="text_medicine_product_name">Product name</string>
     <string name="text_medicine_recommendations">Usage recommendations</string>
@@ -121,7 +121,7 @@
     <string name="type_napkins">NAPKINS</string>
 
     <!-- Medication dose types -->
-    <string name="dose_ed">ED</string>
+    <string name="dose_ed">units</string>
     <string name="dose_pcs">pcs</string>
     <string name="dose_sach">sach</string>
     <string name="dose_g">g</string>
@@ -141,7 +141,7 @@
     <string name="intake_text_by_schedule">Scheduled</string>
     <string name="intake_text_date">Date</string>
     <string name="intake_text_extra">Extra</string>
-    <string name="intake_text_food">Food &amp; Med</string>
+    <string name="intake_text_food">Relation to meals</string>
     <string name="intake_text_food_after">After meal</string>
     <string name="intake_text_food_before">Before meal</string>
     <string name="intake_text_food_during">During meal</string>
@@ -151,7 +151,7 @@
     <string name="intake_text_interval">Interval</string>
     <string name="intake_text_not_taken">Not taken</string>
     <string name="intake_text_period">Period</string>
-    <string name="intake_text_schema_type">Schema type</string>
+    <string name="intake_text_schema_type">Dosing schedule</string>
     <string name="intake_text_taken">Taken</string>
     <string name="intake_text_time">Time</string>
     <string name="intake_text_start">Start</string>
@@ -163,7 +163,7 @@
     <string name="intake_extra_prealarm">Upcoming notification</string>
 
     <string name="intake_extra_desc_cancellable">Notification will be canceled automatically after 10 minutes</string>
-    <string name="intake_extra_desc_fullscreen">An intent to launch instead of posting the notification to the status bar on locked screen</string>
+    <string name="intake_extra_desc_fullscreen">Shows a full-screen notification instead of a regular notification on the lock screen</string>
     <string name="intake_extra_desc_no_sound">Silences notification, regardless of the sounds or vibrations</string>
     <string name="intake_extra_desc_prealarm">A reminder will be sent 30 minutes before the regular schedule</string>
 
@@ -194,8 +194,8 @@
     <string name="text_duplicate">This medication has been already added!</string>
     <string name="text_error_not_medicine">This label code is not from a medication!</string>
     <string name="text_exit_app">Are you sure you want to exit the app?</string>
-    <string name="text_exit_cloud">Exit from cloud</string>
-    <string name="text_exit_cloud_desc">Do you confirm that you would like to exit the cloud account?</string>
+    <string name="text_exit_cloud">Sign out of cloud account</string>
+    <string name="text_exit_cloud_desc">Are you sure you want to sign out of your cloud account?</string>
     <string name="text_export_database">Export data</string>
     <string name="text_export_images">Export images</string>
     <string name="text_fill_field">Fill in this field!</string>
@@ -207,8 +207,8 @@
     <string name="text_kit_list_is_empty">There are no groups found. You can add groups in the application settings.</string>
     <string name="text_kit_title">Group title</string>
     <string name="text_medicine_deleted">Medication has been deleted, it is impossible to change the intake status</string>
-    <string name="text_not_saved_intake">The intake is not saved! Would you like to go back?</string>
-    <string name="text_not_saved_medicine">The medicine is not saved! Would you like to go back?</string>
+    <string name="text_not_saved_intake">Changes to this intake have not been saved! Are you sure you want to leave?</string>
+    <string name="text_not_saved_medicine">Changes to this medicine have not been saved! Are you sure you want to leave?</string>
     <string name="text_pay_attention">Pay attention!</string>
     <string name="text_pick_icon">Pick default icon</string>
     <string name="text_request_camera">To scan labels, the camera permission is necessary</string>
@@ -218,6 +218,16 @@
     <string name="text_try_again">Try to scan the label again!</string>
 
     <string name="text_toast_autostart_not_found">Autostart settings not found for this device</string>
+
+    <string name="text_processing_code">Processing code</string>
+    <string name="text_looking_up_medicine">Looking up medicine…</string>
+
+    <string name="text_downloading_images">Downloading images</string>
+    <string name="text_downloading_images_count">Downloading %1$d of %2$d images</string>
+
+    <string name="text_catalog_product_ean13">This barcode identifies a product, not an individual package. Add it only if it is a medicine, then check its details, quantity and expiration date.</string>
+
+    <string name="text_scanning_paused">Scanning paused</string>
 
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Full-screen notifications</string>
@@ -237,7 +247,6 @@
 
     <string name="text_permission_grant">Grant</string>
     <string name="text_permission_granted">Granted</string>
-    <string name="text_permission_grant_full">Grant permission</string>
 
     <!-- Strings -->
     <string name="blank" translatable="false" />
@@ -291,7 +300,7 @@
     <string name="text_stay">Stay</string>
     <string name="text_success">Success!</string>
     <string name="text_sync">Synchronization</string>
-    <string name="text_sync_error">Error while synchronization</string>
+    <string name="text_sync_error">Synchronization error</string>
     <string name="text_sync_success">Successful synchronization</string>
     <string name="text_synchronized_at">Synchronized: %s</string>
     <string name="text_taking_medicine">Taking medication</string>
@@ -311,7 +320,7 @@
     <string name="text_yandex">Yandex</string>
     <string name="text_google" translatable="false">Google</string>
 
-    <string name="text_in_progress">(in progress)</string>
+    <string name="text_in_progress">(in development)</string>
 
     <!-- Plurals -->
     <plurals name="intake_times_a_day">

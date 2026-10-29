@@ -1,12 +1,16 @@
 package ru.application.homemedkit.data.queries
 
 import androidx.sqlite.db.SimpleSQLiteQuery
-import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.utils.BLANK
 import ru.application.homemedkit.utils.enums.Sorting
 
 object MedicinesQueryBuilder {
-    fun selectBy(search: String, order: Sorting, hideEmpty: Boolean, kits: Set<Kit>): SimpleSQLiteQuery {
+    private val searchTokens = Regex("[\\p{L}\\p{N}\\p{M}]+")
+
+    private fun literalSearch(search: String): String = searchTokens.findAll(search)
+        .joinToString(" ") { "\"${it.value}*\"" }
+
+    fun selectBy(search: String, order: Sorting, hideEmpty: Boolean, kitIds: Set<Long>): SimpleSQLiteQuery {
         val args = mutableListOf<Any>()
         val basicQuery = StringBuilder(
             """
@@ -23,12 +27,16 @@ object MedicinesQueryBuilder {
         }
 
         if (search.isNotBlank()) {
-            basicQuery.append(" AND m.id IN (SELECT rowid FROM medicines_fts WHERE medicines_fts MATCH ?)")
-            args.add("$search*")
+            val expression = literalSearch(search)
+            if (expression.isEmpty()) {
+                basicQuery.append(" AND 0")
+            } else {
+                basicQuery.append(" AND m.id IN (SELECT rowid FROM medicines_fts WHERE medicines_fts MATCH ?)")
+                args.add(expression)
+            }
         }
 
-        if (kits.isNotEmpty()) {
-            val kitIds = kits.map(Kit::kitId)
+        if (kitIds.isNotEmpty()) {
             val placeholders = kitIds.joinToString(",") { "?" }
 
             basicQuery.append(" AND m.id IN (SELECT medicineId FROM medicines_kits WHERE kitId IN ($placeholders))")
@@ -36,13 +44,13 @@ object MedicinesQueryBuilder {
         }
 
         val orderClause = when (order) {
-            Sorting.IN_NAME -> "COALESCE(NULLIF(m.nameAlias, ''), m.productName) COLLATE NOCASE ASC"
-            Sorting.RE_NAME -> "COALESCE(NULLIF(m.nameAlias, ''), m.productName) COLLATE NOCASE DESC"
+            Sorting.IN_NAME -> "COALESCE(NULLIF(m.nameAlias, ''), m.productName) COLLATE LOCALIZED ASC"
+            Sorting.RE_NAME -> "COALESCE(NULLIF(m.nameAlias, ''), m.productName) COLLATE LOCALIZED DESC"
             Sorting.IN_DATE -> "m.expDate ASC"
             Sorting.RE_DATE -> "m.expDate DESC"
         }
 
-        basicQuery.append(" ORDER BY $orderClause")
+        basicQuery.append(" ORDER BY $orderClause, m.id ASC")
 
         return SimpleSQLiteQuery(basicQuery.toString(), args.toTypedArray())
     }

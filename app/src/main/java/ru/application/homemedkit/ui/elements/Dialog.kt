@@ -23,54 +23,54 @@ fun DialogKits(
     onPick: (Kit) -> Unit,
     onDismiss: () -> Unit,
     onClear: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        dismissButton = { TextButton(onClear) { Text(stringResource(R.string.text_clear)) } },
-        confirmButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_save)) } },
-        title = { Text(stringResource(R.string.preference_kits_group)) },
-        text = {
-            if (kits.isEmpty()) {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    itemFilterEmpty?.invoke()
+) = AlertDialog(
+    onDismissRequest = onDismiss,
+    dismissButton = { TextButton(onClear) { Text(stringResource(R.string.text_clear)) } },
+    confirmButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_confirm)) } },
+    title = { Text(stringResource(R.string.preference_kits_group)) },
+    text = {
+        if (kits.isEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                itemFilterEmpty?.invoke()
 
-                    Text(
-                        text = stringResource(R.string.text_kit_list_is_empty),
-                        modifier = Modifier.padding(horizontal = 12.dp),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                Text(
+                    text = stringResource(R.string.text_kit_list_is_empty),
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        } else {
+            LazyColumn {
+                itemFilterEmpty?.let {
+                    item { it.invoke() }
                 }
-            } else {
-                LazyColumn {
-                    itemFilterEmpty?.let {
-                        item { it.invoke() }
-                    }
 
-                    items(kits, Kit::kitId) { kit ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp)
-                                .toggleable(
-                                    role = Role.Checkbox,
-                                    value = isChecked(kit),
-                                    onValueChange = { onPick(kit) }
-                                )
-                        ) {
-                            Checkbox(isChecked(kit), null)
-                            Text(
-                                text = kit.title,
-                                modifier = Modifier.padding(start = 16.dp),
-                                style = MaterialTheme.typography.bodyLarge
+                items(kits, Kit::kitId) { kit ->
+                    val checked = isChecked(kit)
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 56.dp)
+                            .toggleable(
+                                role = Role.Checkbox,
+                                value = checked,
+                                onValueChange = { onPick(kit) }
                             )
-                        }
+                    ) {
+                        Checkbox(checked, null)
+                        Text(
+                            text = kit.title,
+                            modifier = Modifier.padding(start = 16.dp),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     }
                 }
             }
         }
-    )
-}
+    }
+)
 
 @Composable
 fun DialogDelete(@StringRes text: Int, onCancel: () -> Unit, onConfirm: () -> Unit) = AlertDialog(

@@ -10,19 +10,13 @@ import androidx.compose.foundation.style.styleable
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import ru.application.homemedkit.R
 import ru.application.homemedkit.utils.BLANK
 
@@ -30,6 +24,7 @@ import ru.application.homemedkit.utils.BLANK
 fun ScaffoldSearchBar(
     search: String,
     onSearch: (String) -> Unit,
+    modifier: Modifier = Modifier,
     onClear: () -> Unit = { onSearch(BLANK) },
     navigationIcon: @Composable (() -> Unit)? = null,
     actions: @Composable (RowScope.() -> Unit)? = null,
@@ -39,20 +34,21 @@ fun ScaffoldSearchBar(
 ) {
     val searchBarState = rememberSearchBarState()
     val textFieldState = rememberTextFieldState(search)
+    val currentOnSearch by rememberUpdatedState(onSearch)
 
     LaunchedEffect(textFieldState) {
-        snapshotFlow { textFieldState.text.toString() }.collectLatest {
-            onSearch(it)
+        snapshotFlow { textFieldState.text.toString() }.collect {
+            currentOnSearch(it)
         }
     }
 
-    LaunchedEffect(search) {
-        if (search.isEmpty()) {
+    SideEffect(search) {
+        if (search.isEmpty() && textFieldState.text.isNotEmpty()) {
             textFieldState.clearText()
         }
     }
 
-    Box(Modifier.fillMaxSize()) {
+    Box(modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             InteractiveAppBarWithSearch(
                 state = searchBarState,
@@ -100,6 +96,13 @@ private fun InteractiveAppBarWithSearch(
     shape: Shape = SearchBarDefaults.inputFieldShape,
     windowInsets: WindowInsets = SearchBarDefaults.windowInsets,
 ) {
+    val colors = SearchBarDefaults.colors()
+
+    LaunchedEffect(state) {
+        snapshotFlow { state.targetValue }
+            .collectLatest { if (it != SearchBarValue.Collapsed) state.animateToCollapsed() }
+    }
+
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = modifier
@@ -127,10 +130,13 @@ private fun InteractiveAppBarWithSearch(
             }
 
             Box(Modifier.weight(1f)) {
-                InteractiveSearchBar(
-                    state = state,
-                    inputField = inputField,
+                Surface(
                     shape = shape,
+                    color = colors.containerColor,
+                    contentColor = contentColorFor(colors.containerColor),
+                    tonalElevation = SearchBarDefaults.TonalElevation,
+                    shadowElevation = SearchBarDefaults.ShadowElevation,
+                    content = inputField,
                     modifier = Modifier
                         .align(Alignment.Center)
                         .widthIn(360.dp, 720.dp)
@@ -158,27 +164,4 @@ private fun InteractiveAppBarWithSearch(
             }
         }
     }
-}
-
-@Composable
-private fun InteractiveSearchBar(
-    state: SearchBarState,
-    inputField: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    shape: Shape = SearchBarDefaults.inputFieldShape,
-    colors: SearchBarColors = SearchBarDefaults.colors(),
-    tonalElevation: Dp = SearchBarDefaults.TonalElevation,
-    shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
-) {
-    val scope = rememberCoroutineScope()
-
-    Surface(
-        modifier = modifier.onGloballyPositioned { scope.launch { state.animateToCollapsed() } },
-        shape = shape,
-        color = colors.containerColor,
-        contentColor = contentColorFor(colors.containerColor),
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        content = inputField,
-    )
 }

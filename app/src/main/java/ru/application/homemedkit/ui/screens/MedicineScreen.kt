@@ -66,7 +66,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.application.homemedkit.R
@@ -82,6 +81,7 @@ import ru.application.homemedkit.ui.elements.*
 import ru.application.homemedkit.utils.DecimalAmountInputTransformation
 import ru.application.homemedkit.utils.DecimalAmountOutputTransformation
 import ru.application.homemedkit.utils.Formatter
+import ru.application.homemedkit.utils.Code
 import ru.application.homemedkit.utils.camera.CameraConfig
 import ru.application.homemedkit.utils.camera.ImageCompressor
 import ru.application.homemedkit.utils.camera.rememberCameraConfig
@@ -97,10 +97,9 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
     val resources = LocalResources.current
     val filesDir = context.filesDir
 
-    val scope = rememberCoroutineScope()
-
     val state by model.state.collectAsStateWithLifecycle()
     val kits by model.kits.collectAsStateWithLifecycle()
+    val isEan13 = remember(state.code) { Code.parse(state.code)?.isEan13 == true }
 
     val snackbarHost = remember(::SnackbarHostState)
 
@@ -186,7 +185,7 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
             }
         },
         floatingActionButton = {
-            if (state.technical.scanned && !state.technical.verified) {
+            if (state.technical.scanned && !state.technical.verified && !isEan13) {
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(R.string.text_update)) },
                     icon = { VectorIcon(R.drawable.vector_refresh) },
@@ -377,7 +376,7 @@ fun MedicineScreen(model: MedicineViewModel, onBack: () -> Unit, onGoToIntake: (
             onShow = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.FullImage(it)))}
         )
 
-        MedicineDialogState.TakePhoto -> CameraPhotoPreview(scope, model::onEvent)
+        MedicineDialogState.TakePhoto -> CameraPhotoPreview(model::onEvent)
 
         MedicineDialogState.Date -> MonthYear(
             cancel = { model.onEvent(MedicineEvent.ToggleDialog(MedicineDialogState.Date)) },
@@ -1005,8 +1004,12 @@ private fun IconPicker(isEnabled: (DrugType) -> Boolean, onDismiss: () -> Unit, 
 }
 
 @Composable
-private fun CameraPhotoPreview(scope: CoroutineScope, event: (MedicineEvent) -> Unit) {
+private fun CameraPhotoPreview(event: (MedicineEvent) -> Unit) {
     val controller = rememberCameraConfig(CameraConfig.UseCases.IMAGE_CAPTURE)
+    val scope = rememberCoroutineScope()
+    var isCapturing by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = isCapturing) {}
 
     Box {
         CameraPreview(controller, Modifier.fillMaxSize())
@@ -1014,9 +1017,10 @@ private fun CameraPhotoPreview(scope: CoroutineScope, event: (MedicineEvent) -> 
         Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
             IconButton(
                 onClick = { event(MedicineEvent.ToggleDialog(MedicineDialogState.TakePhoto)) },
+                enabled = !isCapturing,
                 content = { VectorIcon(R.drawable.vector_arrow_back, Modifier, Color.White) } )
 
-            IconButton(controller::toggleTorch) {
+            IconButton(controller::toggleTorch, enabled = !isCapturing && controller.isReady && controller.hasFlash) {
                 VectorIcon(R.drawable.vector_flash, Modifier, Color.White)
             }
         }
@@ -1037,13 +1041,14 @@ private fun CameraPhotoPreview(scope: CoroutineScope, event: (MedicineEvent) -> 
 
                     shape(CircleShape)
                 }
-                .clickable {
+                .clickable(enabled = controller.isReady && !isCapturing) {
+                    isCapturing = true
                     scope.launch {
-                        val image = controller.takePicture {
-                            event(MedicineEvent.ToggleDialog(MedicineDialogState.Loading))
+                        try {
+                            event(MedicineEvent.SetImage(controller.takePicture()))
+                        } finally {
+                            isCapturing = false
                         }
-
-                        event(MedicineEvent.SetImage(image))
                     }
                 }
         ) {
@@ -1053,6 +1058,8 @@ private fun CameraPhotoPreview(scope: CoroutineScope, event: (MedicineEvent) -> 
                 tint = Color.Black
             )
         }
+
+        if (isCapturing) BoxLoading()
     }
 }
 

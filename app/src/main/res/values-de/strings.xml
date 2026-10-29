@@ -3,9 +3,9 @@
     <string name="app_name">Medizinset</string>
 
     <!-- Menu -->
-    <string name="bottom_bar_medicines">Medikament</string>
+    <string name="bottom_bar_medicines">Medikamente</string>
     <string name="bottom_bar_intakes">Einnahmen</string>
-    <string name="bottom_bar_settings">Einstellung</string>
+    <string name="bottom_bar_settings">Einstellungen</string>
 
     <!-- Preferences -->
     <string name="preference_basic_settings">Grundeinstellungen</string>
@@ -38,11 +38,11 @@
     <string name="page_intake_list">Einnahmen (Liste)</string>
     <string name="page_intake_current">Einnahme (aktuell)</string>
     <string name="page_intake_past">Einnahmen (zurückliegend)</string>
-    <string name="page_intake_settings">Einstellung</string>
+    <string name="page_intake_settings">Einstellungen</string>
 
     <!-- Sorting -->
-    <string name="sorting_a_z">Alphabetisch (A bis z)</string>
-    <string name="sorting_z_a">Alphabetisch (z bis A)</string>
+    <string name="sorting_a_z">Alphabetisch (A bis Z)</string>
+    <string name="sorting_z_a">Alphabetisch (Z bis A)</string>
     <string name="sorting_from_oldest">Ablaufdatum (alt zu neu)</string>
     <string name="sorting_from_newest">Ablaufdatum (neu zu alt)</string>
 
@@ -57,14 +57,14 @@
     <string name="channel_exp_desc">Haltbarkeitsdatum</string>
     <string name="channel_intakes_desc">Medikamenten-Einnahme</string>
     <string name="channel_pre_desc">Anstehende Einnahme</string>
-    <string name="text_action_intake_all_accept">Alle Einnahmen</string>
-    <string name="text_action_intake_all_decline">Lösche alles</string>
+    <string name="text_action_intake_all_accept">Alle einnehmen</string>
+    <string name="text_action_intake_all_decline">Alles löschen</string>
     <string name="text_attention">Achtung!</string>
     <string name="text_do_intake">Einnehmen</string>
     <string name="text_do_intake_all">Alle einnehmen</string>
     <string name="text_expire_soon">Das Ablaufdatum von %1$s ist nahe</string>
     <string name="text_intake_amount">Einnahmemenge</string>
-    <string name="text_intake_amount_not_enough">Zeit %1$s einzunehmen, aber der Vorrat ist aufgebraucht!</string>
+    <string name="text_intake_amount_not_enough">Es ist Zeit, %1$s einzunehmen, aber der Restbestand reicht für die verordnete Dosis nicht aus!</string>
     <string name="text_intake_prealarm_text">Medikament: %1$s\nMenge: %2$s %3$s\nZeit: %4$s</string>
     <string name="text_intake_prealarm_title">Bevorstehende Einnahme</string>
     <string name="text_intake_sure_to_intake_all">Bist du sicher, dass du aktuell alle Medikamente einnimmst?</string>
@@ -207,8 +207,8 @@
     <string name="text_kit_list_is_empty">Keine Gruppen gefunden. Gruppen können in den Einstellungen der App hinzugefügt werden.</string>
     <string name="text_kit_title">Gruppentitel</string>
     <string name="text_medicine_deleted">Medikament wurde gelöscht, Einnahmestatus ist nicht änderbar</string>
-    <string name="text_not_saved_intake">Die Einnahme wurde nicht gespeichert! Möchten Sie zurückgehen?</string>
-    <string name="text_not_saved_medicine">Das Medikament wurde nicht gespeichert! Möchten Sie die den Dialog dennoch schließen?</string>
+    <string name="text_not_saved_intake">Die Änderungen an dieser Einnahme wurden nicht gespeichert! Möchten Sie wirklich zurückgehen?</string>
+    <string name="text_not_saved_medicine">Die Änderungen an diesem Medikament wurden nicht gespeichert! Möchten Sie wirklich zurückgehen?</string>
     <string name="text_pay_attention">Bitte beachten!</string>
     <string name="text_pick_icon">Aus den Icons wählen</string>
     <string name="text_request_camera">Um Labels zu scannen, benötigt die App Kamerazugriffs-Rechte</string>
@@ -218,6 +218,8 @@
     <string name="text_try_again">Bitte das Etikett erneut scannen!</string>
 
     <string name="text_toast_autostart_not_found">Autostart-Einstellungen für dieses Gerät nicht gefunden</string>
+
+    <string name="text_catalog_product_ean13">Dieser Barcode identifiziert ein Produkt, keine einzelne Packung. Füge es nur hinzu, wenn es ein Medikament ist, und prüfe anschließend Angaben, Menge und Verfallsdatum.</string>
 
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Vollbild-Benachrichtigungen</string>
@@ -237,7 +239,6 @@
 
     <string name="text_permission_grant">Erlauben</string>
     <string name="text_permission_granted">Erlaubt</string>
-    <string name="text_permission_grant_full">Berechtigung gewähren</string>
 
     <!-- Strings -->
     <string name="text_add">Hinzufügen</string>
@@ -265,7 +266,7 @@
     <string name="text_grant">Erlauben</string>
     <string name="text_hide_empty">Nicht vorrätige ausblenden</string>
     <string name="text_list_view">Listenansicht</string>
-    <string name="text_medicine_not_in_stock">­Du kannst %1$s nicht einnehmen, da nicht mehr genug übrig ist!</string>
+    <string name="text_medicine_not_in_stock">Du kannst %1$s nicht einnehmen, da nicht mehr genug übrig ist!</string>
     <string name="text_no">Nein</string>
     <string name="text_no_data_found">Keine Medikamente gefunden. Bitte Filter ändern oder Medikament hinzufügen.</string>
     <string name="text_no_data_group_found">Keine Medikamente mit Gruppe gefunden. Bitte hinzufügen oder Filter ändern.</string>
@@ -308,16 +309,16 @@
 
     <string name="text_yandex">Yandex</string>
 
-    <string name="text_in_progress">(in Bearbeitung)</string>
+    <string name="text_in_progress">(in Entwicklung)</string>
 
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
-        <item quantity="one">%d-Mal am Tag</item>
-        <item quantity="other">%d-Male am Tag</item>
+        <item quantity="one">%d-mal am Tag</item>
+        <item quantity="other">%d-mal am Tag</item>
     </plurals>
 
     <plurals name="intake_interval_in_day">
-        <item quantity="one">%d tag</item>
+        <item quantity="one">Jeden %d Tag</item>
         <item quantity="other">Alle %d Tage</item>
     </plurals>
 </resources>

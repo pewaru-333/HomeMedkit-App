@@ -4,9 +4,9 @@ import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import kotlinx.coroutines.flow.Flow
 import ru.application.homemedkit.data.dto.Image
-import ru.application.homemedkit.data.dto.Kit
 import ru.application.homemedkit.data.dto.Medicine
 import ru.application.homemedkit.data.dto.MedicineFTS
+import ru.application.homemedkit.data.dto.MedicineKit
 import ru.application.homemedkit.data.model.MedicineFull
 import ru.application.homemedkit.data.model.MedicineMain
 
@@ -20,15 +20,15 @@ interface MedicineDAO : BaseDAO<Medicine> {
     suspend fun getExpiredSoon(expDate: Long): List<Medicine>
 
     @Transaction
-    @RawQuery(observedEntities = [Medicine::class, MedicineFTS::class, Image::class, Kit::class])
+    @RawQuery(observedEntities = [Medicine::class, MedicineFTS::class, Image::class, MedicineKit::class])
     fun getFlow(query: SupportSQLiteQuery): Flow<List<MedicineMain>>
 
     @Query(
         """
-    SELECT id FROM medicines 
-    WHERE cis LIKE '%' || :cis || '%' 
-    AND cis IS NOT NULL 
-    AND cis != '' 
+    SELECT id FROM medicines
+    WHERE (length(:cis) = 13 AND cis = :cis COLLATE BINARY)
+       OR (length(:cis) = 31 AND substr(cis, instr(cis, '01'), 31) = :cis COLLATE BINARY)
+    ORDER BY id
     LIMIT 1
     """
     )
@@ -54,8 +54,21 @@ interface MedicineDAO : BaseDAO<Medicine> {
     suspend fun untakeMedicine(id: Long, amount: Double)
 
     // ============================== Insert ==============================
+    @Transaction
+    suspend fun insertScanned(medicine: Medicine, images: List<Image>): Long {
+        val id = insert(medicine)
+
+        insertImages(
+            images = images.map {
+                it.copy(medicineId = id)
+            }
+        )
+
+        return id
+    }
+
     @Insert
-    suspend fun insertImages(image: List<Image>)
+    suspend fun insertImages(images: List<Image>)
 
     @Upsert
     suspend fun upsertAll(medicines: Iterable<Medicine>)

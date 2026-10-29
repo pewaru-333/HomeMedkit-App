@@ -1,15 +1,17 @@
 package ru.application.homemedkit.network.models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class MainModel(
     val codeFounded: Boolean,
-    val category: String?,
+    val category: String? = null,
     val code: String,
-    val productName: String?,
-    val expireDate: Long?,
-    val screen: ScreenData? = null
+    val productName: String? = null,
+    val expireDate: Long? = null,
+    val screen: ScreenData? = null,
+    val catalogData: List<CatalogProduct>? = null
 ) {
     val imageUrls: List<String>
         get() {
@@ -27,18 +29,35 @@ data class MainModel(
         }
 
     val attributes: Map<String, String>
-        get() = screen?.items
-            ?.filter { it.attrList != null }
-            ?.flatMap { it.attrList!! }
-            ?.associate { (it.label.orEmpty()) to (it.value.orEmpty()) }
-            ?: emptyMap()
+        get() = buildMap {
+            catalogData?.firstOrNull()?.attributes?.forEach {
+                it.label?.let { label -> put(label, it.value.orEmpty()) }
+            }
+            screen?.items?.forEach { item ->
+                item.attrList?.forEach {
+                    it.label?.let { label -> put(label, it.value.orEmpty()) }
+                }
+            }
+        }
 
     val pharmacyInfo: PharmacyData?
         get() = screen?.items?.firstOrNull { it.itemType == "pharmacy_search" }?.pharmacyData
 
     val isValidCategory: Boolean
-        get() = category in setOf("drugs", "bio", "antiseptic")
+        get() = category == "drugs" || category == "bio" || category == "antiseptic"
 }
+
+@Serializable
+data class CatalogProduct(
+    @SerialName("good_name") val name: String? = null,
+    @SerialName("good_attrs") val attributes: List<CatalogAttribute>? = null
+)
+
+@Serializable
+data class CatalogAttribute(
+    @SerialName("attr_name") val label: String? = null,
+    @SerialName("attr_value") val value: String? = null
+)
 
 @Serializable
 data class ScreenData(

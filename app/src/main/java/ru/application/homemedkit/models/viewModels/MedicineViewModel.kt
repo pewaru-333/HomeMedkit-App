@@ -17,6 +17,7 @@ import ru.application.homemedkit.models.states.MedicineState
 import ru.application.homemedkit.models.validation.Validation
 import ru.application.homemedkit.network.Network
 import ru.application.homemedkit.utils.BLANK
+import ru.application.homemedkit.utils.Code
 import ru.application.homemedkit.utils.Formatter
 import ru.application.homemedkit.utils.di.Database
 import ru.application.homemedkit.utils.enums.DrugType
@@ -50,6 +51,7 @@ class MedicineViewModel(
                 val newState = withContext(Dispatchers.Default) { medicine.toState() }
 
                 updateState { newState }
+
             } else {
                 updateState {
                     it.copy(
@@ -111,6 +113,8 @@ class MedicineViewModel(
     }
 
     fun fetch(dir: File) {
+        if (Code.parse(currentState.code)?.isEan13 == true) return
+
         viewModelScope.launch {
             updateState { it.copy(dialogState = MedicineDialogState.Loading) }
 
@@ -128,7 +132,8 @@ class MedicineViewModel(
                                 medicineId = currentState.id,
                                 form = medicine.prodFormNormName,
                                 directory = dir,
-                                urls = response.model.imageUrls
+                                urls = response.model.imageUrls,
+                                onProgress = null
                             )
                         }
 
@@ -167,7 +172,8 @@ class MedicineViewModel(
                             medicineId = currentState.id,
                             form = currentState.prodFormNormName,
                             directory = dir,
-                            urls = response.model.imageUrls
+                            urls = response.model.imageUrls,
+                            onProgress = null
                         )
 
                         dao.updateImages(images)

@@ -18,7 +18,7 @@
     <string name="preference_download_images">Descargar imágenes de medicamentos</string>
     <string name="preference_check_expiration_date">Comprobar la fecha de caducidad de los medicamentos</string>
     <string name="preference_use_alarm_clock">Utilizar reloj de alarma en vez de notificaciones</string>
-    <string name="preference_auto_intake_change_on_time_change">Replanificar admisiones en cambio de hora (zona horaria)</string>
+    <string name="preference_auto_intake_change_on_time_change">Reprogramar las tomas al cambiar la hora o la zona horaria</string>
     <string name="preference_system">Sistema</string>
     <string name="preference_permissions">Permisos</string>
     <string name="preference_language">Idioma de la aplicación</string>
@@ -34,16 +34,16 @@
 
     <!-- Pages -->
     <string name="page_medications">Medicaciones</string>
-    <string name="page_intake_list">Ingreso (listado)</string>
-    <string name="page_intake_current">Ingreso (actual)</string>
-    <string name="page_intake_past">Ingreso (anterior)</string>
+    <string name="page_intake_list">Tomas (lista)</string>
+    <string name="page_intake_current">Tomas (actuales)</string>
+    <string name="page_intake_past">Tomas (pasadas)</string>
     <string name="page_intake_settings">Ajustes</string>
 
     <!-- Sorting -->
-    <string name="sorting_a_z">Alfabéticamente (de A a z)</string>
-    <string name="sorting_z_a">Alfabéticamente (de z a A)</string>
-    <string name="sorting_from_oldest">Fecha de caducidad (reciente)</string>
-    <string name="sorting_from_newest">Fecha de caducidad (antigua)</string>
+    <string name="sorting_a_z">Alfabéticamente (de A a Z)</string>
+    <string name="sorting_z_a">Alfabéticamente (de Z a A)</string>
+    <string name="sorting_from_oldest">Fecha de caducidad (de más próxima a más lejana)</string>
+    <string name="sorting_from_newest">Fecha de caducidad (de más lejana a más próxima)</string>
 
     <!-- Themes -->
     <string name="theme_system">Seguir tema del sistema</string>
@@ -55,17 +55,17 @@
     <string name="channel_name">Sonido de las notificaciones</string>
     <string name="channel_exp_desc">Fecha de caducidad</string>
     <string name="channel_intakes_desc">Toma de medicamentos</string>
-    <string name="channel_pre_desc">Próxima incorporación</string>
-    <string name="text_action_intake_all_accept">Admisión completa</string>
-    <string name="text_action_intake_all_decline">Purgar todo</string>
+    <string name="channel_pre_desc">Próxima toma</string>
+    <string name="text_action_intake_all_accept">Tomar todos</string>
+    <string name="text_action_intake_all_decline">Borrar todo</string>
     <string name="text_attention">¡Atención!</string>
     <string name="text_do_intake">Toma tus medicamentos</string>
-    <string name="text_do_intake_all">Admisión completa</string>
+    <string name="text_do_intake_all">Tomar todos los medicamentos</string>
     <string name="text_expire_soon">La fecha de caducidad de %1$s está a punto de expirar</string>
     <string name="text_intake_amount">Cantidad ingerida</string>
-    <string name="text_intake_amount_not_enough">¡Es la hora de tomar %1$s, pero hay menos cantidad de la prescrita! ¡Vuelve a crear el recordatorio!</string>
-    <string name="text_intake_prealarm_text">Medicamento: %1$s\nDosis: %2$s %3$s\nDuración: %4$s</string>
-    <string name="text_intake_prealarm_title">Próxima incorporación</string>
+    <string name="text_intake_amount_not_enough">¡Es hora de tomar %1$s, pero la cantidad restante es menor que la prescrita!</string>
+    <string name="text_intake_prealarm_text">Medicamento: %1$s\nDosis: %2$s %3$s\nHora: %4$s</string>
+    <string name="text_intake_prealarm_title">Próxima toma</string>
     <string name="text_intake_sure_to_intake_all">¿Estás seguro que estás tomando todos los medicamentos en este momento?</string>
     <string name="text_intake_time">Medicación: %1$s\nCantidad de toma: %2$s %3$s\nMedicamentos sobrantes: %4$s %3$s</string>
     <string name="text_medicine_amount_not_enough">Medicación insuficiente</string>
@@ -81,9 +81,9 @@
     <string name="text_medicine_comment">Comentarios</string>
     <string name="text_medicine_composition">Composición</string>
     <string name="text_medicine_description">Descripción</string>
-    <string name="text_medicine_display_name">Exhibir nombre</string>
+    <string name="text_medicine_display_name">Nombre mostrado</string>
     <string name="text_medicine_dose">Dosis</string>
-    <string name="text_medicine_form">Formas farmaceuticas</string>
+    <string name="text_medicine_form">Forma farmacéutica</string>
     <string name="text_medicine_group">Grupo</string>
     <string name="text_medicine_product_name">Nombre del producto</string>
     <string name="text_medicine_recommendations">Recomendaciones de uso</string>
@@ -108,7 +108,7 @@
     <string name="type_syrup">JARABE</string>
     <string name="type_emulsion">EMULSIÓN</string>
     <string name="type_suspension">SUSPENSIÓN</string>
-    <string name="type_mix">MEZ</string>
+    <string name="type_mix">MEZCLA</string>
     <string name="type_ointment">POMADA</string>
     <string name="type_gel">GEL</string>
     <string name="type_paste">PASTA</string>
@@ -118,10 +118,10 @@
     <string name="type_drops">GOTAS</string>
     <string name="type_patch">PARCHE</string>
     <string name="type_bandage">VENDAJE</string>
-    <string name="type_napkins">PAÑALES</string>
+    <string name="type_napkins">TOALLITAS</string>
 
     <!-- Medication dose types -->
-    <string name="dose_ed">TD</string>
+    <string name="dose_ed">unid.</string>
     <string name="dose_pcs">unidades</string>
     <string name="dose_sach">sach</string>
     <string name="dose_g">g</string>
@@ -161,17 +161,17 @@
     <string name="intake_extra_no_sound">Sin sonido</string>
     <string name="intake_extra_prealarm">Próximas notificaciones</string>
 
-    <string name="intake_extra_desc_cancellable">Specifies, that this notification will be canceled automatically after 10 minutes</string>
-    <string name="intake_extra_desc_fullscreen">Una intención de lanzar en lugar de publicar la notificación en la barra de estado en la pantalla bloqueada</string>
+    <string name="intake_extra_desc_cancellable">Esta notificación se cancelará automáticamente después de 10 minutos</string>
+    <string name="intake_extra_desc_fullscreen">Muestra una notificación a pantalla completa en lugar de una notificación normal en la pantalla bloqueada</string>
     <string name="intake_extra_desc_no_sound">Silencia las notificaciones, independientemente de los sonidos o vibraciones</string>
-    <string name="intake_extra_desc_prealarm">Notificación en la barra de estado antes de los 30 minutos del tiempo de admisión</string>
+    <string name="intake_extra_desc_prealarm">Notificación en la barra de estado 30 minutos antes de la toma</string>
 
     <string name="intake_interval_daily">diariamente</string>
     <string name="intake_interval_weekly">semanalmente</string>
     <string name="intake_interval_other">personalizado</string>
 
     <string name="intake_schema_type_indefinitely">Indefinidamente</string>
-    <string name="intake_schema_type_day_picker">Día tomado</string>
+    <string name="intake_schema_type_day_picker">Por días</string>
     <string name="intake_schema_type_personal">Personal</string>
 
     <string name="intake_period_pick">elección de fechas</string>
@@ -183,9 +183,9 @@
     <string name="text_choose_from_gallery">Elegir desde galería</string>
     <string name="text_clear_app_cache_description">Esta acción eliminará la caché de la aplicación, así como las fotos de medicamentos que ya no se utilizan</string>
     <string name="text_code_not_found">¡Código no encontrado!</string>
-    <string name="text_confirm_deletion_int">¿Seguro que quieres eliminar esta entrada?</string>
-    <string name="text_confirm_deletion_med">Are you sure you want to delete this medicine?</string>
-    <string name="text_confirm_schedule_to_taken">¿Confirma que ya ha tomado %1$s en %2$s en %3$s?</string>
+    <string name="text_confirm_deletion_int">¿Seguro que quieres eliminar esta toma?</string>
+    <string name="text_confirm_deletion_med">¿Seguro que quieres eliminar este medicamento?</string>
+    <string name="text_confirm_schedule_to_taken">¿Confirmas que has tomado %1$s el %2$s a las %3$s?</string>
     <string name="text_connection_error">Error de conexión!</string>
     <string name="text_data_in_cloud">Datos detectados en la nube</string>
     <string name="text_data_in_cloud_desc">Hay datos detectados en la nube. ¿Qué le gustaría hacer?</string>
@@ -206,8 +206,8 @@
     <string name="text_kit_list_is_empty">No hay grupos encontrados. Puede añadir grupos en los ajustes de la aplicación.</string>
     <string name="text_kit_title">Título de grupo</string>
     <string name="text_medicine_deleted">Se ha eliminado el medicamento, es imposible cambiar el estado de ingesta</string>
-    <string name="text_not_saved_intake">¡La entrada no se ha guardado! ¿Quieres volver atrás?</string>
-    <string name="text_not_saved_medicine">La medicina no está guardada. ¿Le gustaría volver?</string>
+    <string name="text_not_saved_intake">¡Los cambios en esta toma no se han guardado! ¿Seguro que quieres salir?</string>
+    <string name="text_not_saved_medicine">¡Los cambios en este medicamento no se han guardado! ¿Seguro que quieres salir?</string>
     <string name="text_pay_attention">¡Prestar atención!</string>
     <string name="text_pick_icon">Escoger icono por defecto</string>
     <string name="text_request_camera">Para escanear la etiqueta, la aplicación debe tener permiso para usar la cámara</string>
@@ -217,6 +217,8 @@
     <string name="text_try_again">¡Vuelve a escanear la etiqueta!</string>
 
     <string name="text_toast_autostart_not_found">Auto‐inicio de ajustes no encontrado en este dispositivo</string>
+
+    <string name="text_catalog_product_ean13">Este código identifica un producto, no un envase individual. Añádelo solo si es un medicamento y revisa sus datos, cantidad y fecha de caducidad.</string>
 
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Notificaciones a toda pantalla</string>
@@ -228,19 +230,18 @@
     <string name="text_explain_datamatrix">Información completa de medicina</string>
     <string name="text_explain_disabled">Los permisos necesarios no están concedidos</string>
     <string name="text_explain_ean_13">Solo nombre del producto</string>
-    <string name="text_explain_full_screen_intent">To receive a full-screen notification, you must grant the appropriate permission</string>
+    <string name="text_explain_full_screen_intent">Permitir notificaciones de tomas a pantalla completa</string>
     <string name="text_explain_ignore_battery">Concede una app que ignore las optimizaciones de batería. Si no está concedido, ¡las notificaciones pueden perderse!</string>
     <string name="text_explain_notifications">Concede mostrar todas las notificaciones de la app</string>
     <string name="text_explain_reminders">Concede recordatorios para ponerlos en la hora precisa</string>
-    <string name="text_explain_request_permissions">To receive intake notifications, you must give the following permissions</string>
+    <string name="text_explain_request_permissions">Para recibir notificaciones de tomas, debes conceder los siguientes permisos</string>
 
     <string name="text_permission_grant">Conceder</string>
     <string name="text_permission_granted">Concedido</string>
-    <string name="text_permission_grant_full">Otorgar permiso</string>
 
     <!-- Strings -->
     <string name="text_add">Añadir</string>
-    <string name="text_amount">Importe</string>
+    <string name="text_amount">Cantidad</string>
     <string name="text_cancel">Cancelar</string>
     <string name="text_clear">Limpiar</string>
     <string name="text_confirm">Confirmar</string>
@@ -260,11 +261,11 @@
     <string name="text_finish_date">Fecha de finalización</string>
     <string name="text_force_download">Forzar descarga</string>
     <string name="text_force_upload">Forzar subida</string>
-    <string name="text_go_to">Go to</string>
+    <string name="text_go_to">Ir</string>
     <string name="text_grant">Conceder</string>
-    <string name="text_hide_empty">Ocultar salida de almacén</string>
+    <string name="text_hide_empty">Ocultar medicamentos agotados</string>
     <string name="text_list_view">Vista de listas</string>
-    <string name="text_medicine_not_in_stock">¡Su canal toma %1$s ya que no queda suficiente!</string>
+    <string name="text_medicine_not_in_stock">¡No puedes tomar %1$s porque no queda suficiente!</string>
     <string name="text_no">No</string>
     <string name="text_no_data_found">No se han encontrado medicamentos. Añádalos o cambie el filtro.</string>
     <string name="text_no_data_group_found">Ninguna medicación encontrada con grupo. Añádalos o cambie el filtro.</string>
@@ -275,12 +276,12 @@
     <string name="text_on">Activado</string>
     <string name="text_pick_cloud_service">Selecciona un proveedor de nube para sincronizar los datos de la app (listado de medicaciones y sus imágenes)</string>
     <string name="text_provider_is_yandex">Conectado con Yandex</string>
-    <string name="text_remainder_after">Recordatorio tras</string>
+    <string name="text_remainder_after">Cantidad restante después</string>
     <string name="text_repeat">Repetir</string>
     <string name="text_retry">Reintentar</string>
     <string name="text_same_amount">La misma cantidad en cada toma</string>
     <string name="text_save">Guardar</string>
-    <string name="text_scan">Analizar</string>
+    <string name="text_scan">Escanear</string>
     <string name="text_selected">Seleccionado</string>
     <string name="text_selected_of">Seleccionado %1$s de %2$s</string>
     <string name="text_start_date">Fecha de inicio</string>
@@ -301,13 +302,13 @@
     <string name="text_unspecified">Sin especificar</string>
     <string name="text_update">Actualizar</string>
     <string name="text_upload_to_cloud">Subir a la nube</string>
-    <string name="text_weekdays">Días semanales</string>
+    <string name="text_weekdays">Días laborables</string>
     <string name="text_weekend">Fin de semana</string>
     <string name="text_yes">Sí</string>
 
     <string name="text_yandex">Yandex</string>
 
-    <string name="text_in_progress">(en progreso)</string>
+    <string name="text_in_progress">(en desarrollo)</string>
 
     <!-- Plurals -->
     <plurals name="intake_times_a_day">

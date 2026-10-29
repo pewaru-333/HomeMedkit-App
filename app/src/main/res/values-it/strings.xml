@@ -24,13 +24,12 @@
     <string name="preference_fixing_notifications">Problemi con le notifiche?</string>
     <string name="preference_clear_app_cache">Pulisci la cache dell\'app</string>
 
-
     <!-- Pages -->
-    <string name="page_medications">Medicines</string>
+    <string name="page_medications">Medicinali</string>
 
     <!-- Sorting -->
-    <string name="sorting_a_z">Alfabeticamente (da A a z)</string>
-    <string name="sorting_z_a">Alfabeticamente (z da A)</string>
+    <string name="sorting_a_z">Alfabeticamente (da A a Z)</string>
+    <string name="sorting_z_a">Alfabeticamente (da Z ad A)</string>
     <string name="sorting_from_oldest">Data di scadenza (dal più antico)</string>
     <string name="sorting_from_newest">Data di scadenza (da più recente)</string>
 
@@ -45,17 +44,17 @@
     <string name="channel_intakes_desc">Assunzione di medicinali</string>
     <string name="channel_pre_desc">Prossima assunzione</string>
     <string name="text_attention">Attenzione!</string>
-    <string name="text_do_intake">Fare l\'assunzione</string>
+    <string name="text_do_intake">Assumi il medicinale</string>
     <string name="text_expire_soon">La data di scadenza di %1$s sta per scadere</string>
-    <string name="text_intake_amount_not_enough">E \'tempo di assunzione %1$s, ma la sua quantità è meno che prescritto! Ricreare l\'assunzione!</string>
-    <string name="text_intake_prealarm_text">Medicine: %1$s\nQuantità: %2$s %3$s\nTime: %4$s</string>
+    <string name="text_intake_amount_not_enough">È ora di assumere %1$s, ma la quantità rimasta è inferiore alla dose prescritta!</string>
+    <string name="text_intake_prealarm_text">Medicinale: %1$s\nDose: %2$s %3$s\nOra: %4$s</string>
     <string name="text_intake_prealarm_title">Prossima assunzione</string>
-    <string name="text_intake_time">Medicina: %1$s\nQuantità: %2$s %3$s</string>
-    <string name="text_medicine_amount_not_enough">Non abbastanza importo lasciato</string>
+    <string name="text_intake_time">Medicinale: %1$s\nDose: %2$s %3$s\nQuantità rimasta: %4$s %3$s</string>
+    <string name="text_medicine_amount_not_enough">Quantità rimasta insufficiente</string>
 
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_time">Tempo #%1$d</string>
+    <string name="placeholder_time">Ora #%1$d</string>
 
     <!-- Medications -->
     <string name="text_exp_date">Data di scadenza</string>
@@ -65,7 +64,7 @@
     <string name="text_medicine_composition">Composizione</string>
     <string name="text_medicine_description">Descrizione</string>
     <string name="text_medicine_dose">Dose</string>
-    <string name="text_medicine_form">Modulo di rilascio</string>
+    <string name="text_medicine_form">Forma farmaceutica</string>
     <string name="text_medicine_group">Gruppo</string>
     <string name="text_medicine_product_name">Nome del prodotto</string>
     <string name="text_medicine_recommendations">Indicazioni d\'uso</string>
@@ -85,22 +84,22 @@
     <string name="type_tincture">TINTURA</string>
     <string name="type_decoction">DECOTTO</string>
     <string name="type_extract">ESTRATTO</string>
-    <string name="type_mixture">MIXTURE</string>
+    <string name="type_mixture">MISTURA</string>
     <string name="type_syrup">SCIROPPO</string>
     <string name="type_emulsion">EMULSIONE</string>
-    <string name="type_suspension">SUSPENSION</string>
-    <string name="type_mix">MIX</string>
+    <string name="type_suspension">SOSPENSIONE</string>
+    <string name="type_mix">MISCELA</string>
     <string name="type_ointment">UNGUENTO</string>
     <string name="type_gel">GEL</string>
-    <string name="type_paste">PASTE</string>
+    <string name="type_paste">PASTA</string>
     <string name="type_suppository">SUPPOSTA</string>
     <string name="type_aerosol">AEROSOL</string>
     <string name="type_spray">SPRAY</string>
     <string name="type_drops">GOCCE</string>
 
     <!-- Medication dose types -->
-    <string name="dose_ed">ED</string>
-    <string name="dose_pcs">pcs</string>
+    <string name="dose_ed">unità</string>
+    <string name="dose_pcs">pz</string>
     <string name="dose_g">g</string>
     <string name="dose_mg">mg</string>
     <string name="dose_l">l</string>
@@ -125,21 +124,20 @@
     <string name="intake_text_not_taken">Non preso</string>
     <string name="intake_text_period">Periodo</string>
     <string name="intake_text_taken">Preso</string>
-    <string name="intake_text_time">Tempo</string>
+    <string name="intake_text_time">Ora</string>
 
-    <string name="intake_extra_fullscreen">Fullscreen notification</string>
-    <string name="intake_extra_no_sound">No sound</string>
-    <string name="intake_extra_prealarm">Upcoming notification</string>
+    <string name="intake_extra_fullscreen">Notifica a schermo intero</string>
+    <string name="intake_extra_no_sound">Senza suono</string>
+    <string name="intake_extra_prealarm">Notifica anticipata</string>
 
     <string name="intake_extra_desc_prealarm">Notifica nella barra di stato 30 minuti prima dell\'assunzione.</string>
 
     <string name="intake_interval_daily">quotidiano</string>
     <string name="intake_interval_weekly">settimanale</string>
-    <string name="intake_interval_other">custom</string>
+    <string name="intake_interval_other">personalizzato</string>
 
-
-    <string name="intake_period_pick">dates choice</string>
-    <string name="intake_period_other">days input</string>
+    <string name="intake_period_pick">per data</string>
+    <string name="intake_period_other">per numero di giorni</string>
     <string name="intake_period_indef">indefinito</string>
 
     <!-- Dialogs -->
@@ -147,38 +145,34 @@
     <string name="text_connection_error">Errore di connessione!</string>
     <string name="text_duplicate">Questo farmaco è già stato aggiunto!</string>
     <string name="text_error_not_medicine">Questo codice etichetta non è del medicinale!</string>
-    <string name="text_kit_title">Nuovo gruppo</string>
+    <string name="text_kit_title">Nome del gruppo</string>
     <string name="text_medicine_deleted">La medicina è stata cancellata, impossibile cambiare lo stato di assunzione</string>
     <string name="text_request_camera">Per la scansione dell\'etichetta, l\'applicazione deve essere dato il permesso di utilizzare la fotocamera</string>
-    <string name="text_select_time">Selezionare il tempo</string>
+    <string name="text_select_time">Seleziona l’ora</string>
     <string name="text_try_again">Prova di nuovo a scansionare l\'etichetta!</string>
 
-
-    <!-- Permissions -->
-
-
-    <string name="text_permission_grant_full">Il permesso di concessione</string>
+    <string name="text_catalog_product_ean13">Questo codice identifica un prodotto, non una singola confezione. Aggiungilo solo se è un medicinale, poi controlla i dettagli, la quantità e la scadenza.</string>
 
     <!-- Strings -->
     <string name="text_add">Aggiungi</string>
     <string name="text_amount">Numero</string>
     <string name="text_cancel">Annulla</string>
-    <string name="text_clear">Libero</string>
+    <string name="text_clear">Svuota</string>
     <string name="text_daily_at">Quotidiano alle 12:00</string>
     <string name="text_days_short">d.</string>
     <string name="text_delete">Cancella</string>
-    <string name="text_dismiss">Dismiss</string>
+    <string name="text_dismiss">Chiudi</string>
     <string name="text_edit">Modifica</string>
     <string name="text_empty">Vuoto</string>
     <string name="text_enter_product_name">Ricerca</string>
     <string name="text_error">Errore!</string>
     <string name="text_every">"Tutti "</string>
-    <string name="text_finish_date">Data di arrivo</string>
+    <string name="text_finish_date">Data di fine</string>
     <string name="text_no">No</string>
     <string name="text_no_data_found">Nessun farmaco trovato. Aggiungere o modificare il filtro.</string>
-    <string name="text_no_intakes_found">Non sono state trovate prese. Aggiungili tramite carta di informazione medica o modifica il valore di ricerca.</string>
-    <string name="text_off">Spegnimento</string>
-    <string name="text_on">Acceso</string>
+    <string name="text_no_intakes_found">Nessuna assunzione trovata. Aggiungila dalla scheda del medicinale o modifica la ricerca.</string>
+    <string name="text_off">Disattivato</string>
+    <string name="text_on">Attivato</string>
     <string name="text_save">Salva</string>
     <string name="text_start_date">Data di inizio</string>
     <string name="text_status">Stato</string>
@@ -188,13 +182,10 @@
     <string name="text_update">Aggiornamento</string>
     <string name="text_yes">Sì</string>
 
-
-
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
-        <item quantity="one">%d tempo al giorno</item>
+        <item quantity="one">%d volta al giorno</item>
         <item quantity="many">%d volte al giorno</item>
         <item quantity="other">%d volte al giorno</item>
     </plurals>
-
 </resources>

@@ -16,7 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,6 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.application.homemedkit.R
 import ru.application.homemedkit.R.string.*
 import ru.application.homemedkit.data.model.MedicineList
+import ru.application.homemedkit.models.events.MedicinesEvent
 import ru.application.homemedkit.models.viewModels.MedicinesViewModel
 import ru.application.homemedkit.ui.elements.*
 import ru.application.homemedkit.ui.navigation.LocalSnackbarPadding
@@ -40,30 +41,50 @@ import ru.application.homemedkit.utils.extensions.drawHorizontalDivider
 @Composable
 fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen) -> Unit) {
     val activity = LocalActivity.current as? ComponentActivity
-
     val state by model.state.collectAsStateWithLifecycle()
-    val medicines by model.medicines.collectAsStateWithLifecycle()
-    val grouped by model.grouped.collectAsStateWithLifecycle()
-    val kits by model.kits.collectAsStateWithLifecycle()
+    val content by model.content.collectAsStateWithLifecycle()
 
     val snackbarPadding = LocalSnackbarPadding.current
-    val pagerState = rememberPagerState(pageCount = MedicineListView.entries::size)
+    val pagerState = rememberPagerState(
+        initialPage = state.listView.ordinal,
+        pageCount = MedicineListView.entries::size
+    )
 
-    val listStates = MedicineListView.entries.map { rememberLazyListState() }
-    val listState = remember(state.listView.ordinal) { listStates[state.listView.ordinal] }
+    val listState = rememberLazyListState()
+    val groupState = rememberLazyListState()
 
-    val currentParams = remember(state.search, state.sorting, state.kits) {
-        Triple(state.search, state.sorting, state.kits)
+    val lazyState = when (state.listView) {
+        MedicineListView.LIST -> listState
+        MedicineListView.GROUPS -> groupState
     }
-    val oldParams = remember { mutableStateOf(currentParams) }
 
-    LaunchedEffect(medicines) {
-        if (oldParams.value != currentParams) {
-            if (medicines.isNotEmpty()) {
-                listState.scrollToItem(0)
+    val isListEmpty = when (state.listView) {
+        MedicineListView.LIST -> content.medicines.isEmpty()
+        MedicineListView.GROUPS -> content.grouped.isEmpty()
+    }
+
+    val showFab by remember(lazyState, isListEmpty) {
+        derivedStateOf {
+            val info = lazyState.layoutInfo
+            val isScrollable = lazyState.canScrollBackward || lazyState.canScrollForward
+            val isLastVisible = info.visibleItemsInfo.lastOrNull()?.index == info.totalItemsCount - 1
+
+            isListEmpty || (!lazyState.isScrollInProgress && (!isScrollable || !isLastVisible))
+        }
+    }
+
+    val onItemClick = remember(onNavigate) { { id: Long -> onNavigate(Screen.Medicine(id)) } }
+
+    var lastQuery by remember { mutableStateOf(content.query) }
+
+    SideEffect(content.query) {
+        if (content.query != null) {
+            if (lastQuery != null && lastQuery != content.query) {
+                listState.requestScrollToItem(0)
+                groupState.requestScrollToItem(0)
             }
 
-            oldParams.value = currentParams
+            lastQuery = content.query
         }
     }
 
@@ -71,19 +92,18 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
         pagerState.animateScrollToPage(state.listView.ordinal)
     }
 
-    val onItemClick = remember {
-        { id: Long -> onNavigate(Screen.Medicine(id)) }
+
+    BackHandler {
+        if (state.showAdding) model.onEvent(MedicinesEvent.ToggleAdding)
+        else if (Preferences.confirmExit) model.onEvent(MedicinesEvent.ShowExit)
+        else activity?.finishAndRemoveTask()
     }
-
-    val color = MaterialTheme.colorScheme.outlineVariant
-
-    BackHandler { model.showExit(true) }
     ScaffoldSearchBar(
         search = state.search,
-        onSearch = model::onSearch,
+        onSearch = { model.onEvent(MedicinesEvent.Search(it)) },
         actions = {
-            IconButton(model::showSorting) { VectorIcon(R.drawable.vector_sort) }
-            DropdownMenuPopup(state.showSorting, model::showSorting) {
+            IconButton({ model.onEvent(MedicinesEvent.ToggleSorting) }) { VectorIcon(R.drawable.vector_sort) }
+            DropdownMenuPopup(state.showSorting, { model.onEvent(MedicinesEvent.ToggleSorting) }) {
                 DropdownMenuGroup(MenuDefaults.groupShape(0, 2)) {
                     MenuDefaults.DropdownMenuGroupLabel {
                         Text(
@@ -97,7 +117,7 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
                     Sorting.entries.fastForEachIndexed { index, entry ->
                         SelectableDropdownMenuItem(
                             selected = entry == state.sorting,
-                            onClick = { model.setSorting(entry) },
+                            onClick = { model.onEvent(MedicinesEvent.SetSorting(entry)) },
                             text = { Text(stringResource(entry.title)) },
                             shapes = MenuDefaults.itemShape(index, Sorting.entries.size)
                         )
@@ -119,7 +139,7 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
                     MedicineListView.entries.fastForEachIndexed { index, entry ->
                         SelectableDropdownMenuItem(
                             selected = state.listView == entry,
-                            onClick = { model.pickView(entry)  },
+                            onClick = { model.onEvent(MedicinesEvent.PickView(entry)) },
                             text = { Text(stringResource(entry.title)) },
                             shapes = MenuDefaults.itemShape(index, MedicineListView.entries.size)
                         )
@@ -127,12 +147,15 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
                 }
             }
 
-            IconButton(model::toggleFilter) {
-                BadgedBox(
-                    badge = { if (state.kits.isNotEmpty()) Badge() },
-                    content = { VectorIcon(R.drawable.vector_filter) }
-                )
-            }
+            IconButton(
+                onClick = { model.onEvent(MedicinesEvent.ToggleFilter) },
+                content = {
+                    BadgedBox(
+                        badge = { if (state.hideEmpty || state.kitIds.isNotEmpty()) Badge() },
+                        content = { VectorIcon(R.drawable.vector_filter) }
+                    )
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButtonMenu(
@@ -143,10 +166,10 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
                 button = {
                     ToggleFloatingActionButton(
                         checked = state.showAdding,
-                        onCheckedChange = { model.toggleAdding() },
+                        onCheckedChange = { model.onEvent(MedicinesEvent.ToggleAdding) },
                         modifier = Modifier
                             .animateFloatingActionButton(
-                                visible = listStates.all { !it.isScrollInProgress } || state.showAdding,
+                                visible = showFab || state.showAdding,
                                 alignment = Alignment.BottomEnd
                             )
                     ) {
@@ -154,7 +177,7 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
 
                         VectorIcon(
                             icon = R.drawable.vector_add,
-                            modifier = Modifier.rotate(rotation),
+                            modifier = Modifier.graphicsLayer { rotationZ = rotation },
                             tint = if (state.showAdding) MaterialTheme.colorScheme.onPrimary
                             else MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -162,29 +185,35 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
                 }
             ) {
                 FloatingActionButtonMenuItem(
-                    onClick = { onNavigate(Screen.Scanner) },
+                    text = { Text(stringResource(R.string.text_scan)) },
                     icon = { VectorIcon(R.drawable.vector_scanner) },
-                    text = { Text(stringResource(R.string.text_scan)) }
+                    onClick = {
+                        model.onEvent(MedicinesEvent.ToggleAdding)
+                        onNavigate(Screen.Scanner)
+                    }
                 )
                 FloatingActionButtonMenuItem(
-                    onClick = { onNavigate(Screen.Medicine()) },
+                    text = { Text(stringResource(R.string.text_add)) },
                     icon = { VectorIcon(R.drawable.vector_edit) },
-                    text = { Text(stringResource(R.string.text_add)) }
+                    onClick = {
+                        model.onEvent(MedicinesEvent.ToggleAdding)
+                        onNavigate(Screen.Medicine())
+                    }
                 )
             }
         }
     ) {
         HorizontalPager(pagerState, userScrollEnabled = false) { page ->
             when (MedicineListView.entries[page]) {
-                MedicineListView.LIST -> if (medicines.isNotEmpty()) {
-                    LazyColumn(Modifier.fillMaxSize(), listStates[0]) {
-                        items(medicines, MedicineList::id) { medicine ->
+                MedicineListView.LIST -> if (content.medicines.isNotEmpty()) {
+                    LazyColumn(Modifier.fillMaxSize(), listState) {
+                        items(content.medicines, MedicineList::id) { medicine ->
                             MedicineItem(
                                 medicine = medicine,
                                 onClick = onItemClick,
                                 modifier = Modifier
                                     .animateItem()
-                                    .drawHorizontalDivider(color)
+                                    .drawHorizontalDivider(MaterialTheme.colorScheme.outlineVariant)
                             )
                         }
                     }
@@ -192,9 +221,9 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
                     BoxWithEmptyListText(R.string.text_no_data_found)
                 }
 
-                MedicineListView.GROUPS -> if (grouped.isNotEmpty()) {
-                    LazyColumn(Modifier.fillMaxSize(), listStates[1]) {
-                        grouped.fastForEach { group ->
+                MedicineListView.GROUPS -> if (content.grouped.isNotEmpty()) {
+                    LazyColumn(Modifier.fillMaxSize(), groupState) {
+                        content.grouped.fastForEach { group ->
                             item(group.kit.id) {
                                 TextDate(group.kit.title.asString())
                             }
@@ -202,15 +231,16 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
                             val groupSize = group.medicines.size
                             itemsIndexed(
                                 items = group.medicines,
-                                key = { _, item -> Pair(group.kit.id, item.id) }
-                            ) { index, medicine ->
-                                SegmentedMedicineItem(
-                                    medicine = medicine,
-                                    onClick = onItemClick,
-                                    modifier = Modifier.animateItem(),
-                                    shapes = ListItemDefaults.segmentedShapes(index, groupSize)
-                                )
-                            }
+                                key = { _, item -> "${group.kit.id}:${item.id}" },
+                                itemContent = { index, medicine ->
+                                    SegmentedMedicineItem(
+                                        medicine = medicine,
+                                        onClick = onItemClick,
+                                        modifier = Modifier.animateItem(),
+                                        shapes = ListItemDefaults.segmentedShapes(index, groupSize)
+                                    )
+                                }
+                            )
                         }
                     }
                 } else {
@@ -222,16 +252,22 @@ fun MedicinesScreen(model: MedicinesViewModel = viewModel(), onNavigate: (Screen
 
     when {
         state.showFilter -> DialogKits(
-            kits = kits,
-            isChecked = { it in state.kits },
-            onPick = model::pickFilter,
-            onDismiss = model::toggleFilter,
-            onClear = model::clearFilter,
-            itemFilterEmpty = { ItemFilterEmptyMedicines(state.hideEmpty, model::hideEmpty) }
+            kits = content.kits,
+            isChecked = { it.kitId in state.kitIds },
+            onPick = { model.onEvent(MedicinesEvent.PickKit(it.kitId)) },
+            onDismiss = { model.onEvent(MedicinesEvent.ToggleFilter) },
+            onClear = { model.onEvent(MedicinesEvent.ClearFilter) },
+            itemFilterEmpty = {
+                ItemFilterEmptyMedicines(state.hideEmpty) {
+                    model.onEvent(MedicinesEvent.HideEmpty(it))
+                }
+            }
         )
 
-        state.showExit -> if (!Preferences.confirmExit) activity?.finishAndRemoveTask()
-        else activity?.let { DialogExit(model::showExit, it::finishAndRemoveTask) }
+        state.showExit -> DialogExit(
+            onDismiss = { model.onEvent(MedicinesEvent.HideExit) },
+            onExit = { activity?.finishAndRemoveTask() }
+        )
     }
 }
 
@@ -307,7 +343,7 @@ private fun ItemFilterEmptyMedicines(isChecked: Boolean, onClick: (Boolean) -> U
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .heightIn(min = 56.dp)
             .toggleable(
                 role = Role.Checkbox,
                 value = isChecked,

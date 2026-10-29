@@ -4,6 +4,7 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import ru.application.homemedkit.data.dto.Image
+import ru.application.homemedkit.network.IProgress
 import ru.application.homemedkit.network.Network
 import ru.application.homemedkit.utils.di.Preferences
 import ru.application.homemedkit.utils.enums.DrugType
@@ -13,17 +14,19 @@ suspend fun getMedicineImages(
     medicineId: Long,
     form: String,
     directory: File,
-    urls: List<String>?
+    urls: List<String>?,
+    onProgress: IProgress?
 ): List<Image> {
     val imageList = if (Preferences.imageFetch && !urls.isNullOrEmpty()) {
-        Network.getImage(directory, urls)
+        Network.getImage(directory, urls, onProgress)
     } else {
         emptyList()
     }
 
-    return imageList.map { imageName ->
+    return imageList.mapIndexed { index, imageName ->
         Image(
             medicineId = medicineId,
+            position = index,
             image = imageName
         )
     }.ifEmpty {

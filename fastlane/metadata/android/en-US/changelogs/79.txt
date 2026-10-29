@@ -1,0 +1,4 @@
+— Added animation for highlighting the recognized code during scanning.
+— Added a window for processing code and uploading images with a progress display and a cancel button.
+— Added confirmation before adding the medicine using the EAN-13 barcode.
+— Fixed bugs that caused the medicines search to malfunction in rare cases.

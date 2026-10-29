@@ -4,30 +4,30 @@ import android.net.Uri
 import androidx.core.net.toUri
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.content.ProgressListener
 import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.authProvider
 import io.ktor.client.plugins.auth.providers.BearerAuthProvider
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.*
-import io.ktor.serialization.JsonConvertException
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.util.cio.use
 import io.ktor.util.cio.writeChannel
 import io.ktor.util.network.UnresolvedAddressException
 import io.ktor.utils.io.copyAndClose
+import io.ktor.utils.io.jvm.javaio.copyTo
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.io.IOException
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -42,11 +42,12 @@ import ru.application.homemedkit.network.models.auth.UploadLink
 import ru.application.homemedkit.utils.*
 import ru.application.homemedkit.utils.di.Preferences
 import java.io.File
+import java.util.UUID
 import kotlin.io.encoding.Base64
 import kotlin.time.Duration.Companion.milliseconds
 
 object Network {
-    private const val OBFUSCATED_URL = "^jjfi0%%ceX_b[\$Wf_\$Yhfj\$hk%"
+    private const val OBFUSCATED_URL = $$"^jjfi0%%ceX_b[$Wf_$Yhfj$hk%"
 
     private val defaultClient = HttpClient(Android) {
         engine {
@@ -65,33 +66,51 @@ object Network {
 
     private val medicineClient = defaultClient.config {
         defaultRequest { url(shiftCipher(OBFUSCATED_URL)) }
+        install(HttpTimeout) {
+            connectTimeoutMillis = 15_000L
+            socketTimeoutMillis = 30_000L
+            requestTimeoutMillis = 45_000L
+        }
     }
 
-    private val yandexClient = defaultClient.config {
-        defaultRequest {
-            url("https://cloud-api.yandex.net/v1/disk/")
+    private val imageClient by lazy {
+        defaultClient.config {
+            install(BodyProgress)
+            install(HttpTimeout) {
+                connectTimeoutMillis = 15_000L
+                socketTimeoutMillis = 30_000L
+                requestTimeoutMillis = 30_000L
+            }
         }
+    }
 
-        install(Auth) {
-            yandex {
-                sendWithoutRequest = { request ->
-                    request.url.host == "oauth.yandex.ru"
-                }
+    private val yandexClient by lazy {
+        defaultClient.config {
+            defaultRequest {
+                url("https://cloud-api.yandex.net/v1/disk/")
+            }
 
-                loadTokens {
-                    Preferences.token?.let {
-                        BearerTokens(it.accessToken, it.refreshToken)
+            install(Auth) {
+                yandex {
+                    sendWithoutRequest = { request ->
+                        request.url.host == "oauth.yandex.ru"
                     }
-                }
 
-                refreshTokens {
-                    oldTokens?.refreshToken?.let { refreshToken ->
-                        val newToken = Yandex.refreshToken(refreshToken) {
-                            markAsRefreshTokenRequest()
-                        }
-
-                        newToken?.let {
+                    loadTokens {
+                        Preferences.token?.let {
                             BearerTokens(it.accessToken, it.refreshToken)
+                        }
+                    }
+
+                    refreshTokens {
+                        oldTokens?.refreshToken?.let { refreshToken ->
+                            val newToken = Yandex.refreshToken(refreshToken) {
+                                markAsRefreshTokenRequest()
+                            }
+
+                            newToken?.let {
+                                BearerTokens(it.accessToken, it.refreshToken)
+                            }
                         }
                     }
                 }
@@ -99,67 +118,110 @@ object Network {
         }
     }
 
-    suspend fun getMedicine(code: String) = try {
-        val isEan13 = code.length == 13
+    suspend fun getMedicine(code: String): Response {
+        val scanned = Code.parse(code) ?: return Response.Error.IncorrectCode
+        return getMedicine(scanned)
+    }
 
-        val codeType = if (isEan13) "ean13" else "datamatrix"
-        val url = shiftCipher(if (isEan13) "ceX_b[%Y^[Ya" else "l(%ceX_b[%Y^[Ya")
-        val finalCode = if (isEan13) code else "{FNC1}$code"
-
+    suspend fun getMedicine(scanned: Code) = try {
+        val url = shiftCipher(if (scanned.isEan13) "ceX_b[%Y^[Ya" else "l(%ceX_b[%Y^[Ya")
         val response = medicineClient.post(url) {
             contentType(ContentType.Application.Json)
             setBody(
-                body = buildJsonObject {
-                    put("code", finalCode)
-                    put("codeType", codeType)
+                buildJsonObject {
+                    put("code", if (scanned.isEan13) scanned.value else "{FNC1}${scanned.value}")
+                    put("codeType", if (scanned.isEan13) "ean13" else "datamatrix")
                 }
             )
         }
 
         when (response.status) {
+            HttpStatusCode.RequestTimeout, HttpStatusCode.GatewayTimeout -> Response.Error.NetworkError(scanned.value)
+            HttpStatusCode.BadRequest -> Response.Error.IncorrectCode
+            HttpStatusCode.NotFound -> Response.Error.CodeNotFound
             HttpStatusCode.OK -> {
                 val model = response.body<MainModel>()
-
                 if (model.codeFounded) Response.Success(model)
                 else Response.Error.CodeNotFound
             }
 
-            HttpStatusCode.NotFound, HttpStatusCode.BadRequest -> Response.Error.CodeNotFound
             else -> Response.Error.UnknownError
         }
+    } catch (e: CancellationException) {
+        throw e
     } catch (e: Exception) {
         when (e) {
-            is SerializationException, is JsonConvertException -> Response.Error.IncorrectCode
-            is IOException, is UnresolvedAddressException -> Response.Error.NetworkError(code)
+            is HttpRequestTimeoutException, is IOException, is UnresolvedAddressException -> Response.Error.NetworkError(scanned.value)
             else -> Response.Error.UnknownError
         }
     }
 
-    suspend fun getImage(dir: File, urls: List<String>) = withContext(Dispatchers.IO.limitedParallelism(3)) {
-        supervisorScope {
-            val requests = urls.map { url ->
-                async {
-                    try {
-                        val response = defaultClient.get(url)
+    suspend fun getImage(dir: File, urls: List<String>, progress: IProgress?): List<String> {
+        val total = urls.size
+        val mutex = Mutex()
 
-                        if (response.status == HttpStatusCode.OK) {
-                            Url(url).segments.lastOrNull()?.let { name ->
-                                val file = File(dir, name)
+        val files = List(total) { File(dir, "${UUID.randomUUID()}_product.jpg") }
+        var completed = 0
+        var lastPercent = -1
 
-                                response.bodyAsChannel().copyAndClose(file.writeChannel())
+        suspend fun reportBytes(received: Long, length: Long?) {
+            if (length == null || length <= 0L) return
+            val percent = (received.toDouble() / length * 100).toInt().coerceIn(0, 99)
+            mutex.withLock {
+                currentCoroutineContext().ensureActive()
+                if (completed == 0 && percent > lastPercent) {
+                    lastPercent = percent
+                    progress?.onProgress(0, total, percent)
+                }
+            }
+        }
 
-                                name
-                            }
-                        } else {
+        val listener = if (total == 1 && progress != null) ProgressListener(::reportBytes) else null
+        return try {
+            progress?.onProgress(0, total, null)
+            withContext(Dispatchers.IO) {
+                urls.mapIndexed { index, url ->
+                    async {
+                        val file = files[index]
+                        val name = try {
+                            imageClient
+                                .prepareGet(url) { onDownload(listener) }
+                                .execute { response ->
+                                    if (response.status != HttpStatusCode.OK) return@execute null
+
+                                    val channel = response.bodyAsChannel()
+                                    file.outputStream().use { channel.copyTo(it) }
+
+                                    val cause = channel.closedCause
+                                    if (cause != null) throw cause
+                                    file.name
+                                }
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (_: Exception) {
+                            file.delete()
                             null
                         }
-                    } catch (_: Exception) {
-                        null
+
+                        if (progress != null) {
+                            mutex.withLock {
+                                currentCoroutineContext().ensureActive()
+                                completed++
+                                progress.onProgress(completed, total, if (total == 1) 100 else null)
+                            }
+                        }
+                        name
                     }
+                }.awaitAll().filterNotNull()
+            }
+        } catch (e: Throwable) {
+            withContext(NonCancellable) {
+                withContext(Dispatchers.IO) {
+                    files.forEach(File::delete)
                 }
             }
 
-            requests.mapNotNull { it.await() }
+            throw e
         }
     }
 

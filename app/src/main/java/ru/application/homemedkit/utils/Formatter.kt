@@ -35,13 +35,13 @@ object Formatter {
     val FORMAT_DD_MM_YYYY_HH_MM: DateTimeFormatter
         get() = DateTimeFormatter.ofPattern("dd.MM.yyyy H:mm")
 
-    private val FORMAT_MM_YYYY: DateTimeFormatter
-        get() = DateTimeFormatter.ofPattern("MM/yyyy")
+    private val FORMAT_MM_YYYY: DateTimeFormatter = DateTimeFormatter.ofPattern("MM/yyyy")
 
     fun getDateTime(millis: Long): ZonedDateTime = Instant.ofEpochMilli(millis).atZone(ZONE)
 
+    @Synchronized
     fun decimalFormat(text: Any?): String {
-        val value = text.toString().toDoubleOrNull() ?: 0.0
+        val value = if (text is Number) text.toDouble() else text.toString().toDoubleOrNull() ?: 0.0
 
         return formatter.format(value)
     }

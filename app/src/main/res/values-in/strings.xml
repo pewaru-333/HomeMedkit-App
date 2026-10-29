@@ -40,8 +40,8 @@
     <string name="page_intake_settings">Pengaturan</string>
 
     <!-- Sorting -->
-    <string name="sorting_a_z">Secara alfabet (A sampai z)</string>
-    <string name="sorting_z_a">Secara alfabet (z sampai A)</string>
+    <string name="sorting_a_z">Secara alfabet (A sampai Z)</string>
+    <string name="sorting_z_a">Secara alfabet (Z sampai A)</string>
     <string name="sorting_from_oldest">Tanggal kedaluwarsa (dari yang terlama)</string>
     <string name="sorting_from_newest">Tanggal kedaluwarsa (dari yang terbaru)</string>
 
@@ -114,14 +114,14 @@
     <string name="type_paste">PASTA</string>
     <string name="type_suppository">SUPOSITORIA</string>
     <string name="type_aerosol">AEROSOL</string>
-    <string name="type_spray">SEMPR0T</string>
+    <string name="type_spray">SEMPROT</string>
     <string name="type_drops">TETES</string>
-    <string name="type_patch">PLES TERAPI</string>
+    <string name="type_patch">PLESTER</string>
     <string name="type_bandage">PERBAN</string>
     <string name="type_napkins">TISU</string>
 
     <!-- Medication dose types -->
-    <string name="dose_ed">ED</string>
+    <string name="dose_ed">unit</string>
     <string name="dose_pcs">pcs</string>
     <string name="dose_sach">sach</string>
     <string name="dose_g">g</string>
@@ -162,7 +162,7 @@
     <string name="intake_extra_prealarm">Notifikasi mendatang</string>
 
     <string name="intake_extra_desc_cancellable">Notifikasi akan dibatalkan secara otomatis setelah 10 menit</string>
-    <string name="intake_extra_desc_fullscreen">Intent untuk meluncurkan alih-alih memposting notifikasi ke bilah status pada layar terkunci</string>
+    <string name="intake_extra_desc_fullscreen">Menampilkan notifikasi layar penuh sebagai pengganti notifikasi biasa pada layar terkunci</string>
     <string name="intake_extra_desc_no_sound">Menyenyapkan notifikasi, terlepas dari suara atau getaran</string>
     <string name="intake_extra_desc_prealarm">Pengingat akan dikirim 30 menit sebelum jadwal reguler</string>
 
@@ -218,6 +218,8 @@
 
     <string name="text_toast_autostart_not_found">Pengaturan mulai otomatis tidak ditemukan untuk perangkat ini</string>
 
+    <string name="text_catalog_product_ean13">Kode batang ini mengidentifikasi produk, bukan kemasan tertentu. Tambahkan hanya jika ini obat, lalu periksa detail, jumlah, dan tanggal kedaluwarsanya.</string>
+
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Notifikasi layar penuh</string>
     <string name="text_permission_title_ignore_battery">Abaikan optimasi baterai</string>
@@ -236,7 +238,6 @@
 
     <string name="text_permission_grant">Berikan</string>
     <string name="text_permission_granted">Diberikan</string>
-    <string name="text_permission_grant_full">Berikan izin</string>
 
     <!-- Strings -->
     <string name="text_add">Tambah</string>
@@ -275,7 +276,7 @@
     <string name="text_on">Diaktifkan</string>
     <string name="text_pick_cloud_service">Pilih penyedia cloud untuk menyinkronkan data aplikasi (daftar obat dan gambarnya)</string>
     <string name="text_provider_is_yandex">Terhubung dengan Yandex</string>
-    <string name="text_remainder_after">Pengingat setelah</string>
+    <string name="text_remainder_after">Sisa setelah</string>
     <string name="text_repeat">Ulangi</string>
     <string name="text_retry">Coba lagi</string>
     <string name="text_same_amount">Jumlah yang sama pada setiap konsumsi</string>
@@ -307,7 +308,7 @@
 
     <string name="text_yandex">Yandex</string>
 
-    <string name="text_in_progress">(sedang berlangsung)</string>
+    <string name="text_in_progress">(dalam pengembangan)</string>
 
     <!-- Plurals -->
     <plurals name="intake_times_a_day">

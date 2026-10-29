@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- Menu -->
     <string name="bottom_bar_medicines">藥物</string>
-    <string name="bottom_bar_intakes">攝取量</string>
+    <string name="bottom_bar_intakes">用藥</string>
     <string name="bottom_bar_settings">設定</string>
 
     <!-- Preferences -->
@@ -18,23 +17,18 @@
     <string name="preference_dynamic_color">動態色彩</string>
     <string name="preference_import_export">匯入／匯出</string>
 
-
-    <!-- Pages -->
-
     <!-- Sorting -->
-    <string name="sorting_a_z">按字母順序（A 至 z）</string>
-    <string name="sorting_z_a">按字母順序（z 至 A）</string>
+    <string name="sorting_a_z">按字母順序（A 至 Z）</string>
+    <string name="sorting_z_a">按字母順序（Z 至 A）</string>
     <string name="sorting_from_oldest">到期日（從最舊開始）</string>
     <string name="sorting_from_newest">到期日（從最新開始）</string>
 
-    <!-- Themes -->
-
     <!-- Notifications -->
-    <string name="channel_name">藥物提醒</string>
-    <string name="channel_intakes_desc">聲音通知</string>
+    <string name="channel_name">有聲通知</string>
+    <string name="channel_intakes_desc">用藥</string>
     <string name="text_attention">注意！</string>
     <string name="text_expire_soon">%1$s 的到期日即將到期</string>
-    <string name="text_intake_prealarm_text">Medication: %1$s Amount: %2$s %3$s Time: %4$s</string>
+    <string name="text_intake_prealarm_text">藥物：%1$s\n服用量：%2$s %3$s\n時間：%4$s</string>
 
     <!-- Placeholders -->
     <string name="placeholder_dose">0.5 mg + 84 mcg</string>
@@ -42,20 +36,16 @@
 
     <!-- Medications -->
     <string name="text_exp_date">到期日</string>
-    <string name="text_indications_for_use">使用說明</string>
-    <string name="text_medicine_comment">評論</string>
+    <string name="text_indications_for_use">適應症</string>
+    <string name="text_medicine_comment">備註</string>
     <string name="text_medicine_description">描述</string>
     <string name="text_medicine_dose">劑量</string>
     <string name="text_medicine_product_name">產品名稱</string>
 
-    <!-- Medication types -->
-
-    <!-- Medication dose types -->
-
     <!-- Tabs -->
     <string name="tab_list">清單</string>
     <string name="tab_current">目前</string>
-    <string name="tab_past">采取</string>
+    <string name="tab_past">過往</string>
 
     <!-- Intakes -->
     <string name="intake_text_amount">數量</string>
@@ -65,22 +55,13 @@
     <string name="intake_text_interval">間隔</string>
     <string name="intake_text_time">時間</string>
 
-
-
-
-
-
     <!-- Dialogs -->
-    <string name="text_connection_error">连接错误！</string>
-    <string name="text_kit_title">新群組</string>
+    <string name="text_connection_error">連線錯誤！</string>
+    <string name="text_kit_title">群組名稱</string>
     <string name="text_request_camera">要掃描標籤，應用程式必須獲得使用相機的權限</string>
     <string name="text_select_time">選擇時間</string>
 
-
-    <!-- Permissions -->
-
-
-    <string name="text_permission_grant_full">授予權限</string>
+    <string name="text_catalog_product_ean13">此條碼識別商品，而非個別包裝。請僅在確認為藥品時新增，然後檢查詳細資料、數量及有效期限。</string>
 
     <!-- Strings -->
     <string name="text_add">增加</string>
@@ -106,11 +87,8 @@
     <string name="text_tap_to_view">點擊以檢視</string>
     <string name="text_yes">是</string>
 
-
-
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="other">每天 %d 次</item>
     </plurals>
-
 </resources>

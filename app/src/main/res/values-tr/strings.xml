@@ -23,9 +23,6 @@
     <string name="preference_import_export">İçe/Dışa Aktar</string>
     <string name="preference_fixing_notifications">Bildirimlerle ilgili sorun mu var?</string>
 
-
-    <!-- Pages -->
-
     <!-- Sorting -->
     <string name="sorting_a_z">Alfabetik (A’dan Z’ye)</string>
     <string name="sorting_z_a">Alfabetik (Z’den A’ya)</string>
@@ -43,7 +40,7 @@
     <string name="channel_intakes_desc">İlaç alımı</string>
     <string name="channel_pre_desc">Yaklaşan ilaç alımı</string>
     <string name="text_attention">Dikkat!</string>
-    <string name="text_do_intake">Alım</string>
+    <string name="text_do_intake">İlacınızı alın</string>
     <string name="text_expire_soon">%1$s’in son kullanma tarihi yaklaşıyor</string>
     <string name="text_intake_amount_not_enough">%1$s alım zamanı geldi, ancak yeterli miktar yok!</string>
     <string name="text_intake_prealarm_text">İlaç: %1$s\nAlım miktarı: %2$s %3$s\nSaat: %4$s</string>
@@ -63,7 +60,7 @@
     <string name="text_medicine_description">Açıklama</string>
     <string name="text_medicine_display_name">Görünen adı</string>
     <string name="text_medicine_dose">Doz</string>
-    <string name="text_medicine_form">Salım formu</string>
+    <string name="text_medicine_form">Farmasötik form</string>
     <string name="text_medicine_group">Grup</string>
     <string name="text_medicine_product_name">Ürün adı</string>
     <string name="text_medicine_recommendations">Kullanım önerileri</string>
@@ -101,7 +98,7 @@
     <string name="type_napkins">MENDİLLER</string>
 
     <!-- Medication dose types -->
-    <string name="dose_ed">ED</string>
+    <string name="dose_ed">birim</string>
     <string name="dose_pcs">adet</string>
     <string name="dose_sach">poşet</string>
     <string name="dose_g">g</string>
@@ -140,7 +137,7 @@
     <string name="intake_extra_prealarm">Yaklaşan bildirim</string>
 
     <string name="intake_extra_desc_cancellable">Bildirim 10 dakika sonra otomatik olarak iptal edilecek</string>
-    <string name="intake_extra_desc_fullscreen">Kilitli ekranda bildirim yerine bir işlem başlatılacak</string>
+    <string name="intake_extra_desc_fullscreen">Kilit ekranında normal bildirim yerine tam ekran bildirim gösterir</string>
     <string name="intake_extra_desc_no_sound">Bildirim sesi ve titreşimleri devre dışı bırakır</string>
     <string name="intake_extra_desc_prealarm">Planlanan saatten 30 dakika önce hatırlatma gönderilecek</string>
 
@@ -166,7 +163,7 @@
     <string name="text_exit_app">Uygulamadan çıkmak istediğinizden emin misiniz?</string>
     <string name="text_fill_field">Bu alanı doldurun!</string>
     <string name="text_fix_notifications">Uygulama yeniden başlatılacak ve tüm gecikmiş bildirimler durum çubuğunda görünecek. Her şey düzgün çalışıyorsa bu işlevi kullanmayın!</string>
-    <string name="text_kit_title">Yeni grup</string>
+    <string name="text_kit_title">Grup adı</string>
     <string name="text_medicine_deleted">İlaç silindi, alım durumunu değiştirmek imkansız</string>
     <string name="text_not_saved_intake">Alım kaydedilmedi! Geri dönmek ister misiniz?</string>
     <string name="text_pay_attention">Dikkat edin!</string>
@@ -174,6 +171,7 @@
     <string name="text_select_time">Zaman seçin</string>
     <string name="text_try_again">Etiketi tekrar taramayı deneyin!</string>
 
+    <string name="text_catalog_product_ean13">Bu barkod tek bir ambalajı değil, bir ürünü tanımlar. Yalnızca ilaçsa ekleyin; ardından bilgilerini, miktarını ve son kullanma tarihini kontrol edin.</string>
 
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Tam ekran bildirimleri</string>
@@ -190,7 +188,6 @@
 
     <string name="text_permission_grant">İzin ver</string>
     <string name="text_permission_granted">İzin verildi</string>
-    <string name="text_permission_grant_full">İzni ver</string>
 
     <!-- Strings -->
     <string name="text_add">Ekle</string>
@@ -234,12 +231,9 @@
     <string name="text_update">Güncelle</string>
     <string name="text_yes">Evet</string>
 
-
-
     <!-- Plurals -->
     <plurals name="intake_times_a_day">
         <item quantity="one">Günde %d kez</item>
         <item quantity="other">Günde %d kez</item>
     </plurals>
-
 </resources>

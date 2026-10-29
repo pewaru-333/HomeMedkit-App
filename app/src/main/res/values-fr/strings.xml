@@ -24,9 +24,8 @@
     <string name="preference_fixing_notifications">Des problèmes avec les notifications ?</string>
     <string name="preference_clear_app_cache">Vider le cache de l\'application</string>
 
-
     <!-- Pages -->
-    <string name="page_medications">Medicines</string>
+    <string name="page_medications">Médicaments</string>
 
     <!-- Sorting -->
     <string name="sorting_a_z">Alphabétiquement (A à Z)</string>
@@ -41,11 +40,11 @@
 
     <!-- Notifications -->
     <string name="channel_name">Notifications sonores</string>
-    <string name="channel_exp_desc">Date d \' expiration</string>
+    <string name="channel_exp_desc">Date de péremption</string>
     <string name="channel_intakes_desc">Prises de médicaments</string>
     <string name="channel_pre_desc">Prise à venir</string>
     <string name="text_attention">Attention !</string>
-    <string name="text_do_intake">Prise</string>
+    <string name="text_do_intake">Prenez votre médicament</string>
     <string name="text_expire_soon">La date d\'expiration de %1$s est proche</string>
     <string name="text_intake_amount_not_enough">Il est temps de prendre %1$s, mais il n\'y en a pas assez!</string>
     <string name="text_intake_prealarm_text">Médicament: %1$s\nQuantité à prendre : %2$s %3$s\nTemps: %4$s</string>
@@ -55,7 +54,7 @@
 
     <!-- Placeholders -->
     <string name="placeholder_dose">0,5 mg + 84 mcg</string>
-    <string name="placeholder_time">Temps #%1$d</string>
+    <string name="placeholder_time">Heure #%1$d</string>
 
     <!-- Medications -->
     <string name="text_exp_date">Date d\'exp.</string>
@@ -66,7 +65,7 @@
     <string name="text_medicine_description">Description</string>
     <string name="text_medicine_display_name">Nom affiché</string>
     <string name="text_medicine_dose">Dose</string>
-    <string name="text_medicine_form">Formulaire de sortie</string>
+    <string name="text_medicine_form">Forme pharmaceutique</string>
     <string name="text_medicine_group">Groupe</string>
     <string name="text_medicine_product_name">Nom du produit</string>
     <string name="text_medicine_recommendations">Recommandations d\'utilisation</string>
@@ -76,7 +75,7 @@
     <string name="text_medicine_storage_conditions">Conditions de stockage</string>
 
     <!-- Medication types -->
-    <string name="type_tablets">TABLETTES</string>
+    <string name="type_tablets">COMPRIMÉS</string>
     <string name="type_capsules">CAPSULES</string>
     <string name="type_pills">PILULES</string>
     <string name="type_dragee">DRAGÉE</string>
@@ -104,7 +103,7 @@
     <string name="type_napkins">SERVIETTES</string>
 
     <!-- Medication dose types -->
-    <string name="dose_ed">ED</string>
+    <string name="dose_ed">unités</string>
     <string name="dose_pcs">unité(s)</string>
     <string name="dose_sach">sach</string>
     <string name="dose_g">g</string>
@@ -119,7 +118,7 @@
 
     <!-- Intakes -->
     <string name="intake_text_amount">Quantité</string>
-    <string name="intake_text_by_schedule">Annexe</string>
+    <string name="intake_text_by_schedule">Selon le planning</string>
     <string name="intake_text_date">Date</string>
     <string name="intake_text_extra">Extra</string>
     <string name="intake_text_food">Alimentation et médicaments</string>
@@ -131,7 +130,7 @@
     <string name="intake_text_interval">Intervalle</string>
     <string name="intake_text_not_taken">Non prise</string>
     <string name="intake_text_period">Période</string>
-    <string name="intake_text_schema_type">Type de schéma</string>
+    <string name="intake_text_schema_type">Schéma de prise</string>
     <string name="intake_text_taken">Prise</string>
     <string name="intake_text_time">Heure</string>
     <string name="intake_text_start">Commencer</string>
@@ -168,13 +167,14 @@
     <string name="text_duplicate">Ce médicament a déjà été ajouté !</string>
     <string name="text_exit_app">Vous êtes sûr⋅e de vouloir quitter l\'application ?</string>
     <string name="text_fill_field">Remplissez ce champ !</string>
-    <string name="text_kit_title">Titre du kit</string>
-    <string name="text_medicine_deleted">Le médicament a été supprimé, il est impossible d\'en changer la prise</string>
+    <string name="text_kit_title">Nom du groupe</string>
+    <string name="text_medicine_deleted">Le médicament a été supprimé, il est impossible de modifier le statut de la prise</string>
     <string name="text_not_saved_intake">Cette prise n\'a pas été sauvegardée ! Voulez-vous retourner en arrière ?</string>
     <string name="text_pay_attention">Attention !</string>
     <string name="text_pick_icon">"Sélectionnez  une icône par défaut"</string>
     <string name="text_take_picture">Prenez une photo avec la caméra</string>
 
+    <string name="text_catalog_product_ean13">Ce code-barres identifie un produit, pas un emballage individuel. Ajoutez-le uniquement si c’est un médicament, puis vérifiez ses informations, sa quantité et sa date de péremption.</string>
 
     <!-- Permissions -->
     <string name="text_permission_title_ignore_battery">Ignore l\'optimisation de la batterie</string>
@@ -188,7 +188,7 @@
 
     <!-- Strings -->
     <string name="text_add">Ajouter</string>
-    <string name="text_amount">Montant</string>
+    <string name="text_amount">Quantité</string>
     <string name="text_cancel">Annuler</string>
     <string name="text_clear">Effacer</string>
     <string name="text_confirm">Confirmer</string>
@@ -202,9 +202,4 @@
     <string name="text_every_day">Tous les jours</string>
     <string name="text_exit">Sortir</string>
     <string name="text_finish_date">Date de fin</string>
-
-
-
-    <!-- Plurals -->
-
 </resources>

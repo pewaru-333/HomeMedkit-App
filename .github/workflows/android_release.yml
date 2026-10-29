@@ -24,8 +24,8 @@ jobs:
 
           echo "Извлечено: versionCode=${VERSION_CODE}, versionName=${VERSION_NAME}"
 
-          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
-          echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
 
   prepare-changelog:
     runs-on: ubuntu-latest
@@ -45,12 +45,15 @@ jobs:
 
       - name: 'Generate changelog'
         id: generate_changelog
+        env:
+          VERSION_CODE: ${{ needs.get-version.outputs.version_code }}
         run: |
-          CHANGELOG_BODY=$(python .github/scripts/generate_changelog.py ${{ needs.get-version.outputs.version_code }})
+          CHANGELOG_BODY=$(python .github/scripts/generate_changelog.py "$VERSION_CODE")
+          DELIMITER=$(openssl rand -hex 16)
           
-          echo 'body<<EOF' >> $GITHUB_OUTPUT
-          echo "$CHANGELOG_BODY" >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+          echo "body<<$DELIMITER" >> "$GITHUB_OUTPUT"
+          echo "$CHANGELOG_BODY" >> "$GITHUB_OUTPUT"
+          echo "$DELIMITER" >> "$GITHUB_OUTPUT"
 
   build:
     runs-on: ubuntu-latest
@@ -86,9 +89,11 @@ jobs:
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
       - name: 'Rename signed .apk'
+        env:
+          SIGNED_APK_FILE: ${{ steps.sign_apk.outputs.signedFile }}
         run: |
-          SIGNED_APK_FILE=$(find ${{ steps.sign_apk.outputs.signedFile }} -name '*.apk' | head -n 1)
-          mv "$SIGNED_APK_FILE" "HomeMedkit.apk"
+          test -n "$SIGNED_APK_FILE" && test -f "$SIGNED_APK_FILE"
+          mv -- "$SIGNED_APK_FILE" "HomeMedkit.apk"
 
       - name: 'Upload APK as artifact'
         uses: actions/upload-artifact@v7
@@ -114,13 +119,15 @@ jobs:
           name: release-apk
 
       - name: 'Push Tag'
+        env:
+          VERSION_NAME: ${{ needs.get-version.outputs.version_name }}
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          git tag ${{ needs.get-version.outputs.version_name }}
+          git tag "$VERSION_NAME"
           
-          git push origin ${{ needs.get-version.outputs.version_name }}
+          git push origin "$VERSION_NAME"
 
       - name: 'Create GitHub release'
         uses: softprops/action-gh-release@v3
@@ -144,20 +151,21 @@ jobs:
 
       - name: 'Read changelog'
         id: read_changelog
+        env:
+          VERSION_CODE: ${{ needs.get-version.outputs.version_code }}
         run: |
-          VERSION_CODE=${{ needs.get-version.outputs.version_code }}
           CHANGELOG_PATH="fastlane/metadata/android/ru/changelogs/${VERSION_CODE}.txt"
           
           EOF=$(openssl rand -hex 8)
           
-          echo "WHATS_NEW<<$EOF" >> $GITHUB_ENV
+          echo "WHATS_NEW<<$EOF" >> "$GITHUB_ENV"
           if [ -f "$CHANGELOG_PATH" ]; then
-            cat "$CHANGELOG_PATH" >> $GITHUB_ENV
-            echo "" >> $GITHUB_ENV
+            cat "$CHANGELOG_PATH" >> "$GITHUB_ENV"
+            echo "" >> "$GITHUB_ENV"
           else
-            echo "— Это техническое обновление без изменений в интерфейсе." >> $GITHUB_ENV
+            echo "— Это техническое обновление без изменений в интерфейсе." >> "$GITHUB_ENV"
           fi
-          echo "$EOF" >> $GITHUB_ENV
+          echo "$EOF" >> "$GITHUB_ENV"
 
       - name: 'RuStore Publish'
         id: rustore_publish
@@ -171,6 +179,8 @@ jobs:
           whats_new: ${{ env.WHATS_NEW }}
 
       - name: 'Print RuStore Result'
+        env:
+          VERSION_ID: ${{ steps.rustore_publish.outputs.version_id }}
+          PUBLISH_STATUS: ${{ steps.rustore_publish.outputs.status }}
         run: |
-          echo "RuStore version ID: ${{ steps.rustore_publish.outputs.version_id }}"
-          echo "RuStore статус: ${{ steps.rustore_publish.outputs.status }}"
+          printf 'RuStore version ID: %s\nRuStore статус: %s\n' "$VERSION_ID" "$PUBLISH_STATUS"

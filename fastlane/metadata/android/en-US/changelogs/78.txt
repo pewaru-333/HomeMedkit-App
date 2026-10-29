@@ -1,1 +1,0 @@
-— Fixed an issue where medicines notifications were not receive after restarting the phone.

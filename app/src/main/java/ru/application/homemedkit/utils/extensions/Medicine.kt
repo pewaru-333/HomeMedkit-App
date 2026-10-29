@@ -66,8 +66,8 @@ fun MedicineMain.toMedicineList(currentMillis: Long) = MedicineList(
     expDateS = Formatter.cardFormat(expDate),
     formName = Formatter.formFormat(prodFormNormName),
     image = image.orEmpty(),
-    inStock = prodAmount >= 0.1,
-    isExpired = expDate < currentMillis
+    inStock = prodAmount > 0.0,
+    isExpired = expDate in 1..<currentMillis
 )
 
 fun MedicineState.toMedicine() = Medicine(
@@ -91,9 +91,11 @@ fun MedicineState.toMedicine() = Medicine(
 )
 
 fun MainModel.asMedicine(): Medicine {
-    val form = pharmacyInfo?.form ?: attributes["Форма выпуска"].orEmpty()
-    val dose = pharmacyInfo?.dosage ?: attributes["Объём / Масса единицы потребления"].orEmpty()
-    val quantity = pharmacyInfo?.quantity
+    val attributes = attributes
+    val pharmacy = pharmacyInfo
+    val form = pharmacy?.form ?: attributes["Форма выпуска"].orEmpty()
+    val dose = pharmacy?.dosage ?: attributes["Объём / Масса единицы потребления"].orEmpty()
+    val quantity = pharmacy?.quantity
         ?: attributes["Количество единиц потребления"]
         ?: attributes["Объём"]
 
@@ -106,7 +108,7 @@ fun MainModel.asMedicine(): Medicine {
         ?: attributes["Область применения"].orEmpty()
 
     return Medicine(
-        productName = productName.orEmpty(),
+        productName = productName ?: catalogData?.firstOrNull()?.name.orEmpty(),
         expDate = expireDate ?: -1L,
         prodFormNormName = form.substringBefore(" ").uppercase(),
         prodDNormName = dose,
@@ -120,7 +122,7 @@ fun MainModel.asMedicine(): Medicine {
         structure = attributes["Состав"].orEmpty().asHtml(),
 
         // Статус
-        verified = true,
+        verified = isValidCategory,
         scanned = true
     )
 }

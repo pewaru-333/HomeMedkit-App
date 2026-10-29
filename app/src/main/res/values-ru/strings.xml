@@ -15,7 +15,7 @@
     <string name="preference_sorting_type">Сортировка лекарств по</string>
     <string name="preference_confirm_exit">Подтверждать выход из приложения</string>
     <string name="preference_use_vibration_scan">Использовать виброотклик при сканировании кодов лекарств</string>
-    <string name="preference_show_stock_scheduled">Отображать количество лекарства в запланированным приёмах</string>
+    <string name="preference_show_stock_scheduled">Отображать количество лекарства в запланированных приёмах</string>
     <string name="preference_download_images">Загружать изображения лекарств</string>
     <string name="preference_check_expiration_date">Проверка срока годности лекарств</string>
     <string name="preference_use_alarm_clock">Использовать будильник вместо уведомлений</string>
@@ -211,13 +211,23 @@
     <string name="text_not_saved_medicine">Информация о лекарстве не сохранена! Вы действительно хотите выйти?</string>
     <string name="text_pay_attention">Обратите внимание!</string>
     <string name="text_pick_icon">Подобрать иконку</string>
-    <string name="text_request_camera">Для сканировании маркировки приложению необходимо выдать разрешение на использовании камеры</string>
+    <string name="text_request_camera">Для сканирования маркировки приложению необходимо выдать разрешение на использование камеры</string>
     <string name="text_select_time">Выберите время</string>
     <string name="text_set_image">Установить изображение</string>
     <string name="text_take_picture">Сделать фото</string>
     <string name="text_try_again">Попробуйте отсканировать код ещё раз!</string>
 
     <string name="text_toast_autostart_not_found">Настройки автозапуска не найдены для данного устройства</string>
+
+    <string name="text_processing_code">Обработка кода</string>
+    <string name="text_looking_up_medicine">Поиск лекарства…</string>
+
+    <string name="text_downloading_images">Загрузка изображений</string>
+    <string name="text_downloading_images_count">Загрузка изображений: %1$d из %2$d</string>
+
+    <string name="text_catalog_product_ean13">Штрихкод определяет товар, а не отдельную упаковку. Добавляйте его, только если это лекарство, затем проверьте сведения, количество и срок годности.</string>
+
+    <string name="text_scanning_paused">Приостановлено</string>
 
     <!-- Permissions -->
     <string name="text_permission_title_full_screen">Полноэкранные уведомления</string>
@@ -237,7 +247,6 @@
 
     <string name="text_permission_grant">Выдать</string>
     <string name="text_permission_granted">Выдано</string>
-    <string name="text_permission_grant_full">Выдать разрешение</string>
 
     <!-- Strings -->
     <string name="text_add">Добавить</string>
