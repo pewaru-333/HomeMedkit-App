@@ -1,5 +1,6 @@
 package ru.application.homemedkit.models.states
 
+import androidx.annotation.StringRes
 import ru.application.homemedkit.network.models.MainModel
 import ru.application.homemedkit.utils.Code
 
@@ -14,5 +15,5 @@ sealed interface ScannerState {
 
     data class ConfirmProduct(val code: Code, val model: MainModel) : ScannerState
 
-    data class ShowingDialog(val code: String? = null) : ScannerState
+    data class ShowingDialog(val code: String, @StringRes val title: Int) : ScannerState
 }

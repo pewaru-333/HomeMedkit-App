@@ -12,5 +12,6 @@ sealed interface Response {
         data object CodeNotFound : Error(R.string.text_code_not_found)
         data object UnknownError : Error(R.string.text_try_again)
         data class NetworkError(val code: String? = null) : Error(R.string.text_connection_error)
+        data object RegionUnavailable : Error(R.string.text_region_unavailable)
     }
 }

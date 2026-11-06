@@ -188,6 +188,7 @@
     <string name="text_confirm_deletion_med">Вы подтверждаете удаление этого лекарства?</string>
     <string name="text_confirm_schedule_to_taken">Вы подтверждаете, что приняли «%1$s» %2$s в %3$s?</string>
     <string name="text_connection_error">Ошибка при подключении!</string>
+    <string name="text_region_unavailable">Сервис поиска лекарств недоступен в вашем регионе</string>
     <string name="text_data_in_cloud">Обнаружены данные в облаке</string>
     <string name="text_data_in_cloud_desc">В облаке обнаружены ваши данные. Что вы хотите сделать?</string>
     <string name="text_download_from_cloud">Скачать из облака</string>

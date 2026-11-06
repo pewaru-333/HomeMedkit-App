@@ -188,6 +188,7 @@
     <string name="text_confirm_deletion_med">Are you sure you want to delete this medication?</string>
     <string name="text_confirm_schedule_to_taken">Do you confirm that you have already taken "%1$s" on %2$s at %3$s?</string>
     <string name="text_connection_error">Connection error!</string>
+    <string name="text_region_unavailable">The medicine search service is not available in your region</string>
     <string name="text_data_in_cloud">Data detected in the cloud</string>
     <string name="text_data_in_cloud_desc">There is data detected in the cloud. What would you like to do?</string>
     <string name="text_download_from_cloud">Download from cloud</string>

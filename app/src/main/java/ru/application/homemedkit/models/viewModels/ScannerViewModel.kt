@@ -55,7 +55,8 @@ class ScannerViewModel : ViewModel() {
                         save(dir, code, model)
                     }
                 }
-                is Response.Error.NetworkError -> state.value = ScannerState.ShowingDialog(code.value)
+                is Response.Error.NetworkError, is Response.Error.RegionUnavailable ->
+                    state.value = ScannerState.ShowingDialog(code.value, response.message)
                 is Response.Error -> showError(ScannerEvent.ShowSnackbar.UnknownError(response.message))
             }
         }

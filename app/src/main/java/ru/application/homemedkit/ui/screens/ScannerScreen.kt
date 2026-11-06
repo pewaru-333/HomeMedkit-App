@@ -2,6 +2,7 @@ package ru.application.homemedkit.ui.screens
 
 import android.Manifest
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
@@ -224,8 +225,8 @@ fun ScannerScreen(model: ScannerViewModel = viewModel(), onBack: () -> Unit, onN
                         progress = result as? ScannerState.DownloadingImages,
                         onCancel = model::cancel
                     )
-                    is ScannerState.ShowingDialog -> DialogMedicineAddition(model::setDefault) {
-                        result.code?.let { currentOnNavigate(Screen.Medicine(cis = it)) }
+                    is ScannerState.ShowingDialog -> DialogMedicineAddition(result.title, model::setDefault) {
+                        currentOnNavigate(Screen.Medicine(cis = result.code))
                     }
                     is ScannerState.ConfirmProduct -> DialogEan13(
                         productName = result.model.productName ?: result.model.catalogData?.firstOrNull()?.name.orEmpty(),
@@ -358,11 +359,11 @@ private fun FirstTimeScreen(navigateUp: () -> Unit, onPermissionGrant: () -> Uni
     }
 
 @Composable
-private fun DialogMedicineAddition(onDismiss: () -> Unit, onNavigate: () -> Unit) = AlertDialog(
+private fun DialogMedicineAddition(@StringRes title: Int, onDismiss: () -> Unit, onNavigate: () -> Unit) = AlertDialog(
     onDismissRequest = onDismiss,
     confirmButton = { TextButton(onNavigate) { Text(stringResource(R.string.text_yes)) } },
     dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_no)) } },
-    title = { Text(stringResource(R.string.text_connection_error)) },
+    title = { Text(stringResource(title)) },
     icon = { VectorIcon(R.drawable.vector_info) },
     text = {
         Text(

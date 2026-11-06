@@ -49,6 +49,9 @@ import kotlin.time.Duration.Companion.milliseconds
 object Network {
     private const val OBFUSCATED_URL = $$"^jjfi0%%ceX_b[$Wf_$Yhfj$hk%"
 
+    // Returned by the medicine API for requests coming from outside Russia (geo-block)
+    private val UNAVAILABLE_FOR_LEGAL_REASONS = HttpStatusCode(451, "Unavailable For Legal Reasons")
+
     private val defaultClient = HttpClient(Android) {
         engine {
             dispatcher = Dispatchers.IO
@@ -139,6 +142,7 @@ object Network {
             HttpStatusCode.RequestTimeout, HttpStatusCode.GatewayTimeout -> Response.Error.NetworkError(scanned.value)
             HttpStatusCode.BadRequest -> Response.Error.IncorrectCode
             HttpStatusCode.NotFound -> Response.Error.CodeNotFound
+            UNAVAILABLE_FOR_LEGAL_REASONS -> Response.Error.RegionUnavailable
             HttpStatusCode.OK -> {
                 val model = response.body<MainModel>()
                 if (model.codeFounded) Response.Success(model)
