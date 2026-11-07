@@ -44,25 +44,17 @@ fun AifaResponse.toMainModel(aic: String): MainModel? {
     } ?: return null
     val form = medicine.formaFarmaceutica.orEmpty()
 
-    return MainModel(
-        codeFounded = true,
-        category = MainModel.CATEGORY_DRUGS,
+    return MainModel.of(
         code = aic,
+        category = MainModel.CATEGORY_DRUGS,
         productName = medicine.medicinale?.denominazioneMedicinale,
-        screen = ScreenData(
-            items = listOf(
-                ScreenItem(
-                    itemType = MainModel.ITEM_PHARMACY_SEARCH,
-                    pharmacyData = PharmacyData(
-                        activeSubstance = medicine.principiAttiviIt?.joinToString(),
-                        form = form,
-                        // "600 mg COMPRESSA RIVESTITA" -> "600 mg"
-                        dosage = medicine.descrizioneFormaDosaggio?.replace(form, "", ignoreCase = true)?.trim(),
-                        // "\" 600 MG COMPRESSE RIVESTITE\" 30 COMPRESSE IN BLISTER" -> "30 COMPRESSE IN BLISTER"
-                        quantity = pack.denominazionePackage?.substringAfterLast('"')?.trim()
-                    )
-                )
-            )
+        pharmacyData = PharmacyData(
+            activeSubstance = medicine.principiAttiviIt?.joinToString(),
+            form = form,
+            // "600 mg COMPRESSA RIVESTITA" -> "600 mg"
+            dosage = medicine.descrizioneFormaDosaggio?.replace(form, "", ignoreCase = true)?.trim(),
+            // "\" 600 MG COMPRESSE RIVESTITE\" 30 COMPRESSE IN BLISTER" -> "30 COMPRESSE IN BLISTER"
+            quantity = pack.denominazionePackage?.substringAfterLast('"')?.trim()
         )
     )
 }

@@ -36,6 +36,7 @@ import ru.application.homemedkit.network.auth.PKCEUtils
 import ru.application.homemedkit.network.auth.yandex
 import ru.application.homemedkit.network.models.AifaResponse
 import ru.application.homemedkit.network.models.MainModel
+import ru.application.homemedkit.network.models.OpenFactsResponse
 import ru.application.homemedkit.network.models.toMainModel
 import ru.application.homemedkit.network.models.auth.Disk
 import ru.application.homemedkit.network.models.auth.FileMetadata
@@ -53,6 +54,12 @@ object Network {
 
     // AIFA "Banca Dati Farmaci" search, used for Italian AIC codes
     private const val AIFA_SEARCH_URL = "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/formadosaggio/ricerca"
+
+    // Open Facts databases, used for non-Russian EAN-13 codes (supplements, cosmetics, other products)
+    private val OPEN_FACTS_HOSTS = listOf("world.openfoodfacts.org", "world.openbeautyfacts.org", "world.openproductsfacts.org")
+    private const val OPEN_FACTS_FIELDS = "product_name,brands,quantity,image_front_url,ingredients_text"
+    // Open Facts asks API clients to identify themselves
+    private const val OPEN_FACTS_USER_AGENT = "HomeMedkit-App (https://github.com/pewaru-333/HomeMedkit-App)"
 
     // Returned by the medicine API for requests coming from outside Russia (geo-block)
     private val UNAVAILABLE_FOR_LEGAL_REASONS = HttpStatusCode(451, "Unavailable For Legal Reasons")
@@ -133,7 +140,8 @@ object Network {
 
     suspend fun getMedicine(scanned: Code): Response = try {
         when (scanned.type) {
-            Code.Type.EAN_13, Code.Type.DATA_MATRIX -> getFromCrpt(scanned)
+            Code.Type.EAN_13 -> if (scanned.isRussianEan) getFromCrpt(scanned) else getFromOpenFacts(scanned)
+            Code.Type.DATA_MATRIX -> getFromCrpt(scanned)
             Code.Type.AIC -> getFromAifa(scanned)
         }
     } catch (e: CancellationException) {
@@ -184,6 +192,23 @@ object Network {
 
         val model = response.body<AifaResponse>().toMainModel(scanned.value) ?: return Response.Error.CodeNotFound
         return Response.Success(model)
+    }
+
+    private suspend fun getFromOpenFacts(scanned: Code): Response {
+        for (host in OPEN_FACTS_HOSTS) {
+            val response = medicineClient.get("https://$host/api/v2/product/${scanned.value}.json") {
+                parameter("fields", OPEN_FACTS_FIELDS)
+                header(HttpHeaders.UserAgent, OPEN_FACTS_USER_AGENT)
+            }
+
+            when (response.status) {
+                HttpStatusCode.NotFound -> continue
+                HttpStatusCode.OK -> response.body<OpenFactsResponse>().toMainModel(scanned.value)?.let { return Response.Success(it) }
+                else -> return Response.Error.UnknownError
+            }
+        }
+
+        return Response.Error.CodeNotFound
     }
 
     suspend fun getImage(dir: File, urls: List<String>, progress: IProgress?): List<String> {

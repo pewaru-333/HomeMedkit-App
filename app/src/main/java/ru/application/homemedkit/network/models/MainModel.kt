@@ -43,8 +43,18 @@ data class MainModel(
         get() = category == CATEGORY_DRUGS || category == "bio" || category == "antiseptic"
 
     companion object {
-        const val ITEM_PHARMACY_SEARCH = "pharmacy_search"
+        private const val ITEM_PHARMACY_SEARCH = "pharmacy_search"
         const val CATEGORY_DRUGS = "drugs"
+        const val CATEGORY_GTIN = "gtin"
+
+        /** Builds a found product from another data source (AIFA, Open Facts), in the shape [asMedicine] reads. */
+        fun of(code: String, category: String, productName: String?, pharmacyData: PharmacyData) = MainModel(
+            codeFounded = true,
+            category = category,
+            code = code,
+            productName = productName,
+            screen = ScreenData(listOf(ScreenItem(itemType = ITEM_PHARMACY_SEARCH, pharmacyData = pharmacyData)))
+        )
     }
 }
 

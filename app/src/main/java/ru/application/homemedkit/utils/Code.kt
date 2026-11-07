@@ -6,6 +6,10 @@ class Code private constructor(val value: String, val identity: String, val type
     val isEan13: Boolean
         get() = type == Type.EAN_13
 
+    // GS1 prefixes 460-469 are assigned to Russia
+    val isRussianEan: Boolean
+        get() = isEan13 && value.startsWith("46")
+
     companion object {
         // Code 32 (Italian pharmacode) base-32 alphabet: digits and consonants, no vowels
         private const val CODE_32_ALPHABET = "0123456789BCDFGHJKLMNPQRSTUVWXYZ"
