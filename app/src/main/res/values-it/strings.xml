@@ -143,6 +143,7 @@
     <!-- Dialogs -->
     <string name="manual_add">Vuoi aggiungere medicina manualmente?</string>
     <string name="text_connection_error">Errore di connessione!</string>
+    <string name="text_code_not_found">Codice non trovato!</string>
     <string name="text_region_unavailable">Il servizio di ricerca dei farmaci non è disponibile nella tua regione</string>
     <string name="text_duplicate">Questo farmaco è già stato aggiunto!</string>
     <string name="text_error_not_medicine">Questo codice etichetta non è del medicinale!</string>

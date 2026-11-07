@@ -21,11 +21,7 @@ data class MainModel(
 
             if (!cardImages.isNullOrEmpty()) return cardImages
 
-            val pharmacyImage = screen?.items
-                ?.firstOrNull { it.itemType == "pharmacy_search" }
-                ?.pharmacyData?.image
-
-            return pharmacyImage?.let { listOf(it) } ?: emptyList()
+            return pharmacyInfo?.image?.let { listOf(it) } ?: emptyList()
         }
 
     val attributes: Map<String, String>
@@ -41,10 +37,15 @@ data class MainModel(
         }
 
     val pharmacyInfo: PharmacyData?
-        get() = screen?.items?.firstOrNull { it.itemType == "pharmacy_search" }?.pharmacyData
+        get() = screen?.items?.firstOrNull { it.itemType == ITEM_PHARMACY_SEARCH }?.pharmacyData
 
     val isValidCategory: Boolean
-        get() = category == "drugs" || category == "bio" || category == "antiseptic"
+        get() = category == CATEGORY_DRUGS || category == "bio" || category == "antiseptic"
+
+    companion object {
+        const val ITEM_PHARMACY_SEARCH = "pharmacy_search"
+        const val CATEGORY_DRUGS = "drugs"
+    }
 }
 
 @Serializable

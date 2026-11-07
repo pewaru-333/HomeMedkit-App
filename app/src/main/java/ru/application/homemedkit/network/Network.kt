@@ -34,7 +34,9 @@ import kotlinx.serialization.json.put
 import ru.application.homemedkit.models.events.Response
 import ru.application.homemedkit.network.auth.PKCEUtils
 import ru.application.homemedkit.network.auth.yandex
+import ru.application.homemedkit.network.models.AifaResponse
 import ru.application.homemedkit.network.models.MainModel
+import ru.application.homemedkit.network.models.toMainModel
 import ru.application.homemedkit.network.models.auth.Disk
 import ru.application.homemedkit.network.models.auth.FileMetadata
 import ru.application.homemedkit.network.models.auth.Token
@@ -48,6 +50,9 @@ import kotlin.time.Duration.Companion.milliseconds
 
 object Network {
     private const val OBFUSCATED_URL = $$"^jjfi0%%ceX_b[$Wf_$Yhfj$hk%"
+
+    // AIFA "Banca Dati Farmaci" search, used for Italian AIC codes
+    private const val AIFA_SEARCH_URL = "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/formadosaggio/ricerca"
 
     // Returned by the medicine API for requests coming from outside Russia (geo-block)
     private val UNAVAILABLE_FOR_LEGAL_REASONS = HttpStatusCode(451, "Unavailable For Legal Reasons")
@@ -126,7 +131,21 @@ object Network {
         return getMedicine(scanned)
     }
 
-    suspend fun getMedicine(scanned: Code) = try {
+    suspend fun getMedicine(scanned: Code): Response = try {
+        when (scanned.type) {
+            Code.Type.EAN_13, Code.Type.DATA_MATRIX -> getFromCrpt(scanned)
+            Code.Type.AIC -> getFromAifa(scanned)
+        }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        when (e) {
+            is HttpRequestTimeoutException, is IOException, is UnresolvedAddressException -> Response.Error.NetworkError(scanned.value)
+            else -> Response.Error.UnknownError
+        }
+    }
+
+    private suspend fun getFromCrpt(scanned: Code): Response {
         val url = shiftCipher(if (scanned.isEan13) "ceX_b[%Y^[Ya" else "l(%ceX_b[%Y^[Ya")
         val response = medicineClient.post(url) {
             contentType(ContentType.Application.Json)
@@ -138,7 +157,7 @@ object Network {
             )
         }
 
-        when (response.status) {
+        return when (response.status) {
             HttpStatusCode.RequestTimeout, HttpStatusCode.GatewayTimeout -> Response.Error.NetworkError(scanned.value)
             HttpStatusCode.BadRequest -> Response.Error.IncorrectCode
             HttpStatusCode.NotFound -> Response.Error.CodeNotFound
@@ -151,13 +170,20 @@ object Network {
 
             else -> Response.Error.UnknownError
         }
-    } catch (e: CancellationException) {
-        throw e
-    } catch (e: Exception) {
-        when (e) {
-            is HttpRequestTimeoutException, is IOException, is UnresolvedAddressException -> Response.Error.NetworkError(scanned.value)
-            else -> Response.Error.UnknownError
+    }
+
+    private suspend fun getFromAifa(scanned: Code): Response {
+        // Absolute URL: overrides the default (CRPT) base URL of medicineClient
+        val response = medicineClient.get(AIFA_SEARCH_URL) {
+            parameter("query", scanned.value)
+            parameter("spellingCorrection", false)
+            parameter("page", 0)
         }
+
+        if (response.status != HttpStatusCode.OK) return Response.Error.UnknownError
+
+        val model = response.body<AifaResponse>().toMainModel(scanned.value) ?: return Response.Error.CodeNotFound
+        return Response.Success(model)
     }
 
     suspend fun getImage(dir: File, urls: List<String>, progress: IProgress?): List<String> {

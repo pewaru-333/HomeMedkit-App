@@ -12,7 +12,7 @@ class CodeAnalyzer(
     private val onResult: (String, RectF) -> Unit
 ) : ImageAnalysis.Analyzer {
     private val reader = BarcodeReader().apply {
-        options.formats = setOf(BarcodeReader.Format.DATA_MATRIX, BarcodeReader.Format.EAN_13)
+        options.formats = setOf(BarcodeReader.Format.DATA_MATRIX, BarcodeReader.Format.EAN_13, BarcodeReader.Format.CODE_32)
         options.textMode = BarcodeReader.TextMode.PLAIN
         options.maxNumberOfSymbols = 1
         options.tryInvert = true

@@ -169,7 +169,8 @@ fun ScannerScreen(model: ScannerViewModel = viewModel(), onBack: () -> Unit, onN
                             onDrawBehind {
                                 val rect = codeBounds
                                 val target = if (rect == null) defaultBounds else {
-                                    val minSize = if (scannedCode?.isEan13 == true) minBarcodeSize else 0f
+                                    val isLinear = scannedCode?.type.let { it == Code.Type.EAN_13 || it == Code.Type.AIC }
+                                    val minSize = if (isLinear) minBarcodeSize else 0f
 
                                     val width = (rect.width * size.width).coerceIn(minOf(minSize, size.width), size.width)
                                     val height = (rect.height * size.height).coerceIn(minOf(minSize, size.height), size.height)
