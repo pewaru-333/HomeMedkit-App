@@ -56,7 +56,11 @@ object Network {
     private const val AIFA_SEARCH_URL = "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/formadosaggio/ricerca"
 
     // Open Facts databases, used for non-Russian EAN-13 codes (supplements, cosmetics, other products)
-    private val OPEN_FACTS_HOSTS = listOf("world.openfoodfacts.org", "world.openbeautyfacts.org", "world.openproductsfacts.org")
+    private val OPEN_FACTS_SOURCES = mapOf(
+        "world.openfoodfacts.org" to "Open Food Facts",
+        "world.openbeautyfacts.org" to "Open Beauty Facts",
+        "world.openproductsfacts.org" to "Open Products Facts"
+    )
     private const val OPEN_FACTS_FIELDS = "product_name,brands,quantity,image_front_url,ingredients_text"
     // Open Facts asks API clients to identify themselves
     private const val OPEN_FACTS_USER_AGENT = "HomeMedkit-App (https://github.com/pewaru-333/HomeMedkit-App)"
@@ -195,7 +199,7 @@ object Network {
     }
 
     private suspend fun getFromOpenFacts(scanned: Code): Response {
-        for (host in OPEN_FACTS_HOSTS) {
+        for ((host, sourceName) in OPEN_FACTS_SOURCES) {
             val response = medicineClient.get("https://$host/api/v2/product/${scanned.value}.json") {
                 parameter("fields", OPEN_FACTS_FIELDS)
                 header(HttpHeaders.UserAgent, OPEN_FACTS_USER_AGENT)
@@ -203,7 +207,7 @@ object Network {
 
             when (response.status) {
                 HttpStatusCode.NotFound -> continue
-                HttpStatusCode.OK -> response.body<OpenFactsResponse>().toMainModel(scanned.value)?.let { return Response.Success(it) }
+                HttpStatusCode.OK -> response.body<OpenFactsResponse>().toMainModel(scanned.value, sourceName)?.let { return Response.Success(it) }
                 else -> return Response.Error.UnknownError
             }
         }

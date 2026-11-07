@@ -231,6 +231,7 @@ fun ScannerScreen(model: ScannerViewModel = viewModel(), onBack: () -> Unit, onN
                     }
                     is ScannerState.ConfirmProduct -> DialogEan13(
                         productName = result.model.productName ?: result.model.catalogData?.firstOrNull()?.name.orEmpty(),
+                        attribution = result.model.attribution,
                         onDismiss = model::setDefault,
                         onConfirm = { model.confirmAddition(context.filesDir) }
                     )
@@ -286,7 +287,7 @@ private fun DialogProgress(progress: ScannerState.DownloadingImages?, onCancel: 
     )
 
 @Composable
-private fun DialogEan13(productName: String, onConfirm: () -> Unit, onDismiss: () -> Unit) =
+private fun DialogEan13(productName: String, attribution: String?, onConfirm: () -> Unit, onDismiss: () -> Unit) =
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.text_attention)) },
@@ -296,6 +297,9 @@ private fun DialogEan13(productName: String, onConfirm: () -> Unit, onDismiss: (
             Column(Modifier.verticalScroll(rememberScrollState()), Arrangement.spacedBy(16.dp)) {
                 Text(productName, style = MaterialTheme.typography.bodyLarge)
                 Text(stringResource(R.string.text_catalog_product_ean13), style = MaterialTheme.typography.bodyLarge)
+                attribution?.let {
+                    Text(stringResource(R.string.text_data_attribution, it), style = MaterialTheme.typography.bodySmall)
+                }
             }
         }
     )

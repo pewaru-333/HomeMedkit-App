@@ -227,6 +227,7 @@
     <string name="text_downloading_images_count">Downloading %1$d of %2$d images</string>
 
     <string name="text_catalog_product_ean13">This barcode identifies a product, not an individual package. Add it only if it is a medicine, then check its details, quantity and expiration date.</string>
+    <string name="text_data_attribution">Data from %1$s, available under the Open Database License (ODbL). Photos under CC BY-SA.</string>
 
     <string name="text_scanning_paused">Scanning paused</string>
 

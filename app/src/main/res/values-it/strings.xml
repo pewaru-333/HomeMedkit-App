@@ -154,6 +154,7 @@
     <string name="text_try_again">Prova di nuovo a scansionare l\'etichetta!</string>
 
     <string name="text_catalog_product_ean13">Questo codice identifica un prodotto, non una singola confezione. Aggiungilo solo se è un medicinale, poi controlla i dettagli, la quantità e la scadenza.</string>
+    <string name="text_data_attribution">Dati da %1$s, disponibili con licenza Open Database License (ODbL). Foto con licenza CC BY-SA.</string>
 
     <!-- Strings -->
     <string name="text_add">Aggiungi</string>

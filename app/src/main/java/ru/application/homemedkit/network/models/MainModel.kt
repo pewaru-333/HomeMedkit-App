@@ -2,6 +2,7 @@ package ru.application.homemedkit.network.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class MainModel(
@@ -11,7 +12,9 @@ data class MainModel(
     val productName: String? = null,
     val expireDate: Long? = null,
     val screen: ScreenData? = null,
-    val catalogData: List<CatalogProduct>? = null
+    val catalogData: List<CatalogProduct>? = null,
+    // Name of an open data source that must be credited when its data is shown (e.g. "Open Food Facts")
+    @Transient val attribution: String? = null
 ) {
     val imageUrls: List<String>
         get() {
@@ -48,12 +51,19 @@ data class MainModel(
         const val CATEGORY_GTIN = "gtin"
 
         /** Builds a found product from another data source (AIFA, Open Facts), in the shape [asMedicine] reads. */
-        fun of(code: String, category: String, productName: String?, pharmacyData: PharmacyData) = MainModel(
+        fun of(
+            code: String,
+            category: String,
+            productName: String?,
+            pharmacyData: PharmacyData,
+            attribution: String? = null
+        ) = MainModel(
             codeFounded = true,
             category = category,
             code = code,
             productName = productName,
-            screen = ScreenData(listOf(ScreenItem(itemType = ITEM_PHARMACY_SEARCH, pharmacyData = pharmacyData)))
+            screen = ScreenData(listOf(ScreenItem(itemType = ITEM_PHARMACY_SEARCH, pharmacyData = pharmacyData))),
+            attribution = attribution
         )
     }
 }

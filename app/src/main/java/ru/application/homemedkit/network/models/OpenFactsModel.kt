@@ -24,7 +24,7 @@ data class OpenFactsProduct(
  * Maps the product to the app's [MainModel], or null if it was not found.
  * Uses the generic "gtin" category, so the user confirms the product before it is saved.
  */
-fun OpenFactsResponse.toMainModel(ean: String): MainModel? {
+fun OpenFactsResponse.toMainModel(ean: String, sourceName: String): MainModel? {
     if (status != 1) return null
     val product = product ?: return null
 
@@ -38,6 +38,8 @@ fun OpenFactsResponse.toMainModel(ean: String): MainModel? {
             form = product.quantity?.substringAfter(' ', ""),
             quantity = product.quantity,
             image = product.image
-        )
+        ),
+        // Data is ODbL and photos CC BY-SA: the source must be credited when shown
+        attribution = sourceName
     )
 }
