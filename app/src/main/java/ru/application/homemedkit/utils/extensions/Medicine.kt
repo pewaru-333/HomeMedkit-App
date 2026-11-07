@@ -119,7 +119,7 @@ fun MainModel.asMedicine(): Medicine {
         // БАДы
         recommendations = attributes["Рекомендации по употреблению"].orEmpty().asHtml(),
         storageConditions = attributes["Условия хранения"].orEmpty().asHtml(),
-        structure = attributes["Состав"].orEmpty().asHtml(),
+        structure = (attributes["Состав"] ?: pharmacy?.activeSubstance).orEmpty().asHtml(),
 
         // Статус
         verified = isValidCategory,

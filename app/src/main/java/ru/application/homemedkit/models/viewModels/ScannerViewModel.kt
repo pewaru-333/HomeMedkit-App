@@ -47,7 +47,7 @@ class ScannerViewModel : ViewModel() {
             when (val response = Network.getMedicine(code)) {
                 is Response.Success -> {
                     val model = response.model
-                    if (!model.isValidCategory && !(code.isEan13 && model.category == "gtin")) {
+                    if (!model.isValidCategory && !(code.isEan13 && model.category == MainModel.CATEGORY_GTIN)) {
                         showError(ScannerEvent.ShowSnackbar.IncorrectCode)
                     } else if (code.isEan13) {
                         state.value = ScannerState.ConfirmProduct(code, model)
@@ -55,7 +55,8 @@ class ScannerViewModel : ViewModel() {
                         save(dir, code, model)
                     }
                 }
-                is Response.Error.NetworkError -> state.value = ScannerState.ShowingDialog(code.value)
+                is Response.Error.NetworkError, is Response.Error.RegionUnavailable, is Response.Error.CodeNotFound ->
+                    state.value = ScannerState.ShowingDialog(code.value, response.message)
                 is Response.Error -> showError(ScannerEvent.ShowSnackbar.UnknownError(response.message))
             }
         }

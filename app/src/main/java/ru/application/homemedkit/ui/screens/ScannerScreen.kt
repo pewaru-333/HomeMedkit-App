@@ -2,6 +2,7 @@ package ru.application.homemedkit.ui.screens
 
 import android.Manifest
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
@@ -168,7 +169,8 @@ fun ScannerScreen(model: ScannerViewModel = viewModel(), onBack: () -> Unit, onN
                             onDrawBehind {
                                 val rect = codeBounds
                                 val target = if (rect == null) defaultBounds else {
-                                    val minSize = if (scannedCode?.isEan13 == true) minBarcodeSize else 0f
+                                    val isLinear = scannedCode?.type.let { it == Code.Type.EAN_13 || it == Code.Type.AIC }
+                                    val minSize = if (isLinear) minBarcodeSize else 0f
 
                                     val width = (rect.width * size.width).coerceIn(minOf(minSize, size.width), size.width)
                                     val height = (rect.height * size.height).coerceIn(minOf(minSize, size.height), size.height)
@@ -224,11 +226,12 @@ fun ScannerScreen(model: ScannerViewModel = viewModel(), onBack: () -> Unit, onN
                         progress = result as? ScannerState.DownloadingImages,
                         onCancel = model::cancel
                     )
-                    is ScannerState.ShowingDialog -> DialogMedicineAddition(model::setDefault) {
-                        result.code?.let { currentOnNavigate(Screen.Medicine(cis = it)) }
+                    is ScannerState.ShowingDialog -> DialogMedicineAddition(result.title, model::setDefault) {
+                        currentOnNavigate(Screen.Medicine(cis = result.code))
                     }
                     is ScannerState.ConfirmProduct -> DialogEan13(
                         productName = result.model.productName ?: result.model.catalogData?.firstOrNull()?.name.orEmpty(),
+                        attribution = result.model.attribution,
                         onDismiss = model::setDefault,
                         onConfirm = { model.confirmAddition(context.filesDir) }
                     )
@@ -284,7 +287,7 @@ private fun DialogProgress(progress: ScannerState.DownloadingImages?, onCancel: 
     )
 
 @Composable
-private fun DialogEan13(productName: String, onConfirm: () -> Unit, onDismiss: () -> Unit) =
+private fun DialogEan13(productName: String, attribution: String?, onConfirm: () -> Unit, onDismiss: () -> Unit) =
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.text_attention)) },
@@ -294,6 +297,9 @@ private fun DialogEan13(productName: String, onConfirm: () -> Unit, onDismiss: (
             Column(Modifier.verticalScroll(rememberScrollState()), Arrangement.spacedBy(16.dp)) {
                 Text(productName, style = MaterialTheme.typography.bodyLarge)
                 Text(stringResource(R.string.text_catalog_product_ean13), style = MaterialTheme.typography.bodyLarge)
+                attribution?.let {
+                    Text(stringResource(R.string.text_data_attribution, it), style = MaterialTheme.typography.bodySmall)
+                }
             }
         }
     )
@@ -358,11 +364,11 @@ private fun FirstTimeScreen(navigateUp: () -> Unit, onPermissionGrant: () -> Uni
     }
 
 @Composable
-private fun DialogMedicineAddition(onDismiss: () -> Unit, onNavigate: () -> Unit) = AlertDialog(
+private fun DialogMedicineAddition(@StringRes title: Int, onDismiss: () -> Unit, onNavigate: () -> Unit) = AlertDialog(
     onDismissRequest = onDismiss,
     confirmButton = { TextButton(onNavigate) { Text(stringResource(R.string.text_yes)) } },
     dismissButton = { TextButton(onDismiss) { Text(stringResource(R.string.text_no)) } },
-    title = { Text(stringResource(R.string.text_connection_error)) },
+    title = { Text(stringResource(title)) },
     icon = { VectorIcon(R.drawable.vector_info) },
     text = {
         Text(

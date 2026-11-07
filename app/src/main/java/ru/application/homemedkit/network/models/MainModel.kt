@@ -2,6 +2,7 @@ package ru.application.homemedkit.network.models
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class MainModel(
@@ -11,7 +12,9 @@ data class MainModel(
     val productName: String? = null,
     val expireDate: Long? = null,
     val screen: ScreenData? = null,
-    val catalogData: List<CatalogProduct>? = null
+    val catalogData: List<CatalogProduct>? = null,
+    // Name of an open data source that must be credited when its data is shown (e.g. "Open Food Facts")
+    @Transient val attribution: String? = null
 ) {
     val imageUrls: List<String>
         get() {
@@ -21,11 +24,7 @@ data class MainModel(
 
             if (!cardImages.isNullOrEmpty()) return cardImages
 
-            val pharmacyImage = screen?.items
-                ?.firstOrNull { it.itemType == "pharmacy_search" }
-                ?.pharmacyData?.image
-
-            return pharmacyImage?.let { listOf(it) } ?: emptyList()
+            return pharmacyInfo?.image?.let { listOf(it) } ?: emptyList()
         }
 
     val attributes: Map<String, String>
@@ -41,10 +40,32 @@ data class MainModel(
         }
 
     val pharmacyInfo: PharmacyData?
-        get() = screen?.items?.firstOrNull { it.itemType == "pharmacy_search" }?.pharmacyData
+        get() = screen?.items?.firstOrNull { it.itemType == ITEM_PHARMACY_SEARCH }?.pharmacyData
 
     val isValidCategory: Boolean
-        get() = category == "drugs" || category == "bio" || category == "antiseptic"
+        get() = category == CATEGORY_DRUGS || category == "bio" || category == "antiseptic"
+
+    companion object {
+        private const val ITEM_PHARMACY_SEARCH = "pharmacy_search"
+        const val CATEGORY_DRUGS = "drugs"
+        const val CATEGORY_GTIN = "gtin"
+
+        /** Builds a found product from another data source (AIFA, Open Facts), in the shape [asMedicine] reads. */
+        fun of(
+            code: String,
+            category: String,
+            productName: String?,
+            pharmacyData: PharmacyData,
+            attribution: String? = null
+        ) = MainModel(
+            codeFounded = true,
+            category = category,
+            code = code,
+            productName = productName,
+            screen = ScreenData(listOf(ScreenItem(itemType = ITEM_PHARMACY_SEARCH, pharmacyData = pharmacyData))),
+            attribution = attribution
+        )
+    }
 }
 
 @Serializable
